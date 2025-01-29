@@ -2,8 +2,6 @@
 
 > _Crafted with passion, powered by technology, and fueled by endless curiosity!_
 
-![Redrive Banner](https://i.ibb.co/HNvfv0b/logo.png)
-
 ---
 
 ## 🏆 About the Project
