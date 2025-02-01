@@ -62,6 +62,11 @@ const LoginModal = () => {
 
     }
 
+    const toggle = useCallback(() => {
+        loginModal.onClose();
+        registerModal.onOpen();
+    }, [loginModal, registerModal]);
+
     const bodyContent = (
         <div className="flex flex-col gap-4">
             <Heading title="" subtitle="Log in to continue." />
@@ -96,10 +101,10 @@ const LoginModal = () => {
 
                 <div className="justify-center flex flex-row items-center gap-4 mb-6">
                     <div>
-                        Already have an account?
+                        First time using Redrive?
                     </div>
-                    <div onClick={registerModal.onClose} className="text-neutral-800 cursor-pointer hover:underline">
-                        Log in
+                    <div onClick={toggle} className="text-neutral-800 cursor-pointer hover:underline">
+                        Create an account
                     </div>
                 </div>
             </div>

@@ -1,11 +1,15 @@
+'use client';
+
 import Container from "../Container";
 import { FaCaravan } from "react-icons/fa6";
 import { FaSailboat } from "react-icons/fa6";
 import { PiVanFill } from "react-icons/pi";
 import { TbMotorbike } from "react-icons/tb";
+import { GiCampingTent } from "react-icons/gi";
 import { MdSurfing } from "react-icons/md";
 import { FaTruckPickup } from "react-icons/fa";
 import CategoryBox from "../CategoryBox";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export const categories = [
     {
@@ -24,7 +28,7 @@ export const categories = [
         description: 'These are the wavey boats!'
     },
     {
-        label: 'Jet-Skies',
+        label: 'Skies',
         icon: MdSurfing,
         description: 'These are the fast jetskies!'
     },
@@ -38,9 +42,23 @@ export const categories = [
         icon: PiVanFill,
         description: 'These are the amazing caravans!'
     },
+    {
+        label: 'Accessories',
+        icon: GiCampingTent,
+        description: 'These are better accessories to have!'
+    },
 ]
 
 const Categories = () => {
+    const params = useSearchParams();
+    const category = params?.get('category');
+    const pathname = usePathname();
+
+    const isMainPage = pathname === '/';
+
+    if (!isMainPage) {
+        return null;
+    }
     return (
         <Container>
             <div
@@ -57,7 +75,7 @@ const Categories = () => {
                     <CategoryBox
                         key={item.label}
                         label={item.label}
-                        description={item.description}
+                        selected={category == item.label}
                         icon={item.icon}
                     />
                 ))}
