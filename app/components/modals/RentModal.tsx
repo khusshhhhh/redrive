@@ -1,15 +1,19 @@
 'use client';
 
 import useRentModal from "@/app/hooks/useRentModal";
-import { FieldValues, useForm } from "react-hook-form";
 
-import Modal from "./Modal";
-import { useMemo, useState } from "react";
-import Heading from "../Heading";
-import { categories } from "../navbar/Categories";
 import CategoryInput from "../inputs/CategoryInput";
 import CountrySelect from "../inputs/CountrySelect";
-import Map from "../Map"
+import Counter from "../inputs/Counter";
+import ImageUpload from "../inputs/ImageUpload";
+
+import Modal from "./Modal";
+import Heading from "../Heading";
+import dynamic from "next/dynamic";
+
+import { FieldValues, useForm } from "react-hook-form";
+import { useMemo, useState } from "react";
+import { categories } from "../navbar/Categories";
 
 enum STEPS {
     CATEGORY = 0,
@@ -38,7 +42,9 @@ const RentModal = () => {
         defaultValues: {
             category: '',
             location: null,
-            guestCount: 1,
+            guestCount: 0,
+            doorCount: 0,
+            sleepCount: 0,
             fuelType: '',
             year: '',
             imageSrc: '',
@@ -50,6 +56,14 @@ const RentModal = () => {
 
     const category = watch('category');
     const location = watch('location');
+    const guestCount = watch('guestCount');
+    const doorCount = watch('doorCount');
+    const sleepCount = watch('sleepCount');
+    const imageSrc = watch('imageSrc');
+
+    const Map = useMemo(() => dynamic(() => import('../Map'), {
+        ssr: false
+    }), [location]);
 
     const setCustomValue = (id: string, value: any) => {
         setValue(id, value, {
@@ -127,11 +141,56 @@ const RentModal = () => {
                     value={location}
                     onChange={(value) => setCustomValue('location', value)}
                 />
-                <Map />
+                <Map center={location?.latlng} />
             </div>
         );
     }
 
+    if (step == STEPS.INFO) {
+        bodyContent = (
+            <div className="flex flex-col gap-8">
+                <Heading
+                    title="Share some basics about your utility"
+                    subtitle="What feature does it have?"
+                />
+                <Counter
+                    title="People"
+                    subtitle="How many people do you allowed?"
+                    value={guestCount}
+                    onChange={(value) => setCustomValue('guestCount', value)}
+                />
+                <hr />
+                <Counter
+                    title="Door"
+                    subtitle="How many door does it have?"
+                    value={doorCount}
+                    onChange={(value) => setCustomValue('doorCount', value)}
+                />
+                <hr />
+                <Counter
+                    title="Sleeping Space"
+                    subtitle="How many people are allowed to sleep?"
+                    value={sleepCount}
+                    onChange={(value) => setCustomValue('sleepCount', value)}
+                />
+            </div>
+        );
+    }
+
+    if (step == STEPS.IMAGES) {
+        bodyContent = (
+            <div className="flex flex-col gap-8">
+                <Heading
+                    title="Add a photo of your utility"
+                    subtitle="Show people what it looks like!"
+                />
+                <ImageUpload
+                    value={imageSrc}
+                    onChange={(value) => setCustomValue('imageSrc', value)}
+                />
+            </div>
+        );
+    }
 
 
     return (

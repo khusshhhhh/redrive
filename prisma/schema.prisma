@@ -57,6 +57,8 @@ model Listing {
   createdAt      DateTime @default(now())
   category       String
   guestCount     Int
+  doorCount      Int
+  sleepCount     Int
   fuelType       String
   year           Int
   locationValue  String
