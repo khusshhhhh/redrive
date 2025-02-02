@@ -7,6 +7,7 @@ import { useCallback } from "react";
 import { TbPhotoPlus } from "react-icons/tb";
 
 declare global {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let cloudinary: any;
 }
 
@@ -19,13 +20,14 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     onChange,
     value
 }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleUpload = useCallback((result: any) => {
         onChange(result.info.secure_url);
     }, [onChange]);
 
     return (
         <CldUploadWidget
-            onUpload={handleUpload}
+            onSuccess={handleUpload}
             uploadPreset="redrive"
             options={{
                 maxFiles: 1
