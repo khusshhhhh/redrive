@@ -53,6 +53,8 @@ model Listing {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   title          String
   description    String
+  company        String
+  modal          String
   imageSrc       String
   createdAt      DateTime @default(now())
   category       String
