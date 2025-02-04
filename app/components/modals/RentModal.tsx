@@ -327,7 +327,7 @@ const RentModal = () => {
             actionLabel={actionLabel}
             secondaryActionLabel={secondaryActionLabel}
             secondaryAction={step == STEPS.CATEGORY ? undefined : onBack}
-            title="Redrive your utilities!"
+            title="Redrive your utilities!!"
             body={bodyContent}
         />
     );
