@@ -29,7 +29,6 @@ const Modal: React.FC<ModalProps> = ({
   secondaryAction,
   secondaryActionLabel
 }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showModal, setShowModal] = useState(isOpen);
 
   useEffect(() => {

@@ -6,7 +6,7 @@ export async function POST(request: Request) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
-      return NextResponse.error();
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     let body;
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log("Received request body:", body); // Debug log
+    console.log("✅ Received request body:", JSON.stringify(body, null, 2)); // ✅ Debug log
 
     if (!body || Object.keys(body).length === 0) {
       return NextResponse.json(
@@ -45,6 +45,22 @@ export async function POST(request: Request) {
       price,
     } = body;
 
+    console.log("🔍 Extracted values:", {
+      title,
+      description,
+      imageSrc,
+      category,
+      guestCount,
+      doorCount,
+      sleepCount,
+      company,
+      modal,
+      year,
+      fuelType,
+      location,
+      price,
+    });
+
     const listing = await prisma.listing.create({
       data: {
         title,
@@ -64,16 +80,11 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!listing) {
-      return NextResponse.json(
-        { error: "Failed to create listing" },
-        { status: 500 }
-      );
-    }
+    console.log("✅ Listing created successfully:", listing);
 
     return NextResponse.json(listing, { status: 201 });
   } catch (error) {
-    console.error("Error creating listing:", error);
+    console.error("❌ Error creating listing:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

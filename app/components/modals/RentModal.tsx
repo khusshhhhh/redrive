@@ -101,7 +101,11 @@ const RentModal = () => {
 
         setIsLoading(true);
 
-        axios.post('/api/listings', data)
+        axios.post('/api/listings', data, {
+            headers: {
+                "Content-Type": "application/json" // ✅ Ensure JSON format
+            }
+        })
             .then(() => {
                 toast.success('Listing Created!');
                 router.refresh();
@@ -109,8 +113,9 @@ const RentModal = () => {
                 setStep(STEPS.CATEGORY);
                 rentModal.onClose();
             })
-            .catch(() => {
-                toast.error('Something went wrong.');
+            .catch((error) => {
+                console.error("Error creating listing:", error); // ✅ Log the error for debugging
+                toast.error("Something went wrong.");
             })
             .finally(() => {
                 setIsLoading(false);
@@ -134,7 +139,6 @@ const RentModal = () => {
         return 'Back';
     }, [step]);
 
-    // eslint-disable-next-line prefer-const
     let bodyContent = (
         <div className="flex flex-col gap-8">
             <Heading

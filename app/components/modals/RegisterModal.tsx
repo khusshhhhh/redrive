@@ -40,17 +40,23 @@ const RegisterModal = () => {
     const onSubmit: SubmitHandler<FieldValues> = (data) => {
         setIsLoading(true);
 
-        axios.post('/api/register', data)
+        axios.post('/api/register', data, {
+            headers: {
+                "Content-Type": "application/json", // ✅ Ensure JSON format
+            },
+        })
             .then(() => {
                 registerModal.onClose();
+                toast.success("Registration successful!");
             })
             .catch((error) => {
-                toast.error('Something is wrong');
+                console.error("Registration error:", error); // ✅ Log error for debugging
+                toast.error("Something went wrong!");
             })
             .finally(() => {
                 setIsLoading(false);
-            })
-    }
+            });
+    };
 
     const toggle = useCallback(() => {
         registerModal.onClose();
