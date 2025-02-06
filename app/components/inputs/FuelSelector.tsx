@@ -1,6 +1,6 @@
 "use client";
 
-import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
+import { FieldErrors, FieldValues, UseFormRegister, UseFormSetValue } from "react-hook-form";
 import { useState } from "react";
 
 interface FuelSelectorProps {
@@ -9,6 +9,7 @@ interface FuelSelectorProps {
     disabled?: boolean;
     required?: boolean;
     register: UseFormRegister<FieldValues>;
+    setValue: UseFormSetValue<FieldValues>; // ✅ Properly typed
     errors: FieldErrors;
 }
 
@@ -19,10 +20,16 @@ const FuelSelector: React.FC<FuelSelectorProps> = ({
     label,
     disabled,
     register,
+    setValue,
     required,
     errors,
 }) => {
     const [selectedFuel, setSelectedFuel] = useState("");
+
+    const handleFuelSelection = (fuel: string) => {
+        setSelectedFuel(fuel);
+        setValue(id, fuel, { shouldValidate: true }); // ✅ Update form state properly
+    };
 
     return (
         <div className="w-full">
@@ -33,7 +40,7 @@ const FuelSelector: React.FC<FuelSelectorProps> = ({
                         key={fuel}
                         type="button"
                         disabled={disabled}
-                        onClick={() => setSelectedFuel(fuel)}
+                        onClick={() => handleFuelSelection(fuel)}
                         className={`
                             flex-1 py-3 px-4 text-center rounded-md transition
                             ${selectedFuel === fuel ? "bg-black text-white" : "bg-gray-200 text-gray-700"}

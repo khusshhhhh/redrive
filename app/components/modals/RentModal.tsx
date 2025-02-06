@@ -292,7 +292,9 @@ const RentModal = () => {
                     label="Fuel Type"
                     disabled={isLoading}
                     register={register}
+                    setValue={setValue}
                     errors={errors}
+                    required
                 />
 
             </div>
