@@ -50,9 +50,9 @@ const RentModal = () => {
         defaultValues: {
             category: '',
             location: null,
-            guestCount: 0,
-            doorCount: 0,
-            sleepCount: 0,
+            guestCount: 1,
+            doorCount: 1,
+            sleepCount: 1,
             fuelType: '',
             year: '',
             imageSrc: '',
