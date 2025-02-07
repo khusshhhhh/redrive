@@ -8,6 +8,7 @@ import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { useEffect, useRef, useState } from "react";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -21,8 +22,19 @@ interface MapProps {
 }
 
 const Map: React.FC<MapProps> = ({ center }) => {
+    const mapRef = useRef<L.Map | null>(null);
+    const [key, setKey] = useState(0); // Used to force re-render if needed
+
+    useEffect(() => {
+        if (mapRef.current) {
+            mapRef.current.remove(); // Ensure the previous map is destroyed
+        }
+        setKey((prevKey) => prevKey + 1); // Force a re-render
+    }, [center]);
+
     return (
         <MapContainer
+            key={key}
             center={center as L.LatLngExpression || [51, -0.09]}
             zoom={center ? 4 : 2}
             scrollWheelZoom={false}

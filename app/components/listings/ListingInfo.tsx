@@ -7,8 +7,10 @@ import Avatar from "../Avatar";
 import { BsFillPeopleFill } from "react-icons/bs";
 import { GiCarDoor } from "react-icons/gi";
 import { FaBed } from "react-icons/fa";
-import ListingCategory from "./ListingCategory";
+// import ListingCategory from "./ListingCategory";
 import dynamic from "next/dynamic";
+import { useEffect } from "react";
+import L from "leaflet";
 
 const Map = dynamic(() => import('../Map'), {
     ssr: false
@@ -40,10 +42,19 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
     year,
     modal,
     company,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     category,
     locationValue
 }) => {
     const { getByValue } = useCountries();
+
+    useEffect(() => {
+        // Cleanup Leaflet's map container before initializing a new one
+        const mapContainer = document.getElementById("map");
+        if (mapContainer) {
+            L?.map?.remove?.();
+        }
+    }, []);
 
     const coordinates = getByValue(locationValue)?.latlng;
     return (
@@ -58,19 +69,26 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     <div className="h-5 w-[1px] bg-gray-600"></div>
                     <div className="flex flex-row gap-3"><GiCarDoor size={22} color="black" />{doorCount} doors</div>
                     <div className="h-5 w-[1px] bg-gray-600"></div>
-                    <div className="flex flex-row gap-3"><FaBed size={22} color="black" />{sleepCount} guests</div>
+                    <div className="flex flex-row gap-3"><FaBed size={22} color="black" />{sleepCount} sleeps</div>
                 </div>
             </div>
             <hr />
+            <div className="text-base font-normal text-neutral-600">
+                {description}
+            </div>
+            {/* <hr />
             {category && (
                 <ListingCategory
                     icon={category.icon}
                     label={category.label}
                     description={category.description} />
-            )}
+            )} */}
             <hr />
-            <div className="text-lg font-normal text-neutral-800">
-                {year} {company} {modal}
+            <div className="flex flex-col gap-2">
+                <div className="text-base font-normal text-neutral-500">Build Information</div>
+                <div className="text-2xl font-bold text-neutral-800">
+                    {company} {modal} {year}
+                </div>
             </div>
             <hr />
             <Map center={coordinates} />

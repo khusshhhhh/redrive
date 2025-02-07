@@ -252,7 +252,7 @@ const RentModal = () => {
                 />
                 <Input
                     id="description"
-                    label="Description"
+                    label="Description in 100 words"
                     disabled={isLoading}
                     register={register}
                     errors={errors}
