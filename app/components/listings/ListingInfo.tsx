@@ -28,7 +28,7 @@ interface ListingInfoProps {
     category: {
         icon: IconType;
         label: string;
-        description: string | undefined;
+        description: string;
     };
     locationValue: string;
 }
@@ -73,8 +73,11 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                 </div>
             </div>
             <hr />
-            <div className="text-base font-normal text-neutral-600">
-                {description}
+            <div className="flex flex-col gap-2">
+                <div className="text-base font-normal text-neutral-500">Build Information</div>
+                <div className="text-2xl font-bold text-neutral-800">
+                    {company} {modal} {year}
+                </div>
             </div>
             {/* <hr />
             {category && (
@@ -84,14 +87,13 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     description={category.description} />
             )} */}
             <hr />
-            <div className="flex flex-col gap-2">
-                <div className="text-base font-normal text-neutral-500">Build Information</div>
-                <div className="text-2xl font-bold text-neutral-800">
-                    {company} {modal} {year}
-                </div>
+            <div className="text-base font-normal text-neutral-600">
+                {description}
             </div>
             <hr />
-            <Map center={coordinates} />
+            <div className="mb-8">
+                <Map center={coordinates} />
+            </div>
         </div>
     );
 

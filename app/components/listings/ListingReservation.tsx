@@ -8,6 +8,7 @@ interface ListingReservationProps {
     price: number;
     dateRange: Range;
     totalPrice: number;
+    totalFees: number;
     onChangeDate: (value: Range) => void;
     onSubmit: () => void;
     disabled?: boolean;
@@ -18,13 +19,13 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     price,
     dateRange,
     totalPrice,
+    totalFees,
     onChangeDate,
     onSubmit,
     disabled,
     disabledDates
 }) => {
     const redriveFee = totalPrice * (6 / 100);
-    const totalFees = totalPrice + redriveFee;
     return (
         <div
             className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hidden">

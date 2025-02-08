@@ -1,8 +1,7 @@
 'use client';
 
-import { Reservation } from "@prisma/client";
 
-import { SafeListing, SafeUser } from "@/app/types";
+import { SafeListing, SafeUser, SafeReservation } from "@/app/types";
 import { categories } from "@/app/components/navbar/Categories";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Container from "@/app/components/Container";
@@ -23,7 +22,7 @@ const initialDateRange = {
 };
 
 interface ListingClientProps {
-    reservations?: Reservation[];
+    reservations?: SafeReservation[];
     listing: SafeListing & {
         user: SafeUser;
     };
@@ -55,6 +54,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
 
     const [isLoading, setIsLoading] = useState(false);
     const [totalPrice, setTotalPrice] = useState(listing.price);
+    const [totalFees, setTotalFees] = useState(listing.price * 1.06); // Including Redrive Fee (6%)
     const [dateRange, setDateRange] = useState<Range>(initialDateRange);
 
     const onCreateReservation = useCallback(() => {
@@ -66,6 +66,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
 
         axios.post('/api/reservations', {
             totalPrice,
+            totalFees,
             startDate: dateRange.startDate,
             endDate: dateRange.endDate,
             listingId: listing?.id
@@ -84,6 +85,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
             });
     }, [
         totalPrice,
+        totalFees,
         dateRange,
         listing?.id,
         router,
@@ -99,9 +101,12 @@ const ListingClient: React.FC<ListingClientProps> = ({
             );
 
             if (dayCount && listing.price) {
-                setTotalPrice(dayCount * listing.price);
+                const newTotalPrice = dayCount * listing.price;
+                setTotalPrice(newTotalPrice);
+                setTotalFees(newTotalPrice * 1.06); // Including Redrive Fee (6%)
             } else {
                 setTotalPrice(listing.price);
+                setTotalFees(listing.price * 1.06);
             }
         }
     }, [dateRange, listing.price]);
@@ -136,10 +141,11 @@ const ListingClient: React.FC<ListingClientProps> = ({
                             sleepCount={listing.sleepCount}
                             locationValue={listing.locationValue}
                         />
-                        <div className="order-first mb-10 md:order-last md:col-span-3">
+                        <div className="order-last mb-10 md:order-last md:col-span-3">
                             <ListingReservation
                                 price={listing.price}
                                 totalPrice={totalPrice}
+                                totalFees={totalFees}
                                 onChangeDate={(value) => setDateRange(value)}
                                 dateRange={dateRange}
                                 onSubmit={onCreateReservation}
