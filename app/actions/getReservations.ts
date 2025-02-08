@@ -8,9 +8,9 @@ interface IParams {
 
 export default async function getReservations(params: IParams) {
   try {
-    const { listingId, userId, authorId } = params;
+    const awaitedParams = await params;
+    const { listingId, userId, authorId } = awaitedParams;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const query: any = {};
 
     if (listingId) {

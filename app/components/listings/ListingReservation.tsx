@@ -52,12 +52,12 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                 </div>
                 <div className="flex flex-row items-center justify-between font-normal text-base">
                     <div>Redrive Fees</div>
-                    <div>$ {redriveFee}</div>
+                    <div>$ {Math.round(redriveFee)}</div>
                 </div>
                 <hr className="mt-4" />
                 <div className="mt-3 flex flex-row items-center justify-between font-bold text-base">
                     <div>Total</div>
-                    <div>$ {totalFees}</div>
+                    <div>$ {Math.round(totalFees)}</div>
                 </div>
             </div>
             <hr />
