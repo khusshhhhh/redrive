@@ -28,6 +28,7 @@ const CategoryInput: React.FC<CategoryInputProps> = ({
         hover:border-black
         transition
         cursor-pointer
+        items-start
         ${selected ? 'border-black' : 'border-neutral-200'}
       `}
         >

@@ -11,6 +11,7 @@ export default async function getReservations(params: IParams) {
     const awaitedParams = await params;
     const { listingId, userId, authorId } = awaitedParams;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const query: any = {};
 
     if (listingId) {
@@ -35,16 +36,18 @@ export default async function getReservations(params: IParams) {
       },
     });
 
-    const safeReservations = reservations.map((reservation) => ({
-      ...reservation,
-      createdAt: reservation.createdAt.toISOString(),
-      startDate: reservation.startDate.toISOString(),
-      endDate: reservation.endDate.toISOString(),
-      listing: {
-        ...reservation.listing,
-        createdAt: reservation.listing.createdAt.toISOString(),
-      },
-    }));
+    const safeReservations = reservations
+      .filter((reservation) => reservation.listing)
+      .map((reservation) => ({
+        ...reservation,
+        createdAt: reservation.createdAt.toISOString(),
+        startDate: reservation.startDate.toISOString(),
+        endDate: reservation.endDate.toISOString(),
+        listing: {
+          ...reservation.listing,
+          createdAt: reservation.listing.createdAt.toISOString(),
+        },
+      }));
 
     return safeReservations;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
