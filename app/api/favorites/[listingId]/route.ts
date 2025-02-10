@@ -19,6 +19,7 @@ export async function POST(request: Request, context: { params: IParams }) {
     throw new Error("Invalid ID");
   }
 
+  // eslint-disable-next-line prefer-const
   let favoriteIds = [...(currentUser.favoriteIds || [])];
   favoriteIds.push(listingId);
 
