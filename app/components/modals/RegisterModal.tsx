@@ -11,7 +11,7 @@ import {
 } from 'react-hook-form';
 
 import useRegisterModal from "@/app/hooks/useRegisterModal";
-import Modal from './Modal';
+import Modal from "@/app/components/modals/Modal";
 import Heading from '../Heading';
 import Input from '../inputs/Input';
 import { toast } from 'react-hot-toast'
