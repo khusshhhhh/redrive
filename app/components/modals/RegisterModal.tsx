@@ -1,5 +1,6 @@
 'use client';
 
+import Modal from './Modal';
 import axios from 'axios';
 // import { AiFillGithub } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
@@ -11,7 +12,6 @@ import {
 } from 'react-hook-form';
 
 import useRegisterModal from "@/app/hooks/useRegisterModal";
-import Modal from './Modal';
 
 import Heading from '../Heading';
 import Input from '../inputs/Input';

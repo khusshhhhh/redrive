@@ -1,5 +1,6 @@
 'use client';
 
+import Modal from './Modal';
 import useRentModal from "@/app/hooks/useRentModal";
 
 import CategoryInput from "../inputs/CategoryInput";
@@ -7,7 +8,6 @@ import CountrySelect from "../inputs/CountrySelect";
 import Counter from "../inputs/Counter";
 import ImageUpload from "../inputs/ImageUpload";
 
-import Modal from './Modal';
 import Heading from "../Heading";
 import dynamic from "next/dynamic";
 

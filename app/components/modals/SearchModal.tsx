@@ -1,5 +1,6 @@
 'use client';
 
+import Modal from './Modal';
 import qs from "query-string";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Range } from "react-date-range";
@@ -7,7 +8,6 @@ import { useCallback, useMemo, useState } from "react";
 import { formatISO } from "date-fns";
 import CountrySelect, { CountrySelectValue } from "../inputs/CountrySelect";
 
-import Modal from './Modal';
 import useSearchModal from "@/app/hooks/useSearchModal";
 import dynamic from "next/dynamic";
 import Heading from "../Heading";
