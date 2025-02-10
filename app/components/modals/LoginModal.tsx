@@ -1,6 +1,5 @@
 'use client';
 
-import Modal from './Modal';
 import { signIn } from 'next-auth/react';
 import { FcGoogle } from "react-icons/fc";
 import { useCallback, useState } from 'react';
@@ -18,6 +17,7 @@ import Input from '../inputs/Input';
 import { toast } from 'react-hot-toast'
 import Button from '../Button';
 import { useRouter } from 'next/navigation';
+import Modal from './Modal';
 
 const LoginModal = () => {
 

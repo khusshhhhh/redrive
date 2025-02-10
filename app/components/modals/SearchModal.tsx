@@ -1,6 +1,5 @@
 'use client';
 
-import Modal from './Modal';
 import qs from "query-string";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Range } from "react-date-range";
@@ -13,6 +12,7 @@ import dynamic from "next/dynamic";
 import Heading from "../Heading";
 import Calendar from "../inputs/Calender";
 import Counter from "../inputs/Counter";
+import Modal from "./Modal";
 
 enum STEPS {
     LOCATION = 0,

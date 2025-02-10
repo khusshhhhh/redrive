@@ -1,6 +1,5 @@
 'use client';
 
-import Modal from './Modal';
 import useRentModal from "@/app/hooks/useRentModal";
 
 import CategoryInput from "../inputs/CategoryInput";
@@ -20,6 +19,7 @@ import FuelSelector from "../inputs/FuelSelector";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
+import Modal from "./Modal";
 
 enum STEPS {
     CATEGORY = 0,

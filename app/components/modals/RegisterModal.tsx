@@ -1,6 +1,5 @@
 'use client';
 
-import Modal from './Modal';
 import axios from 'axios';
 // import { AiFillGithub } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
@@ -19,6 +18,7 @@ import { toast } from 'react-hot-toast'
 import Button from '../Button';
 import { signIn } from 'next-auth/react'
 import useLoginModal from '@/app/hooks/useLoginModal';
+import Modal from './Modal';
 
 const RegisterModal = () => {
 
