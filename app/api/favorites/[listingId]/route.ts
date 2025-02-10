@@ -13,13 +13,12 @@ export async function POST(request: Request, context: { params: IParams }) {
   }
 
   const { params } = context;
-  const { listingId } = params;
+  const listingId = params?.listingId; // Ensure params is accessed safely
 
   if (!listingId || typeof listingId !== "string") {
     throw new Error("Invalid ID");
   }
 
-  // eslint-disable-next-line prefer-const
   let favoriteIds = [...(currentUser.favoriteIds || [])];
   favoriteIds.push(listingId);
 
@@ -42,7 +41,7 @@ export async function DELETE(request: Request, context: { params: IParams }) {
   }
 
   const { params } = context;
-  const { listingId } = params;
+  const listingId = params?.listingId; // Ensure params is accessed safely
 
   if (!listingId || typeof listingId !== "string") {
     throw new Error("Invalid ID");

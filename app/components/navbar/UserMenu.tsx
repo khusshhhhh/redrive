@@ -85,11 +85,11 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
             <hr />
             {currentUser ? (
               <>
+                <MenuItem onClick={() => { rentModal.onOpen(); closeMenu(); }} label="Add your items" />
                 <MenuItem onClick={() => { router.push("/trips"); closeMenu(); }} label="My Bookings" />
                 <MenuItem onClick={() => { router.push("/reservations"); closeMenu(); }} label="My Reservations" />
-                <MenuItem onClick={() => { closeMenu(); }} label="My Favourites" />
-                <MenuItem onClick={() => { rentModal.onOpen(); closeMenu(); }} label="Add your items" />
-                <MenuItem onClick={() => { closeMenu(); }} label="My vehicles" />
+                <MenuItem onClick={() => { router.push("/favorites"); closeMenu(); }} label="My Favourites" />
+                <MenuItem onClick={() => { router.push("/properties"); closeMenu(); }} label="My Utilities" />
                 <hr />
                 <MenuItem onClick={() => { signOut(); closeMenu(); }} label="Logout" />
               </>
