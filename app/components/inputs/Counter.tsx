@@ -15,7 +15,7 @@ const Counter: React.FC<CounterProps> = ({ title, subtitle, value, onChange }) =
     }, [onChange, value]);
 
     const onReduce = useCallback(() => {
-        if (value == 1) {
+        if (value == 0) {
             return;
         }
 
