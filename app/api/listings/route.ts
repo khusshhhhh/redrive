@@ -90,10 +90,18 @@ export async function POST(request: Request) {
     console.log("✅ Listing created successfully:", listing);
     return NextResponse.json(listing, { status: 201 });
   } catch (error) {
-    console.error("❌ Internal Server Error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error", details: error.message },
-      { status: 500 }
-    );
+    if (error instanceof Error) {
+      console.error("❌ Internal Server Error:", error);
+      return NextResponse.json(
+        { error: "Internal Server Error", details: error.message },
+        { status: 500 }
+      );
+    } else {
+      console.error("❌ Internal Server Error:", error);
+      return NextResponse.json(
+        { error: "Internal Server Error", details: "Unknown error" },
+        { status: 500 }
+      );
+    }
   }
 }
