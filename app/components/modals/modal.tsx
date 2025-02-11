@@ -65,7 +65,7 @@ const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-51 flex items-center justify-center overflow-x-hidden overflow-y-auto bg-neutral-800/70 outline-none"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto bg-neutral-800/70 outline-none"
       onClick={handleClose} // Close when clicking outside
     >
       <div
