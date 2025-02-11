@@ -7,7 +7,8 @@ import React, { useCallback, useMemo } from "react";
 import { format } from 'date-fns';
 import Image from "next/image";
 import HeartButton from "../HeartButton";
-import Button from "../Button";
+// import Button from "../Button";
+import ListingCardButton from "../ListingCardButton";
 
 
 interface ListingCardProps {
@@ -101,9 +102,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     )}
                 </div>
                 {onAction && actionLabel && (
-                    <Button
+                    <ListingCardButton
                         disabled={disabled}
-                        small
                         label={actionLabel}
                         onClick={handleCancel}
                     />

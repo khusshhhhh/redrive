@@ -9,8 +9,9 @@ import { GiCarDoor } from "react-icons/gi";
 import { FaBed } from "react-icons/fa";
 // import ListingCategory from "./ListingCategory";
 import dynamic from "next/dynamic";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import L from "leaflet";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 
 const Map = dynamic(() => import('../Map'), {
     ssr: false
@@ -47,6 +48,12 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
     locationValue
 }) => {
     const { getByValue } = useCountries();
+    const coordinates = getByValue(locationValue)?.latlng;
+
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    const words = description.split(" ");
+    const shortDescription = words.slice(0, 20).join(" ") + "...";
 
     useEffect(() => {
         // Cleanup Leaflet's map container before initializing a new one
@@ -56,7 +63,6 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
         }
     }, []);
 
-    const coordinates = getByValue(locationValue)?.latlng;
     return (
         <div className="col-span-4 flex flex-col gap-8">
             <div className="flex flex-col gap-6">
@@ -87,8 +93,19 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     description={category.description} />
             )} */}
             <hr />
+            {/* Description Section */}
             <div className="text-base font-normal text-neutral-600">
-                {description}
+                <div className="flex items-center justify-between cursor-pointer">
+                    <div className="font-bold text-lg text-black mb-2">Description</div>
+                    <button onClick={() => setIsExpanded(!isExpanded)} className="text-gray-600 hover:text-black transition mb-2">
+                        {isExpanded ? <IoIosArrowUp size={24} /> : <IoIosArrowDown size={24} />}
+                    </button>
+                </div>
+
+                {/* Description Content with Smooth Transition */}
+                <div className={`overflow-hidden transition-max-height duration-300 ease-in-out ${isExpanded ? "max-h-[500px]" : "max-h-[50px]"}`}>
+                    {isExpanded ? description : shortDescription}
+                </div>
             </div>
             <hr />
             <div className="mb-8">
