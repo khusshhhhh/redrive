@@ -130,7 +130,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-7 md:gap-10 mt-6">
                         <ListingInfo
                             user={listing.user}
-                            category={category}
+                            category={category || { icon: () => null, label: '', description: '' }}
                             description={listing.description}
                             modal={listing.modal}
                             company={listing.company}
