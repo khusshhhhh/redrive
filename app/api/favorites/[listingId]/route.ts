@@ -3,19 +3,23 @@ import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
 import type { NextRequest } from "next/server";
 
-// ✅ Corrected POST handler
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { listingId: string } }
-) {
+// ✅ Helper function to extract listingId from the request URL
+function extractListingId(request: NextRequest): string | null {
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split("/");
+  const listingId = pathParts[pathParts.length - 1]; // Get the last part of the path
+  return listingId || null;
+}
+
+// ✅ POST: Add listing to favorites
+export async function POST(request: NextRequest) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
     return NextResponse.error();
   }
 
-  const listingId = params.listingId; // Safe destructuring
-
-  if (!listingId || typeof listingId !== "string") {
+  const listingId = extractListingId(request);
+  if (!listingId) {
     return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
   }
 
@@ -30,19 +34,15 @@ export async function POST(
   return NextResponse.json(user);
 }
 
-// ✅ Corrected DELETE handler
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { listingId: string } }
-) {
+// ✅ DELETE: Remove listing from favorites
+export async function DELETE(request: NextRequest) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
     return NextResponse.error();
   }
 
-  const listingId = params.listingId; // Safe destructuring
-
-  if (!listingId || typeof listingId !== "string") {
+  const listingId = extractListingId(request);
+  if (!listingId) {
     return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
   }
 
