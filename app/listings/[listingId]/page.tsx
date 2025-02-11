@@ -4,9 +4,12 @@ import ClientOnly from "@/app/components/ClientOnly";
 import EmptyState from "@/app/components/EmptyState";
 import ListingClient from "./ListingClient";
 import getReservations from "@/app/actions/getReservations";
-import { PageProps } from "next"; // ✅ Import Next.js 15 PageProps type
 
-const ListingPage = async ({ params }: PageProps<{ listingId: string }>) => {
+interface ListingPageProps {
+    params: { listingId: string };
+}
+
+const ListingPage = async ({ params }: ListingPageProps) => {
     // ✅ Ensure params.listingId is always a string
     if (!params?.listingId) {
         return (
