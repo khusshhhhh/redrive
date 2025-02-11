@@ -1,32 +1,28 @@
 import { NextResponse } from "next/server";
-
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
+import type { NextRequest } from "next/server";
 
-interface IParams {
-  reservationId?: string;
-}
-
-export async function DELETE(
-  request: Request,
-  { params }: { params: IParams }
-) {
+// ✅ DELETE: Cancel a reservation
+export async function DELETE(request: NextRequest) {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
     return NextResponse.error();
   }
 
-  const { reservationId } = params;
+  // ✅ Extract `reservationId` from URL
+  const reservationId = request.nextUrl.pathname.split("/").pop();
 
   if (!reservationId || typeof reservationId !== "string") {
-    throw new Error("Invalid ID");
+    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 
+  // ✅ Ensure only the owner or the user who booked can delete
   const reservation = await prisma.reservation.deleteMany({
     where: {
       id: reservationId,
-      OR: [{ userId: currentUser.id }, { listing: { userId: currentUser.id } }],
+      OR: [{ userId: currentUser.id }, { listing: { userId: currentUser.id } }], // Check ownership
     },
   });
 
