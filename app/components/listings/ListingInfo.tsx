@@ -59,7 +59,8 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
         // Cleanup Leaflet's map container before initializing a new one
         const mapContainer = document.getElementById("map");
         if (mapContainer) {
-            L?.map?.remove?.();
+            const mapInstance = L.map(mapContainer);
+            mapInstance.remove();
         }
     }, []);
 
