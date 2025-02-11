@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
-
-interface IParams {
-  listingId?: string;
-}
+import type { NextRequest } from "next/server";
 
 // ✅ Corrected POST handler
-export async function POST(request: Request, { params }: { params: IParams }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { listingId: string } }
+) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
     return NextResponse.error();
   }
 
-  const listingId = params?.listingId; // Ensure params is accessed safely
+  const listingId = params.listingId; // Safe destructuring
 
   if (!listingId || typeof listingId !== "string") {
-    throw new Error("Invalid ID");
+    return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
   }
 
   const favoriteIds = [...(currentUser.favoriteIds || [])];
@@ -32,18 +32,18 @@ export async function POST(request: Request, { params }: { params: IParams }) {
 
 // ✅ Corrected DELETE handler
 export async function DELETE(
-  request: Request,
-  { params }: { params: IParams }
+  request: NextRequest,
+  { params }: { params: { listingId: string } }
 ) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
     return NextResponse.error();
   }
 
-  const listingId = params?.listingId;
+  const listingId = params.listingId; // Safe destructuring
 
   if (!listingId || typeof listingId !== "string") {
-    throw new Error("Invalid ID");
+    return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
   }
 
   let favoriteIds = [...(currentUser.favoriteIds || [])];
