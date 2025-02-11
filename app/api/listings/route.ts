@@ -38,9 +38,9 @@ export async function POST(request: Request) {
       !description ||
       !imageSrc ||
       !category ||
-      !guestCount ||
-      !doorCount ||
-      !sleepCount ||
+      !guestCount === undefined ||
+      !doorCount === undefined ||
+      !sleepCount === undefined ||
       !company ||
       !modal ||
       !year ||

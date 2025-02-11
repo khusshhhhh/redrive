@@ -15,12 +15,12 @@ const Counter: React.FC<CounterProps> = ({ title, subtitle, value, onChange }) =
     }, [onChange, value]);
 
     const onReduce = useCallback(() => {
-        if (value == 0) {
+        if (value === 0) {
             return;
         }
-
         onChange(value - 1);
     }, [onChange, value]);
+
 
     return (
         <div className="flex flex-row items-center justify-between">

@@ -100,7 +100,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
             );
 
             if (dayCount && listing.price) {
-                const newTotalPrice = dayCount * listing.price;
+                const newTotalPrice = (dayCount + 1) * listing.price;
                 setTotalPrice(newTotalPrice);
                 setTotalFees(newTotalPrice * 1.06); // Including Redrive Fee (6%)
             } else {
