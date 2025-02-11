@@ -14,35 +14,36 @@ datasource db {
 }
 
 model User {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String?
-  email String? @unique
-  emailVerified DateTime?
-  number String?
-  image String?
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime?
+  number         String?
+  image          String?
   hashedPassword String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  favoriteIds String[] @db.ObjectId
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  favoriteIds    String[]  @db.ObjectId
 
-  accounts Account[]
-  listings Listing[]
+  accounts     Account[]
+  listings     Listing[]
   reservations Reservation[]
+  reviews      Review[]
 }
 
 model Account {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  userId String @db.ObjectId
-  type String
-  provider String
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
   providerAccountId String
-  refresh_token String? @db.String
-  access_token String? @db.String
-  expires_at Int?
-  token_type String?
-  scope String?
-  id_token String? @db.String
-  session_state String?
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -50,25 +51,26 @@ model Account {
 }
 
 model Listing {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  title          String
-  description    String
-  company        String
-  modal          String
-  imageSrc       String
-  createdAt      DateTime @default(now())
-  category       String
-  guestCount     Int
-  doorCount      Int
-  sleepCount     Int
-  fuelType       String
-  year           Int
-  locationValue  String
-  userId         String   @db.ObjectId
-  price          Int
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String
+  company       String
+  modal         String
+  imageSrc      String
+  createdAt     DateTime @default(now())
+  category      String
+  guestCount    Int
+  doorCount     Int
+  sleepCount    Int
+  fuelType      String
+  year          Int
+  locationValue String
+  userId        String   @db.ObjectId
+  price         Int
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   reservations Reservation[]
+  reviews      Review[]
 }
 
 model Reservation {
@@ -83,4 +85,18 @@ model Reservation {
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  listingId String   @db.ObjectId
+  rating    Int
+  text      String   @db.String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId]) // Ensure one review per booking
 }

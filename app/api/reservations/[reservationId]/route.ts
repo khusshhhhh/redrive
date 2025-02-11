@@ -1,30 +1,35 @@
 import { NextResponse } from "next/server";
-import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
-import type { NextRequest } from "next/server";
+import getCurrentUser from "@/app/actions/getCurrentUser";
 
-// ✅ DELETE: Cancel a reservation
-export async function DELETE(request: NextRequest) {
-  const currentUser = await getCurrentUser();
+export async function GET(
+  request: Request,
+  { params }: { params: { reservationId: string } }
+) {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  if (!currentUser) {
-    return NextResponse.error();
+    const reservation = await prisma.reservation.findUnique({
+      where: { id: params.reservationId },
+      include: { listing: true }, // Fetch associated listing details
+    });
+
+    if (!reservation) {
+      return NextResponse.json(
+        { error: "Reservation not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(reservation, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching reservation:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
-
-  // ✅ Extract `reservationId` from URL
-  const reservationId = request.nextUrl.pathname.split("/").pop();
-
-  if (!reservationId || typeof reservationId !== "string") {
-    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
-  }
-
-  // ✅ Ensure only the owner or the user who booked can delete
-  const reservation = await prisma.reservation.deleteMany({
-    where: {
-      id: reservationId,
-      OR: [{ userId: currentUser.id }, { listing: { userId: currentUser.id } }], // Check ownership
-    },
-  });
-
-  return NextResponse.json(reservation);
 }

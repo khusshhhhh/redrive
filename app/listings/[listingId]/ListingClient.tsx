@@ -14,6 +14,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import ListingReservation from "@/app/components/listings/ListingReservation";
 import { Range } from "react-date-range";
+import Reviews from "@/app/components/reviews/Reviews";
 
 const initialDateRange = {
     startDate: new Date(),
@@ -152,6 +153,10 @@ const ListingClient: React.FC<ListingClientProps> = ({
                                 disabledDates={disabledDates}
                             />
                         </div>
+
+                    </div>
+                    <div className="">
+                        <Reviews listingId={listing.id} />
                     </div>
                 </div>
             </div>
