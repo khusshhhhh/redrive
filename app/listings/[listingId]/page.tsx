@@ -1,18 +1,23 @@
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import getListingById from "@/app/actions/getListingById";
-
 import ClientOnly from "@/app/components/ClientOnly";
 import EmptyState from "@/app/components/EmptyState";
 import ListingClient from "./ListingClient";
 import getReservations from "@/app/actions/getReservations";
+import { PageProps } from "next"; // ✅ Import Next.js 15 PageProps type
 
-interface IParams {
-    listingId?: string;
-}
+const ListingPage = async ({ params }: PageProps<{ listingId: string }>) => {
+    // ✅ Ensure params.listingId is always a string
+    if (!params?.listingId) {
+        return (
+            <ClientOnly>
+                <EmptyState />
+            </ClientOnly>
+        );
+    }
 
-const ListingPage = async ({ params }: { params: IParams }) => {
-    const listing = await getListingById(params);
-    const reservations = await getReservations(params);
+    const listing = await getListingById({ listingId: params.listingId });
+    const reservations = await getReservations({ listingId: params.listingId });
     const currentUser = await getCurrentUser();
 
     if (!listing) {
@@ -33,6 +38,5 @@ const ListingPage = async ({ params }: { params: IParams }) => {
         </ClientOnly>
     );
 };
-
 
 export default ListingPage;
