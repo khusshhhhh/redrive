@@ -1,18 +1,18 @@
 [
   {
     "_id": {
-      "$oid": "67abd9b826a4eaa130863327"
+      "$oid": "67abd9b826a4eaa130863328"
     },
     "userId": {
-      "$oid": "67a40a99e4d3d12f5f0d97f3"
+      "$oid": "67a82ab08e633c26c49b3f33"
     },
     "listingId": {
       "$oid": "67a9ec7e7186925ff3a4ecaa"
     },
     "rating": {
-      "$numberLong": "4"
+      "$numberLong": "3"
     },
-    "text": "This is a manual review. Let's see if it works.",
+    "text": "This is a manual review 2. Let's see if it works.",
     "createdAt": {
       "$date": "2025-02-02T23:14:00.786Z"
     }
