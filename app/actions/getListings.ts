@@ -22,46 +22,39 @@ export default async function getListings(params: IListingsParams) {
       category,
     } = params;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, prefer-const
-    let query: any = {};
-
-    if (userId) {
-      query.userId = userId;
-    }
-
-    if (category) {
-      query.category = category;
-    }
-
-    if (guestCount) {
-      query.guestCount = {
-        gte: +guestCount,
+    const query: {
+      userId?: string;
+      guestCount?: { gte: number };
+      sleepCount?: { gte: number };
+      startDate?: string;
+      endDate?: string;
+      locationValue?: string;
+      category?: string;
+      NOT?: {
+        reservations: {
+          some: {
+            OR: Array<{
+              endDate: { gte: string };
+              startDate: { lte: string };
+            }>;
+          };
+        };
       };
-    }
+    } = {};
 
-    if (sleepCount) {
-      query.sleepCount = {
-        gte: +sleepCount,
-      };
-    }
-
-    if (locationValue) {
-      query.locationValue = locationValue;
-    }
+    if (userId) query.userId = userId;
+    if (category) query.category = category;
+    if (guestCount) query.guestCount = { gte: +guestCount };
+    if (sleepCount) query.sleepCount = { gte: +sleepCount };
+    if (locationValue) query.locationValue = locationValue;
 
     if (startDate && endDate) {
       query.NOT = {
         reservations: {
           some: {
             OR: [
-              {
-                endDate: { gte: startDate },
-                startDate: { lte: startDate },
-              },
-              {
-                startDate: { lte: endDate },
-                endDate: { gte: endDate },
-              },
+              { endDate: { gte: startDate }, startDate: { lte: startDate } },
+              { startDate: { lte: endDate }, endDate: { gte: endDate } },
             ],
           },
         },
@@ -70,20 +63,18 @@ export default async function getListings(params: IListingsParams) {
 
     const listings = await prisma.listing.findMany({
       where: query,
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     });
 
-    const safeListings = listings.map((listing) => ({
+    return listings.map((listing) => ({
       ...listing,
       createdAt: listing.createdAt.toISOString(),
     }));
-
-    return safeListings;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    throw new Error(error);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("An unknown error occurred");
+    }
   }
 }
