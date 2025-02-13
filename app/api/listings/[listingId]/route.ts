@@ -3,23 +3,29 @@ import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
 import type { NextRequest } from "next/server";
 
+interface IParams {
+  listingId?: string;
+}
+
 /**
  * ✅ GET: Fetch a specific listing by ID
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { listingId?: string } }
+  { params }: { params: IParams }
 ) {
   try {
-    const listingId = params?.listingId;
+    const { listingId } = await params; // ✅ Ensure correct destructuring
 
-    if (!listingId) {
+    // Validate listingId
+    if (!listingId || typeof listingId !== "string") {
       return NextResponse.json(
-        { error: "Missing listing ID" },
+        { error: "Invalid listing ID" },
         { status: 400 }
       );
     }
 
+    // Fetch the listing from the database
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
     });
@@ -30,7 +36,7 @@ export async function GET(
 
     return NextResponse.json(listing, { status: 200 });
   } catch (error) {
-    console.error("Error fetching listing:", error);
+    console.error("❌ Error fetching listing:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -43,15 +49,15 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { listingId?: string } }
+  { params }: { params: IParams }
 ) {
   try {
     const currentUser = await getCurrentUser();
-    const listingId = params?.listingId;
+    const { listingId } = params;
 
-    if (!listingId) {
+    if (!listingId || typeof listingId !== "string") {
       return NextResponse.json(
-        { error: "Missing listing ID" },
+        { error: "Invalid listing ID" },
         { status: 400 }
       );
     }
@@ -63,12 +69,6 @@ export async function PUT(
     let body;
     try {
       body = await request.json();
-      if (!body || Object.keys(body).length === 0) {
-        return NextResponse.json(
-          { error: "Empty request body" },
-          { status: 400 }
-        );
-      }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       return NextResponse.json(
@@ -83,7 +83,7 @@ export async function PUT(
       category,
       imageSrc,
       guestCount,
-      doorCount, // ✅ Ensure `doorCount` is included
+      doorCount,
       sleepCount,
       year,
       fuelType,
@@ -105,7 +105,7 @@ export async function PUT(
       );
     }
 
-    // ✅ Ensure the listing exists and belongs to the current user
+    // ✅ Find the listing and ensure it belongs to the current user
     const existingListing = await prisma.listing.findUnique({
       where: { id: listingId },
     });
@@ -121,7 +121,7 @@ export async function PUT(
       );
     }
 
-    // ✅ Update the listing (with `doorCount` included)
+    // ✅ Update the listing
     const updatedListing = await prisma.listing.update({
       where: { id: listingId },
       data: {
@@ -129,18 +129,18 @@ export async function PUT(
         description,
         category,
         imageSrc,
-        guestCount: guestCount ?? 0, // Ensures default values
-        doorCount: doorCount ?? 0, // ✅ Ensure doorCount is updated properly
+        guestCount: guestCount ?? 0,
+        doorCount: doorCount ?? 0,
         sleepCount: sleepCount ?? 0,
-        year: parseInt(year, 10), // Convert year to integer
+        year: parseInt(year, 10),
         fuelType,
-        price: parseFloat(price), // Convert price to float
+        price: parseFloat(price),
       },
     });
 
     return NextResponse.json(updatedListing, { status: 200 });
   } catch (error) {
-    console.error("Error updating listing:", error);
+    console.error("❌ Error updating listing:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -152,67 +152,55 @@ export async function PUT(
  * ✅ DELETE: Remove a listing (Only owner can delete)
  */
 export async function DELETE(
-  request: NextRequest,
-  context: { params: { listingId?: string } }
+  request: Request,
+  { params }: { params: IParams }
 ) {
   try {
     const currentUser = await getCurrentUser();
-    const listingId = context.params?.listingId; // ✅ Correctly extract params
+    const { listingId } = params;
 
-    if (!listingId) {
-      console.error("❌ Error: Missing listing ID in request params");
+    // ✅ Check if user is authenticated
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // ✅ Validate listingId
+    if (!listingId || typeof listingId !== "string") {
       return NextResponse.json(
-        { error: "Missing listing ID" },
+        { error: "Invalid listing ID" },
         { status: 400 }
       );
     }
 
-    if (!currentUser) {
-      console.error("❌ Error: Unauthorized access");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     // ✅ Ensure the listing exists and belongs to the current user
-    const listing = await prisma.listing.findUnique({
-      where: { id: listingId },
+    const listing = await prisma.listing.findFirst({
+      where: { id: listingId, userId: currentUser.id },
     });
 
     if (!listing) {
       return NextResponse.json({ error: "Listing not found" }, { status: 404 });
     }
 
-    if (listing.userId !== currentUser.id) {
-      console.error("❌ Error: Forbidden - User does not own this listing");
-      return NextResponse.json(
-        { error: "Forbidden: You do not own this listing" },
-        { status: 403 }
-      );
-    }
-
-    // ✅ Check for dependent records (e.g., reservations)
-    const existingReservations = await prisma.reservation.findMany({
-      where: { listingId },
+    // ✅ Delete the listing
+    await prisma.listing.delete({
+      where: { id: listingId },
     });
 
-    if (existingReservations.length > 0) {
-      return NextResponse.json(
-        { error: "Cannot delete listing with active reservations" },
-        { status: 400 }
-      );
-    }
-
-    // ✅ Delete the listing
-    await prisma.listing.delete({ where: { id: listingId } });
-
     console.log(`✅ Listing ${listingId} deleted successfully`);
-    return NextResponse.json(
-      { success: true, message: "Listing deleted successfully" },
-      { status: 200 }
-    );
+
+    return NextResponse.json({
+      success: true,
+      message: "Listing deleted successfully",
+    });
   } catch (error) {
     console.error("❌ Error deleting listing:", error);
+
+    // ✅ Ensure NextResponse.json() never receives null
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      {
+        error: "Internal Server Error",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }

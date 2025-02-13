@@ -19,43 +19,44 @@ const PropertiesClient: React.FC<PropertiesClientProps> = ({
     currentUser
 }) => {
     const router = useRouter();
-    const [deletingId, setDeletingId] = useState('');
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
     const onDelete = useCallback((id: string) => {
-        if (!window.confirm("Are you sure you want to delete this listing?")) {
-            return; // Prevent accidental deletions
-        }
-
         setDeletingId(id);
 
         axios.delete(`/api/listings/${id}`)
             .then(() => {
-                toast.success("Listing deleted successfully");
-                router.refresh(); // ✅ Refresh UI after deletion
+                toast.success('Listing deleted successfully!');
+                router.refresh();
             })
             .catch((error) => {
-                toast.error(error?.response?.data?.error || "Error deleting listing");
+                toast.error(error?.response?.data?.error);
             })
             .finally(() => {
                 setDeletingId('');
             });
     }, [router]);
 
+
     return (
         <Container>
             <Heading title="Utility" subtitle="List of your utilities!!" />
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-8">
-                {listings.map((listing) => (
-                    <ListingCard
-                        key={listing.id}
-                        data={listing}
-                        actionId={listing.id}
-                        onAction={onDelete}
-                        disabled={deletingId === listing.id}
-                        actionLabel="Delete Utility"
-                        currentUser={currentUser}
-                    />
-                ))}
+                {listings.length > 0 ? (
+                    listings.map((listing) => (
+                        <ListingCard
+                            key={listing.id}
+                            data={listing}
+                            actionId={listing.id}
+                            onAction={onDelete}
+                            disabled={deletingId === listing.id} // ✅ Disable only the deleting item
+                            actionLabel="Delete Utility"
+                            currentUser={currentUser}
+                        />
+                    ))
+                ) : (
+                    <p className="text-gray-500 text-center col-span-full">No listings available.</p>
+                )}
             </div>
         </Container>
     );
