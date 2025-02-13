@@ -86,18 +86,20 @@ const ReviewPage = () => {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
             />
-            <h3 className="text-lg mt-4">Would you recommend this?</h3>
+            <h3 className="text-lg mt-4 mb-4">Would you recommend this?</h3>
             <div className="flex gap-4">
                 <button className={`p-2 rounded ${thumbs === "up" ? "bg-green-500 text-white" : "bg-gray-200"}`} onClick={() => setThumbs("up")}>👍 Thumbs Up</button>
                 <button className={`p-2 rounded ${thumbs === "down" ? "bg-red-500 text-white" : "bg-gray-200"}`} onClick={() => setThumbs("down")}>👎 Thumbs Down</button>
             </div>
-            <button
-                className="mt-3 bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-                disabled={loading}
-                onClick={handleSubmit}
-            >
-                {loading ? "Submitting..." : "Submit Review"}
-            </button>
+            <div className="">
+                <button
+                    className="mt-3 bg-teal-500 text-white px-4 py-2 rounded disabled:opacity-50"
+                    disabled={loading}
+                    onClick={handleSubmit}
+                >
+                    {loading ? "Submitting..." : "Submit Review"}
+                </button>
+            </div>
         </div>
     );
 };

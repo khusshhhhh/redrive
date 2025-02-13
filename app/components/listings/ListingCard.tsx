@@ -7,9 +7,7 @@ import React, { useCallback, useMemo } from "react";
 import { format } from 'date-fns';
 import Image from "next/image";
 import HeartButton from "../HeartButton";
-// import Button from "../Button";
 import ListingCardButton from "../ListingCardButton";
-
 
 interface ListingCardProps {
     data: SafeListing;
@@ -19,6 +17,7 @@ interface ListingCardProps {
     actionLabel?: string;
     actionId?: string;
     currentUser?: SafeUser | null;
+    showEditButton?: boolean; // ✅ New prop to control "Edit Utility" button visibility
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
@@ -28,7 +27,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
     disabled,
     actionLabel,
     actionId = "",
-    currentUser
+    currentUser,
+    showEditButton = false, // ✅ Default to false
 }) => {
     const router = useRouter();
     const { getByValue } = useCountries();
@@ -38,42 +38,27 @@ const ListingCard: React.FC<ListingCardProps> = ({
     const handleCancel = useCallback(
         (e: React.MouseEvent<HTMLButtonElement>) => {
             e.stopPropagation();
-
-            if (disabled) {
-                return;
-            }
-
+            if (disabled) return;
             onAction?.(actionId);
         }, [onAction, actionId, disabled]);
 
     const price = useMemo(() => {
-        if (reservation) {
-            return reservation.totalFees;
-        }
-
-        return data.price;
+        return reservation ? reservation.totalFees : data.price;
     }, [reservation, data.price]);
 
     const reservationDate = useMemo(() => {
-        if (!reservation) {
-            return null;
-        }
-
+        if (!reservation) return null;
         const start = new Date(reservation.startDate);
         const end = new Date(reservation.endDate);
-
         return `${format(start, 'PP')} - ${format(end, 'PP')}`;
     }, [reservation]);
-
 
     return (
         <div
             onClick={() => router.push(`/listings/${data.id}`)}
             className="col-span-1 cursor-pointer group">
-            <div
-                className="flex flex-col gap-2 w-full">
-                <div
-                    className="aspect-square w-full relative overflow-hidden rounded-xl">
+            <div className="flex flex-col gap-2 w-full">
+                <div className="aspect-square w-full relative overflow-hidden rounded-xl">
                     <Image
                         fill
                         priority
@@ -83,9 +68,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                         className="object-cover h-full w-full group-hover:scale-110 transition-all"
                     />
                     <div className="absolute top-3 right-3">
-                        <HeartButton
-                            listingId={data.id}
-                            currentUser={currentUser} />
+                        <HeartButton listingId={data.id} currentUser={currentUser} />
                     </div>
                 </div>
                 <div className="font-semibold text-lg">
@@ -94,26 +77,36 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 <div className="font-light text-neutral-500">
                     {reservationDate || data.category} | {location?.label}
                 </div>
-
                 <div className="flex flex-row items-center gap-1">
                     <div className="font-bold">
                         AUD {price}
                     </div>
-                    {!reservation && (
-                        <div className="font-light">per day</div>
+                    {!reservation && <div className="font-light">per day</div>}
+                </div>
+                <div className="gap-0">
+                    {/* ✅ Show Edit Button only if 'showEditButton' is true */}
+                    {showEditButton && (
+                        <ListingCardButton
+                            label="Edit Utility"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/edit-utility/${data.id}`);
+                            }}
+                        />
+                    )}
+
+                    {onAction && actionLabel && (
+                        <ListingCardButton
+                            disabled={disabled}
+                            label={actionLabel}
+                            onClick={handleCancel}
+                            variant="danger"
+                        />
                     )}
                 </div>
-                {onAction && actionLabel && (
-                    <ListingCardButton
-                        disabled={disabled}
-                        label={actionLabel}
-                        onClick={handleCancel}
-                    />
-                )}
-
             </div>
         </div>
     );
-}
+};
 
 export default ListingCard;

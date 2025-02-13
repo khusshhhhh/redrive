@@ -285,6 +285,8 @@ const RentModal = () => {
                     id="year"
                     label="Manufacturing Year"
                     disabled={isLoading}
+                    setValue={setValue}
+                    watch={watch}
                     register={register}
                     errors={errors}
                     required
@@ -294,7 +296,7 @@ const RentModal = () => {
                     id="fuelType"
                     label="Fuel Type"
                     disabled={isLoading}
-                    register={register}
+                    watch={watch}
                     setValue={setValue}
                     errors={errors}
                     required

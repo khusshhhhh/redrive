@@ -1,15 +1,14 @@
 "use client";
 
-import { FieldErrors, FieldValues, UseFormRegister, UseFormSetValue } from "react-hook-form";
-import { useState } from "react";
+import { FieldErrors, FieldValues, UseFormSetValue, UseFormWatch } from "react-hook-form";
 
 interface FuelSelectorProps {
     id: string;
     label: string;
     disabled?: boolean;
     required?: boolean;
-    register: UseFormRegister<FieldValues>;
-    setValue: UseFormSetValue<FieldValues>; // ✅ Properly typed
+    setValue: UseFormSetValue<FieldValues>;
+    watch?: UseFormWatch<FieldValues>; // ✅ Make watch optional to prevent undefined error
     errors: FieldErrors;
 }
 
@@ -19,15 +18,13 @@ const FuelSelector: React.FC<FuelSelectorProps> = ({
     id,
     label,
     disabled,
-    register,
     setValue,
-    required,
+    watch,
     errors,
 }) => {
-    const [selectedFuel, setSelectedFuel] = useState("");
+    const selectedFuel = watch ? watch(id) || "" : ""; // ✅ Ensure watch is available
 
     const handleFuelSelection = (fuel: string) => {
-        setSelectedFuel(fuel);
         setValue(id, fuel, { shouldValidate: true }); // ✅ Update form state properly
     };
 
@@ -41,8 +38,7 @@ const FuelSelector: React.FC<FuelSelectorProps> = ({
                         type="button"
                         disabled={disabled}
                         onClick={() => handleFuelSelection(fuel)}
-                        className={`
-                            flex-1 py-3 px-4 text-center rounded-md transition
+                        className={`flex-1 py-3 px-4 text-center rounded-md transition
                             ${selectedFuel === fuel ? "bg-black text-white" : "bg-gray-200 text-gray-700"}
                             ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-black hover:text-white"}
                         `}
@@ -52,13 +48,7 @@ const FuelSelector: React.FC<FuelSelectorProps> = ({
                 ))}
             </div>
 
-            {/* Hidden input for form submission */}
-            <input
-                type="hidden"
-                id={id}
-                value={selectedFuel}
-                {...register(id, { required })}
-            />
+            {/* Show validation error */}
             {errors[id] && (
                 <p className="text-red-500 text-sm mt-1">
                     {label} is required
