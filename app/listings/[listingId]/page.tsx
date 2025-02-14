@@ -10,6 +10,8 @@ interface ListingPageProps {
 }
 
 const ListingPage = async ({ params }: ListingPageProps) => {
+
+    const listingId = params?.listingId;
     // ✅ Ensure params.listingId is always a string
     if (!params?.listingId) {
         return (
@@ -19,8 +21,8 @@ const ListingPage = async ({ params }: ListingPageProps) => {
         );
     }
 
-    const listing = await getListingById({ listingId: params.listingId });
-    const reservations = await getReservations({ listingId: params.listingId });
+    const listing = await getListingById({ listingId });
+    const reservations = await getReservations({ listingId });
     const currentUser = await getCurrentUser();
 
     if (!listing) {

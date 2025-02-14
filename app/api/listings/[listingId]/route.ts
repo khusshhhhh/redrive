@@ -164,7 +164,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // ✅ Validate listingId
+    // ✅ Validate listingId before using it
     if (!listingId || typeof listingId !== "string") {
       return NextResponse.json(
         { error: "Invalid listing ID" },
@@ -172,7 +172,7 @@ export async function DELETE(
       );
     }
 
-    // ✅ Ensure the listing exists and belongs to the current user
+    // ✅ Ensure the listing exists before trying to delete it
     const listing = await prisma.listing.findFirst({
       where: { id: listingId, userId: currentUser.id },
     });
