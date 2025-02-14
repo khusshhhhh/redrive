@@ -20,7 +20,7 @@ export default async function getListings(params: IListingsParams) {
       endDate,
       locationValue,
       category,
-    } = params;
+    } = params || {};
 
     const query: {
       userId?: string;

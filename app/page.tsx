@@ -1,15 +1,16 @@
 import getListings, { IListingsParams } from "./actions/getListings";
 import getCurrentUser from "./actions/getCurrentUser";
-
 import ClientOnly from "./components/ClientOnly";
 import Container from "./components/Container";
 import EmptyState from "./components/EmptyState";
 import ListingCard from "./components/listings/ListingCard";
-import { PageProps } from "next"; // ✅ Import Next.js 15 PageProps type
+import { PageProps } from "next"; // ✅ Ensure PageProps type
 
-const Home = async ({ searchParams }: PageProps<{ searchParams: IListingsParams }>) => {
+const Home = async ({ searchParams }: PageProps<{ searchParams?: IListingsParams }>) => {
   // ✅ Ensure searchParams exists
-  const listings = await getListings(searchParams || {});
+  const params = searchParams ? { ...searchParams } : {};
+
+  const listings = await getListings(params);
   const currentUser = await getCurrentUser();
 
   if (listings.length === 0) {
@@ -24,16 +25,16 @@ const Home = async ({ searchParams }: PageProps<{ searchParams: IListingsParams 
     <ClientOnly>
       <Container>
         <div className="
-      pt-24
-      grid
-      grid-cols-1
-      sm:grid-cols-2
-      md:grid-cols-3
-      lg:grid-cols-4
-      xl:grid-cols-5
-      2xl:grid-cols-6
-      gap-8
-    ">
+          pt-24
+          grid
+          grid-cols-1
+          sm:grid-cols-2
+          md:grid-cols-3
+          lg:grid-cols-4
+          xl:grid-cols-5
+          2xl:grid-cols-6
+          gap-8
+        ">
           {listings.map((listing) => (
             <ListingCard
               currentUser={currentUser}
