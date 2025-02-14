@@ -12,11 +12,13 @@ import Counter from "@/app/components/inputs/Counter";
 import YearSelect from "@/app/components/inputs/YearSelect";
 import FuelSelector from "@/app/components/inputs/FuelSelector";
 import { categories } from "@/app/components/navbar/Categories";
+import TextArea from "@/app/components/inputs/TextArea";
 
 interface Listing {
     id: string;
     title: string;
     description: string;
+    information: string;
     category: string;
     imageSrc: string;
     guestCount: number;
@@ -44,6 +46,7 @@ const EditUtilityPage = () => {
         defaultValues: {
             title: "",
             description: "",
+            information: "",
             category: "",
             imageSrc: "",
             guestCount: 0,
@@ -64,6 +67,7 @@ const EditUtilityPage = () => {
                 // ✅ Populate form with fetched data
                 setValue("title", data.title);
                 setValue("description", data.description);
+                setValue("information", data.information);
                 setValue("category", data.category);
                 setValue("imageSrc", data.imageSrc);
                 setValue("guestCount", data.guestCount);
@@ -189,6 +193,17 @@ const EditUtilityPage = () => {
                         label=""
                         setValue={setValue}
                         watch={watch}
+                        errors={errors}
+                        required
+                    />
+                </div>
+
+                <div className="mb-8">
+                    <p className="font-bold mb-4">Additional Information</p>
+                    <TextArea
+                        id="information"
+                        label=""
+                        register={register}
                         errors={errors}
                         required
                     />

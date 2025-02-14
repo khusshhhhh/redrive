@@ -8,6 +8,7 @@ export interface IListingsParams {
   endDate?: string;
   locationValue?: string;
   category?: string;
+  information?: string;
 }
 
 export default async function getListings(params: IListingsParams) {
@@ -20,6 +21,7 @@ export default async function getListings(params: IListingsParams) {
       endDate,
       locationValue,
       category,
+      information,
     } = params || {};
 
     const query: {
@@ -30,6 +32,7 @@ export default async function getListings(params: IListingsParams) {
       endDate?: string;
       locationValue?: string;
       category?: string;
+      information?: { contains: string; mode: "insensitive" };
       NOT?: {
         reservations: {
           some: {
@@ -47,6 +50,8 @@ export default async function getListings(params: IListingsParams) {
     if (guestCount) query.guestCount = { gte: +guestCount };
     if (sleepCount) query.sleepCount = { gte: +sleepCount };
     if (locationValue) query.locationValue = locationValue;
+    if (information)
+      query.information = { contains: information, mode: "insensitive" };
 
     if (startDate && endDate) {
       query.NOT = {

@@ -29,6 +29,7 @@ export async function POST(request: Request) {
       fuelType,
       location,
       price,
+      information,
       createdAt,
     } = body;
 
@@ -46,6 +47,7 @@ export async function POST(request: Request) {
       !year ||
       !fuelType ||
       !location ||
+      !information ||
       !price
     ) {
       console.error("❌ Error: Missing required fields");
@@ -80,6 +82,7 @@ export async function POST(request: Request) {
         modal,
         year: parsedYear,
         fuelType,
+        information,
         locationValue: location.value,
         price: parsedPrice,
         userId: currentUser.id,

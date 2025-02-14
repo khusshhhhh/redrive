@@ -1,25 +1,26 @@
 'use client';
 
 import useRentModal from "@/app/hooks/useRentModal";
+import Modal from "./Modal";
 
 import CategoryInput from "../inputs/CategoryInput";
 import CountrySelect from "../inputs/CountrySelect";
+import Input from "../inputs/Input";
+import YearSelect from "../inputs/YearSelect";
+import FuelSelector from "../inputs/FuelSelector";
 import Counter from "../inputs/Counter";
 import ImageUpload from "../inputs/ImageUpload";
-
 import Heading from "../Heading";
-import dynamic from "next/dynamic";
+import TextArea from "../inputs/TextArea";
 
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { useMemo, useState } from "react";
 import { categories } from "../navbar/Categories";
-import Input from "../inputs/Input";
-import YearSelect from "../inputs/YearSelect";
-import FuelSelector from "../inputs/FuelSelector";
 import { useRouter } from "next/navigation";
+
+import dynamic from "next/dynamic";
 import axios from "axios";
 import toast from "react-hot-toast";
-import Modal from "./Modal";
 
 enum STEPS {
     CATEGORY = 0,
@@ -27,7 +28,8 @@ enum STEPS {
     INFO = 2,
     IMAGES = 3,
     DESCRIPTION = 4,
-    PRICE = 5
+    INFORMATION = 5,
+    PRICE = 6,
 }
 
 const RentModal = () => {
@@ -59,6 +61,7 @@ const RentModal = () => {
             price: 1,
             title: '',
             description: '',
+            information: '',
             company: '',
             modal: '',
         }
@@ -302,6 +305,24 @@ const RentModal = () => {
                     required
                 />
 
+            </div>
+        );
+    }
+
+    if (step == STEPS.INFORMATION) {
+        bodyContent = (
+            <div className="flex flex-col gap-8">
+                <Heading
+                    title="Share some more information"
+                    subtitle="What else do people need to know? like, how to use it?, what to care and what not to do?"
+                />
+                <TextArea
+                    id="information"
+                    label="Information"
+                    disabled={isLoading}
+                    register={register}
+                    errors={errors}
+                    required />
             </div>
         );
     }

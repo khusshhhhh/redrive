@@ -64,6 +64,7 @@ model Listing {
   sleepCount    Int
   fuelType      String
   year          Int
+  information   String?
   locationValue String
   userId        String   @db.ObjectId
   price         Int

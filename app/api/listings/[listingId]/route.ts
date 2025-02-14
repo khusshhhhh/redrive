@@ -80,6 +80,7 @@ export async function PUT(
     const {
       title,
       description,
+      information,
       category,
       imageSrc,
       guestCount,
@@ -94,6 +95,7 @@ export async function PUT(
       !title ||
       !description ||
       !category ||
+      !information ||
       !imageSrc ||
       !year ||
       !fuelType ||
@@ -127,6 +129,7 @@ export async function PUT(
       data: {
         title,
         description,
+        information,
         category,
         imageSrc,
         guestCount: guestCount ?? 0,

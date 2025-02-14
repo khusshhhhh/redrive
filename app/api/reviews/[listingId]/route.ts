@@ -6,6 +6,13 @@ export async function GET(
   { params }: { params: { listingId: string } }
 ) {
   try {
+    if (!params || !params.listingId) {
+      // ✅ Prevent accessing undefined params
+      return NextResponse.json(
+        { error: "Invalid request: Missing listing ID" },
+        { status: 400 }
+      );
+    }
     const { listingId } = params;
 
     const reviews = await prisma.review.findMany({

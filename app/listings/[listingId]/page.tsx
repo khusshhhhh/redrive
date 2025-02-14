@@ -6,20 +6,19 @@ import ListingClient from "./ListingClient";
 import getReservations from "@/app/actions/getReservations";
 
 interface ListingPageProps {
-    params: { listingId: string };
+    params: { listingId?: string }; // ✅ Allow optional listingId to prevent errors
 }
 
 const ListingPage = async ({ params }: ListingPageProps) => {
-
-    const listingId = params?.listingId;
-    // ✅ Ensure params.listingId is always a string
-    if (!params?.listingId) {
+    if (!params || !params.listingId) { // ✅ Ensure params exists before accessing listingId
         return (
             <ClientOnly>
                 <EmptyState />
             </ClientOnly>
         );
     }
+
+    const { listingId } = params; // ✅ Destructure inside the function scope
 
     const listing = await getListingById({ listingId });
     const reservations = await getReservations({ listingId });

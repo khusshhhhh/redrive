@@ -133,6 +133,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                             user={listing.user}
                             category={category || { icon: () => null, label: '', description: '' }}
                             description={listing.description}
+                            information={listing.information || ''}
                             modal={listing.modal}
                             company={listing.company}
                             year={listing.year}

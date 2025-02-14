@@ -20,6 +20,7 @@ const Map = dynamic(() => import('../Map'), {
 interface ListingInfoProps {
     user: SafeUser;
     description: string;
+    information: string;
     guestCount: number;
     doorCount: number;
     sleepCount: number;
@@ -37,6 +38,7 @@ interface ListingInfoProps {
 const ListingInfo: React.FC<ListingInfoProps> = ({
     user,
     description,
+    information,
     guestCount,
     doorCount,
     sleepCount,
@@ -111,6 +113,12 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
             <hr />
             <div className="mb-8">
                 <Map center={coordinates} />
+            </div>
+            <div className="">
+                <div className="text-base font-normal text-neutral-600">
+                    <div className="font-bold text-lg text-black mb-2">Information</div>
+                    <div className="text-base font-normal text-neutral-800">{information}</div>
+                </div>
             </div>
         </div>
     );
