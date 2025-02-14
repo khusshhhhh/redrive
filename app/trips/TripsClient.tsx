@@ -41,7 +41,7 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
     return (
         <Container>
             <Heading title="Bookings" subtitle="Your booked trips and history!" />
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-8">
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-8">
                 {reservations.map((reservation) => {
                     const today = new Date();
                     const reservationEndDate = new Date(reservation.endDate);
