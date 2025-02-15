@@ -1,0 +1,37 @@
+import { useState } from "react";
+import {
+  IconBox,
+  IconChairDirector,
+  IconToolsKitchen2,
+} from "@tabler/icons-react"; // ✅ Import all required icons
+
+// ✅ Define Global Icon Properties
+const ICON_PROPS = {
+  size: 24,      // Set icon size
+  stroke: 2,     // Set stroke width
+  color: "black" // Set default color
+};
+
+// ✅ Updated Amenities List
+export const AMENITIES_LIST = [
+  { id: "basic_pantry", name: "Basic pantry", icon: IconBox },
+  { id: "camping_table", name: "Camping table and chairs", icon: IconChairDirector },
+  { id: "cutlery_plates", name: "Cutlery and plates", icon: IconToolsKitchen2 },
+];
+
+const useAmenities = () => {
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+
+  const toggleAmenity = (id: string) => {
+    setSelectedAmenities((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  return {
+    selectedAmenities,
+    toggleAmenity,
+  };
+};
+
+export default useAmenities;

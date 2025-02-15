@@ -1,6 +1,5 @@
 'use client';
 
-
 import { SafeListing, SafeUser, SafeReservation } from "@/app/types";
 import { categories } from "@/app/components/navbar/Categories";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -26,6 +25,7 @@ interface ListingClientProps {
     reservations?: SafeReservation[];
     listing: SafeListing & {
         user: SafeUser;
+        amenities?: string[]; // ✅ Now storing amenities as an array of strings
     };
     currentUser?: SafeUser | null;
 }
@@ -141,6 +141,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                             guestCount={listing.guestCount}
                             sleepCount={listing.sleepCount}
                             locationValue={listing.locationValue}
+                            amenities={listing.amenities} // ✅ Passing amenities to ListingInfo
                         />
                         <div className="order-last mb-10 md:order-last md:col-span-3">
                             <ListingReservation
@@ -154,7 +155,6 @@ const ListingClient: React.FC<ListingClientProps> = ({
                                 disabledDates={disabledDates}
                             />
                         </div>
-
                     </div>
                     <div className="">
                         <Reviews listingId={listing.id} />
@@ -162,7 +162,6 @@ const ListingClient: React.FC<ListingClientProps> = ({
                 </div>
             </div>
         </Container>
-
     );
 };
 

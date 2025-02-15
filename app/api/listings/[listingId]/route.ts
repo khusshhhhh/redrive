@@ -8,16 +8,15 @@ interface IParams {
 }
 
 /**
- * ✅ GET: Fetch a specific listing by ID
+ * ✅ GET: Fetch a specific listing by ID (Includes amenities)
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: IParams }
 ) {
   try {
-    const { listingId } = await params; // ✅ Ensure correct destructuring
+    const { listingId } = params;
 
-    // Validate listingId
     if (!listingId || typeof listingId !== "string") {
       return NextResponse.json(
         { error: "Invalid listing ID" },
@@ -25,10 +24,15 @@ export async function GET(
       );
     }
 
-    // Fetch the listing from the database
+    // ✅ Fetch listing with amenities stored in `Listing` table
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
     });
+
+    console.log(
+      "📤 Fetched Listing with Amenities:",
+      JSON.stringify(listing, null, 2)
+    );
 
     if (!listing) {
       return NextResponse.json({ error: "Listing not found" }, { status: 404 });
@@ -45,7 +49,7 @@ export async function GET(
 }
 
 /**
- * ✅ PUT: Update a listing (Only owner can update)
+ * ✅ PUT: Update a listing (Includes updating amenities)
  */
 export async function PUT(
   request: NextRequest,
@@ -66,17 +70,7 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let body;
-    try {
-      body = await request.json();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      return NextResponse.json(
-        { error: "Invalid JSON payload" },
-        { status: 400 }
-      );
-    }
-
+    const body = await request.json();
     const {
       title,
       description,
@@ -89,13 +83,13 @@ export async function PUT(
       year,
       fuelType,
       price,
+      amenities, // ✅ Now updating `amenities` directly
     } = body;
 
     if (
       !title ||
       !description ||
       !category ||
-      !information ||
       !imageSrc ||
       !year ||
       !fuelType ||
@@ -107,23 +101,8 @@ export async function PUT(
       );
     }
 
-    // ✅ Find the listing and ensure it belongs to the current user
-    const existingListing = await prisma.listing.findUnique({
-      where: { id: listingId },
-    });
+    const formattedAmenities = Array.isArray(amenities) ? amenities : [];
 
-    if (!existingListing) {
-      return NextResponse.json({ error: "Listing not found" }, { status: 404 });
-    }
-
-    if (existingListing.userId !== currentUser.id) {
-      return NextResponse.json(
-        { error: "Forbidden: You do not own this listing" },
-        { status: 403 }
-      );
-    }
-
-    // ✅ Update the listing
     const updatedListing = await prisma.listing.update({
       where: { id: listingId },
       data: {
@@ -132,12 +111,13 @@ export async function PUT(
         information,
         category,
         imageSrc,
-        guestCount: guestCount ?? 0,
-        doorCount: doorCount ?? 0,
-        sleepCount: sleepCount ?? 0,
+        guestCount,
+        doorCount,
+        sleepCount,
         year: parseInt(year, 10),
         fuelType,
         price: parseFloat(price),
+        amenities: formattedAmenities, // ✅ Store directly in listing
       },
     });
 
@@ -152,7 +132,7 @@ export async function PUT(
 }
 
 /**
- * ✅ DELETE: Remove a listing (Only owner can delete)
+ * ✅ DELETE: Remove a listing
  */
 export async function DELETE(
   request: Request,
@@ -162,12 +142,10 @@ export async function DELETE(
     const currentUser = await getCurrentUser();
     const { listingId } = params;
 
-    // ✅ Check if user is authenticated
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // ✅ Validate listingId before using it
     if (!listingId || typeof listingId !== "string") {
       return NextResponse.json(
         { error: "Invalid listing ID" },
@@ -175,7 +153,7 @@ export async function DELETE(
       );
     }
 
-    // ✅ Ensure the listing exists before trying to delete it
+    // ✅ Ensure the listing exists before deleting
     const listing = await prisma.listing.findFirst({
       where: { id: listingId, userId: currentUser.id },
     });
@@ -198,7 +176,6 @@ export async function DELETE(
   } catch (error) {
     console.error("❌ Error deleting listing:", error);
 
-    // ✅ Ensure NextResponse.json() never receives null
     return NextResponse.json(
       {
         error: "Internal Server Error",

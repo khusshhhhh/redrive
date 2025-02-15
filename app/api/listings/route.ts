@@ -31,6 +31,7 @@ export async function POST(request: Request) {
       price,
       information,
       createdAt,
+      amenities, // ✅ New field for storing amenities in the listing table
     } = body;
 
     // ✅ Validate required fields
@@ -39,15 +40,11 @@ export async function POST(request: Request) {
       !description ||
       !imageSrc ||
       !category ||
-      !guestCount === undefined ||
-      !doorCount === undefined ||
-      !sleepCount === undefined ||
       !company ||
       !modal ||
       !year ||
       !fuelType ||
       !location ||
-      !information ||
       !price
     ) {
       console.error("❌ Error: Missing required fields");
@@ -68,7 +65,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // ✅ Create listing
+    // ✅ Ensure amenities is an array
+    const formattedAmenities = Array.isArray(amenities) ? amenities : [];
+
+    // ✅ Create listing with amenities stored in the `amenities` column
     const listing = await prisma.listing.create({
       data: {
         title,
@@ -86,25 +86,19 @@ export async function POST(request: Request) {
         locationValue: location.value,
         price: parsedPrice,
         userId: currentUser.id,
+        amenities: formattedAmenities, // ✅ Store amenities directly as an array
         createdAt: createdAt ? new Date(createdAt) : new Date(),
       },
     });
 
-    console.log("✅ Listing created successfully:", listing);
+    console.log("✅ Listing created successfully with amenities:", listing);
+
     return NextResponse.json(listing, { status: 201 });
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("❌ Internal Server Error:", error);
-      return NextResponse.json(
-        { error: "Internal Server Error", details: error.message },
-        { status: 500 }
-      );
-    } else {
-      console.error("❌ Internal Server Error:", error);
-      return NextResponse.json(
-        { error: "Internal Server Error", details: "Unknown error" },
-        { status: 500 }
-      );
-    }
+    console.error("❌ Internal Server Error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error", details: error.message },
+      { status: 500 }
+    );
   }
 }

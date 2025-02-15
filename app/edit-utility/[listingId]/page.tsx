@@ -13,6 +13,8 @@ import YearSelect from "@/app/components/inputs/YearSelect";
 import FuelSelector from "@/app/components/inputs/FuelSelector";
 import { categories } from "@/app/components/navbar/Categories";
 import TextArea from "@/app/components/inputs/TextArea";
+import { AMENITIES_LIST } from "@/app/hooks/useAmenities"; // ✅ Import amenities list
+
 
 interface Listing {
     id: string;
@@ -27,6 +29,7 @@ interface Listing {
     year: number;
     fuelType: string;
     price: number;
+    amenities: string[]; // ✅ Now storing amenities in the listing model
 }
 
 const EditUtilityPage = () => {
@@ -35,6 +38,7 @@ const EditUtilityPage = () => {
     const listingId = params?.listingId as string;
 
     const [loading, setLoading] = useState(false);
+    const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]); // ✅ Added state
 
     const {
         register,
@@ -55,6 +59,7 @@ const EditUtilityPage = () => {
             year: "",
             fuelType: "",
             price: 1,
+            amenities: [], // ✅ Default empty array
         },
     });
 
@@ -76,15 +81,22 @@ const EditUtilityPage = () => {
                 setValue("year", data.year.toString());
                 setValue("fuelType", data.fuelType);
                 setValue("price", data.price);
+                setSelectedAmenities(data.amenities || []); // ✅ Set existing amenities
             })
             .catch(() => toast.error("Failed to load listing."));
     }, [listingId, setValue]);
+
+    const toggleAmenity = (id: string) => {
+        setSelectedAmenities(prev =>
+            prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
+        );
+    };
 
     const onSubmit = async (data: FieldValues) => {
         setLoading(true);
 
         try {
-            await axios.put(`/api/listings/${listingId}`, data);
+            await axios.put(`/api/listings/${listingId}`, { ...data, amenities: selectedAmenities, }); // ✅ Send amenities
             toast.success("Utility updated successfully!");
             router.push("/properties"); // Redirect after update
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -207,6 +219,24 @@ const EditUtilityPage = () => {
                         errors={errors}
                         required
                     />
+                </div>
+
+                <div className="mb-8">
+                    <p className="font-bold mb-4">Select Amenities</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {AMENITIES_LIST.map((amenity) => (
+                            <button
+                                key={amenity.id}
+                                type="button"
+                                onClick={() => toggleAmenity(amenity.id)}
+                                className={`p-3 flex items-center gap-2 border-2 rounded-md transition ${selectedAmenities.includes(amenity.id) ? "bg-black text-white" : "bg-gray-100 text-gray-700"
+                                    }`}
+                            >
+                                <i className={`${amenity.icon} text-lg`}></i>
+                                <span>{amenity.name}</span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Price Input */}

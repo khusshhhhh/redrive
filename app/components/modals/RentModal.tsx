@@ -9,6 +9,7 @@ import Input from "../inputs/Input";
 import YearSelect from "../inputs/YearSelect";
 import FuelSelector from "../inputs/FuelSelector";
 import Counter from "../inputs/Counter";
+import AmenitiesSelector from "../inputs/AmenitiesSelector";
 import ImageUpload from "../inputs/ImageUpload";
 import Heading from "../Heading";
 import TextArea from "../inputs/TextArea";
@@ -29,7 +30,8 @@ enum STEPS {
     IMAGES = 3,
     DESCRIPTION = 4,
     INFORMATION = 5,
-    PRICE = 6,
+    AMENITIES = 6,
+    PRICE = 7,
 }
 
 const RentModal = () => {
@@ -323,6 +325,22 @@ const RentModal = () => {
                     register={register}
                     errors={errors}
                     required />
+            </div>
+        );
+    }
+
+    if (step == STEPS.AMENITIES) {
+        bodyContent = (
+            <div className="flex flex-col gap-8">
+                <Heading
+                    title="What amenities does your utility offer?"
+                    subtitle="Select all that apply."
+                />
+                <AmenitiesSelector
+                    register={register}
+                    errors={errors}
+                    setValue={setValue}
+                />
             </div>
         );
     }

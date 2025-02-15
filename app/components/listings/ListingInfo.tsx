@@ -7,11 +7,13 @@ import Avatar from "../Avatar";
 import { BsFillPeopleFill } from "react-icons/bs";
 import { GiCarDoor } from "react-icons/gi";
 import { FaBed } from "react-icons/fa";
-// import ListingCategory from "./ListingCategory";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import L from "leaflet";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { AMENITIES_LIST } from "@/app/hooks/useAmenities"; // Import the amenities list
+import { IconQuestionMark } from "@tabler/icons-react"; // Import a fallback icon
+
 
 const Map = dynamic(() => import('../Map'), {
     ssr: false
@@ -33,6 +35,7 @@ interface ListingInfoProps {
         description: string;
     };
     locationValue: string;
+    amenities?: string[]; // ✅ Added amenities here
 }
 
 const ListingInfo: React.FC<ListingInfoProps> = ({
@@ -47,7 +50,8 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
     company,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     category,
-    locationValue
+    locationValue,
+    amenities // ✅ FIX: Added amenities here
 }) => {
     const { getByValue } = useCountries();
     const coordinates = getByValue(locationValue)?.latlng;
@@ -88,13 +92,6 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     {company} {modal} {year}
                 </div>
             </div>
-            {/* <hr />
-            {category && (
-                <ListingCategory
-                    icon={category.icon}
-                    label={category.label}
-                    description={category.description} />
-            )} */}
             <hr />
             {/* Description Section */}
             <div className="text-base font-normal text-neutral-600">
@@ -120,9 +117,33 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     <div className="text-base font-normal text-neutral-800">{information}</div>
                 </div>
             </div>
+
+            <div className="mb-8">
+                {/* ✅ Display Selected Amenities with FontAwesome Icons */}
+                {amenities && amenities.length > 0 ? (
+                    <div className="mt-6">
+                        <h2 className="text-xl font-semibold mb-4">Amenities</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4 border border-gray-200 rounded-md">
+                            {amenities.map((amenity) => {
+                                const amenityData = AMENITIES_LIST.find((a) => a.id === amenity);
+                                const IconComponent = amenityData?.icon || IconQuestionMark; // Use default icon if not found
+
+                                return (
+                                    <div key={amenity} className="flex items-center gap-3 p-4">
+                                        <IconComponent size={24} stroke={2} className="text-gray-700" />
+                                        <span className="text-gray-800">{amenityData?.name || amenity}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                ) : (
+                    <p className="text-gray-500">No amenities available for this listing.</p>
+                )}
+
+            </div>
         </div>
     );
-
 };
 
 export default ListingInfo;

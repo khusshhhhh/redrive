@@ -1,55 +1,29 @@
-import axios from "axios";
-import { formatDistanceToNow } from "date-fns";
-import { useEffect, useState } from "react";
-import Avatar from "../Avatar";
+Air Conditioner, IconTemperatureSnow
+Heater, IconTemperatureSun
 
-const Reviews = ({ listingId }: { listingId: string }) => {
-    interface Review {
-        id: string;
-        user: {
-            image: string | null | undefined;
-            name: string;
-        };
-        rating: number;
-        text: string;
-        createdAt: string;
-    }
+Basic Pantry, IconBrandSentry
+Microwave, IconMicrowave
+Fridge, IconFridge
+BBQ, IconGrill
+Kitchen Tools, IconToolsKitchen2
+Cookery, IconBowlSpoon
+Coffee Machine, IconCoffee
 
-    const [reviews, setReviews] = useState<Review[]>([]);
+Camping table, IconPicnicTable
+Camping Chair, IconChairDirector
+Wood, IconCampfire
+Ski-Stand, IconSkiJumping
+Bike Rack, IconBike
 
-    useEffect(() => {
-        axios.get(`/api/reviews/${listingId}`).then((res) => {
-            setReviews(res.data);
-        });
-    }, [listingId]);
+In-Built Navigation, IconGps
+Charging Station, IconDeviceMobileCharging
+Wifi, IconWifi
+TV, IconDeviceTv
+Radio, IconRadio
+Speaker, IconDeviceSpeaker
 
-    return (
-        <div>
-            <h3 className="text-xl font-semibold">Reviews</h3>
-            <div className="flex flex-row gap-4">
-                {reviews.map((review) => (
-                    <div key={review.id} className="w-[30%] border-[1px] p-4 my-2 rounded-lg">
-                        <div className="flex flex-row items-center justify-between mb-4">
-                            <div className="flex flex-row items-center gap-4">
-                                <Avatar src={review.user.image} />
-                                <p className="font-semibold">{review.user.name}</p>
-                            </div>
-                            <div>
-                                <p className="text-lg font-semibold">⭐ {review.rating}/5</p>
-                            </div>
-                        </div>
-                        <div className="mb-4">
-                            <p>{review.text}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-500">{formatDistanceToNow(new Date(review.createdAt))} ago</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
+Cruise Control, IconSteeringWheel
+Wheelchair Access, IconWheelchair
+Parking Sensor, IconParking
+Solar Panel, IconSunElectricity
 
-        </div>
-    );
-};
-
-export default Reviews;
