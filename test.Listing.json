@@ -1,0 +1,958 @@
+[{
+  "_id": {
+    "$oid": "67a70f35c746ed0e258ad648"
+  },
+  "title": "New caravan in Melbourne ",
+  "description": "A caravan is a versatile, mobile home on wheels, perfect for road trips, camping, and long-term travel. It provides the comfort of a house while allowing travelers to explore different locations without worrying about accommodation. Modern caravans come equipped with essential amenities like a kitchen, bathroom, sleeping area, and storage, making them ideal for solo travelers, families, and adventurers. They are available in various sizes, from compact trailers to luxurious motorhomes with high-end features. Caravans offer freedom and flexibility, letting people enjoy nature, visit remote destinations, and embrace a nomadic lifestyle while staying comfortable on the road.",
+  "company": "Jayco",
+  "modal": "Crusader",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739001371/matxaeo93zdeinzqpi6o.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T08:00:53.477Z"
+  },
+  "category": "Caravans",
+  "guestCount": {
+    "$numberLong": "4"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "4"
+  },
+  "fuelType": "Petrol",
+  "year": {
+    "$numberLong": "2022"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "200"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a711b7c746ed0e258ad649"
+  },
+  "title": "Best ute",
+  "description": "A ute (utility vehicle) is a versatile vehicle designed for both work and recreation. Popular in Australia, it combines the comfort of a car with the practicality of a truck, featuring a spacious cabin and a rear cargo tray for carrying tools, equipment, or outdoor gear. Utes are widely used in construction, farming, and adventure travel, thanks to their durability and off-road capabilities. Many modern utes come with advanced safety features, powerful engines, and four-wheel drive options, making them ideal for tough terrains. Whether for work or weekend getaways, a ute offers reliability, performance, and convenience in one package.",
+  "company": "Mitsubishi ",
+  "modal": "triton",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739002136/mpxqaegyem8dca5awyxe.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T08:11:35.491Z"
+  },
+  "category": "Utes",
+  "guestCount": {
+    "$numberLong": "4"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "3"
+  },
+  "fuelType": "Petrol",
+  "year": {
+    "$numberLong": "2004"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "300"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a71283c746ed0e258ad64a"
+  },
+  "title": "spacious caravan ",
+  "description": "A caravan is a towable mobile home designed for travel and temporary living. It provides a comfortable and self-sufficient way to explore different locations without the need for hotels or permanent accommodations. Caravans are popular among campers, road trippers, and retirees who enjoy the freedom of the open road.  Types of Caravans  Caravans come in various types, including:  1. Conventional Caravans – Standard single or double-axle caravans with a solid structure and built-in amenities.   2. Pop-Top Caravans – Feature a collapsible",
+  "company": "swift",
+  "modal": "swift",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739002404/gzisdtluns0tph5zyuer.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T08:14:59.570Z"
+  },
+  "category": "Caravans",
+  "guestCount": {
+    "$numberLong": "4"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "4"
+  },
+  "fuelType": "Diesel",
+  "year": {
+    "$numberLong": "2000"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "250"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a7136ec746ed0e258ad64b"
+  },
+  "title": "Transit van",
+  "description": "A van is a versatile vehicle designed for transporting passengers, cargo, or both. It comes in various sizes, from compact minivans to large commercial vans, making it suitable for personal, business, and recreational use. Vans often feature a spacious interior, allowing for comfortable seating or ample storage space.  Types of Vans  1. Minivans – Designed for families, offering comfortable seating for multiple passengers with sliding doors for easy access.   2. Cargo Vans – Used for business and transport, featuring an open cargo area for deliveries and storage.   3. Passenger Vans – Larger vans with",
+  "company": "Ford",
+  "modal": "Transit",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739002679/d82vojq5zuhmjx0h41ed.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T08:18:54.545Z"
+  },
+  "category": "Vans",
+  "guestCount": {
+    "$numberLong": "8"
+  },
+  "doorCount": {
+    "$numberLong": "4"
+  },
+  "sleepCount": {
+    "$numberLong": "2"
+  },
+  "fuelType": "Petrol",
+  "year": {
+    "$numberLong": "2007"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "300"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a71461c746ed0e258ad64c"
+  },
+  "title": "Quintrex",
+  "description": "A boat is a watercraft designed for travel, transport, fishing, recreation, or commercial use on rivers, lakes, and oceans. Boats vary in size, design, and functionality, ranging from small personal vessels to large commercial ships. They are essential for transportation, leisure activities, and maritime industries.",
+  "company": "quintrex",
+  "modal": "quintrex",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739002855/xgiosjsxjeuj0vbihnr8.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T08:22:57.047Z"
+  },
+  "category": "Boats",
+  "guestCount": {
+    "$numberLong": "4"
+  },
+  "doorCount": {
+    "$numberLong": "1"
+  },
+  "sleepCount": {
+    "$numberLong": "1"
+  },
+  "fuelType": "Diesel",
+  "year": {
+    "$numberLong": "2015"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "345"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a71a523923114dd8e3903d"
+  },
+  "title": "A portable Kathmandu tent in Adelaide ",
+  "description": "A tent is a portable shelter made of fabric or other lightweight materials, supported by poles, ropes, and stakes. It is widely used for camping, outdoor adventures, and temporary accommodations. Tents offer protection from weather conditions while providing a convenient and compact solution for outdoor living.",
+  "company": "Kathmandu ",
+  "modal": "Kathmandu",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739004304/j5leaoovv2pu2httitsf.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T08:48:18.584Z"
+  },
+  "category": "Accessories",
+  "guestCount": {
+    "$numberLong": "5"
+  },
+  "doorCount": {
+    "$numberLong": "1"
+  },
+  "sleepCount": {
+    "$numberLong": "5"
+  },
+  "fuelType": "None",
+  "year": {
+    "$numberLong": "2002"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "255"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a71e991e36da2a8213cd24"
+  },
+  "title": "An outdoor  family tent in Mount Gambier ",
+  "description": "A tent is a lightweight, portable shelter made from fabric, supported by poles, ropes, and stakes. Commonly used for camping, outdoor adventures, and emergency situations, tents provide protection from weather elements such as rain, wind, and sun. They come in various sizes and designs, from small backpacking tents to large family tents. Modern tents are made from durable materials like nylon, polyester, or canvas, with waterproof coatings and ventilation features for comfort. Easy to set up and transport, tents offer a practical and cost-effective solution for temporary accommodation, making them essential for campers, hikers, and outdoor enthusiasts.",
+  "company": "macpac",
+  "modal": "macpac",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739005349/osqyf7affrb6o9bdcnqn.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T09:06:33.209Z"
+  },
+  "category": "Accessories",
+  "guestCount": {
+    "$numberLong": "7"
+  },
+  "doorCount": {
+    "$numberLong": "1"
+  },
+  "sleepCount": {
+    "$numberLong": "7"
+  },
+  "fuelType": "None",
+  "year": {
+    "$numberLong": "2001"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "170"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a71fca1e36da2a8213cd25"
+  },
+  "title": "Modern ute in north Adelaide ",
+  "description": "A ute (utility vehicle) is a versatile vehicle that combines the comfort of a car with the practicality of a truck. Popular in Australia and other regions, utes feature a spacious cabin for passengers and a rear cargo tray for carrying tools, equipment, or recreational gear. They are widely used in construction, farming, and off-road adventures due to their durability and towing capacity. Modern utes come with powerful engines, four-wheel drive options, and advanced safety features. Whether for work or leisure, a ute offers a perfect balance of performance, reliability, and convenience for both urban and rugged environments.",
+  "company": "Toyota ",
+  "modal": "Hilux",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739005733/qc09wzzouiflssghq8av.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T09:11:38.487Z"
+  },
+  "category": "Utes",
+  "guestCount": {
+    "$numberLong": "5"
+  },
+  "doorCount": {
+    "$numberLong": "5"
+  },
+  "sleepCount": {
+    "$numberLong": "1"
+  },
+  "fuelType": "Hybrid",
+  "year": {
+    "$numberLong": "2018"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "250"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a722321e36da2a8213cd27"
+  },
+  "title": "Comfortable motorhome in Brisbane ",
+  "description": "A motorhome is a self-contained, motorized vehicle designed for travel and living on the road. Combining transportation with home-like amenities, motorhomes feature sleeping areas, a kitchen, a bathroom, and storage, making them ideal for long trips, camping, and full-time living. Available in various sizes, from compact campervans to luxury Class A motorhomes, they offer flexibility and convenience for travelers. Motorhomes provide the freedom to explore different destinations without the need for hotels, making them a popular choice for road trips, family vacations, and retirees embracing a nomadic lifestyle. Equipped with modern features, they offer comfort and adventure anywhere.",
+  "company": "Ford",
+  "modal": "Ford motorhome",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739006344/hjodhcwy96bthho6adzl.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T09:21:54.900Z"
+  },
+  "category": "Motorhomes",
+  "guestCount": {
+    "$numberLong": "2"
+  },
+  "doorCount": {
+    "$numberLong": "3"
+  },
+  "sleepCount": {
+    "$numberLong": "1"
+  },
+  "fuelType": "Petrol",
+  "year": {
+    "$numberLong": "2015"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "250"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a7264a1e36da2a8213cd28"
+  },
+  "title": "Coastal adventure jetski in Victoria ",
+  "description": "A jet ski is a personal watercraft (PWC) designed for high-speed riding on water. Powered by a jet propulsion system, it offers thrilling performance and maneuverability, making it popular for recreation, racing, and water sports. Jet skis are available in sit-down and stand-up models, accommodating one to three riders. They are used for adventure riding, towing water skiers, and even lifeguard rescue operations. With lightweight construction, powerful engines, and responsive handling, jet skis provide an exhilarating experience on lakes, rivers, and oceans. They offer a fun, fast, and exciting way to enjoy the water, combining speed with agility.",
+  "company": "rapid ski",
+  "modal": "ski",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739007342/d9wulxpimnnyfxhhiuvf.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T09:39:22.310Z"
+  },
+  "category": "Skies",
+  "guestCount": {
+    "$numberLong": "1"
+  },
+  "doorCount": {
+    "$numberLong": "1"
+  },
+  "sleepCount": {
+    "$numberLong": "1"
+  },
+  "fuelType": "Diesel",
+  "year": {
+    "$numberLong": "2014"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "320"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a729a21e36da2a8213cd2a"
+  },
+  "title": "Navara ute in Brisbane ",
+  "description": "A ute (utility vehicle) is a versatile vehicle designed for both work and recreation. Popular in Australia, it combines the comfort of a car with the practicality of a truck, featuring a spacious cabin and a rear cargo tray for carrying tools, equipment, or outdoor gear. Utes are widely used in construction, farming, and adventure travel, thanks to their durability and off-road capabilities. Many modern utes come with advanced safety features, powerful engines, and four-wheel drive options, making them ideal for tough terrains. Whether for work or weekend getaways, a ute offers reliability, performance, and convenience in one package.",
+  "company": "Nissan ",
+  "modal": "navara",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739008340/lgiir9tlsg71cojbyow8.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T09:53:38.382Z"
+  },
+  "category": "Utes",
+  "guestCount": {
+    "$numberLong": "4"
+  },
+  "doorCount": {
+    "$numberLong": "4"
+  },
+  "sleepCount": {
+    "$numberLong": "1"
+  },
+  "fuelType": "Petrol",
+  "year": {
+    "$numberLong": "2021"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "250"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a72aa11e36da2a8213cd2b"
+  },
+  "title": "A popular ute in south Adelaide ",
+  "description": "A ute (utility vehicle) is a multi-purpose vehicle that combines the comfort of a car with the practicality of a pickup truck. Popular in Australia and other regions, it features a spacious cabin for passengers and a rear cargo tray for transporting tools, equipment, or recreational gear. Utes are widely used in industries like construction, farming, and off-road travel due to their durability, towing capacity, and rugged performance. Modern utes come equipped with advanced safety features, powerful engines, and four-wheel drive options, making them suitable for both urban and tough terrains. They offer a perfect balance of versatility, power, and convenience.",
+  "company": "Mazda",
+  "modal": "BT50",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739008493/ebjngnht4ilh1pbxgokm.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T09:57:53.308Z"
+  },
+  "category": "Utes",
+  "guestCount": {
+    "$numberLong": "4"
+  },
+  "doorCount": {
+    "$numberLong": "4"
+  },
+  "sleepCount": {
+    "$numberLong": "1"
+  },
+  "fuelType": "Hybrid",
+  "year": {
+    "$numberLong": "2017"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "300"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a72bb31e36da2a8213cd2c"
+  },
+  "title": "Beautiful 7P caravan in Western Queensland ",
+  "description": "A caravan is a versatile, mobile home on wheels, perfect for road trips, camping, and long-term travel. It provides the comfort of a house while allowing travelers to explore different locations without worrying about accommodation. Modern caravans come equipped with essential amenities like a kitchen, bathroom, sleeping area, and storage, making them ideal for solo travelers, families, and adventurers. They are available in various sizes, from compact trailers to luxurious motorhomes with high-end features. Caravans offer freedom and flexibility, letting people enjoy nature, visit remote destinations, and embrace a nomadic lifestyle while staying comfortable on the road.",
+  "company": "Everest caravan ",
+  "modal": "Caravan ",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739008849/ua1ytqvxvdn0xf7gtv7j.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T10:02:27.478Z"
+  },
+  "category": "Caravans",
+  "guestCount": {
+    "$numberLong": "7"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "7"
+  },
+  "fuelType": "Diesel",
+  "year": {
+    "$numberLong": "2016"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "250"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a74d471e36da2a8213cd2d"
+  },
+  "title": "Off-Road Hybrid Caravan for Family Adventures",
+  "description": "The SCT16 Off-Road Hybrid Caravan Family 4B by Swag Camper Trailers offers a spacious and comfortable design tailored for families seeking off-road escapades. Equipped with modern amenities and robust construction, it ensures a memorable and convenient travel experience across Australia's diverse landscapes. ",
+  "company": "SCT16",
+  "modal": "off roader",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739017479/d6mgsajphnynmx3wgohl.jpg",
+  "createdAt": {
+    "$date": "2025-02-08T12:25:43.661Z"
+  },
+  "category": "Caravans",
+  "guestCount": {
+    "$numberLong": "5"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "2"
+  },
+  "fuelType": "Hybrid",
+  "year": {
+    "$numberLong": "2024"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "240"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a8673098334f7b5c325428"
+  },
+  "title": "7×4 Box trailer in Sydney ",
+  "description": "A trailer is a short, engaging preview designed to capture attention and build anticipation for a product, movie, game, or event. It highlights key features, exciting moments, or unique selling points in a visually compelling way, leaving viewers eager for more. Trailers often use dynamic visuals, music, and narration to create excitement.",
+  "company": "Mackay ",
+  "modal": "trailer ",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739089586/dqdouq5t1q82cp9do5go.jpg",
+  "createdAt": {
+    "$date": "2025-02-09T08:28:32.665Z"
+  },
+  "category": "Trailers",
+  "guestCount": {
+    "$numberLong": "1"
+  },
+  "doorCount": {
+    "$numberLong": "1"
+  },
+  "sleepCount": {
+    "$numberLong": "1"
+  },
+  "fuelType": "None",
+  "year": {
+    "$numberLong": "2014"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "150"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a868b598334f7b5c325429"
+  },
+  "title": "Mazda truck in Karjan",
+  "description": "A truck trailer is a large, non-motorized vehicle attachment designed for transporting goods, materials, or equipment. It connects to a truck via a hitch or coupling system and comes in various types, including flatbeds, refrigerated trailers, tankers, and enclosed trailers. Trailers play a crucial role in logistics, construction, and freight industries.",
+  "company": "Mazda",
+  "modal": "Truck",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739089980/upg03kuaxh4mul11qryr.jpg",
+  "createdAt": {
+    "$date": "2025-02-09T08:35:01.968Z"
+  },
+  "category": "Trucks",
+  "guestCount": {
+    "$numberLong": "3"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "1"
+  },
+  "fuelType": "Diesel",
+  "year": {
+    "$numberLong": "2009"
+  },
+  "locationValue": "IN",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "120"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a869b398334f7b5c32542a"
+  },
+  "title": "A powerful Isuzu truck",
+  "description": "A truck trailer is a large, non-motorized vehicle attachment designed for transporting goods, materials, or equipment. It connects to a truck via a hitch or coupling system and comes in various types, including flatbeds, refrigerated trailers, tankers, and enclosed trailers. Trailers play a crucial role in logistics, construction, and freight industries.",
+  "company": "Isuzu",
+  "modal": "Isuzu",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739090251/bidoddts7o0umvdnixjv.jpg",
+  "createdAt": {
+    "$date": "2025-02-09T08:39:15.711Z"
+  },
+  "category": "Utes",
+  "guestCount": {
+    "$numberLong": "5"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "1"
+  },
+  "fuelType": "Hybrid",
+  "year": {
+    "$numberLong": "2015"
+  },
+  "locationValue": "AW",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "200"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a86ad598334f7b5c32542b"
+  },
+  "title": "Luxurious off road carvan in north America",
+  "description": "A caravan is a versatile, mobile home on wheels, perfect for road trips, camping, and long-term travel. It provides the comfort of a house while allowing travelers to explore different locations without worrying about accommodation. Modern caravans come equipped with essential amenities like a kitchen, bathroom, sleeping area, and storage, making them ideal for solo travelers, families, and adventurers. They are available in various sizes, from compact trailers to luxurious motorhomes with high-end features. Caravans offer freedom and flexibility, letting people enjoy nature, visit remote destinations, and embrace a nomadic lifestyle while staying comfortable on the road.",
+  "company": "carvan",
+  "modal": "carvan",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739090533/gmkionysujjcs4akidji.jpg",
+  "createdAt": {
+    "$date": "2025-02-09T08:44:05.760Z"
+  },
+  "category": "Caravans",
+  "guestCount": {
+    "$numberLong": "7"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "7"
+  },
+  "fuelType": "Diesel",
+  "year": {
+    "$numberLong": "2016"
+  },
+  "locationValue": "US",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "300"
+  }
+},
+{
+  "_id": {
+    "$oid": "67a9ec7e7186925ff3a4ecaa"
+  },
+  "title": "Beautiful jetski in barcelona",
+  "description": "Beautiful Caravan from Khush Patel",
+  "company": "Jayco",
+  "modal": "Crusader",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739189226/khwpjodxvmshn0ehxig2.jpg",
+  "createdAt": {
+    "$date": "2025-02-10T12:09:34.431Z"
+  },
+  "category": "JetSkies",
+  "guestCount": {
+    "$numberLong": "2"
+  },
+  "doorCount": {
+    "$numberLong": "1"
+  },
+  "sleepCount": {
+    "$numberLong": "1"
+  },
+  "fuelType": "Diesel",
+  "year": {
+    "$numberLong": "2024"
+  },
+  "locationValue": "ES",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "133"
+  }
+},
+{
+  "_id": {
+    "$oid": "67ac65c3ee17b8969b9f8503"
+  },
+  "title": "powerful and luxurious 1500 RAM ",
+  "description": "The RAM 1500 Laramie is a powerful and luxurious full-size ute designed for both work and adventure. Powered by a 5.7L HEMI® V8 engine, it delivers 291kW of power and 556Nm of torque. The multi-link coil spring rear suspension ensures a smooth ride, while the 12-inch Uconnect touchscreen infotainment system and premium leather-trimmed seats provide unmatched comfort. With a 4.5-tonne towing capacity, this ute is built to handle the toughest jobs and long-distance travel with ease.",
+  "company": "Ram",
+  "modal": "Ram",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739350775/xhrau4rdc79seqygvcy4.jpg",
+  "createdAt": {
+    "$date": "2025-02-12T09:11:31.314Z"
+  },
+  "category": "Utes",
+  "guestCount": {
+    "$numberLong": "2"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "0"
+  },
+  "fuelType": "Hybrid",
+  "year": {
+    "$numberLong": "2017"
+  },
+  "locationValue": "CL",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "240"
+  }
+},
+{
+  "_id": {
+    "$oid": "67ac676dee17b8969b9f8506"
+  },
+  "title": "Hino 500 Series GH 1835 – The Ultimate Transport Truck",
+  "description": "The Hino 500 Series GH 1835 is engineered for heavy-duty operations, featuring a 9.0L turbo-diesel engine producing 257kW of power and 1422Nm of torque. Designed for towing and long-distance transport, it includes a tilt & telescopic adjustable steering column, air suspension for smoother rides, and a driver-focused ergonomic cabin. Its automated transmission and fuel-efficient technology make it a cost-effective choice for businesses looking for performance and reliability.",
+  "company": "Hino",
+  "modal": "Truck",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739351569/ganrg9wyazd0xer6tx9r.jpg",
+  "createdAt": {
+    "$date": "2025-02-12T09:18:37.207Z"
+  },
+  "category": "Trucks",
+  "guestCount": {
+    "$numberLong": "2"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "0"
+  },
+  "fuelType": "Petrol",
+  "year": {
+    "$numberLong": "2015"
+  },
+  "locationValue": "TR",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "150"
+  }
+},
+{
+  "_id": {
+    "$oid": "67ac68fcee17b8969b9f8508"
+  },
+  "title": "Houseboat with Modern Comforts for a Floating Home Experience",
+  "description": "A boat is a watercraft designed for travel, transport, fishing, recreation, or commercial use on rivers, lakes, and oceans. Boats vary in size, design, and functionality, ranging from small personal vessels to large commercial ships. They are essential for transportation, leisure activities, and maritime industries.",
+  "company": "Mackay ",
+  "modal": "Boat",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739352279/lx6aoxnhj4bd3x0forxs.jpg",
+  "createdAt": {
+    "$date": "2025-02-12T09:25:16.233Z"
+  },
+  "category": "Boats",
+  "guestCount": {
+    "$numberLong": "7"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "0"
+  },
+  "fuelType": "Diesel",
+  "year": {
+    "$numberLong": "2018"
+  },
+  "locationValue": "BR",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "120"
+  }
+},
+{
+  "_id": {
+    "$oid": "67ac6aa8ee17b8969b9f8512"
+  },
+  "title": "Title: Spacious Family Caravan for Ultimate Road Trips",
+  "description": "The Jayco Journey 22.68-1 is the perfect family-friendly caravan designed for comfort, convenience, and adventure. With a modern and spacious interior, it features bunk beds, a queen-sized master bed, a full kitchen with a microwave and cooktop, a dinette, and a private bathroom with a shower and toilet. The air conditioning, solar panel system, and ample storage make long trips enjoyable and stress-free. Built with durable materials and off-road capabilities, this caravan ensures a safe and smooth ride across Australia's beautiful landscapes. Whether you're heading to the beach, the outback, or a national park, this family caravan is ready for every adventure.",
+  "company": "jayco",
+  "modal": "Boat",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739352579/pzn9qmy6hggypukhgtlv.jpg",
+  "createdAt": {
+    "$date": "2025-02-12T09:32:24.194Z"
+  },
+  "category": "Caravans",
+  "guestCount": {
+    "$numberLong": "7"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "7"
+  },
+  "fuelType": "Diesel",
+  "year": {
+    "$numberLong": "2016"
+  },
+  "locationValue": "CR",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "150"
+  }
+},
+{
+  "_id": {
+    "$oid": "67ac6b51ee17b8969b9f851a"
+  },
+  "title": "Isuzu D-MAX X-Terrain – Heavy-Duty Workhorse",
+  "description": "The Isuzu D-MAX X-Terrain is a high-performance 4x4 ute with a 3.0L turbo-diesel engine and 3.5-tonne towing capacity. It boasts intelligent driver-assist safety systems, off-road-ready suspension, and a stylish yet durable exterior. Whether for off-road challenges or daily utility, the D-MAX is a dependable option for those who need strength, efficiency, and reliability in one package.",
+  "company": "Isuzu",
+  "modal": "Isuzu",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739352806/fqb24vtkhoh5wkki7auo.jpg",
+  "createdAt": {
+    "$date": "2025-02-12T09:35:13.045Z"
+  },
+  "category": "Utes",
+  "guestCount": {
+    "$numberLong": "3"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "0"
+  },
+  "fuelType": "Hybrid",
+  "year": {
+    "$numberLong": "2004"
+  },
+  "locationValue": "GR",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "160"
+  }
+},
+{
+  "_id": {
+    "$oid": "67ac6c10ee17b8969b9f851d"
+  },
+  "title": "Family-Friendly Off-Road Hybrid Pop-Top motorhome in Denmark ",
+  "description": "Swag Camper Trailers' SCT13 Off-Road Hybrid Pop-Top Family 5B is designed to accommodate families with its thoughtful layout and durable construction. The pop-top feature allows for easy storage and transport, making it a practical choice for family getaways. ",
+  "company": "jayco",
+  "modal": "Motorhome ",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739353006/m6wyj0yonoae3spag5lh.jpg",
+  "createdAt": {
+    "$date": "2025-02-12T09:38:24.256Z"
+  },
+  "category": "Motorhomes",
+  "guestCount": {
+    "$numberLong": "4"
+  },
+  "doorCount": {
+    "$numberLong": "2"
+  },
+  "sleepCount": {
+    "$numberLong": "4"
+  },
+  "fuelType": "EV",
+  "year": {
+    "$numberLong": "2010"
+  },
+  "locationValue": "DK",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "200"
+  }
+},
+{
+  "_id": {
+    "$oid": "67ac6d6fee17b8969b9f8520"
+  },
+  "title": "20x8 3500KG Flat top Tri-axle Trailer at Modern Trailers",
+  "description": "A trailer is a short, engaging preview designed to capture attention and build anticipation for a product, movie, game, or event. It highlights key features, exciting moments, or unique selling points in a visually compelling way, leaving viewers eager for more. Trailers often use dynamic visuals, music, and narration to create excitement.",
+  "company": "mordern trailers ",
+  "modal": "trailers ",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739353240/diw5y5tl5tn6j2fvdb5a.jpg",
+  "createdAt": {
+    "$date": "2025-02-12T09:44:15.965Z"
+  },
+  "category": "Trailers",
+  "guestCount": {
+    "$numberLong": "0"
+  },
+  "doorCount": {
+    "$numberLong": "1"
+  },
+  "sleepCount": {
+    "$numberLong": "0"
+  },
+  "fuelType": "None",
+  "year": {
+    "$numberLong": "2017"
+  },
+  "locationValue": "CA",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "150"
+  }
+},
+{
+  "_id": {
+    "$oid": "67ac6ed9ee17b8969b9f8526"
+  },
+  "title": "Two wheeled bike in Perth",
+  "description": "A bike (bicycle) is a two-wheeled vehicle powered by pedaling, used for transportation, recreation, fitness, and sports. Bikes come in various types, including road bikes for speed, mountain bikes for rough terrains, hybrid bikes for versatility, and electric bikes for assisted riding. They are lightweight, eco-friendly, and cost-effective, making them a popular choice for commuting and exercise. Modern bicycles feature durable frames, gear systems, and suspension for comfort and performance. Whether for leisure rides, competitive cycling, or everyday commuting, bikes provide a healthy and sustainable way to travel while reducing environmental impact.",
+  "company": "Bikes",
+  "modal": "bikes",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739353750/ad2f6ruuviq4hrwllntr.jpg",
+  "createdAt": {
+    "$date": "2025-02-12T09:50:17.460Z"
+  },
+  "category": "Bikes",
+  "guestCount": {
+    "$numberLong": "1"
+  },
+  "doorCount": {
+    "$numberLong": "0"
+  },
+  "sleepCount": {
+    "$numberLong": "0"
+  },
+  "fuelType": "None",
+  "year": {
+    "$numberLong": "2016"
+  },
+  "locationValue": "AU",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "60"
+  }
+},
+{
+  "_id": {
+    "$oid": "67b00d19a185f309d1396090"
+  },
+  "title": "Good Jet",
+  "description": "daddadacacac ",
+  "company": "Jayco",
+  "modal": "Crusader",
+  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739590896/tngagjfco9fivhxn2bmn.webp",
+  "createdAt": {
+    "$date": "2025-02-15T03:42:17.000Z"
+  },
+  "category": "JetSkies",
+  "guestCount": {
+    "$numberLong": "2"
+  },
+  "doorCount": {
+    "$numberLong": "0"
+  },
+  "sleepCount": {
+    "$numberLong": "0"
+  },
+  "fuelType": "Petrol",
+  "year": {
+    "$numberLong": "2018"
+  },
+  "information": "dadadaddddddddddddddddddadac ",
+  "locationValue": "AF",
+  "userId": {
+    "$oid": "67a70d3cc746ed0e258ad647"
+  },
+  "price": {
+    "$numberLong": "123"
+  },
+  "amenities": [
+    "basic_pantry",
+    "tv",
+    "coffee_machine"
+  ]
+}]
