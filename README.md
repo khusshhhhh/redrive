@@ -1,26 +1,27 @@
-# 🚀 **REDRIVE - MVP Completed!** 🚀
+# 🚀 **REDRIVE - MVP Completed & More Features in Development!** 🚀
 
-> _A Solo Developer's Triumph Over 31 Days, 170+ Hours, Countless Debugging Sessions, and Unstoppable Determination!_
+> _A Solo Developer’s Triumph Over 40+ Days, 220+ Hours, Countless Debugging Sessions, and Unstoppable Determination—with immense support from my life partner, Hiral! ❤️_
 
 ---
 
 ## 🏆 **About the Project**
 
-🔴 **REDRIVE** is more than just a project—it's the result of **sleepless nights, relentless debugging, and an unshakable passion for coding**.  
-🛠 **Designed, built, and perfected by a single developer**, this **MVP (Minimum Viable Product)** marks a milestone of **31 days and 170+ hours** of effort, research, and trial-and-error learning.  
+🔴 **REDRIVE** is more than just a project—it’s the result of **sleepless nights, relentless debugging, and an unshakable passion for coding**.  
+🛠 **Designed, built, and perfected by a single developer**, this **MVP (Minimum Viable Product)** marks a milestone of **40+ days and 220+ hours** of effort, research, and trial-and-error learning.  
 📖 **From ideation to execution**, this project pushed me beyond my limits, making me **a better problem solver, a stronger coder, and a more resilient developer**.
+
+💡 **Special Thanks to Hiral**  
+My partner, my motivator, and my biggest supporter—**Hiral** has been by my side throughout this journey, helping me stay focused, pushing me to overcome challenges, and celebrating every milestone with me. This wouldn’t have been possible without her. ❤️
 
 ---
 
-## 🎯 **The MVP Journey: Blood, Sweat, and Code**
+## 🎯 **The Journey of REDRIVE MVP**
 
-✔ **31 Days of Non-Stop Development** 🏗  
-✔ **170+ Hours of Coding, Debugging & Brainstorming** 💡  
+✔ **40+ Days of Non-Stop Development** 🏗  
+✔ **220+ Hours of Coding, Debugging & Brainstorming** 💡  
 ✔ **Mastered Next.js, Prisma, MongoDB, and Advanced API Development** 🔥  
-✔ **Transformed Ideas Into a Functional, Scalable Web App** 🚀
-
-I embarked on this project with one mission:  
-**To build a fully functional, modern web app with best practices, authentication, real-time interactions, and an intuitive UI/UX—all by myself.**
+✔ **Transformed Ideas Into a Functional, Scalable Web App** 🚀  
+✔ **Iterating & Adding More Features for a Full-Fledged Product!** 📈
 
 ---
 
@@ -53,38 +54,10 @@ I embarked on this project with one mission:
 ## 🔥 **What Makes REDRIVE Special?**
 
 ✅ **A True Solo Developer’s Masterpiece** - Every line of code, every feature, every debug was done by **ME**!  
-✅ **MVP Ready in 31 Days!** - From zero to launch in just over a month!  
+✅ **MVP Ready in Just Over a Month!** - A complete, functional web app in record time!  
 ✅ **Real-World Features & Best Practices** - Authentication, reviews, reservations, listings, UI components, error handling, and more!  
-✅ **Hundreds of Debugging Sessions Overcome** - Pushed my coding limits beyond anything I've done before!  
+✅ **Hundreds of Debugging Sessions Overcome** - Pushed my coding limits beyond anything I’ve done before!  
 ✅ **Scalable, Modular, and Future-Proof** - Built to **grow into a full-fledged product** with real users.
-
----
-
-## 🏗 **Project Structure**
-
-A well-organized structure ensures maintainability and scalability.
-
-```
-📂 REDRIVE
- ┣ 📂 app
- ┃ ┣ 📂 actions          # Server-side functions for data fetching
- ┃ ┣ 📂 api              # API routes (reservations, reviews, listings)
- ┃ ┣ 📂 components       # UI Components (buttons, modals, navbar, inputs)
- ┃ ┣ 📂 hooks            # Custom React hooks (state management)
- ┃ ┣ 📂 layouts          # Main layout structure
- ┃ ┣ 📂 libs             # Prisma DB connection & utilities
- ┃ ┣ 📂 pages            # Next.js pages (trips, reservations, reviews)
- ┃ ┣ 📂 prisma           # Database schema & migrations
- ┃ ┣ 📂 providers        # Global providers (authentication, modals)
- ┃ ┣ 📂 styles           # TailwindCSS styles
- ┃ ┣ 📜 page.tsx         # Main entry point
- ┣ 📂 public             # Static assets (logos, icons, images)
- ┣ 📜 README.md          # This document 😎
- ┣ 📜 next.config.js     # Next.js configuration
- ┣ 📜 prisma/schema.prisma # Prisma ORM database schema
- ┣ 📜 tailwind.config.ts # TailwindCSS configuration
- ┗ 📜 tsconfig.json      # TypeScript configuration
-```
 
 ---
 
@@ -137,7 +110,8 @@ This project taught me **real-world problem-solving skills** that no tutorial ev
 
 ## 🎯 **Next Steps & Future Features**
 
-Even though **the MVP is complete**, the journey isn’t over! 🚀  
+Even though **the MVP is complete**, the journey isn’t over! 🚀
+
 🔜 **User Profiles & Dashboard**  
 🔜 **Payment Integration (Stripe/PayPal)**  
 🔜 **Real-Time Notifications**  
@@ -169,7 +143,7 @@ If you’re an investor... well, **call me! 😆**
 
 **_Built with passion. Debugged with frustration. Launched with pride._**
 
-💻 **A Solo Developer’s Masterpiece - REDRIVE MVP - 31 Days, 170+ Hours, Infinite Lessons Learned!** 🎯
+💻 **A Solo Developer’s Masterpiece - REDRIVE - 40+ Days, 220+ Hours, Infinite Lessons Learned!** 🎯
 
 ---
 
