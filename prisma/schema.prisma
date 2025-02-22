@@ -30,6 +30,8 @@ model User {
   hobbies        String[]  @default([])  // Array of hobbies
   dreamDestinations String[] @default([]) // List of places user wants to visit
 
+  profileVerified   String?   @default("N")
+
   accounts     Account[]
   listings     Listing[]
   reservations Reservation[]

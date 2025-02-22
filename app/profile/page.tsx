@@ -7,6 +7,7 @@ import Button from "@/app/components/Button";
 import Avatar from "@/app/components/Avatar";
 import axios from "axios";
 import { toast, Toaster } from "react-hot-toast";
+import { FaCheck } from "react-icons/fa";
 
 interface ProfileFormData {
     name: string;
@@ -17,6 +18,7 @@ interface ProfileFormData {
     state: string;
     postcode: string;
     hobbies: string;
+    profileVerified: string;
     dreamDestinations: string;
 }
 
@@ -26,6 +28,7 @@ export default function Profile() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [userName, setUserName] = useState<string | null>(null); // Store user name
+    const [profileVerified, setProfileVerified] = useState<string>("N"); // ✅ Fixed missing state
 
     const [cityInput, setCityInput] = useState<string>("");
     const [suggestedCities, setSuggestedCities] = useState<string[]>([]);
@@ -37,8 +40,10 @@ export default function Profile() {
             try {
                 const response = await axios.get("/api/auth/user"); // Fetch from new API route
 
+
                 if (response.data) {
                     setUserName(response.data.name || "User"); // Set the name in state
+                    setProfileVerified(response.data.profileVerified || "N"); // ✅ Fix: Ensure profileVerified is stored in state
                     reset({
                         name: response.data.name || "",
                         email: response.data.email || "",
@@ -49,6 +54,7 @@ export default function Profile() {
                         postcode: response.data.postcode || "",
                         hobbies: response.data.hobbies?.join(", ") || "",
                         dreamDestinations: response.data.dreamDestinations?.join(", ") || "",
+                        profileVerified: response.data.profileVerified || "N", // ✅ Fixed missing state
                     });
                     setImage(response.data.image || "/images/placeholder.png");
                 }
@@ -105,6 +111,7 @@ export default function Profile() {
             hobbies: data.hobbies ? data.hobbies.split(",").map((h) => h.trim()) : [],
             dreamDestinations: data.dreamDestinations ? data.dreamDestinations.split(",").map((d) => d.trim()) : [],
             image,
+            profileVerified,
         };
 
         try {
@@ -129,7 +136,10 @@ export default function Profile() {
                 <div className="text-center mt-10">Loading profile...</div>
             ) : (
                 <div className="max-w-2xl mx-auto p-6 bg-white mt-10">
-                    <h2 className="text-2xl font-bold mb-6 text-center">Hey, {userName}</h2>
+                    <h2 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2">
+                        Hey, {userName}
+                        {profileVerified === "Y" && <FaCheck className="text-teal-500" size={20} />}
+                    </h2>
 
                     <div className="flex flex-col items-center mb-6">
                         <label htmlFor="profileImage" className="cursor-pointer">

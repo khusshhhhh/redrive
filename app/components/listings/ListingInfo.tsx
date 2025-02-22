@@ -4,6 +4,7 @@ import useCountries from "@/app/hooks/useCountries";
 import { SafeUser } from "@/app/types";
 import { IconType } from "react-icons";
 import Avatar from "../Avatar";
+import { FaCheck } from "react-icons/fa";
 import { BsFillPeopleFill } from "react-icons/bs";
 import { GiCarDoor } from "react-icons/gi";
 import { FaBed } from "react-icons/fa";
@@ -76,6 +77,12 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                 <div className="text-xl font-semibold flex flex-row items-center gap-2">
                     <div>Hosted by {user?.name}</div>
                     <Avatar src={user?.image} />
+                </div>
+                <div className="text-white flex flex-row gap-2 bg-teal-500 items-center w-[27%] px-4 py-2 text-center rounded-lg">
+                    Verified User
+                    {user?.profileVerified === "Y" && (
+                        <FaCheck className="text-white" size={18} />
+                    )}
                 </div>
                 <div className="flex flex-row items-center gap-4 font-regular text-neutral-700">
                     <div className="flex flex-row gap-3"><BsFillPeopleFill size={22} color="black" />{guestCount} guests</div>
