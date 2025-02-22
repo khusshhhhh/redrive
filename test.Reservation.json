@@ -1,0 +1,28 @@
+[
+  {
+    "_id": {
+      "$oid": "67b2b0018113005670dfb2b7"
+    },
+    "userId": {
+      "$oid": "67b55ad622d62858c9045bea"
+    },
+    "listingId": {
+      "$oid": "67b26ea3a337dce78b1c7cdf"
+    },
+    "startDate": {
+      "$date": "2025-02-02T13:30:00.000Z"
+    },
+    "endDate": {
+      "$date": "2025-02-05T13:30:00.000Z"
+    },
+    "totalPrice": {
+      "$numberLong": "48888"
+    },
+    "totalFees": {
+      "$numberLong": "51821"
+    },
+    "createdAt": {
+      "$date": "2025-02-17T03:41:53.011Z"
+    }
+  }
+]

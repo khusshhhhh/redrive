@@ -21,7 +21,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
   const loginModal = useLoginModal();
   const rentModal = useRentModal();
   const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null); // Ref for detecting clicks outside
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // Toggle menu open/close
   const toggleOpen = useCallback(() => {
@@ -41,7 +41,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
     };
   }, []);
 
-  // Close menu upon clicking any menu item
+  // Close menu when clicking a menu item
   const closeMenu = () => {
     setIsOpen(false);
   };
@@ -78,7 +78,10 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
         <div className="absolute rounded-xl shadow-md w-[40vw] md:w-44 bg-white overflow-hidden right-0 top-12 text-sm">
           <div className="flex flex-col cursor-pointer">
             {currentUser && (
-              <div className="px-4 py-3 text-left text-sm font-bold text-black cursor-default">
+              <div
+                onClick={() => { router.push("/profile"); closeMenu(); }}
+                className="px-4 py-3 text-left text-sm font-bold text-black hover:bg-gray-100 transition cursor-pointer"
+              >
                 {currentUser.name}
               </div>
             )}
@@ -90,6 +93,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
                 <MenuItem onClick={() => { router.push("/reservations"); closeMenu(); }} label="My Reservations" />
                 <MenuItem onClick={() => { router.push("/favorites"); closeMenu(); }} label="My Favourites" />
                 <MenuItem onClick={() => { router.push("/properties"); closeMenu(); }} label="My Utilities" />
+                {/* <MenuItem onClick={() => { router.push("/profile"); closeMenu(); }} label="Profile" /> */}
                 <hr />
                 <MenuItem onClick={() => { signOut(); closeMenu(); }} label="Logout" />
               </>

@@ -1,36 +1,35 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import prisma from "@/app/libs/prismadb";
-import { getServerSession } from "next-auth";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { headers } from "next/headers";
 
-export default async function getCurrentUser() {
+export async function GET() {
   try {
-    // Fetch session with correct request context
     const session = await getServerSession(authOptions);
 
-    // If no session or email, return null
     if (!session?.user?.email) {
-      return null;
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Fetch user from database using email
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email as string },
     });
 
     if (!currentUser) {
-      return null;
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return {
+    return NextResponse.json({
       ...currentUser,
       createdAt: currentUser.createdAt.toISOString(),
       updatedAt: currentUser.updatedAt.toISOString(),
       emailVerified: currentUser.emailVerified?.toISOString() || null,
-    };
+    });
   } catch (error) {
     console.error("Error fetching current user:", error);
-    return null;
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

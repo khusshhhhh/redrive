@@ -22,6 +22,14 @@ model User {
   updatedAt      DateTime  @updatedAt
   favoriteIds    String[]  @db.ObjectId
 
+  // New fields
+  streetAddress  String?
+  city           String?
+  state          String?
+  postcode       String?
+  hobbies        String[]  @default([])  // Array of hobbies
+  dreamDestinations String[] @default([]) // List of places user wants to visit
+
   accounts     Account[]
   listings     Listing[]
   reservations Reservation[]
