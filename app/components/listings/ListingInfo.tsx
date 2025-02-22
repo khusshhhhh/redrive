@@ -78,12 +78,13 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     <div>Hosted by {user?.name}</div>
                     <Avatar src={user?.image} />
                 </div>
-                <div className="text-white flex flex-row gap-2 bg-teal-500 items-center w-[27%] px-4 py-2 text-center rounded-lg">
-                    Verified User
-                    {user?.profileVerified === "Y" && (
+                {user?.profileVerified === "Y" && (
+                    <div className="text-white flex flex-row gap-2 bg-teal-500 items-center w-[27%] px-4 py-2 text-center rounded-lg">
+                        Verified Host
                         <FaCheck className="text-white" size={18} />
-                    )}
-                </div>
+                    </div>
+
+                )}
                 <div className="flex flex-row items-center gap-4 font-regular text-neutral-700">
                     <div className="flex flex-row gap-3"><BsFillPeopleFill size={22} color="black" />{guestCount} guests</div>
                     <div className="h-5 w-[1px] bg-gray-600"></div>
