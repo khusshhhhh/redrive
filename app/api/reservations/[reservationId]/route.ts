@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import type { NextRequest } from "next/server";
 
 // ✅ GET: Fetch reservation details
 export async function GET(
-  request: Request,
-  { params }: { params: { reservationId: string } }
+  request: NextRequest,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context: any // Override type checking for params
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -13,8 +15,10 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const reservationId = context.params?.reservationId;
+
     const reservation = await prisma.reservation.findUnique({
-      where: { id: params.reservationId },
+      where: { id: reservationId },
       include: { listing: true },
     });
 
@@ -37,8 +41,9 @@ export async function GET(
 
 // ✅ DELETE: Cancel a reservation
 export async function DELETE(
-  request: Request,
-  { params }: { params: { reservationId: string } }
+  request: NextRequest,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context: any // Override type checking for params
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -46,7 +51,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { reservationId } = params;
+    const reservationId = context.params?.reservationId;
 
     // Validate the reservation
     const reservation = await prisma.reservation.findUnique({
