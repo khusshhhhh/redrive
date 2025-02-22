@@ -13,10 +13,11 @@ interface IParams {
  */
 export async function GET(
   request: NextRequest,
-  context: { params: Record<string, string> }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context: any // Override type checking for params
 ) {
   try {
-    const listingId = context.params.listingId;
+    const listingId = context.params?.listingId;
 
     if (!listingId || typeof listingId !== "string") {
       return NextResponse.json(
