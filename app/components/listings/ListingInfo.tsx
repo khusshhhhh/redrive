@@ -79,9 +79,9 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     <Avatar src={user?.image} />
                 </div>
                 {user?.profileVerified === "Y" && (
-                    <div className="text-white flex flex-row gap-2 bg-teal-500 items-center w-[27%] px-4 py-2 text-center rounded-lg">
+                    <div className="text-teal-500 flex flex-row gap-2 items-center my-2 text-center rounded-lg">
                         Verified Host
-                        <FaCheck className="text-white" size={18} />
+                        <FaCheck className="text-teal-500" size={18} />
                     </div>
 
                 )}
@@ -116,17 +116,19 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                 </div>
             </div>
             <hr />
-            <div className="mb-8">
+            <div className="">
                 <Map center={coordinates} />
             </div>
+            <hr />
             <div className="">
                 <div className="text-base font-normal text-neutral-600">
                     <div className="font-bold text-lg text-black mb-2">Information</div>
                     <div className="text-base font-normal text-neutral-800">{information}</div>
                 </div>
             </div>
-
-            <div className="mb-8">
+            <hr />
+            <div className="">
+                <div className="font-bold text-lg text-black mb-2">Amenities</div>
                 {/* ✅ Display Selected Amenities with FontAwesome Icons */}
                 {amenities && amenities.length > 0 ? (
                     <div className="mt-6">
@@ -148,8 +150,8 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                 ) : (
                     <p className="text-gray-500">No amenities available for this listing.</p>
                 )}
-
             </div>
+            <hr />
         </div>
     );
 };

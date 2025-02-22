@@ -18,6 +18,7 @@ import { toast } from 'react-hot-toast'
 import Button from '../Button';
 import { useRouter } from 'next/navigation';
 import Modal from './Modal';
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai"; // Added eye icons for show/hide password feature
 
 const LoginModal = () => {
 
@@ -25,6 +26,7 @@ const LoginModal = () => {
     const router = useRouter();
     const loginModal = useLoginModal();
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const {
         register,
@@ -65,6 +67,10 @@ const LoginModal = () => {
         registerModal.onOpen();
     }, [loginModal, registerModal]);
 
+    const togglePasswordVisibility = () => {
+        setShowPassword((prevState) => !prevState); // Function to toggle password visibility
+    }
+
     const bodyContent = (
         <div className="flex flex-col gap-4">
             <Heading title="" subtitle="Log in to continue." />
@@ -75,14 +81,24 @@ const LoginModal = () => {
                 register={register}
                 errors={errors}
                 required />
-            <Input
-                id="password"
-                type="password"
-                label="Password"
-                disabled={isLoading}
-                register={register}
-                errors={errors}
-                required />
+            <div className="relative"> {/* Wrapped input inside a div for proper positioning */}
+                <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"} // Toggle input type based on state
+                    label="Password"
+                    disabled={isLoading}
+                    register={register}
+                    errors={errors}
+                    required
+                />
+                <button
+                    type="button"
+                    onClick={togglePasswordVisibility} // Click to toggle visibility
+                    className="absolute inset-y-0 right-4 flex items-center text-gray-500"
+                >
+                    {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />} {/* Toggle icons */}
+                </button>
+            </div>
         </div>
     )
 

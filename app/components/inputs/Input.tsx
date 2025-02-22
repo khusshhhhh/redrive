@@ -11,9 +11,10 @@ interface InputProps {
     formatPrice?: boolean;
     required?: boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    register: UseFormRegister<any>; // Now supports any form schema
+    register: UseFormRegister<any>;
     errors: FieldErrors;
     placeholder?: string;
+    validate?: (value: string) => true | string; // ✅ ADDED validate PROP
 }
 
 const Input: React.FC<InputProps> = ({
@@ -25,6 +26,7 @@ const Input: React.FC<InputProps> = ({
     register,
     required,
     errors,
+    validate,
 }) => {
     return (
         <div className="w-full relative">
@@ -38,7 +40,7 @@ const Input: React.FC<InputProps> = ({
             <input
                 id={id}
                 disabled={disabled}
-                {...register(id, { required })}
+                {...register(id, { required, validate })} // ✅ APPLYING VALIDATE PROP
                 placeholder=" "
                 type={type}
                 className={`peer w-full p-4 pt-6 font-light bg-white border-2 rounded-md outline-none transition disabled:opacity-70 disabled:cursor-not-allowed
