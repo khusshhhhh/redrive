@@ -75,12 +75,12 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
       </div>
 
       {isOpen && (
-        <div className="absolute rounded-xl shadow-md w-[40vw] md:w-44 bg-white overflow-hidden right-0 top-12 text-sm">
+        <div className="absolute rounded-xl shadow-md w-[44vw] md:w-52 bg-white overflow-hidden right-0 top-12 text-sm">
           <div className="flex flex-col cursor-pointer">
             {currentUser && (
               <div
                 onClick={() => { router.push("/profile"); closeMenu(); }}
-                className="px-4 py-3 text-left text-sm font-bold text-black hover:bg-gray-100 transition cursor-pointer"
+                className="px-8 py-3 text-left text-sm font-bold text-black hover:bg-gray-100 transition cursor-pointer"
               >
                 {currentUser.name}
               </div>
@@ -100,6 +100,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
             ) : (
               <>
                 <MenuItem onClick={() => { loginModal.onOpen(); closeMenu(); }} label="Login" />
+                <hr />
                 <MenuItem onClick={() => { registerModal.onOpen(); closeMenu(); }} label="Sign Up" />
               </>
             )}
