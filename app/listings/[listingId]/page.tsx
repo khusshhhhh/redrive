@@ -4,9 +4,8 @@ import ClientOnly from "@/app/components/ClientOnly";
 import EmptyState from "@/app/components/EmptyState";
 import ListingClient from "./ListingClient";
 import getReservations from "@/app/actions/getReservations";
-
 interface ListingPageProps {
-    params: { listingId?: string }; // ✅ Allow optional listingId to prevent errors
+    params: { listingId?: string };
 }
 
 const ListingPage = async ({ params }: ListingPageProps) => {
