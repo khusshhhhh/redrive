@@ -25,6 +25,7 @@ const Home = async ({ searchParams }: PageProps<{ searchParams?: IListingsParams
     <ClientOnly>
       <Container>
         <div className="
+          z-9
           pt-24
           grid
           grid-cols-1
