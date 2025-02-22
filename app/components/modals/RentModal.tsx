@@ -185,11 +185,14 @@ const RentModal = () => {
                     title="Where is your utility located?"
                     subtitle="Help redrivers find you!"
                 />
-                <CountrySelect
-                    value={location}
-                    onChange={(value) => setCustomValue('location', value)}
-                />
-                <Map center={location?.latlng} />
+                <div className="flex flex-col gap-8">
+                    <CountrySelect
+                        value={location}
+                        onChange={(value) => setCustomValue('location', value)}
+                    />
+                    <Map center={location?.latlng} />
+                </div>
+
             </div>
         );
     }
