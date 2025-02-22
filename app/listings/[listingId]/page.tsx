@@ -4,9 +4,9 @@ import ClientOnly from "@/app/components/ClientOnly";
 import EmptyState from "@/app/components/EmptyState";
 import ListingClient from "./ListingClient";
 import getReservations from "@/app/actions/getReservations";
-import type { PageProps } from "next";
+import { GetServerSidePropsContext } from "next";
 
-interface ListingPageProps extends PageProps {
+interface ListingPageProps extends GetServerSidePropsContext {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params: any; // Override type checking for params
 }
