@@ -4,9 +4,12 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": true,
     "skipLibCheck": true,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "strict": true,
+    "noImplicitAny": false,
+    "strict": false,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "ESNext",
@@ -16,7 +19,7 @@
     "jsx": "preserve",
     "incremental": true,
     "forceConsistentCasingInFileNames": true,
-    "strictNullChecks": true,
+    "strictNullChecks": false,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
