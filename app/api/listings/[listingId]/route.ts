@@ -3,6 +3,7 @@ import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
 import type { NextRequest } from "next/server";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface IParams {
   listingId?: string;
 }
@@ -12,10 +13,10 @@ interface IParams {
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: IParams }
+  context: { params: { listingId?: string } }
 ) {
   try {
-    const { listingId } = params;
+    const listingId = context.params.listingId;
 
     if (!listingId || typeof listingId !== "string") {
       return NextResponse.json(
@@ -53,11 +54,11 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: IParams }
+  context: { params: { listingId?: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
-    const { listingId } = params;
+    const listingId = context.params.listingId;
 
     if (!listingId || typeof listingId !== "string") {
       return NextResponse.json(
@@ -83,7 +84,7 @@ export async function PUT(
       year,
       fuelType,
       price,
-      amenities, // ✅ Now updating `amenities` directly
+      amenities,
     } = body;
 
     if (
@@ -117,7 +118,7 @@ export async function PUT(
         year: parseInt(year, 10),
         fuelType,
         price: parseFloat(price),
-        amenities: formattedAmenities, // ✅ Store directly in listing
+        amenities: formattedAmenities,
       },
     });
 
@@ -135,12 +136,12 @@ export async function PUT(
  * ✅ DELETE: Remove a listing
  */
 export async function DELETE(
-  request: Request,
-  { params }: { params: IParams }
+  request: NextRequest,
+  context: { params: { listingId?: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
-    const { listingId } = params;
+    const listingId = context.params.listingId;
 
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
