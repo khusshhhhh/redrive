@@ -4,11 +4,13 @@ import ClientOnly from "@/app/components/ClientOnly";
 import EmptyState from "@/app/components/EmptyState";
 import ListingClient from "./ListingClient";
 import getReservations from "@/app/actions/getReservations";
-interface ListingPageProps {
+import type { PageProps } from "next";
+
+interface ListingPageProps extends PageProps {
     params: { listingId?: string };
 }
 
-const ListingPage = async ({ params }: ListingPageProps) => {
+const ListingPage = async ({ params }: Awaited<ListingPageProps>) => {
     if (!params || !params.listingId) { // ✅ Ensure params exists before accessing listingId
         return (
             <ClientOnly>
