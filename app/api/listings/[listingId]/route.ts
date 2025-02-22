@@ -13,7 +13,7 @@ interface IParams {
  */
 export async function GET(
   request: NextRequest,
-  context: { params: { listingId?: string } }
+  context: { params: Record<string, string> }
 ) {
   try {
     const listingId = context.params.listingId;
