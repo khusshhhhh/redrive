@@ -1,33 +1,36 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
+import type { NextRequest } from "next/server";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
+/**
+ * ✅ GET: Fetch a user by ID
+ */
+export async function GET(
+  request: NextRequest,
+  context: { params: { userId?: string } }
 ) {
-  if (req.method === "GET") {
-    const { userId } = req.query;
+  try {
+    const userId = context.params?.userId;
 
     if (!userId || typeof userId !== "string") {
-      return res.status(400).json({ error: "Invalid user ID" });
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-      });
+    // Fetch the user from Prisma
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
 
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      return res.status(200).json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      return res.status(500).json({ error: "Internal server error" });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-  } else {
-    res.setHeader("Allow", ["GET"]);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+
+    return NextResponse.json(user, { status: 200 });
+  } catch (error) {
+    console.error("❌ Error fetching user:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
