@@ -4,14 +4,10 @@ import ClientOnly from "@/app/components/ClientOnly";
 import EmptyState from "@/app/components/EmptyState";
 import ListingClient from "./ListingClient";
 import getReservations from "@/app/actions/getReservations";
-import { GetServerSidePropsContext } from "next";
+// import { GetServerSidePropsContext } from "next";
 
-interface ListingPageProps extends GetServerSidePropsContext {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    params: any; // Override type checking for params
-}
-
-const ListingPage = async ({ params }: ListingPageProps) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ListingPage = async ({ params }: { params: any }) => {
     if (!params || !params.listingId) { // ✅ Ensure params exists before accessing listingId
         return (
             <ClientOnly>
