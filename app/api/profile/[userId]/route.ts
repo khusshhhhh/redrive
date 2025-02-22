@@ -7,7 +7,8 @@ import type { NextRequest } from "next/server";
  */
 export async function GET(
   request: NextRequest,
-  context: { params: { userId?: string } }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context: any
 ) {
   try {
     const userId = context.params?.userId;
