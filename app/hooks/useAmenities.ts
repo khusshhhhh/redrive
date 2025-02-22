@@ -62,6 +62,7 @@ import {
 } from "@tabler/icons-react"; // ✅ Import all required icons
 
 // ✅ Define Global Icon Properties
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ICON_PROPS = {
   size: 24, // Set icon size
   stroke: 2, // Set stroke width

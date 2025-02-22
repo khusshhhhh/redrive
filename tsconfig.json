@@ -4,6 +4,8 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": true,
     "skipLibCheck": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
