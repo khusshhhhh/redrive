@@ -1,30 +1,26 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import useCountries from "@/app/hooks/useCountries";
 import { SafeUser } from "@/app/types";
-import Heading from "../Heading";
 import Image from "next/image";
 import HeartButton from "../HeartButton";
 import { IoClose } from "react-icons/io5";
+import Heading from "../Heading";
 
 interface ListingHeadProps {
     title: string;
-    locationValue: string;
     imageSrc: string;
     id: string;
     currentUser?: SafeUser | null;
+    address: string;
 }
 
 const ListingHead: React.FC<ListingHeadProps> = ({
-    title,
-    locationValue,
     imageSrc,
+    title,
     id,
     currentUser
 }) => {
-    const { getByValue } = useCountries();
-    const location = getByValue(locationValue);
 
     // State for image modal
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,10 +39,11 @@ const ListingHead: React.FC<ListingHeadProps> = ({
 
     return (
         <>
-            {/* Title & Location */}
+            {/* Title */}
+
             <Heading
                 title={title}
-                subtitle={`${location?.region}, ${location?.label}`}
+                subtitle=""
             />
 
             {/* Listing Image - Click to Open Modal */}

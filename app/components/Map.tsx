@@ -1,54 +1,82 @@
 'use client';
 
-import L from "leaflet";
-import { MapContainer, Marker, TileLayer } from "react-leaflet";
-
-import "leaflet/dist/leaflet.css";
-
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import { useEffect, useRef, useState } from "react";
-
-L.Icon.Default.mergeOptions({
-    iconUrl: markerIcon.src,
-    iconRetinaUrl: markerIcon2x.src,
-    shadowUrl: markerShadow.src,
-});
+import { useEffect, useState, useRef } from "react";
+import Script from "next/script";
 
 interface MapProps {
-    center?: number[];
+    suburb?: string;
+    state?: string;
+    latitude?: number;
+    longitude?: number;
 }
 
-const Map: React.FC<MapProps> = ({ center }) => {
-    const mapRef = useRef<L.Map | null>(null);
-    const [key, setKey] = useState(0); // Used to force re-render if needed
+const Map: React.FC<MapProps> = ({ suburb, state, latitude, longitude }) => {
+    const mapRef = useRef<HTMLDivElement | null>(null);
+    const [mapLocation, setMapLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [apiLoaded, setApiLoaded] = useState(false);
 
+    // ✅ Load suburb location from JSON if latitude & longitude are not provided
     useEffect(() => {
-        if (mapRef.current) {
-            mapRef.current.remove(); // Ensure the previous map is destroyed
+        if (latitude && longitude) {
+            setMapLocation({ lat: latitude, lng: longitude });
+            return;
         }
-        setKey((prevKey) => prevKey + 1); // Force a re-render
-    }, [center]);
+
+        if (!suburb || !state) return;
+
+        fetch("/test.Suburb.json")
+            .then((res) => res.json())
+            .then((data) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const foundSuburb = data.find((s: any) => s.suburb === suburb && s.state === state);
+                if (foundSuburb) {
+                    setMapLocation({ lat: foundSuburb.lat, lng: foundSuburb.lng });
+                } else {
+                    setMapLocation(null);
+                }
+            })
+            .catch((error) => console.error("❌ Error loading suburb data:", error));
+    }, [suburb, state, latitude, longitude]);
+
+    // ✅ Initialize Google Maps once the API is loaded
+    useEffect(() => {
+        if (!mapRef.current || !mapLocation || !window.google || !apiLoaded) return;
+
+        console.log("✅ Initializing Google Map with Map ID:", process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID);
+
+        const map = new window.google.maps.Map(mapRef.current, {
+            center: mapLocation,
+            zoom: 12,
+            mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || undefined,
+        });
+
+        new window.google.maps.marker.AdvancedMarkerElement({
+            position: mapLocation,
+            map: map,
+            title: suburb || "Selected Location",
+        });
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mapLocation, apiLoaded]);
 
     return (
-        <MapContainer
-            key={key}
-            center={center as L.LatLngExpression || [51, -0.09]}
-            zoom={center ? 4 : 2}
-            scrollWheelZoom={false}
-            className="h-[35vh] rounded-lg"
-        >
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">Redrive</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            {center && (
-                <Marker
-                    position={center as L.LatLngExpression}
+        <>
+            {/* ✅ Load Google Maps API dynamically */}
+            {!apiLoaded && (
+                <Script
+                    src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=marker&map_ids=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID}`}
+                    strategy="afterInteractive"
+                    onLoad={() => setApiLoaded(true)}
                 />
             )}
-        </MapContainer>
+
+            {/* ✅ Display map only if location is available */}
+            {mapLocation ? (
+                <div ref={mapRef} className="h-[35vh] rounded-lg w-full" />
+            ) : (
+                <p className="text-gray-500 text-center">Map location is not available.</p>
+            )}
+        </>
     );
 };
 

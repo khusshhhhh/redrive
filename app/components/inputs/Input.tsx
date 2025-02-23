@@ -12,6 +12,7 @@ interface InputProps {
     required?: boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     register: UseFormRegister<any>;
+    onChange?: React.ChangeEventHandler<HTMLInputElement>; // ✅ ADDED onChange PROP
     errors: FieldErrors;
     placeholder?: string;
     validate?: (value: string) => true | string; // ✅ ADDED validate PROP
@@ -27,6 +28,7 @@ const Input: React.FC<InputProps> = ({
     required,
     errors,
     validate,
+    onChange, // ✅ ADDED onChange PROP
 }) => {
     return (
         <div className="w-full relative">
@@ -40,9 +42,10 @@ const Input: React.FC<InputProps> = ({
             <input
                 id={id}
                 disabled={disabled}
-                {...register(id, { required, validate })} // ✅ APPLYING VALIDATE PROP
+                {...register(id, { required, validate })}
                 placeholder=" "
                 type={type}
+                onChange={onChange} // ✅ Now handles input changes
                 className={`peer w-full p-4 pt-6 font-light bg-white border-2 rounded-md outline-none transition disabled:opacity-70 disabled:cursor-not-allowed
                              ${formatPrice ? "pl-9" : "pl-4"}
                              ${errors[id] ? "border-red-300" : "border-neutral-300"}
@@ -60,5 +63,6 @@ const Input: React.FC<InputProps> = ({
         </div>
     );
 };
+
 
 export default Input;

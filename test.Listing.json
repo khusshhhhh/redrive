@@ -915,44 +915,4 @@
   "price": {
     "$numberLong": "60"
   }
-},
-{
-  "_id": {
-    "$oid": "67b00d19a185f309d1396090"
-  },
-  "title": "Good Jet",
-  "description": "daddadacacac ",
-  "company": "Jayco",
-  "modal": "Crusader",
-  "imageSrc": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1739590896/tngagjfco9fivhxn2bmn.webp",
-  "createdAt": {
-    "$date": "2025-02-15T03:42:17.000Z"
-  },
-  "category": "JetSkies",
-  "guestCount": {
-    "$numberLong": "2"
-  },
-  "doorCount": {
-    "$numberLong": "0"
-  },
-  "sleepCount": {
-    "$numberLong": "0"
-  },
-  "fuelType": "Petrol",
-  "year": {
-    "$numberLong": "2018"
-  },
-  "information": "dadadaddddddddddddddddddadac ",
-  "locationValue": "AF",
-  "userId": {
-    "$oid": "67a70d3cc746ed0e258ad647"
-  },
-  "price": {
-    "$numberLong": "123"
-  },
-  "amenities": [
-    "basic_pantry",
-    "tv",
-    "coffee_machine"
-  ]
 }]

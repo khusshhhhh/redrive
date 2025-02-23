@@ -4,7 +4,7 @@ import useRentModal from "@/app/hooks/useRentModal";
 import Modal from "./Modal";
 
 import CategoryInput from "../inputs/CategoryInput";
-import CountrySelect from "../inputs/CountrySelect";
+// import CountrySelect from "../inputs/CountrySelect";
 import Input from "../inputs/Input";
 import YearSelect from "../inputs/YearSelect";
 import FuelSelector from "../inputs/FuelSelector";
@@ -13,15 +13,27 @@ import AmenitiesSelector from "../inputs/AmenitiesSelector";
 import ImageUpload from "../inputs/ImageUpload";
 import Heading from "../Heading";
 import TextArea from "../inputs/TextArea";
+import StateSelector from "../inputs/StateSelector";
+import SuburbSelector from "../inputs/SuburbSelector";
 
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { useMemo, useState } from "react";
 import { categories } from "../navbar/Categories";
 import { useRouter } from "next/navigation";
+// import Script from "next/script";
 
 import dynamic from "next/dynamic";
+
+// Declare google property on window object
+declare global {
+    interface Window {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        google: any;
+    }
+}
 import axios from "axios";
 import toast from "react-hot-toast";
+
 
 enum STEPS {
     CATEGORY = 0,
@@ -41,6 +53,10 @@ const RentModal = () => {
     const [step, setStep] = useState(STEPS.CATEGORY);
     const [isLoading, setIsLoading] = useState(false);
 
+    const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
+    const [selectedSuburb, setSelectedSuburb] = useState<{ value: string; label: string } | null>(null);
+    const [address, setAddress] = useState<string>("");
+
     const {
         register,
         handleSubmit,
@@ -53,7 +69,9 @@ const RentModal = () => {
     } = useForm<FieldValues>({
         defaultValues: {
             category: '',
-            location: null,
+            state: '', // ✅ Added state field
+            suburb: '', // ✅ Added suburb field
+            address: '', // ✅ Added address field
             guestCount: 0,
             doorCount: 0,
             sleepCount: 0,
@@ -109,7 +127,14 @@ const RentModal = () => {
 
         setIsLoading(true);
 
-        axios.post('/api/listings', data, {
+        const finalData = {
+            ...data,
+            state: selectedState?.value,
+            suburb: selectedSuburb?.value,
+            address: address.trim() !== "" ? address : "Unknown",
+        };
+
+        axios.post('/api/listings', finalData, {
             headers: {
                 "Content-Type": "application/json" // ✅ Ensure JSON format
             }
@@ -186,16 +211,55 @@ const RentModal = () => {
                     subtitle="Help redrivers find you!"
                 />
                 <div className="flex flex-col gap-8">
-                    <CountrySelect
-                        value={location}
-                        onChange={(value) => setCustomValue('location', value)}
-                    />
-                    <Map center={location?.latlng} />
-                </div>
+                    {/* ✅ State Selector */}
+                    <div>
+                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                            State
+                        </label>
+                        <StateSelector
+                            value={selectedState}
+                            onChange={setSelectedState}
+                        />
+                    </div>
 
+                    {/* ✅ Suburb Selector (Dynamically updates based on state) */}
+                    <div>
+                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                            Suburb
+                        </label>
+                        <SuburbSelector
+                            state={selectedState?.value}
+                            value={selectedSuburb}
+                            onChange={setSelectedSuburb}
+                        />
+                    </div>
+
+                    {/* ✅ Google Places Autocomplete for Address */}
+                    <div>
+                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                            Number & Street Address
+                        </label>
+                        <Input
+                            id="address"
+                            label="Street Address"
+                            register={register}
+                            errors={errors}
+                            required
+                            validate={(value) => value.trim() !== "" || "Address is required"} // ✅ Ensure non-empty value
+                            onChange={(e) => setAddress(e.target.value)} // ✅ Keep Address in State
+                        />
+
+                    </div>
+
+                    {/* ✅ Google Maps Integration */}
+                    <Map suburb={selectedSuburb?.value} state={selectedState?.value} />
+
+                </div>
             </div>
         );
     }
+
+
 
     if (step == STEPS.INFO) {
         bodyContent = (

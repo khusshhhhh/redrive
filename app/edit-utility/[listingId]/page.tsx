@@ -14,6 +14,8 @@ import FuelSelector from "@/app/components/inputs/FuelSelector";
 import { categories } from "@/app/components/navbar/Categories";
 import TextArea from "@/app/components/inputs/TextArea";
 import { AMENITIES_LIST } from "@/app/hooks/useAmenities"; // ✅ Import amenities list
+import StateSelector from "@/app/components/inputs/StateSelector";
+import SuburbSelector from "@/app/components/inputs/SuburbSelector";
 
 
 interface Listing {
@@ -29,7 +31,12 @@ interface Listing {
     year: number;
     fuelType: string;
     price: number;
-    amenities: string[]; // ✅ Now storing amenities in the listing model
+    state: string;
+    suburb: string;
+    address: string;
+    latitude?: number;
+    longitude?: number;
+    amenities: string[];
 }
 
 const EditUtilityPage = () => {
@@ -39,6 +46,8 @@ const EditUtilityPage = () => {
 
     const [loading, setLoading] = useState(false);
     const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]); // ✅ Added state
+    const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
+    const [selectedSuburb, setSelectedSuburb] = useState<{ value: string; label: string } | null>(null);
 
     const {
         register,
@@ -59,7 +68,10 @@ const EditUtilityPage = () => {
             year: "",
             fuelType: "",
             price: 1,
-            amenities: [], // ✅ Default empty array
+            state: "",
+            suburb: "",
+            address: "",
+            amenities: [],
         },
     });
 
@@ -81,6 +93,12 @@ const EditUtilityPage = () => {
                 setValue("year", data.year.toString());
                 setValue("fuelType", data.fuelType);
                 setValue("price", data.price);
+                setValue("state", data.state);
+                setValue("suburb", data.suburb);
+                setValue("address", data.address);
+
+                setSelectedState({ value: data.state, label: data.state });
+                setSelectedSuburb({ value: data.suburb, label: data.suburb });
                 setSelectedAmenities(data.amenities || []); // ✅ Set existing amenities
             })
             .catch(() => toast.error("Failed to load listing."));
@@ -96,7 +114,7 @@ const EditUtilityPage = () => {
         setLoading(true);
 
         try {
-            await axios.put(`/api/listings/${listingId}`, { ...data, amenities: selectedAmenities, }); // ✅ Send amenities
+            await axios.put(`/api/listings/${listingId}`, { ...data, state: selectedState?.value, suburb: selectedSuburb?.value, amenities: selectedAmenities, }); // ✅ Send amenities
             toast.success("Utility updated successfully!");
             router.push("/properties"); // Redirect after update
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -158,6 +176,13 @@ const EditUtilityPage = () => {
                         value={watch("imageSrc")}
                         onChange={(imageSrc) => setValue("imageSrc", imageSrc)}
                     />
+                </div>
+
+                <div>
+                    <p className="font-bold mb-4">Location</p>
+                    <StateSelector value={selectedState} onChange={setSelectedState} />
+                    <SuburbSelector state={selectedState?.value} value={selectedSuburb} onChange={setSelectedSuburb} />
+                    <Input id="address" label="Number & Street Address" register={register} errors={errors} required />
                 </div>
 
                 {/* Counters */}

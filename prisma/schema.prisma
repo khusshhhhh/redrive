@@ -1,6 +1,3 @@
-// This is your Prisma schema file
-// Learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -22,13 +19,12 @@ model User {
   updatedAt      DateTime  @updatedAt
   favoriteIds    String[]  @db.ObjectId
 
-  // New fields
   streetAddress  String?
   city           String?
   state          String?
   postcode       String?
-  hobbies        String[]  @default([])  // Array of hobbies
-  dreamDestinations String[] @default([]) // List of places user wants to visit
+  hobbies        String[]  @default([])  
+  dreamDestinations String[] @default([]) 
 
   profileVerified   String?   @default("N")
 
@@ -72,10 +68,15 @@ model Listing {
   fuelType      String
   year          Int
   information   String?
-  locationValue String
   userId        String   @db.ObjectId
   price         Int
   amenities     String[] @default([])
+
+  state        String
+  suburb       String
+  address      String    @default("")
+  latitude     Float?
+  longitude    Float?
 
   user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   reservations Reservation[]
@@ -107,5 +108,14 @@ model Review {
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, listingId]) // Ensure one review per booking
+  @@unique([userId, listingId])
+}
+
+model Suburb {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  suburb   String
+  state    String
+  postcode String?
+  lat      Float?
+  lng      Float?
 }

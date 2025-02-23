@@ -21,6 +21,7 @@ export default async function getListingById(paramsPromise: IParams) {
     if (!listing) {
       return null;
     }
+
     return {
       ...listing,
       createdAt: listing.createdAt.toISOString(),

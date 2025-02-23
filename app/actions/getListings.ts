@@ -6,7 +6,7 @@ export interface IListingsParams {
   sleepCount?: number;
   startDate?: string;
   endDate?: string;
-  locationValue?: string;
+  state?: string; // ✅ Replaced locationValue with state
   category?: string;
   information?: string;
 }
@@ -19,7 +19,7 @@ export default async function getListings(params: IListingsParams) {
       sleepCount,
       startDate,
       endDate,
-      locationValue,
+      state, // ✅ Updated to filter by state instead of locationValue
       category,
       information,
     } = params || {};
@@ -30,7 +30,7 @@ export default async function getListings(params: IListingsParams) {
       sleepCount?: { gte: number };
       startDate?: string;
       endDate?: string;
-      locationValue?: string;
+      state?: string; // ✅ Added state filter
       category?: string;
       information?: { contains: string; mode: "insensitive" };
       NOT?: {
@@ -49,7 +49,7 @@ export default async function getListings(params: IListingsParams) {
     if (category) query.category = category;
     if (guestCount) query.guestCount = { gte: +guestCount };
     if (sleepCount) query.sleepCount = { gte: +sleepCount };
-    if (locationValue) query.locationValue = locationValue;
+    if (state) query.state = state; // ✅ Search by state
     if (information)
       query.information = { contains: information, mode: "insensitive" };
 

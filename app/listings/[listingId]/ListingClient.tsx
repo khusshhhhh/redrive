@@ -25,7 +25,10 @@ interface ListingClientProps {
     reservations?: SafeReservation[];
     listing: SafeListing & {
         user: SafeUser;
-        amenities?: string[]; // ✅ Now storing amenities as an array of strings
+        amenities?: string[];
+        state: string;
+        suburb: string;
+        // address: string;
     };
     currentUser?: SafeUser | null;
 }
@@ -112,9 +115,11 @@ const ListingClient: React.FC<ListingClientProps> = ({
     }, [dateRange, listing.price]);
 
     const category = useMemo(() => {
-        return categories.find((item) =>
-            item.label === listing.category
-        );
+        return categories.find((item) => item.label === listing.category) || {
+            icon: () => null,
+            label: "Unknown",
+            description: "",
+        };
     }, [listing.category]);
 
     return (
@@ -124,14 +129,15 @@ const ListingClient: React.FC<ListingClientProps> = ({
                     <ListingHead
                         title={listing.title}
                         imageSrc={listing.imageSrc}
-                        locationValue={listing.locationValue}
                         id={listing.id}
                         currentUser={currentUser}
+                        // ✅ Pass full address instead of locationValue
+                        address={`${listing.address}, ${listing.suburb}, ${listing.state}`}
                     />
                     <div className="grid grid-cols-1 md:grid-cols-7 md:gap-10 mt-6">
                         <ListingInfo
                             user={listing.user}
-                            category={category || { icon: () => null, label: '', description: '' }}
+                            category={category}
                             description={listing.description}
                             information={listing.information || ''}
                             modal={listing.modal}
@@ -140,9 +146,9 @@ const ListingClient: React.FC<ListingClientProps> = ({
                             doorCount={listing.doorCount}
                             guestCount={listing.guestCount}
                             sleepCount={listing.sleepCount}
-                            locationValue={listing.locationValue}
-                            amenities={listing.amenities} // ✅ Passing amenities to ListingInfo
-                        />
+                            // ✅ Replace locationValue with formatted address
+                            address={`${listing.suburb}, ${listing.state}`}
+                            amenities={listing.amenities} state={""} suburb={""} />
                         <div className="order-last mb-10 md:order-last md:col-span-3">
                             <ListingReservation
                                 price={listing.price}

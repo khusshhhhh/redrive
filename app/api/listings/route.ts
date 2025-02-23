@@ -7,13 +7,12 @@ export async function POST(request: Request) {
     // ✅ Fetch current user
     const currentUser = await getCurrentUser();
     if (!currentUser) {
-      console.error("❌ Error: Unauthorized request. No user found.");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // ✅ Parse request body
     const body = await request.json();
-    console.log("📥 Received request body:", body);
+    console.log("📥 Received request body:", JSON.stringify(body, null, 2));
 
     const {
       title,
@@ -27,12 +26,18 @@ export async function POST(request: Request) {
       modal,
       year,
       fuelType,
-      location,
       price,
       information,
-      createdAt,
-      amenities, // ✅ New field for storing amenities in the listing table
+      amenities,
+      state,
+      suburb,
+      address,
+      latitude,
+      longitude,
     } = body;
+
+    // ✅ Ensure address is not empty
+    const finalAddress = address?.trim() !== "" ? address : "Unknown";
 
     // ✅ Validate required fields
     if (
@@ -44,8 +49,9 @@ export async function POST(request: Request) {
       !modal ||
       !year ||
       !fuelType ||
-      !location ||
-      !price
+      !state ||
+      !suburb ||
+      price === undefined
     ) {
       console.error("❌ Error: Missing required fields");
       return NextResponse.json(
@@ -57,8 +63,10 @@ export async function POST(request: Request) {
     // ✅ Ensure valid numeric values
     const parsedPrice = parseInt(price, 10);
     const parsedYear = parseInt(year, 10);
+    const parsedLatitude = latitude ? parseFloat(latitude) : null;
+    const parsedLongitude = longitude ? parseFloat(longitude) : null;
+
     if (isNaN(parsedPrice) || isNaN(parsedYear)) {
-      console.error("❌ Error: Invalid numeric values in price or year");
       return NextResponse.json(
         { error: "Invalid numeric values" },
         { status: 400 }
@@ -68,7 +76,7 @@ export async function POST(request: Request) {
     // ✅ Ensure amenities is an array
     const formattedAmenities = Array.isArray(amenities) ? amenities : [];
 
-    // ✅ Create listing with amenities stored in the `amenities` column
+    // ✅ Create listing with new fields
     const listing = await prisma.listing.create({
       data: {
         title,
@@ -83,15 +91,22 @@ export async function POST(request: Request) {
         year: parsedYear,
         fuelType,
         information,
-        locationValue: location.value,
         price: parsedPrice,
+        state,
+        suburb,
+        address: finalAddress, // ✅ Store "Unknown" if empty
+        latitude: parsedLatitude,
+        longitude: parsedLongitude,
         userId: currentUser.id,
-        amenities: formattedAmenities, // ✅ Store amenities directly as an array
-        createdAt: createdAt ? new Date(createdAt) : new Date(),
+        amenities: formattedAmenities,
+        createdAt: new Date(),
       },
     });
 
-    console.log("✅ Listing created successfully with amenities:", listing);
+    console.log(
+      "✅ Listing created successfully:",
+      JSON.stringify(listing, null, 2)
+    );
 
     return NextResponse.json(listing, { status: 201 });
   } catch (error) {

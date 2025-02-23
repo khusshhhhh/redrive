@@ -5,14 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Range } from "react-date-range";
 import { useCallback, useMemo, useState } from "react";
 import { formatISO } from "date-fns";
-import CountrySelect, { CountrySelectValue } from "../inputs/CountrySelect";
-
 import useSearchModal from "@/app/hooks/useSearchModal";
-import dynamic from "next/dynamic";
 import Heading from "../Heading";
 import Calendar from "../inputs/Calender";
 import Counter from "../inputs/Counter";
 import Modal from "./Modal";
+import StateSelector from "../inputs/StateSelector"; // ✅ Updated to use State Selector
 
 enum STEPS {
     LOCATION = 0,
@@ -25,7 +23,7 @@ const SearchModal = () => {
     const params = useSearchParams();
     const searchModal = useSearchModal();
 
-    const [location, setLocation] = useState<CountrySelectValue>()
+    const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
     const [step, setStep] = useState(STEPS.LOCATION);
     const [guestCount, setGuestCount] = useState(1);
     const [sleepCount, setSleepCount] = useState(1);
@@ -34,11 +32,6 @@ const SearchModal = () => {
         endDate: new Date(),
         key: 'selection'
     });
-
-    const Map = useMemo(() => dynamic(() => import("../Map"), {
-        ssr: false,
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }), [location]);
 
     const onBack = useCallback(() => {
         setStep((value) => value - 1);
@@ -62,7 +55,7 @@ const SearchModal = () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const updatedQuery: any = {
             ...currentQuery,
-            locationValue: location?.value,
+            state: selectedState?.value, // ✅ Use state instead of location
             guestCount,
             sleepCount
         };
@@ -88,7 +81,7 @@ const SearchModal = () => {
         [
             step,
             searchModal,
-            location,
+            selectedState,
             router,
             guestCount,
             sleepCount,
@@ -114,15 +107,14 @@ const SearchModal = () => {
     let bodyContent = (
         <div className="flex flex-col gap-8">
             <Heading
-                title="Where do you wanna go?"
+                title="Select a State"
                 subtitle="Find the perfect location!"
             />
-            <CountrySelect
-                value={location}
-                onChange={(value) => setLocation(value as CountrySelectValue)}
+            <StateSelector
+                value={selectedState}
+                onChange={setSelectedState}
             />
             <hr />
-            <Map center={location?.latlng} />
         </div>
     );
 
@@ -146,7 +138,7 @@ const SearchModal = () => {
             <div className="flex flex-col gap-8">
                 <Heading
                     title="More information"
-                    subtitle="Find your perfect thing!"
+                    subtitle="Find your perfect utility!"
                 />
                 <Counter
                     title="People"
@@ -156,14 +148,13 @@ const SearchModal = () => {
                 />
                 <Counter
                     title="Sleep Space"
-                    subtitle="How many sleep space do you need?"
+                    subtitle="How many sleep spaces do you need?"
                     value={sleepCount}
                     onChange={(value) => setSleepCount(value)}
                 />
             </div>
         );
     }
-
 
     return (
         <Modal

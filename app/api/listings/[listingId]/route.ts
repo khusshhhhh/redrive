@@ -3,46 +3,35 @@ import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
 import type { NextRequest } from "next/server";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface IParams {
-  listingId?: string;
-}
-
 /**
- * ✅ GET: Fetch a specific listing by ID (Includes amenities)
+ * ✅ GET: Fetch a specific listing by ID (Includes state, suburb, amenities)
  */
 export async function GET(
   request: NextRequest,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any // Override type checking for params
+  context: { params: { listingId?: string } }
 ) {
   try {
-    const listingId = context.params?.listingId;
+    const { listingId } = context.params;
 
-    if (!listingId || typeof listingId !== "string") {
+    if (!listingId) {
       return NextResponse.json(
         { error: "Invalid listing ID" },
         { status: 400 }
       );
     }
 
-    // ✅ Fetch listing with amenities stored in `Listing` table
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
+      include: { user: true },
     });
-
-    console.log(
-      "📤 Fetched Listing with Amenities:",
-      JSON.stringify(listing, null, 2)
-    );
 
     if (!listing) {
       return NextResponse.json({ error: "Listing not found" }, { status: 404 });
     }
 
     return NextResponse.json(listing, { status: 200 });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("❌ Error fetching listing:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -51,26 +40,25 @@ export async function GET(
 }
 
 /**
- * ✅ PUT: Update a listing (Includes updating amenities)
+ * ✅ PUT: Update a listing (Includes state, suburb, address, etc.)
  */
 export async function PUT(
   request: NextRequest,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any // Override type checking for params
+  context: { params: { listingId?: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
-    const listingId = context.params?.listingId;
+    const { listingId } = context.params;
 
-    if (!listingId || typeof listingId !== "string") {
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!listingId) {
       return NextResponse.json(
         { error: "Invalid listing ID" },
         { status: 400 }
       );
-    }
-
-    if (!currentUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -87,6 +75,11 @@ export async function PUT(
       fuelType,
       price,
       amenities,
+      state,
+      suburb,
+      address,
+      latitude,
+      longitude,
     } = body;
 
     if (
@@ -96,15 +89,16 @@ export async function PUT(
       !imageSrc ||
       !year ||
       !fuelType ||
-      !price
+      !price ||
+      !state ||
+      !suburb ||
+      !address
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
-
-    const formattedAmenities = Array.isArray(amenities) ? amenities : [];
 
     const updatedListing = await prisma.listing.update({
       where: { id: listingId },
@@ -120,13 +114,18 @@ export async function PUT(
         year: parseInt(year, 10),
         fuelType,
         price: parseFloat(price),
-        amenities: formattedAmenities,
+        amenities: Array.isArray(amenities) ? amenities : [],
+        state,
+        suburb,
+        address,
+        latitude: latitude ? parseFloat(latitude) : null,
+        longitude: longitude ? parseFloat(longitude) : null,
       },
     });
 
     return NextResponse.json(updatedListing, { status: 200 });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("❌ Error updating listing:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -139,12 +138,11 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any // Override type checking for params
+  context: { params: { listingId?: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
-    const listingId = context.params.listingId;
+    const { listingId } = context.params;
 
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
