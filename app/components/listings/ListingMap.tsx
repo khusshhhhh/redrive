@@ -15,7 +15,7 @@ const ListingMap: React.FC<ListingMapProps> = ({ address }) => {
     const googleMapsUrl = `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(formattedAddress)}`;
 
     return (
-        <div className="h-[300px] w-full rounded-lg overflow-hidden">
+        <div className="h-[400px] w-full rounded-lg overflow-hidden">
             <iframe
                 width="100%"
                 height="100%"

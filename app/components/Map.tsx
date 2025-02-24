@@ -46,7 +46,7 @@ const Map: React.FC<MapProps> = ({ suburb, state, latitude, longitude }) => {
 
         const map = new window.google.maps.Map(mapRef.current, {
             center: mapLocation,
-            zoom: 12,
+            zoom: 20,
             mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || undefined,
         });
 
