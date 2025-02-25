@@ -92,6 +92,8 @@ model Reservation {
   totalPrice Int
   redriveFee Int  // ✅ Added redrive fee field
   serviceFee Int  // ✅ New service fee field
+  insuranceType String   // ✅ Stores "Risk Taker", "Happy Driver", or "No Insurance"
+  insuranceFee  Int      // ✅ Stores calculated insurance cost
   totalFees  Int
   createdAt  DateTime @default(now())
 

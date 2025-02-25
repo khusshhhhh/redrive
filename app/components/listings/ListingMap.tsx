@@ -1,29 +1,57 @@
 'use client';
 
+import { useEffect, useRef, useState } from "react";
+import { loadGoogleMaps } from "@/app/libs/GoogleMapLoader";
+
 interface ListingMapProps {
     address: string;
     suburb: string;
     state: string;
 }
 
-const ListingMap: React.FC<ListingMapProps> = ({ address }) => {
-    if (!address) {
-        return <p className="text-gray-500 text-center">Location not available.</p>;
-    }
+const ListingMap: React.FC<ListingMapProps> = ({ address, suburb, state }) => {
+    const mapRef = useRef<HTMLDivElement>(null);
+    const [mapLoaded, setMapLoaded] = useState(false);
 
-    const formattedAddress = `${address}`;
-    const googleMapsUrl = `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(formattedAddress)}`;
+    useEffect(() => {
+        loadGoogleMaps().then((google) => {
+            if (!mapRef.current) return;
+
+            const map = new google.maps.Map(mapRef.current, {
+                zoom: 12,
+                center: { lat: -34.82, lng: 138.56 }, // Default center (change dynamically)
+                styles: [
+                    { elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
+                    { featureType: "road", stylers: [{ color: "#ffffff" }] },
+                    { featureType: "water", stylers: [{ color: "#c9c9c9" }] }
+                ]
+            });
+
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ address: `${address}, ${suburb}, ${state}` }, (results, status) => {
+                if (status === "OK" && results[0].geometry.location) {
+                    new google.maps.Marker({
+                        position: results[0].geometry.location,
+                        map: map,
+                        title: address,
+                        icon: {
+                            url: "/marker.svg", // ✅ Use SVG from public folder
+                            scaledSize: new google.maps.Size(80, 80), // ✅ Resize if needed
+                            anchor: new google.maps.Point(20, 40), // ✅ Adjust anchor if necessary
+                        }
+                    });
+                    map.setCenter(results[0].geometry.location);
+                }
+            });
+
+            setMapLoaded(true);
+        });
+    }, [address, suburb, state]);
 
     return (
-        <div className="h-[400px] w-full rounded-lg overflow-hidden">
-            <iframe
-                width="100%"
-                height="100%"
-                frameBorder="0"
-                style={{ border: 0 }}
-                src={googleMapsUrl}
-                allowFullScreen
-            ></iframe>
+        <div className="relative h-[400px] w-full rounded-lg  overflow-hidden">
+            {!mapLoaded && <div className="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500">Loading map...</div>}
+            <div ref={mapRef} className="h-full w-full" />
         </div>
     );
 };

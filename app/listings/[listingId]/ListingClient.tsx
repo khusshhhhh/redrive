@@ -60,8 +60,11 @@ const ListingClient: React.FC<ListingClientProps> = ({
     const [totalPrice, setTotalPrice] = useState(listing.price);
     const [totalFees, setTotalFees] = useState(listing.price * 1.08); // Including Redrive Fee (6%)
     const [dateRange, setDateRange] = useState<Range>(initialDateRange);
+    const [insuranceType, setInsuranceType] = useState("No Insurance"); // ✅ Default to No Insurance
+    const [insuranceFee, setInsuranceFee] = useState(0); // ✅ Default fee is 0
 
-    const onCreateReservation = useCallback(() => {
+
+    const onCreateReservation = useCallback((insuranceType: string, insuranceFee: number) => {
         if (!currentUser) {
             return loginModal.onOpen();
         }
@@ -69,32 +72,39 @@ const ListingClient: React.FC<ListingClientProps> = ({
         setIsLoading(true);
 
         axios.post('/api/reservations', {
-            totalPrice,
-            totalFees,
+            listingId: listing?.id,
             startDate: dateRange.startDate,
             endDate: dateRange.endDate,
-            listingId: listing?.id
+            totalPrice,
+            totalFees,
+            insuranceType, // ✅ Now properly passed
+            insuranceFee,  // ✅ Now properly passed
         })
             .then(() => {
                 toast.success('Listing reserved!');
                 setDateRange(initialDateRange);
                 router.push('/trips');
             })
-            .catch(() => {
+            .catch((error) => {
+                console.error("Reservation API error:", error.response?.data || error);
                 toast.error('Something went wrong.');
             })
             .finally(() => {
                 setIsLoading(false);
             });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         totalPrice,
         totalFees,
+        insuranceType,  // ✅ Include insuranceType
+        insuranceFee,   // ✅ Include insuranceFee
         dateRange,
         listing?.id,
         router,
         currentUser,
         loginModal
     ]);
+
 
     const calculateServiceFee = (totalPrice: number): number => {
         if (totalPrice <= 200) return 10;
@@ -169,6 +179,10 @@ const ListingClient: React.FC<ListingClientProps> = ({
                                 onSubmit={onCreateReservation}
                                 disabled={isLoading}
                                 disabledDates={disabledDates}
+                                insuranceType={insuranceType} // ✅ Add insurance state
+                                setInsuranceType={setInsuranceType} // ✅ Allow user to update it
+                                insuranceFee={insuranceFee} // ✅ Add insurance fee state
+                                setInsuranceFee={setInsuranceFee} // ✅ Allow updates
                             />
                         </div>
                     </div>

@@ -21,7 +21,16 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { listingId, startDate, endDate, totalPrice } = body;
+    console.log("Received reservation data:", body); // ✅ Log the request body
+
+    const {
+      listingId,
+      startDate,
+      endDate,
+      totalPrice,
+      insuranceType,
+      insuranceFee,
+    } = body;
 
     if (!listingId || !startDate || !endDate || !totalPrice) {
       return NextResponse.json(
@@ -30,32 +39,41 @@ export async function POST(request: Request) {
       );
     }
 
-    const redriveFee = Math.round(totalPrice * 0.08); // 6% of total price
-    const serviceFee = calculateServiceFee(totalPrice);
-    const totalFees = totalPrice + redriveFee + serviceFee;
+    // Ensure `insuranceType` and `insuranceFee` are properly handled
+    const finalInsuranceType = insuranceType || "No Insurance"; // Default if not provided
+    const finalInsuranceFee = insuranceFee || 0;
 
-    const listingAndReservation = await prisma.listing.update({
-      where: { id: listingId },
+    console.log(
+      "Insurance Selected:",
+      finalInsuranceType,
+      "Fee:",
+      finalInsuranceFee
+    ); // ✅ Log insurance details
+
+    const redriveFee = Math.round(totalPrice * 0.08);
+    const serviceFee = calculateServiceFee(totalPrice);
+    const totalFees = totalPrice + redriveFee + serviceFee + finalInsuranceFee;
+
+    const reservation = await prisma.reservation.create({
       data: {
-        reservations: {
-          create: {
-            userId: currentUser.id,
-            startDate,
-            endDate,
-            totalPrice,
-            redriveFee,
-            serviceFee,
-            totalFees,
-          },
-        },
+        userId: currentUser.id,
+        listingId,
+        startDate,
+        endDate,
+        totalPrice,
+        redriveFee,
+        serviceFee,
+        insuranceType: finalInsuranceType,
+        insuranceFee: finalInsuranceFee,
+        totalFees,
       },
     });
 
-    return NextResponse.json(listingAndReservation, { status: 201 });
+    return NextResponse.json(reservation, { status: 201 });
   } catch (error) {
     console.error("Error creating reservation:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Internal Server Error", details: error.message },
       { status: 500 }
     );
   }
