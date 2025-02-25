@@ -127,13 +127,13 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
             <div>
                 <div className="font-bold text-lg">Amenities</div>
                 {amenities && amenities.length > 0 ? (
-                    <div className="mt-6 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4 border border-gray-200 rounded-md p-4">
+                    <div className="mt-6 grid grid-cols-2 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
                         {amenities.map((amenity) => {
                             const amenityData = AMENITIES_LIST.find((a) => a.id === amenity);
                             const IconComponent = amenityData?.icon || IconQuestionMark;
 
                             return (
-                                <div key={amenity} className="flex items-center gap-3">
+                                <div key={amenity} className="flex items-center gap-4 mt-4">
                                     <IconComponent size={24} stroke={2} className="text-gray-700" />
                                     <span className="text-gray-800">{amenityData?.name || amenity}</span>
                                 </div>
@@ -144,7 +144,6 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     <p className="text-gray-500">No amenities available for this listing.</p>
                 )}
             </div>
-            <hr />
         </div>
     );
 };

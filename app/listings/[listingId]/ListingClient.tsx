@@ -186,8 +186,13 @@ const ListingClient: React.FC<ListingClientProps> = ({
                             />
                         </div>
                     </div>
-                    <div className="">
-                        <Reviews listingId={listing.id} />
+                    <div className="mt-2">
+                        <div>
+                            <div className="font-bold text-lg">Reviews</div>
+                        </div>
+                        <div className="mt-6">
+                            <Reviews listingId={listing.id} />
+                        </div>
                     </div>
                 </div>
             </div>

@@ -3,61 +3,63 @@
 import Container from "../Container";
 import CategoryBox from "../CategoryBox";
 import { usePathname, useSearchParams } from "next/navigation";
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { IconCamper, IconCaravan, IconMotorbike, IconSailboat, IconSwimming, IconTent, IconTir, IconTruck } from "@tabler/icons-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTruck, faCaravan, faTruckPickup, faSailboat, faVanShuttle, faPersonBiking, faTents, faWater, faTrailer } from "@fortawesome/free-solid-svg-icons";
+import { faTrailer } from "@fortawesome/free-solid-svg-icons";
+import { Van } from "@phosphor-icons/react";
 
 export const categories = [
     {
         label: 'Caravans',
-        icon: () => <FontAwesomeIcon icon={faCaravan} className="text-2xl" />,
+        icon: () => <IconCaravan size={28} stroke={1.5} />,
         description: 'These are the amazing caravans!'
     },
     {
         label: 'Utes',
-        icon: () => <FontAwesomeIcon icon={faTruckPickup} className="text-2xl" />,
+        icon: () => <IconTir size={28} stroke={1.5} />,
         description: 'These are the Utes!'
     },
     {
         label: 'Boats',
-        icon: () => <FontAwesomeIcon icon={faSailboat} className="text-2xl" />,
+        icon: () => <IconSailboat size={28} stroke={1.5} />,
         description: 'These are the wavey boats!'
     },
     {
         label: 'Bikes',
-        icon: () => <FontAwesomeIcon icon={faPersonBiking} className="text-2xl" />,
+        icon: () => <IconMotorbike size={28} stroke={1.5} />,
         description: 'These are the speedy bikes!'
     },
     {
         label: 'JetSkies',
-        icon: () => <FontAwesomeIcon icon={faWater} className="text-2xl" />,
+        icon: () => <IconSwimming size={28} stroke={1.5} />,
         description: 'These are the fast jetskies!'
     },
     {
         label: 'Motorhomes',
-        icon: () => <FontAwesomeIcon icon={faCaravan} className="text-2xl" />,
+        icon: () => <IconCamper size={28} stroke={1.5} />,
         description: 'These are the amazing Motorhomes!'
     },
     {
         label: 'Vans',
-        icon: () => <FontAwesomeIcon icon={faVanShuttle} className="text-2xl" />,
+        icon: () => <Van size={28} />,
         description: 'These are very durable vans!'
     },
     {
         label: 'Trucks',
-        icon: () => <FontAwesomeIcon icon={faTruck} className="text-2xl" />,
+        icon: () => <IconTruck size={28} stroke={1.5} />,
         description: 'Heavy-duty trucks for transport and hauling!'
     },
     {
         label: 'Trailers',
-        icon: () => <FontAwesomeIcon icon={faTrailer} className="text-2xl" />,
+        icon: () => <FontAwesomeIcon icon={faTrailer} className="text-xl" />,
         description: 'Heavy-duty trucks for transport and hauling!'
     },
-    {
-        label: 'Accessories',
-        icon: () => <FontAwesomeIcon icon={faTents} className="text-2xl" />,
-        description: 'These are better accessories to have!'
-    },
+    // {
+    //     label: 'Accessories',
+    //     icon: () => <IconTent size={28} stroke={1.5} />,
+    //     description: 'These are better accessories to have!'
+    // },
 ]
 
 const Categories = () => {
