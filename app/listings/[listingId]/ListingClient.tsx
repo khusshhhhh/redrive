@@ -58,7 +58,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
 
     const [isLoading, setIsLoading] = useState(false);
     const [totalPrice, setTotalPrice] = useState(listing.price);
-    const [totalFees, setTotalFees] = useState(listing.price * 1.06); // Including Redrive Fee (6%)
+    const [totalFees, setTotalFees] = useState(listing.price * 1.08); // Including Redrive Fee (6%)
     const [dateRange, setDateRange] = useState<Range>(initialDateRange);
 
     const onCreateReservation = useCallback(() => {
@@ -96,20 +96,29 @@ const ListingClient: React.FC<ListingClientProps> = ({
         loginModal
     ]);
 
+    const calculateServiceFee = (totalPrice: number): number => {
+        if (totalPrice <= 200) return 10;
+        if (totalPrice <= 400) return 25;
+        if (totalPrice <= 800) return 40;
+        if (totalPrice <= 1200) return 60;
+        if (totalPrice <= 2000) return 80;
+        return 100;
+    };
+
     useEffect(() => {
         if (dateRange.startDate && dateRange.endDate) {
-            const dayCount = differenceInCalendarDays(
-                dateRange.endDate,
-                dateRange.startDate
-            );
+            const dayCount = differenceInCalendarDays(dateRange.endDate, dateRange.startDate);
 
             if (dayCount && listing.price) {
                 const newTotalPrice = (dayCount + 1) * listing.price;
+                const newRedriveFee = Math.round(newTotalPrice * 0.08);
+                const newServiceFee = calculateServiceFee(newTotalPrice);
+
                 setTotalPrice(newTotalPrice);
-                setTotalFees(newTotalPrice * 1.06); // Including Redrive Fee (6%)
+                setTotalFees(newTotalPrice + newRedriveFee + newServiceFee); // ✅ Update total fees
             } else {
                 setTotalPrice(listing.price);
-                setTotalFees(listing.price * 1.06);
+                setTotalFees(listing.price * 1.08);
             }
         }
     }, [dateRange, listing.price]);
@@ -152,6 +161,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                         <div className="order-last mb-10 md:order-last md:col-span-3">
                             <ListingReservation
                                 price={listing.price}
+                                serviceFee={calculateServiceFee(totalPrice)}
                                 totalPrice={totalPrice}
                                 totalFees={totalFees}
                                 onChangeDate={(value) => setDateRange(value)}

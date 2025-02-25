@@ -90,6 +90,8 @@ model Reservation {
   startDate  DateTime
   endDate    DateTime
   totalPrice Int
+  redriveFee Int  // ✅ Added redrive fee field
+  serviceFee Int  // ✅ New service fee field
   totalFees  Int
   createdAt  DateTime @default(now())
 
