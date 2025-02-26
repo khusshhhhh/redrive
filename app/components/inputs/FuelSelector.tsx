@@ -31,7 +31,7 @@ const FuelSelector: React.FC<FuelSelectorProps> = ({
     return (
         <div className="w-full">
             <label className="text-md text-neutral-500 mb-2 block">{label}</label>
-            <div className="flex gap-4">
+            <div className="grid grid-cols-2 gap-4">
                 {FUEL_OPTIONS.map((fuel) => (
                     <button
                         key={fuel}

@@ -57,7 +57,7 @@ const Map: React.FC<MapProps> = ({ suburb, state, latitude, longitude }) => {
 
     return (
         <>
-            {mapLocation ? <div ref={mapRef} className="h-[35vh] rounded-lg w-full" /> : <p className="text-gray-500 text-center">Map location is not available.</p>}
+            {mapLocation ? <div ref={mapRef} className="h-[45vh] rounded-lg w-full" /> : <p className="text-gray-500 text-center">Map location is not available.</p>}
         </>
     );
 };

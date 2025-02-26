@@ -126,7 +126,7 @@ const EditUtilityPage = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+        <div className="max-w-3xl mx-auto p-6 bg-white">
             <h2 className="text-2xl font-bold mb-6 text-center">Edit Your Utility</h2>
             <form onSubmit={handleSubmit(onSubmit)} className="">
                 {/* Title */}
@@ -178,11 +178,13 @@ const EditUtilityPage = () => {
                     />
                 </div>
 
-                <div>
+                <div className="mb-8">
                     <p className="font-bold mb-4">Location</p>
-                    <StateSelector value={selectedState} onChange={setSelectedState} />
-                    <SuburbSelector state={selectedState?.value} value={selectedSuburb} onChange={setSelectedSuburb} />
-                    <Input id="address" label="Number & Street Address" register={register} errors={errors} required />
+                    <div className="flex flex-col gap-6">
+                        <StateSelector value={selectedState} onChange={setSelectedState} />
+                        <SuburbSelector state={selectedState?.value} value={selectedSuburb} onChange={setSelectedSuburb} />
+                        <Input id="address" label="Number & Street Address" register={register} errors={errors} required />
+                    </div>
                 </div>
 
                 {/* Counters */}

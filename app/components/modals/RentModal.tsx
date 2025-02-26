@@ -15,6 +15,7 @@ import Heading from "../Heading";
 import TextArea from "../inputs/TextArea";
 import StateSelector from "../inputs/StateSelector";
 import SuburbSelector from "../inputs/SuburbSelector";
+import DateSelector from "../inputs/DateSelector";
 
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { useMemo, useState } from "react";
@@ -23,6 +24,7 @@ import { useRouter } from "next/navigation";
 // import Script from "next/script";
 
 import dynamic from "next/dynamic";
+
 
 // Declare google property on window object
 declare global {
@@ -43,7 +45,8 @@ enum STEPS {
     DESCRIPTION = 4,
     INFORMATION = 5,
     AMENITIES = 6,
-    PRICE = 7,
+    LEGAL = 7,
+    PRICE = 8,
 }
 
 const RentModal = () => {
@@ -52,6 +55,7 @@ const RentModal = () => {
 
     const [step, setStep] = useState(STEPS.CATEGORY);
     const [isLoading, setIsLoading] = useState(false);
+    const [regoImage, setRegoImage] = useState<string>("");
 
     const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
     const [selectedSuburb, setSelectedSuburb] = useState<{ value: string; label: string } | null>(null);
@@ -84,6 +88,9 @@ const RentModal = () => {
             information: '',
             company: '',
             modal: '',
+            regoNumber: '',
+            regoEndDate: new Date(),
+            regoImage: '',
         }
     });
 
@@ -93,6 +100,8 @@ const RentModal = () => {
     const doorCount = watch('doorCount');
     const sleepCount = watch('sleepCount');
     const imageSrc = watch('imageSrc');
+    // const regoNumber = watch('regoNumber');
+    const regoEndDate = watch('regoEndDate');
 
     const Map = useMemo(() => dynamic(() => import('../Map'), {
         ssr: false
@@ -408,6 +417,50 @@ const RentModal = () => {
                     errors={errors}
                     setValue={setValue}
                 />
+            </div>
+        );
+    }
+
+    if (step === STEPS.LEGAL) {
+        bodyContent = (
+            <div className="flex flex-col gap-8">
+                <Heading title="Legal Information" subtitle="Provide your utility registration details." />
+
+                {/* Registration Number Input */}
+                <Input
+                    id="regoNumber"
+                    label="Registration Number"
+                    type="text"
+                    maxLength={9}
+                    placeholder="ABC123DEF"
+                    register={register}
+                    errors={errors}
+                    required
+                    onChange={(e) => setCustomValue('regoNumber', e.target.value.toUpperCase())}
+                />
+                {/* Rego Expiry Date */}
+                <div>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Registration Expiry Date</label>
+                    <div className="mt-4">
+                        <DateSelector
+                            value={regoEndDate}
+                            onChange={(value) => setCustomValue('regoEndDate', value)}
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Upload a valid document</label>
+                    {/* Upload Registration Image using ImageUpload component */}
+                    <ImageUpload
+                        value={regoImage}
+                        onChange={(value) => {
+                            setRegoImage(value);
+                            setCustomValue('regoImage', value);
+                        }}
+                    />
+                </div>
             </div>
         );
     }

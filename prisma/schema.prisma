@@ -78,6 +78,11 @@ model Listing {
   latitude     Float?
   longitude    Float?
 
+  // ✅ New fields for registration details
+  regoNumber   String?  @unique // Ensure unique registration numbers
+  regoEndDate  DateTime? 
+  regoImage    String?  // Store Cloudinary image URL
+
   user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   reservations Reservation[]
   reviews      Review[]

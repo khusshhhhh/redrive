@@ -34,10 +34,19 @@ export async function POST(request: Request) {
       address,
       latitude,
       longitude,
+      regoNumber,
+      regoEndDate,
+      regoImage,
     } = body;
 
     // ✅ Ensure address is not empty
     const finalAddress = address?.trim() !== "" ? address : "Unknown";
+
+    // ✅ Ensure regoNumber is uppercase
+    const formattedRegoNumber = regoNumber?.toUpperCase();
+
+    // ✅ Convert regoEndDate string ("YYYY-MM-DD") to a Date object
+    const formattedRegoEndDate = regoEndDate ? new Date(regoEndDate) : null;
 
     // ✅ Validate required fields
     if (
@@ -99,6 +108,9 @@ export async function POST(request: Request) {
         longitude: parsedLongitude,
         userId: currentUser.id,
         amenities: formattedAmenities,
+        regoNumber: formattedRegoNumber, // Ensure uppercase
+        regoEndDate: formattedRegoEndDate,
+        regoImage,
         createdAt: new Date(),
       },
     });

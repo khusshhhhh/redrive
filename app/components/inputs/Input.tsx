@@ -16,6 +16,7 @@ interface InputProps {
     errors: FieldErrors;
     placeholder?: string;
     validate?: (value: string) => true | string; // ✅ ADDED validate PROP
+    maxLength?: number; // ✅ Add maxLength support
 }
 
 const Input: React.FC<InputProps> = ({
@@ -29,6 +30,7 @@ const Input: React.FC<InputProps> = ({
     errors,
     validate,
     onChange, // ✅ ADDED onChange PROP
+    maxLength, // ✅ Add maxLength to destructured properties
 }) => {
     return (
         <div className="w-full relative">
@@ -45,6 +47,7 @@ const Input: React.FC<InputProps> = ({
                 {...register(id, { required, validate })}
                 placeholder=" "
                 type={type}
+                maxLength={maxLength} // ✅ Add maxLength support
                 onChange={onChange} // ✅ Now handles input changes
                 className={`peer w-full p-4 pt-6 font-light bg-white border-2 rounded-md outline-none transition disabled:opacity-70 disabled:cursor-not-allowed
                              ${formatPrice ? "pl-9" : "pl-4"}
