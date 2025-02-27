@@ -16,18 +16,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
-    // Check if user has completed a reservation for this listing
+    // Get the current date and subtract one day
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+    // Check if user has completed a reservation for this listing at least 1 day ago
     const completedBooking = await prisma.reservation.findFirst({
       where: {
         userId: currentUser.id,
         listingId: listingId,
-        endDate: { lte: new Date() }, // Trip must be finished
+        endDate: { lte: oneDayAgo }, // Ensures the review can be left only after one day
       },
     });
 
     if (!completedBooking) {
       return NextResponse.json(
-        { error: "You can only review after the trip ends" },
+        { error: "You can only review after one day of trip completion" },
         { status: 403 }
       );
     }

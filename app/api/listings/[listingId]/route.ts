@@ -140,8 +140,7 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any
+  context: { params: { listingId?: string } } // Ensure proper type
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -158,13 +157,20 @@ export async function DELETE(
       );
     }
 
-    // ✅ Ensure the listing exists before deleting
-    const listing = await prisma.listing.findFirst({
-      where: { id: listingId, userId: currentUser.id },
+    // ✅ Check if the listing exists and belongs to the current user
+    const listing = await prisma.listing.findUnique({
+      where: { id: listingId },
     });
 
     if (!listing) {
       return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+    }
+
+    if (listing.userId !== currentUser.id) {
+      return NextResponse.json(
+        { error: "Forbidden: You do not own this listing" },
+        { status: 403 }
+      );
     }
 
     // ✅ Delete the listing

@@ -1,10 +1,14 @@
-'use client';
+"use client";
 
 import { useRouter } from "next/navigation";
 import Container from "../components/Container";
 import Heading from "../components/Heading";
 import { SafeListing, SafeUser } from "@/app/types";
 import ListingCard from "../components/listings/ListingCard";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useState } from "react";
+import DeleteModal from "../components/modals/DeleteModal"; // ✅ Import DeleteModal
 
 interface MyUtilitiesClientProps {
     listings: SafeListing[];
@@ -16,29 +20,61 @@ const MyUtilitiesClient: React.FC<MyUtilitiesClientProps> = ({
     currentUser
 }) => {
     const router = useRouter();
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleDeleteClick = (id: string) => {
+        setDeletingId(id);
+        setIsModalOpen(true); // ✅ Open modal when delete is clicked
+    };
+
+    const onDelete = () => {
+        if (!deletingId) return;
+
+        axios.delete(`/api/listings/${deletingId}`)
+            .then(() => {
+                toast.success("Listing deleted successfully!");
+                router.refresh();
+            })
+            .catch((error) => {
+                console.error("Delete Error:", error);
+                toast.error(error?.response?.data?.error || "Error deleting listing.");
+            })
+            .finally(() => {
+                setDeletingId(null);
+                setIsModalOpen(false); // ✅ Close modal after deletion
+            });
+    };
+
+    // ✅ Reset deletingId when closing the modal
+    const handleCloseModal = () => {
+        setDeletingId(null); // Re-enable delete button
+        setIsModalOpen(false);
+    };
 
     return (
         <Container>
-            <Heading
-                title="My Utilities"
-                subtitle="Manage and update your listed utilities"
-            />
+            <Heading title="My Utilities" subtitle="Manage and update your listed utilities" />
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-8">
                 {listings.map((listing) => (
                     <ListingCard
                         key={listing.id}
                         data={listing}
                         currentUser={currentUser}
-                        showEditButton={true} // ✅ Show Edit Button only here
+                        showEditButton={true}
                         actionLabel="Delete Utility"
-                        onAction={(id) => {
-                            if (confirm("Are you sure you want to delete this utility?")) {
-                                router.push(`/api/listings/${id}/delete`);
-                            }
-                        }}
+                        onAction={() => handleDeleteClick(listing.id)}
+                        disabled={deletingId === listing.id} // ✅ Re-enabled after "Go Back"
                     />
                 ))}
             </div>
+
+            {/* ✅ Delete Modal */}
+            <DeleteModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal} // ✅ Now resets deletingId
+                onDelete={onDelete}
+            />
         </Container>
     );
 };

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 interface DateSelectorProps {
     value: string;
@@ -9,9 +9,9 @@ interface DateSelectorProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DateSelector: React.FC<DateSelectorProps> = ({ value, onChange }) => {
-    const today = new Date(); // Get today's date
+    const today = new Date();
     const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth() + 1; // JS months are 0-based
+    const currentMonth = today.getMonth() + 1;
 
     const [day, setDay] = useState("");
     const [month, setMonth] = useState("");
@@ -23,37 +23,40 @@ const DateSelector: React.FC<DateSelectorProps> = ({ value, onChange }) => {
     ];
 
     // Generate year options (Current year to 20 years ahead)
-    const years = Array.from({ length: 21 }, (_, i) => currentYear + i);
+    const years = useMemo(() => Array.from({ length: 21 }, (_, i) => currentYear + i), [currentYear]);
 
-    // Dynamically get the number of days in a selected month & year
+    // Function to get the number of days in a selected month/year
     const getDaysInMonth = (year: number, month: number) => {
         return new Date(year, month, 0).getDate();
     };
 
-    // Ensure day selection is valid when month/year changes
+    // Compute available days dynamically when month and year change
+    const daysInMonth = useMemo(() => {
+        if (!year || !month) return 31;
+        return getDaysInMonth(parseInt(year), months.indexOf(month) + 1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [year, month]);
+
+    // Validate and update the selected day when month/year changes
     useEffect(() => {
+        if (day && parseInt(day) > daysInMonth) {
+            setDay(daysInMonth.toString());
+        }
+
         if (day && month && year) {
-            const monthIndex = months.indexOf(month) + 1; // Convert month name to number
-            const daysInMonth = getDaysInMonth(parseInt(year), monthIndex);
-
-            // Reset day if it exceeds the max days in the month
-            if (parseInt(day) > daysInMonth) {
-                setDay(daysInMonth.toString());
-            }
-
-            // Format date and send to parent component
+            const monthIndex = months.indexOf(month) + 1;
             const formattedDate = `${year}-${String(monthIndex).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-            onChange(formattedDate);
+            onChange(formattedDate); // ✅ Only call `onChange` when the selected date is valid
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [day, year, month, onChange]);
+    }, [day, year, month]); // ✅ Removed `onChange` from dependency array
 
     return (
         <div className="flex gap-2">
             {/* Day Dropdown */}
             <select value={day} onChange={(e) => setDay(e.target.value)} className="border p-4 rounded-md w-[33%]">
                 <option value="">Day</option>
-                {Array.from({ length: day && month && year ? getDaysInMonth(parseInt(year), months.indexOf(month) + 1) : 31 }, (_, i) => i + 1)
+                {Array.from({ length: daysInMonth }, (_, i) => i + 1)
                     .filter(d => !(parseInt(year) === currentYear && months.indexOf(month) + 1 === currentMonth && d < today.getDate())) // Disable past days
                     .map(d => (
                         <option key={d} value={d}>{d}</option>

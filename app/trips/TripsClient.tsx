@@ -16,21 +16,22 @@ interface TripsClientProps {
 
 const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) => {
     const router = useRouter();
-    const [deletingId, setDeletingId] = useState('');
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
     const onCancel = useCallback((id: string) => {
         setDeletingId(id);
 
         axios.delete(`/api/reservations/${id}`)
             .then(() => {
-                toast.success('Reservation cancelled');
+                toast.success("Reservation cancelled");
                 router.refresh();
             })
             .catch((error) => {
+                console.error("Cancel Error:", error);
                 toast.error(error?.response?.data?.error || "Error canceling booking.");
             })
             .finally(() => {
-                setDeletingId('');
+                setDeletingId(null);
             });
     }, [router]);
 
@@ -44,8 +45,15 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-8">
                 {reservations.map((reservation) => {
                     const today = new Date();
+                    const reservationStartDate = new Date(reservation.startDate);
                     const reservationEndDate = new Date(reservation.endDate);
-                    const isPastReservation = today > reservationEndDate;
+
+                    // Ensure the review button appears only after 1 full day has passed
+                    const oneDayAfterEnd = new Date(reservationEndDate);
+                    oneDayAfterEnd.setDate(oneDayAfterEnd.getDate() + 1);
+
+                    const canReview = today >= oneDayAfterEnd;
+                    const canCancel = today < reservationStartDate; // Only allow canceling before the start date
 
                     return (
                         <ListingCard
@@ -54,12 +62,14 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
                             reservation={reservation}
                             actionId={reservation.id}
                             onAction={
-                                isPastReservation
+                                canReview
                                     ? () => handleReviewRedirect(reservation.id)
-                                    : () => onCancel(reservation.id)
+                                    : canCancel
+                                        ? () => onCancel(reservation.id)
+                                        : undefined // No action if cancellation is not allowed
                             }
-                            disabled={deletingId === reservation.id}
-                            actionLabel={isPastReservation ? "Review Booking" : "Cancel Booking"}
+                            disabled={deletingId === reservation.id || !canCancel}
+                            actionLabel={canReview ? "Review Booking" : canCancel ? "Cancel Booking" : "Cannot Cancel"}
                             currentUser={currentUser}
                         />
                     );
