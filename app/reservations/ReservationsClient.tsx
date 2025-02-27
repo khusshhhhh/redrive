@@ -42,20 +42,28 @@ const ReservationsClient: React.FC<ReservationsClientProps> = ({
         <Container>
             <Heading
                 title="Reservations"
-                subtitle="Bookings on your properties"
+                subtitle="Bookings on your utilities"
             />
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-col-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-8">
                 {reservations.map((reservation) => (
-                    <ListingCard
-                        key={reservation.id}
-                        data={reservation.listing}
-                        reservation={reservation}
-                        actionId={reservation.id}
-                        onAction={onCancel}
-                        disabled={deletingId === reservation.id}
-                        actionLabel="Cancel reservation"
-                        currentUser={currentUser}
-                    />
+                    <div key={reservation.id} className="flex flex-col">
+                        <ListingCard
+                            key={reservation.id}
+                            data={reservation.listing}
+                            reservation={reservation}
+                            actionId={reservation.id}
+                            onAction={onCancel}
+                            disabled={deletingId === reservation.id}
+                            actionLabel="Cancel reservation"
+                            currentUser={currentUser}
+                        />
+                        <button
+                            onClick={() => router.push(`/reservations/${reservation.id}`)}
+                            className="mt-2 bg-white text-teal-500 px-4 py-3 border-[2px] border-teal-500 rounded-md hover:text-white hover:bg-teal-500 transition"
+                        >
+                            View reservation
+                        </button>
+                    </div>
                 ))}
             </div>
 

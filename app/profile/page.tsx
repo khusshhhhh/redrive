@@ -108,6 +108,9 @@ export default function Profile() {
 
         const updatedData = {
             ...data,
+            city: data.city ?? "",
+            state: data.state ?? "",
+            postcode: data.postcode ?? "",
             hobbies: data.hobbies ? data.hobbies.split(",").map((h) => h.trim()) : [],
             dreamDestinations: data.dreamDestinations ? data.dreamDestinations.split(",").map((d) => d.trim()) : [],
             image,
@@ -115,6 +118,7 @@ export default function Profile() {
         };
 
         try {
+            console.log("Updating with data:", updatedData); // ✅ Debug: Check the payload
             await axios.put("/api/profile", updatedData);
             toast.success("Profile updated successfully!");
         } catch (error) {
@@ -124,6 +128,7 @@ export default function Profile() {
             setIsSaving(false);
         }
     };
+
 
     return (
         <>
