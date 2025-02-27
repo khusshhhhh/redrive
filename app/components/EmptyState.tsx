@@ -34,7 +34,7 @@ const EmptyState: React.FC<EmptyState> = ({
                     <Button
                         outline
                         label="Remove all filters"
-                        onClick={() => router.push('/')} />
+                        onClick={async () => router.push('/')} />
                 )}
             </div>
         </div>
