@@ -6,7 +6,7 @@ import { ImSpinner2 } from "react-icons/im"; // Import a spinner icon
 
 interface ButtonProps {
     label: string;
-    onClick?: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void>; // Make onClick async for loading state
+    onClick?: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void> | void;
     disabled?: boolean;
     outline?: boolean;
     small?: boolean;
