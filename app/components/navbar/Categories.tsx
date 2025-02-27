@@ -4,15 +4,15 @@ import Container from "../Container";
 import CategoryBox from "../CategoryBox";
 import { usePathname, useSearchParams } from "next/navigation";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { IconCamper, IconCaravan, IconMotorbike, IconSailboat, IconSwimming, IconTent, IconTir, IconTruck } from "@tabler/icons-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrailer } from "@fortawesome/free-solid-svg-icons";
+import { IconCamper, IconCar, IconCaravan, IconMotorbike, IconSailboat, IconSpeedboat, IconSwimming, IconTent, IconTir, IconTruck } from "@tabler/icons-react";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import { faTrailer } from "@fortawesome/free-solid-svg-icons";
 import { Van } from "@phosphor-icons/react";
 
 export const categories = [
     {
-        label: 'Caravans',
-        icon: () => <IconCaravan size={28} stroke={1.5} />,
+        label: 'Car',
+        icon: () => <IconCar size={28} stroke={1.5} />,
         description: 'These are the amazing caravans!'
     },
     {
@@ -21,14 +21,24 @@ export const categories = [
         description: 'These are the Utes!'
     },
     {
-        label: 'Boats',
-        icon: () => <IconSailboat size={28} stroke={1.5} />,
-        description: 'These are the wavey boats!'
-    },
-    {
         label: 'Bikes',
         icon: () => <IconMotorbike size={28} stroke={1.5} />,
         description: 'These are the speedy bikes!'
+    },
+    {
+        label: 'Caravans',
+        icon: () => <IconCaravan size={28} stroke={1.5} />,
+        description: 'These are the amazing caravans!'
+    },
+    {
+        label: 'Motorhomes',
+        icon: () => <IconCamper size={28} stroke={1.5} />,
+        description: 'These are the amazing Motorhomes!'
+    },
+    {
+        label: 'Boats',
+        icon: () => <IconSailboat size={28} stroke={1.5} />,
+        description: 'These are the wavey boats!'
     },
     {
         label: 'JetSkies',
@@ -36,9 +46,9 @@ export const categories = [
         description: 'These are the fast jetskies!'
     },
     {
-        label: 'Motorhomes',
-        icon: () => <IconCamper size={28} stroke={1.5} />,
-        description: 'These are the amazing Motorhomes!'
+        label: 'Yachts',
+        icon: () => <IconSpeedboat size={28} stroke={1.5} />,
+        description: 'These are the fast jetskies!'
     },
     {
         label: 'Vans',
@@ -48,11 +58,6 @@ export const categories = [
     {
         label: 'Trucks',
         icon: () => <IconTruck size={28} stroke={1.5} />,
-        description: 'Heavy-duty trucks for transport and hauling!'
-    },
-    {
-        label: 'Trailers',
-        icon: () => <FontAwesomeIcon icon={faTrailer} className="text-xl" />,
         description: 'Heavy-duty trucks for transport and hauling!'
     },
     // {
