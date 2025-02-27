@@ -140,7 +140,8 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  context: { params: { listingId?: string } } // Ensure proper type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context: any
 ) {
   try {
     const currentUser = await getCurrentUser();
