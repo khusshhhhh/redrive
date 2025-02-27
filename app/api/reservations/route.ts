@@ -78,3 +78,49 @@ export async function POST(request: Request) {
     );
   }
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function GET(req: Request) {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const reservations = await prisma.reservation.findMany({
+      include: {
+        user: true, // ✅ Ensure user is included
+        listing: true, // ✅ Ensure listing is included
+      },
+    });
+
+    // ✅ Convert all Date fields to ISO strings for TypeScript compatibility
+    const safeReservations = reservations.map((reservation) => ({
+      ...reservation,
+      createdAt: reservation.createdAt.toISOString(),
+      startDate: reservation.startDate.toISOString(),
+      endDate: reservation.endDate.toISOString(),
+      user: {
+        ...reservation.user,
+        createdAt: reservation.user.createdAt.toISOString(),
+        updatedAt: reservation.user.updatedAt.toISOString(),
+        emailVerified: reservation.user.emailVerified
+          ? reservation.user.emailVerified.toISOString()
+          : null,
+      },
+      listing: {
+        ...reservation.listing,
+        createdAt: reservation.listing.createdAt.toISOString(),
+        regoImage: reservation.listing.regoImage ?? "", // ✅ Ensure regoImage is always a string
+      },
+    }));
+
+    return NextResponse.json(safeReservations, { status: 200 });
+  } catch (error) {
+    console.error("❌ Error fetching reservations:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch reservations" },
+      { status: 500 }
+    );
+  }
+}

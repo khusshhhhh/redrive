@@ -1,17 +1,18 @@
 import { Listing, Reservation, User } from "@prisma/client";
 
-export type SafeListing = Omit<Listing, "createdAt"> & {
+export type SafeListing = Omit<Listing, "createdAt" | "regoImage"> & {
   createdAt: string;
+  regoImage: string; // ✅ Ensure regoImage is always a string
 };
 
 export type SafeReservation = Omit<
   Reservation,
-  "createdAt" | "startDate" | "endDate" | "listing"
+  "createdAt" | "startDate" | "endDate"
 > & {
   createdAt: string;
-  user: SafeUser;
   startDate: string;
   endDate: string;
+  user: SafeUser; // ✅ Ensure user is required
   listing: SafeListing;
 };
 

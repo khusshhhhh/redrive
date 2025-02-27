@@ -30,28 +30,36 @@ export default async function getReservations(params: IParams) {
       where: query,
       include: {
         listing: true,
+        user: true,
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    const safeReservations = reservations
-      .filter((reservation) => reservation.listing)
-      .map((reservation) => ({
-        ...reservation,
-        createdAt: reservation.createdAt.toISOString(),
-        startDate: reservation.startDate.toISOString(),
-        endDate: reservation.endDate.toISOString(),
-        listing: {
-          ...reservation.listing,
-          createdAt: reservation.listing.createdAt.toISOString(),
-        },
-      }));
+    // ✅ Convert all Date fields to ISO strings for TypeScript compatibility
+    const safeReservations = reservations.map((reservation) => ({
+      ...reservation,
+      createdAt: reservation.createdAt.toISOString(),
+      startDate: reservation.startDate.toISOString(),
+      endDate: reservation.endDate.toISOString(),
+      user: {
+        ...reservation.user,
+        createdAt: reservation.user.createdAt.toISOString(),
+        updatedAt: reservation.user.updatedAt.toISOString(),
+        emailVerified: reservation.user.emailVerified
+          ? reservation.user.emailVerified.toISOString()
+          : null,
+      },
+      listing: {
+        ...reservation.listing,
+        createdAt: reservation.listing.createdAt.toISOString(),
+        regoImage: reservation.listing.regoImage ?? "", // ✅ Ensure regoImage is always a string
+      },
+    }));
 
     return safeReservations;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+  } catch (error) {
     throw new Error(error);
   }
 }
