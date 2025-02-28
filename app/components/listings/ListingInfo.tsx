@@ -124,7 +124,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
             <hr />
 
             {/* Amenities */}
-            <div>
+            <div className="">
                 <div className="font-bold text-lg">Amenities</div>
                 {amenities && amenities.length > 0 ? (
                     <div className="mt-6 grid grid-cols-2 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">

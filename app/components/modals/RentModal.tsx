@@ -10,7 +10,7 @@ import YearSelect from "../inputs/YearSelect";
 import FuelSelector from "../inputs/FuelSelector";
 import Counter from "../inputs/Counter";
 import AmenitiesSelector from "../inputs/AmenitiesSelector";
-import ImageUpload from "../inputs/ImageUpload";
+// import ImageUpload from "../inputs/ImageUpload";
 import Heading from "../Heading";
 import TextArea from "../inputs/TextArea";
 import StateSelector from "../inputs/StateSelector";
@@ -21,6 +21,8 @@ import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { useMemo, useState } from "react";
 import { categories } from "../navbar/Categories";
 import { useRouter } from "next/navigation";
+import { useCloudinaryUpload } from "@/app/hooks/useCloudinaryUpload";
+import Image from "next/image";
 // import Script from "next/script";
 
 import dynamic from "next/dynamic";
@@ -55,11 +57,36 @@ const RentModal = () => {
 
     const [step, setStep] = useState(STEPS.CATEGORY);
     const [isLoading, setIsLoading] = useState(false);
-    const [regoImage, setRegoImage] = useState<string>("");
-
     const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
     const [selectedSuburb, setSelectedSuburb] = useState<{ value: string; label: string } | null>(null);
     const [address, setAddress] = useState<string>("");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { uploadImage, loading } = useCloudinaryUpload();
+    const [imageSrcs, setImageSrcs] = useState<string[]>([]);
+    const [regoImage, setRegoImage] = useState<string>("");
+
+    // ✅ Handle Listing Image Upload (Max 10)
+    const handleListingImages = async (files: FileList) => {
+        if (!files.length) return;
+
+        const urls = await Promise.all(
+            [...files].slice(0, 10).map(async (file) => {
+                const url = await uploadImage(file, "listings");
+                return url;
+            })
+        );
+
+        if (urls.length) {
+            setImageSrcs((prev) => [...prev, ...urls].slice(0, 10)); // Store URLs in state
+        }
+    };
+
+
+    // ✅ Handle Legal Document Upload
+    const handleRegoImage = async (file: File) => {
+        const url = await uploadImage(file, "legal_documents");
+        if (url) setRegoImage(url);
+    };
 
     const {
         register,
@@ -81,7 +108,6 @@ const RentModal = () => {
             sleepCount: 0,
             fuelType: '',
             year: '',
-            imageSrc: '',
             price: 1,
             title: '',
             description: '',
@@ -90,7 +116,6 @@ const RentModal = () => {
             modal: '',
             regoNumber: '',
             regoEndDate: new Date(),
-            regoImage: '',
         }
     });
 
@@ -99,7 +124,6 @@ const RentModal = () => {
     const guestCount = watch('guestCount');
     const doorCount = watch('doorCount');
     const sleepCount = watch('sleepCount');
-    const imageSrc = watch('imageSrc');
     // const regoNumber = watch('regoNumber');
     const regoEndDate = watch('regoEndDate');
 
@@ -138,6 +162,8 @@ const RentModal = () => {
 
         const finalData = {
             ...data,
+            imageSrcs,
+            regoImage,
             state: selectedState?.value,
             suburb: selectedSuburb?.value,
             address: address.trim() !== "" ? address : "Unknown",
@@ -305,16 +331,37 @@ const RentModal = () => {
         bodyContent = (
             <div className="flex flex-col gap-8">
                 <Heading
-                    title="Add a photo of your utility"
-                    subtitle="Show people what it looks like!"
+                    title="Add photos of your utility"
+                    subtitle="Upload up to 10 images."
                 />
-                <ImageUpload
-                    value={imageSrc}
-                    onChange={(value) => setCustomValue('imageSrc', value)}
+
+                {/* ✅ File Input for Multiple Images */}
+                <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) => handleListingImages(e.target.files!)}
+                    className="hidden"
+                    id="listingImages"
                 />
+                <label htmlFor="listingImages" className="cursor-pointer p-4 border-2 border-dashed rounded-lg text-center text-gray-600">
+                    Click to Upload Listing Images
+                </label>
+
+                {/* ✅ Display Uploaded Images */}
+                {imageSrcs.length > 0 && (
+                    <div className="grid grid-cols-5 gap-2">
+                        {imageSrcs.map((src, index) => (
+                            <div key={index} className="relative w-24 h-24">
+                                <Image alt={`Uploaded Image ${index + 1}`} src={src} width={96} height={96} className="object-cover rounded" />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         );
     }
+
 
     if (step == STEPS.DESCRIPTION) {
         bodyContent = (
@@ -426,7 +473,7 @@ const RentModal = () => {
             <div className="flex flex-col gap-8">
                 <Heading title="Legal Information" subtitle="Provide your utility registration details." />
 
-                {/* Registration Number Input */}
+                {/* ✅ Registration Number Input */}
                 <Input
                     id="regoNumber"
                     label="Registration Number"
@@ -436,34 +483,42 @@ const RentModal = () => {
                     register={register}
                     errors={errors}
                     required
-                    onChange={(e) => setCustomValue('regoNumber', e.target.value.toUpperCase())}
+                    onChange={(e) => setCustomValue("regoNumber", e.target.value.toUpperCase())}
                 />
-                {/* Rego Expiry Date */}
+
+                {/* ✅ Registration Expiry Date */}
                 <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                        Registration Expiry Date</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">Registration Expiry Date</label>
                     <div className="mt-4">
                         <DateSelector
                             value={regoEndDate}
-                            onChange={(value) => setCustomValue('regoEndDate', value)}
+                            onChange={(value) => setCustomValue("regoEndDate", value)}
                         />
                     </div>
                 </div>
-                <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                        Upload a valid document</label>
-                    {/* Upload Registration Image using ImageUpload component */}
-                    <ImageUpload
-                        value={regoImage}
-                        onChange={(value) => {
-                            setRegoImage(value);
-                            setCustomValue('regoImage', value);
-                        }}
-                    />
-                </div>
+
+                {/* ✅ File Input for Legal Document */}
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleRegoImage(e.target.files![0])}
+                    className="hidden"
+                    id="regoDocument"
+                />
+                <label htmlFor="regoDocument" className="cursor-pointer p-4 border-2 border-dashed rounded-lg text-center text-gray-600">
+                    Click to Upload Legal Document
+                </label>
+
+                {/* ✅ Show Uploaded Legal Document */}
+                {regoImage && (
+                    <div className="mt-4">
+                        <Image alt="Legal Document" src={regoImage} width={150} height={150} className="object-cover rounded" />
+                    </div>
+                )}
             </div>
         );
     }
+
 
     if (step === STEPS.PRICE) {
         bodyContent = (

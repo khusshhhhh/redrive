@@ -6,90 +6,144 @@ import Image from "next/image";
 import HeartButton from "../HeartButton";
 import { IoClose } from "react-icons/io5";
 import Heading from "../Heading";
+import { useRouter } from "next/navigation";
 
 interface ListingHeadProps {
     title: string;
-    imageSrc: string;
+    imageSrcs: string[];
     id: string;
     currentUser?: SafeUser | null;
-    address: string;
 }
 
 const ListingHead: React.FC<ListingHeadProps> = ({
-    imageSrc,
+    imageSrcs = [],
     title,
     id,
     currentUser
 }) => {
-
-    // State for image modal
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const router = useRouter();
 
     // Disable background scrolling when modal is open
     useEffect(() => {
-        if (isModalOpen) {
+        if (selectedImage) {
             document.body.classList.add("overflow-hidden");
         } else {
             document.body.classList.remove("overflow-hidden");
         }
 
-        // Cleanup when component unmounts
         return () => document.body.classList.remove("overflow-hidden");
-    }, [isModalOpen]);
+    }, [selectedImage]);
 
     return (
         <>
             {/* Title */}
+            <Heading title={title} subtitle="" />
 
-            <Heading
-                title={title}
-                subtitle=""
-            />
-
-            {/* Listing Image - Click to Open Modal */}
-            <div
-                className="w-full h-[60vh] overflow-hidden rounded-md relative cursor-pointer"
-                onClick={() => setIsModalOpen(true)}
-            >
-                <Image
-                    alt="Image"
-                    src={imageSrc}
-                    fill
-                    className="object-cover w-full"
-                />
-                <div className="absolute top-5 right-5">
-                    <HeartButton
-                        listingId={id}
-                        currentUser={currentUser}
+            {/* Responsive Image Display */}
+            <div className="relative w-full">
+                {/* Show Only One Image on Mobile */}
+                <div className="relative rounded-lg overflow-hidden cursor-pointer md:hidden"
+                    onClick={() => setSelectedImage(imageSrcs[0])}
+                >
+                    <Image
+                        alt="Main Image"
+                        src={imageSrcs[0]}
+                        width={800}
+                        height={500}
+                        className="object-cover w-full h-[300px] sm:h-[400px] rounded-lg"
                     />
+
+                    {/* Show All Images Button */}
+                    <button
+                        className="absolute bottom-3 left-3 bg-black bg-opacity-50 text-white text-sm px-4 py-2 rounded-md"
+                        onClick={() => router.push(`/listings/${id}/images`)}
+                    >
+                        Show All Images
+                    </button>
+
+                    {/* Heart Button */}
+                    <div className="absolute top-3 right-3">
+                        <HeartButton listingId={id} currentUser={currentUser} />
+                    </div>
+                </div>
+
+                {/* Image Grid (Only for Desktop) */}
+                <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-2 w-full">
+                    {/* Large Main Image */}
+                    <div
+                        className="relative col-span-2 row-span-2 rounded-lg overflow-hidden cursor-pointer"
+                        onClick={() => setSelectedImage(imageSrcs[0])}
+                    >
+                        <Image
+                            alt="Main Image"
+                            src={imageSrcs[0]}
+                            width={800}
+                            height={500}
+                            className="object-cover w-full h-full rounded-lg"
+                        />
+
+                        {/* Show All Images Button */}
+                        <button
+                            className="absolute bottom-3 left-3 bg-black bg-opacity-50 text-white text-sm px-4 py-2 rounded-md"
+                            onClick={() => router.push(`/listings/${id}/images`)}
+                        >
+                            Show All Images
+                        </button>
+
+                        {/* Heart Button */}
+                        <div className="absolute top-3 right-3">
+                            <HeartButton listingId={id} currentUser={currentUser} />
+                        </div>
+                    </div>
+
+                    {/* Smaller Images */}
+                    {imageSrcs.slice(1, 5).map((src, index) => (
+                        <div
+                            key={index}
+                            className="relative rounded-lg overflow-hidden cursor-pointer"
+                            onClick={() => setSelectedImage(src)}
+                        >
+                            <Image
+                                alt={`Thumbnail ${index + 2}`}
+                                src={src}
+                                width={250}
+                                height={200}
+                                className="object-cover w-full h-full rounded-lg"
+                            />
+                        </div>
+                    ))}
                 </div>
             </div>
 
-            {/* Fullscreen Image Modal */}
-            {isModalOpen && (
+            {/* Single Image Modal */}
+            {selectedImage && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
-                    onClick={() => setIsModalOpen(false)} // Close on outside click
+                    onClick={() => setSelectedImage(null)}
                 >
                     <div
-                        className="relative w-[90%] h-[90%] rounded-lg overflow-hidden"
-                        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+                        className="relative w-[90%] max-w-4xl rounded-lg overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
                     >
                         {/* Close Button */}
                         <button
-                            className="absolute top-1 right-1 bg-white text-black rounded-full p-2 z-50 hover:bg-gray-300 transition"
-                            onClick={() => setIsModalOpen(false)}
+                            className="absolute top-6 right-6 bg-white text-black rounded-full p-2 z-50 hover:bg-gray-300 transition"
+                            onClick={() => setSelectedImage(null)}
                         >
                             <IoClose size={24} />
                         </button>
 
-                        {/* Fullscreen Image */}
-                        <Image
-                            alt="Full Image"
-                            src={imageSrc}
-                            fill
-                            className="object-contain w-full h-full"
-                        />
+                        {/* Full Image Display */}
+                        <div className="p-4">
+                            <Image
+                                alt="Full Image"
+                                src={selectedImage}
+                                width={800}
+                                height={600}
+                                className="object-cover w-full h-auto rounded-lg"
+                            />
+                        </div>
                     </div>
                 </div>
             )}

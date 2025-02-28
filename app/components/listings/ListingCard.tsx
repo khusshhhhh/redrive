@@ -36,7 +36,9 @@ const ListingCard: React.FC<ListingCardProps> = ({
             e.stopPropagation();
             if (disabled) return;
             onAction?.(actionId);
-        }, [onAction, actionId, disabled]);
+        },
+        [onAction, actionId, disabled]
+    );
 
     const price = useMemo(() => {
         return reservation ? reservation.totalFees : data.price;
@@ -48,6 +50,14 @@ const ListingCard: React.FC<ListingCardProps> = ({
         const end = new Date(reservation.endDate);
         return `${format(start, 'PP')} - ${format(end, 'PP')}`;
     }, [reservation]);
+
+    // Use the first image from the array, or a fallback image if none exists.
+    const imageUrl = useMemo(() => {
+        if (Array.isArray(data.imageSrcs) && data.imageSrcs.length > 0) {
+            return data.imageSrcs[0];
+        }
+        return "/placeholder.png"; // Change to your placeholder image path
+    }, [data.imageSrcs]);
 
     return (
         <div
@@ -61,7 +71,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                         priority
                         sizes="100%"
                         alt="Listing"
-                        src={data.imageSrc}
+                        src={imageUrl}
                         className="object-cover h-full w-full group-hover:scale-110 transition-all"
                     />
                     {/* ✅ Show badge dynamically if it exists */}

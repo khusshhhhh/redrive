@@ -25,6 +25,7 @@
     "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.7.9",
     "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.5.1",
     "date-fns": "^4.1.0",
     "leaflet": "^1.9.4",
     "mongodb": "^6.13.0",

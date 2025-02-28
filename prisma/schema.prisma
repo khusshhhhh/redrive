@@ -59,7 +59,7 @@ model Listing {
   description   String
   company       String
   modal         String
-  imageSrc      String
+  imageSrcs     String[] @default([]) // ✅ Supports multiple images
   createdAt     DateTime @default(now())
   category      String
   guestCount    Int

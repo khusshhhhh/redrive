@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const {
       title,
       description,
-      imageSrc,
+      imageSrcs = [],
       category,
       guestCount,
       doorCount,
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       longitude,
       regoNumber,
       regoEndDate,
-      regoImage,
+      regoImage = "", // ✅ Default to empty string
     } = body;
 
     // ✅ Ensure address is not empty
@@ -52,7 +52,6 @@ export async function POST(request: Request) {
     if (
       !title ||
       !description ||
-      !imageSrc ||
       !category ||
       !company ||
       !modal ||
@@ -88,13 +87,16 @@ export async function POST(request: Request) {
     // ✅ Store `badge` as `null` initially
     const finalBadge = null;
 
+    // ✅ Ensure imageSrcs is an array (prevent empty string issue)
+    const formattedImageSrcs = Array.isArray(imageSrcs) ? imageSrcs : [];
+
     // ✅ Create listing with new fields
     const listing = await prisma.listing.create({
       data: {
         title,
         description,
         badge: finalBadge, // ✅ Stores null by default
-        imageSrc,
+        imageSrcs: formattedImageSrcs,
         category,
         guestCount,
         doorCount,
@@ -114,7 +116,7 @@ export async function POST(request: Request) {
         amenities: formattedAmenities,
         regoNumber: formattedRegoNumber,
         regoEndDate: formattedRegoEndDate,
-        regoImage,
+        regoImage: regoImage || null, // ✅ Default to null
         createdAt: new Date(),
       },
     });
