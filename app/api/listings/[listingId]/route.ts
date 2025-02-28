@@ -69,7 +69,7 @@ export async function PUT(
       description,
       information,
       category,
-      imageSrc,
+      imageSrcs,
       guestCount,
       doorCount,
       sleepCount,
@@ -88,7 +88,7 @@ export async function PUT(
       !title ||
       !description ||
       !category ||
-      !imageSrc ||
+      !imageSrcs ||
       !year ||
       !fuelType ||
       !price ||
@@ -109,7 +109,7 @@ export async function PUT(
         description,
         information,
         category,
-        imageSrc,
+        imageSrcs,
         guestCount,
         doorCount,
         sleepCount,
