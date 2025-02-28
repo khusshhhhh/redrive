@@ -48,7 +48,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
 
             {/* Listing Image - Click to Open Modal */}
             <div
-                className="w-full h-[60vh] overflow-hidden rounded-xl relative cursor-pointer"
+                className="w-full h-[60vh] overflow-hidden rounded-md relative cursor-pointer"
                 onClick={() => setIsModalOpen(true)}
             >
                 <Image
@@ -68,7 +68,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
             {/* Fullscreen Image Modal */}
             {isModalOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                    className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
                     onClick={() => setIsModalOpen(false)} // Close on outside click
                 >
                     <div

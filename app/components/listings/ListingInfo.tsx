@@ -119,7 +119,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
             {/* Additional Information */}
             <div>
                 <div className="font-bold text-lg">Information</div>
-                <div className="text-base text-neutral-800">{information}</div>
+                <div className="text-base text-neutral-800 overflow-clip">{information}</div>
             </div>
             <hr />
 
