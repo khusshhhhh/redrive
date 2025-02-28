@@ -9,6 +9,7 @@ import getCurrentUser from "./actions/getCurrentUser";
 import RentModal from "./components/modals/RentModal";
 import SearchModal from "./components/modals/SearchModal";
 import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata = {
   title: "Redrive",
@@ -37,6 +38,7 @@ export default async function RootLayout({
         </ClientOnly>
         <div className="pb-20 pt-28">{children}</div>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
