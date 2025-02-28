@@ -44,7 +44,7 @@ const ReservationsClient: React.FC<ReservationsClientProps> = ({
                 title="Reservations"
                 subtitle="Bookings on your utilities"
             />
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-col-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-8">
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-col-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-8">
                 {reservations.map((reservation) => (
                     <div key={reservation.id} className="flex flex-col">
                         <ListingCard

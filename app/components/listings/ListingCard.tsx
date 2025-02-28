@@ -16,7 +16,7 @@ interface ListingCardProps {
     actionLabel?: string;
     actionId?: string;
     currentUser?: SafeUser | null;
-    showEditButton?: boolean; // ✅ New prop to control "Edit Utility" button visibility
+    showEditButton?: boolean;
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
@@ -27,7 +27,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
     actionLabel,
     actionId = "",
     currentUser,
-    showEditButton = false, // ✅ Default to false
+    showEditButton = false,
 }) => {
     const router = useRouter();
 
@@ -52,7 +52,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
     return (
         <div
             onClick={() => router.push(`/listings/${data.id}`)}
-            className="col-span-1 cursor-pointer group">
+            className="col-span-1 cursor-pointer group"
+        >
             <div className="flex flex-col gap-2 w-full">
                 <div className="aspect-square w-full relative overflow-hidden rounded-xl">
                     <Image
@@ -63,21 +64,22 @@ const ListingCard: React.FC<ListingCardProps> = ({
                         src={data.imageSrc}
                         className="object-cover h-full w-full group-hover:scale-110 transition-all"
                     />
+                    {/* ✅ Show badge dynamically if it exists */}
+                    {data.badgeValue && (
+                        <div className="absolute top-3 left-3 bg-white text-black font-bold text-sm px-4 py-2 rounded-md">
+                            {data.badgeValue}
+                        </div>
+                    )}
                     <div className="absolute top-3 right-3">
                         <HeartButton listingId={data.id} currentUser={currentUser} />
                     </div>
                 </div>
-                <div className="font-semibold text-lg">
-                    {data.title}
-                </div>
+                <div className="font-semibold text-lg">{data.title}</div>
                 <div className="font-light text-neutral-500">
                     {reservationDate || data.category} | {data.suburb}, {data.state}
                 </div>
-
                 <div className="flex flex-row items-center gap-1">
-                    <div className="font-bold">
-                        AUD {price}
-                    </div>
+                    <div className="font-bold">AUD {price}</div>
                     {!reservation && <div className="font-light">per day</div>}
                 </div>
                 <div className="gap-0">

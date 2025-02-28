@@ -3,6 +3,7 @@ import { Listing, Reservation, User } from "@prisma/client";
 export type SafeListing = Omit<Listing, "createdAt" | "regoImage"> & {
   createdAt: string;
   regoImage: string; // ✅ Ensure regoImage is always a string
+  badgeValue?: string;
 };
 
 export type SafeReservation = Omit<

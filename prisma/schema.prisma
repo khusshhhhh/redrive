@@ -72,6 +72,8 @@ model Listing {
   price         Int
   amenities     String[] @default([])
 
+  badge         String?  // ✅ New badge field
+
   state        String
   suburb       String
   address      String    @default("")
@@ -120,11 +122,8 @@ model Review {
   @@unique([userId, listingId])
 }
 
-model Suburb {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  suburb   String
-  state    String
-  postcode String?
-  lat      Float?
-  lng      Float?
+model Badge {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  key   String @unique
+  value String
 }
