@@ -4,6 +4,7 @@ import ClientOnly from "./components/ClientOnly";
 import Container from "./components/Container";
 import EmptyState from "./components/EmptyState";
 import ListingCard from "./components/listings/ListingCard";
+import { headers } from "next/headers";
 
 interface HomeProps {
   searchParams?: IListingsParams;
@@ -12,6 +13,14 @@ interface HomeProps {
 const Home = async ({ searchParams }: HomeProps) => {
   // ✅ Ensure searchParams exists
   const params = searchParams ? { ...searchParams } : {};
+
+  // Ensure params is properly handled
+  if (!searchParams) {
+    const urlParams = new URLSearchParams((await headers()).get("referer") || "");
+    urlParams.forEach((value, key) => {
+      params[key] = value;
+    });
+  }
 
   const listings = await getListings(params);
   const currentUser = await getCurrentUser();
@@ -28,8 +37,9 @@ const Home = async ({ searchParams }: HomeProps) => {
     <ClientOnly>
       <Container>
         <div className="
+          px-2
           z-9
-          pt-24
+          pt-20
           grid
           grid-cols-1
           sm:grid-cols-2
