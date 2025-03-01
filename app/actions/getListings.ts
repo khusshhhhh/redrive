@@ -71,7 +71,7 @@ export default async function getListings(params: IListingsParams) {
       orderBy: { createdAt: "desc" },
     });
 
-    // Fetch badges dynamically
+    // ✅ Fetch badges dynamically
     const badgeKeys = listings.map((listing) => listing.badge).filter(Boolean);
     const badges = await prisma.badge.findMany({
       where: { key: { in: badgeKeys } },

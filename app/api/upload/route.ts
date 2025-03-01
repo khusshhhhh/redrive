@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import cloudinary from "cloudinary";
 
-// ✅ Configure Cloudinary (No `.v2` needed)
+// ✅ Configure Cloudinary
 cloudinary.v2.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -10,22 +10,46 @@ cloudinary.v2.config({
 
 export async function POST(request: Request) {
   try {
-    const { image } = await request.json();
-    if (!image) {
-      return NextResponse.json({ error: "No image provided" }, { status: 400 });
+    const formData = await request.formData();
+    const file = formData.get("image");
+
+    if (!file || !(file instanceof Blob)) {
+      return NextResponse.json(
+        { error: "Invalid image file" },
+        { status: 400 }
+      );
     }
 
-    // ✅ Upload Image to Cloudinary (No `.v2` needed)
-    const uploadedImage = await cloudinary.v2.uploader.upload(image, {
-      folder: "listings",
+    // Convert Blob to Buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // ✅ Wrap in a Promise and Ensure Response is Returned
+    const imageUrl = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.v2.uploader.upload_stream(
+        { folder: "listings" },
+        (error, result) => {
+          if (error) {
+            console.error("❌ Cloudinary Upload Error:", error);
+            reject(new Error("Cloudinary Upload Failed"));
+          } else {
+            resolve(result.secure_url);
+          }
+        }
+      );
+      uploadStream.end(buffer);
     });
 
-    return NextResponse.json(
-      { url: uploadedImage.secure_url },
-      { status: 200 }
-    );
+    if (!imageUrl) {
+      return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    }
+
+    return NextResponse.json({ url: imageUrl }, { status: 200 });
   } catch (error) {
-    console.error("❌ Cloudinary Upload Error:", error);
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    console.error("❌ Server Error:", error);
+    return NextResponse.json(
+      { error: "Server error occurred" },
+      { status: 500 }
+    );
   }
 }

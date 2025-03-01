@@ -64,28 +64,87 @@ const RentModal = () => {
     const { uploadImage, loading } = useCloudinaryUpload();
     const [imageSrcs, setImageSrcs] = useState<string[]>([]);
     const [regoImage, setRegoImage] = useState<string>("");
+    const [uploading, setUploading] = useState(false); // ✅ Uploading State
+    const [uploadingRego, setUploadingRego] = useState(false);
+
+    // ✅ Remove an Image from State
+    const removeImage = (indexToRemove: number) => {
+        setImageSrcs((prev) => prev.filter((_, index) => index !== indexToRemove));
+    };
+
+    // ✅ Handle Image Upload via API
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const uploadImageToCloudinary = async (file: File, folder: string) => {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+            const response = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+            return data.url || null;
+        } catch (error) {
+            console.error("Cloudinary Upload Error:", error);
+            return null;
+        }
+    };
+
 
     // ✅ Handle Listing Image Upload (Max 10)
     const handleListingImages = async (files: FileList) => {
         if (!files.length) return;
 
+        setUploading(true); // ✅ Show Loading
+
         const urls = await Promise.all(
             [...files].slice(0, 10).map(async (file) => {
-                const url = await uploadImage(file, "listings");
+                const url = await uploadImageToCloudinary(file, "listings");
                 return url;
             })
         );
 
         if (urls.length) {
-            setImageSrcs((prev) => [...prev, ...urls].slice(0, 10)); // Store URLs in state
+            setImageSrcs((prev) => [...prev, ...urls].slice(0, 10));
         }
+
+        setUploading(false); // ✅ Hide Loading
     };
 
-
-    // ✅ Handle Legal Document Upload
+    // ✅ Function to Upload Rego Image to Cloudinary
     const handleRegoImage = async (file: File) => {
-        const url = await uploadImage(file, "legal_documents");
-        if (url) setRegoImage(url);
+        if (!file) return;
+
+        setUploadingRego(true);
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+            const response = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (data.url) {
+                setRegoImage(data.url);
+            } else {
+                console.error("Error uploading image:", data.error);
+            }
+        } catch (error) {
+            console.error("Upload failed:", error);
+        }
+
+        setUploadingRego(false);
+    };
+
+    // ✅ Function to Remove Uploaded Rego Image
+    const removeRegoImage = () => {
+        setRegoImage(""); // Reset the state
     };
 
     const {
@@ -116,6 +175,10 @@ const RentModal = () => {
             modal: '',
             regoNumber: '',
             regoEndDate: new Date(),
+            badge: null, // ✅ Ensure badge is included and set to null
+            imageSrcs: [], // ✅ Prevents errors from undefined imageSrcs
+            amenities: [], // ✅ Ensures amenities are an empty array by default
+            regoImage: '', // ✅ Ensures regoImage is an empty string instead of undefined
         }
     });
 
@@ -330,12 +393,9 @@ const RentModal = () => {
     if (step == STEPS.IMAGES) {
         bodyContent = (
             <div className="flex flex-col gap-8">
-                <Heading
-                    title="Add photos of your utility"
-                    subtitle="Upload up to 10 images."
-                />
+                <Heading title="Add photos of your utility" subtitle="Upload up to 10 images." />
 
-                {/* ✅ File Input for Multiple Images */}
+                {/* ✅ File Input */}
                 <input
                     type="file"
                     multiple
@@ -344,23 +404,50 @@ const RentModal = () => {
                     className="hidden"
                     id="listingImages"
                 />
-                <label htmlFor="listingImages" className="cursor-pointer p-4 border-2 border-dashed rounded-lg text-center text-gray-600">
-                    Click to Upload Listing Images
+                <label
+                    htmlFor="listingImages"
+                    className="cursor-pointer p-4 border-2 border-dashed rounded-lg text-center text-gray-600"
+                >
+                    {uploading ? "Uploading..." : "Click to Upload Listing Images"}
                 </label>
 
-                {/* ✅ Display Uploaded Images */}
+                {/* ✅ Show Uploading Spinner */}
+                {uploading && (
+                    <div className="flex justify-center items-center">
+                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-600"></div>
+                    </div>
+                )}
+
+                {/* ✅ Display Uploaded Images with Delete Option */}
                 {imageSrcs.length > 0 && (
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                         {imageSrcs.map((src, index) => (
-                            <div key={index} className="relative w-24 h-24">
-                                <Image alt={`Uploaded Image ${index + 1}`} src={src} width={96} height={96} className="object-cover rounded" />
-                            </div>
+                            src ? (  // ✅ Only Render if src Exists
+                                <div key={index} className="relative w-40 h-40 group">
+                                    <Image
+                                        alt={`Uploaded Image ${index + 1}`}
+                                        src={src}
+                                        width={160}
+                                        height={160}
+                                        className="object-cover rounded-lg"
+                                    />
+                                    {/* ✅ Delete Button Appears on Hover */}
+                                    <button
+                                        onClick={() => removeImage(index)}
+                                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
+                                    >
+                                        🗑️
+                                    </button>
+                                </div>
+                            ) : null
                         ))}
                     </div>
                 )}
             </div>
         );
     }
+
+
 
 
     if (step == STEPS.DESCRIPTION) {
@@ -506,18 +593,33 @@ const RentModal = () => {
                     id="regoDocument"
                 />
                 <label htmlFor="regoDocument" className="cursor-pointer p-4 border-2 border-dashed rounded-lg text-center text-gray-600">
-                    Click to Upload Legal Document
+                    {uploadingRego ? "Uploading..." : "Click to Upload Legal Document"}
                 </label>
 
-                {/* ✅ Show Uploaded Legal Document */}
+                {/* ✅ Show Uploading Spinner */}
+                {uploadingRego && (
+                    <div className="flex justify-center items-center">
+                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-600"></div>
+                    </div>
+                )}
+
+                {/* ✅ Show Uploaded Legal Document with Delete Option */}
                 {regoImage && (
-                    <div className="mt-4">
-                        <Image alt="Legal Document" src={regoImage} width={150} height={150} className="object-cover rounded" />
+                    <div className="mt-4 relative">
+                        <Image alt="Legal Document" src={regoImage} width={150} height={150} className="object-cover rounded-lg" />
+                        {/* ✅ Delete Button */}
+                        <button
+                            onClick={removeRegoImage}
+                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-100 hover:opacity-80 transition"
+                        >
+                            🗑️
+                        </button>
                     </div>
                 )}
             </div>
         );
     }
+
 
 
     if (step === STEPS.PRICE) {

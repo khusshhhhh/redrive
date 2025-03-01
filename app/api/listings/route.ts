@@ -19,16 +19,16 @@ export async function POST(request: Request) {
       description,
       imageSrcs = [],
       category,
-      guestCount,
-      doorCount,
-      sleepCount,
+      guestCount = 0,
+      doorCount = 0,
+      sleepCount = 0,
       company,
       modal,
       year,
       fuelType,
       price,
       information,
-      amenities,
+      amenities = [],
       state,
       suburb,
       address,
@@ -36,19 +36,22 @@ export async function POST(request: Request) {
       longitude,
       regoNumber,
       regoEndDate,
-      regoImage = "", // ✅ Default to empty string
+      regoImage = "",
+      badge, // ✅ Default to empty string
     } = body;
 
-    // ✅ Ensure address is not empty
+    // ✅ Ensure valid address
     const finalAddress = address?.trim() !== "" ? address : "Unknown";
 
-    // ✅ Ensure regoNumber is uppercase
-    const formattedRegoNumber = regoNumber?.toUpperCase();
+    // ✅ Ensure regoNumber is uppercase (avoid passing null)
+    const formattedRegoNumber = regoNumber
+      ? regoNumber.toUpperCase()
+      : "UNKNOWN";
 
     // ✅ Convert regoEndDate string ("YYYY-MM-DD") to a Date object
     const formattedRegoEndDate = regoEndDate ? new Date(regoEndDate) : null;
 
-    // ✅ Validate required fields
+    // ✅ Ensure required fields exist
     if (
       !title ||
       !description ||
@@ -68,34 +71,30 @@ export async function POST(request: Request) {
       );
     }
 
-    // ✅ Ensure valid numeric values
-    const parsedPrice = parseInt(price, 10);
-    const parsedYear = parseInt(year, 10);
+    // ✅ Ensure numeric values are properly parsed
+    const parsedPrice = isNaN(parseInt(price, 10)) ? 0 : parseInt(price, 10);
+    const parsedYear = isNaN(parseInt(year, 10)) ? null : parseInt(year, 10);
     const parsedLatitude = latitude ? parseFloat(latitude) : null;
     const parsedLongitude = longitude ? parseFloat(longitude) : null;
-
-    if (isNaN(parsedPrice) || isNaN(parsedYear)) {
-      return NextResponse.json(
-        { error: "Invalid numeric values" },
-        { status: 400 }
-      );
-    }
 
     // ✅ Ensure amenities is an array
     const formattedAmenities = Array.isArray(amenities) ? amenities : [];
 
-    // ✅ Store `badge` as `null` initially
-    const finalBadge = null;
-
-    // ✅ Ensure imageSrcs is an array (prevent empty string issue)
+    // ✅ Ensure imageSrcs is an array
     const formattedImageSrcs = Array.isArray(imageSrcs) ? imageSrcs : [];
+
+    // ✅ Ensure regoImage is either a valid URL or null
+    const formattedRegoImage = regoImage ? regoImage : null;
+
+    // ✅ Ensure badge is explicitly set to `null` (It can be updated later)
+    const finalBadge = badge ?? null;
 
     // ✅ Create listing with new fields
     const listing = await prisma.listing.create({
       data: {
         title,
         description,
-        badge: finalBadge, // ✅ Stores null by default
+        badge: finalBadge, // ✅ Ensure badge is explicitly included
         imageSrcs: formattedImageSrcs,
         category,
         guestCount,
@@ -116,7 +115,7 @@ export async function POST(request: Request) {
         amenities: formattedAmenities,
         regoNumber: formattedRegoNumber,
         regoEndDate: formattedRegoEndDate,
-        regoImage: regoImage || null, // ✅ Default to null
+        regoImage: formattedRegoImage,
         createdAt: new Date(),
       },
     });

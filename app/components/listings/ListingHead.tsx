@@ -7,6 +7,7 @@ import HeartButton from "../HeartButton";
 import { IoClose } from "react-icons/io5";
 import Heading from "../Heading";
 import { useRouter } from "next/navigation";
+import { IconLayoutCollage, IconCaretLeftFilled } from "@tabler/icons-react";
 
 interface ListingHeadProps {
     title: string;
@@ -54,12 +55,25 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                         className="object-cover w-full h-[300px] sm:h-[400px] rounded-lg"
                     />
 
+                    <div className="absolute top-3 left-3">
+                        <button className="bg-white text-black p-1 rounded-full"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.back()
+                            }}>
+                            <IconCaretLeftFilled size={24} />
+                        </button>
+                    </div>
+
                     {/* Show All Images Button */}
                     <button
-                        className="absolute bottom-3 left-3 bg-black bg-opacity-50 text-white text-sm px-4 py-2 rounded-md"
-                        onClick={() => router.push(`/listings/${id}/images`)}
+                        className="flex flex-row gap-1 items-center absolute bottom-3 left-3 bg-white text-black font-semibold text-sm px-4 py-2 rounded-md"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/listings/${id}/images`);
+                        }}
                     >
-                        Show All Images
+                        <IconLayoutCollage size={20} stroke={1.5} /><span>Show all</span>
                     </button>
 
                     {/* Heart Button */}
