@@ -605,8 +605,8 @@ const RentModal = () => {
 
                 {/* ✅ Show Uploaded Legal Document with Delete Option */}
                 {regoImage && (
-                    <div className="mt-4 relative">
-                        <Image alt="Legal Document" src={regoImage} width={150} height={150} className="object-cover rounded-lg" />
+                    <div className="mt-4 relative overflow-hidden w-60 h-60">
+                        <Image alt="Legal Document" src={regoImage} width={240} height={240} className="object-cover rounded-lg" />
                         {/* ✅ Delete Button */}
                         <button
                             onClick={removeRegoImage}
