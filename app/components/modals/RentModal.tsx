@@ -420,7 +420,7 @@ const RentModal = () => {
 
                 {/* ✅ Display Uploaded Images with Delete Option */}
                 {imageSrcs.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-3 gap-2 overflow-hidden">
                         {imageSrcs.map((src, index) => (
                             src ? (  // ✅ Only Render if src Exists
                                 <div key={index} className="relative w-40 h-40 group">
