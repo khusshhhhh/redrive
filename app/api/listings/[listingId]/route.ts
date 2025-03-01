@@ -4,12 +4,11 @@ import prisma from "@/app/libs/prismadb";
 import type { NextRequest } from "next/server";
 
 /**
- * ✅ GET: Fetch a specific listing by ID (Includes state, suburb, amenities)
+ * ✅ GET: Fetch a specific listing by ID (Includes state, suburb, amenities, images, and rego details)
  */
 export async function GET(
   request: NextRequest,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any
+  context: any // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
   try {
     const { listingId } = context.params;
@@ -23,7 +22,7 @@ export async function GET(
 
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
-      include: { user: true },
+      include: { user: true }, // Fetch owner details if needed
     });
 
     if (!listing) {
@@ -31,22 +30,20 @@ export async function GET(
     }
 
     return NextResponse.json(listing, { status: 200 });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Internal Server Error", details: error.message },
       { status: 500 }
     );
   }
 }
 
 /**
- * ✅ PUT: Update a listing (Includes state, suburb, address, etc.)
+ * ✅ PUT: Update listing (Supports multiple images, rego details, state, suburb, and address)
  */
 export async function PUT(
   request: NextRequest,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any
+  context: any // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -82,8 +79,12 @@ export async function PUT(
       address,
       latitude,
       longitude,
+      regoNumber,
+      regoEndDate,
+      regoImage,
     } = body;
 
+    // ✅ Validate required fields
     if (
       !title ||
       !description ||
@@ -102,6 +103,14 @@ export async function PUT(
       );
     }
 
+    // ✅ Validate that no more than 10 images are uploaded
+    if (imageSrcs.length > 10) {
+      return NextResponse.json(
+        { error: "Maximum 10 images allowed" },
+        { status: 400 }
+      );
+    }
+
     const updatedListing = await prisma.listing.update({
       where: { id: listingId },
       data: {
@@ -109,7 +118,7 @@ export async function PUT(
         description,
         information,
         category,
-        imageSrcs,
+        imageSrcs, // ✅ Store array of images
         guestCount,
         doorCount,
         sleepCount,
@@ -122,26 +131,27 @@ export async function PUT(
         address,
         latitude: latitude ? parseFloat(latitude) : null,
         longitude: longitude ? parseFloat(longitude) : null,
+        regoNumber,
+        regoEndDate: regoEndDate ? new Date(regoEndDate) : null, // ✅ Ensure valid date
+        regoImage, // ✅ Update single rego image
       },
     });
 
     return NextResponse.json(updatedListing, { status: 200 });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Internal Server Error", details: error.message },
       { status: 500 }
     );
   }
 }
 
 /**
- * ✅ DELETE: Remove a listing
+ * ✅ DELETE: Remove a listing (Ensures only the owner can delete it)
  */
 export async function DELETE(
   request: NextRequest,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any
+  context: any // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
   try {
     const currentUser = await getCurrentUser();

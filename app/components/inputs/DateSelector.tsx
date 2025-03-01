@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 
 interface DateSelectorProps {
+    id?: string;
     value: string;
     onChange: (value: string) => void;
 }

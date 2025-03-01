@@ -10,6 +10,7 @@ interface InputProps {
     disabled?: boolean;
     formatPrice?: boolean;
     required?: boolean;
+    value?: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     register: UseFormRegister<any>;
     onChange?: React.ChangeEventHandler<HTMLInputElement>; // ✅ ADDED onChange PROP
@@ -22,6 +23,7 @@ interface InputProps {
 const Input: React.FC<InputProps> = ({
     id,
     label,
+    value,
     type = "text",
     disabled,
     formatPrice,
@@ -44,6 +46,7 @@ const Input: React.FC<InputProps> = ({
             <input
                 id={id}
                 disabled={disabled}
+                value={value}
                 {...register(id, { required, validate })}
                 placeholder=" "
                 type={type}

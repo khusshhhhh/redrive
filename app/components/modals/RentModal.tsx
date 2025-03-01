@@ -159,9 +159,9 @@ const RentModal = () => {
     } = useForm<FieldValues>({
         defaultValues: {
             category: '',
-            state: '', // ✅ Added state field
-            suburb: '', // ✅ Added suburb field
-            address: '', // ✅ Added address field
+            state: '',
+            suburb: '',
+            address: '',
             guestCount: 0,
             doorCount: 0,
             sleepCount: 0,

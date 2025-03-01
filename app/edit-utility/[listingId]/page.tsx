@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -16,6 +17,7 @@ import TextArea from "@/app/components/inputs/TextArea";
 import { AMENITIES_LIST } from "@/app/hooks/useAmenities"; // ✅ Import amenities list
 import StateSelector from "@/app/components/inputs/StateSelector";
 import SuburbSelector from "@/app/components/inputs/SuburbSelector";
+import DateSelector from "@/app/components/inputs/DateSelector";
 
 
 interface Listing {
@@ -24,7 +26,6 @@ interface Listing {
     description: string;
     information: string;
     category: string;
-    imageSrc: string;
     guestCount: number;
     doorCount: number;
     sleepCount: number;
@@ -37,6 +38,10 @@ interface Listing {
     latitude?: number;
     longitude?: number;
     amenities: string[];
+    imageSrcs: string[];
+    regoNumber: string;
+    regoEndDate: string;
+    regoImage: string;
 }
 
 const EditUtilityPage = () => {
@@ -48,6 +53,11 @@ const EditUtilityPage = () => {
     const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]); // ✅ Added state
     const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
     const [selectedSuburb, setSelectedSuburb] = useState<{ value: string; label: string } | null>(null);
+    const [listingImages, setListingImages] = useState<string[]>([]);
+    const [regoNumber, setRegoNumber] = useState("");
+    const [regoEndDate, setRegoEndDate] = useState("");
+    const [regoImage, setRegoImage] = useState("");
+
 
     const {
         register,
@@ -61,7 +71,7 @@ const EditUtilityPage = () => {
             description: "",
             information: "",
             category: "",
-            imageSrc: "",
+            imageSrcs: [],
             guestCount: 0,
             doorCount: 0,
             sleepCount: 0,
@@ -72,6 +82,9 @@ const EditUtilityPage = () => {
             suburb: "",
             address: "",
             amenities: [],
+            regoNumber: '',
+            regoEndDate: new Date(),
+            regoImage: "",
         },
     });
 
@@ -86,7 +99,6 @@ const EditUtilityPage = () => {
                 setValue("description", data.description);
                 setValue("information", data.information);
                 setValue("category", data.category);
-                setValue("imageSrc", data.imageSrc);
                 setValue("guestCount", data.guestCount);
                 setValue("doorCount", data.doorCount);
                 setValue("sleepCount", data.sleepCount);
@@ -96,6 +108,14 @@ const EditUtilityPage = () => {
                 setValue("state", data.state);
                 setValue("suburb", data.suburb);
                 setValue("address", data.address);
+
+                // ✅ Load existing images
+                setListingImages(data.imageSrcs || []);
+
+                // ✅ Load registration details
+                setRegoNumber(data.regoNumber || "");
+                setRegoEndDate(data.regoEndDate ? new Date(data.regoEndDate).toISOString().split("T")[0] : "");
+                setRegoImage(data.regoImage || "");
 
                 setSelectedState({ value: data.state, label: data.state });
                 setSelectedSuburb({ value: data.suburb, label: data.suburb });
@@ -110,11 +130,22 @@ const EditUtilityPage = () => {
         );
     };
 
+    if (listingImages.length > 10) {
+        toast.error("You can only upload up to 10 images.");
+        return;
+    }
+
     const onSubmit = async (data: FieldValues) => {
         setLoading(true);
 
         try {
-            await axios.put(`/api/listings/${listingId}`, { ...data, state: selectedState?.value, suburb: selectedSuburb?.value, amenities: selectedAmenities, }); // ✅ Send amenities
+            await axios.put(`/api/listings/${listingId}`, {
+                ...data, state: selectedState?.value, suburb: selectedSuburb?.value, amenities: selectedAmenities,
+                imageSrcs: listingImages,
+                regoNumber,
+                regoEndDate,
+                regoImage,
+            }); // ✅ Send amenities
             toast.success("Utility updated successfully!");
             router.push("/properties"); // Redirect after update
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -124,6 +155,11 @@ const EditUtilityPage = () => {
             setLoading(false);
         }
     };
+
+    const handleImageDelete = (imageToDelete: string) => {
+        setListingImages(listingImages.filter((img) => img !== imageToDelete));
+    };
+
 
     return (
         <div className="max-w-3xl mx-auto p-6 bg-white">
@@ -169,14 +205,41 @@ const EditUtilityPage = () => {
                     </div>
                 </div>
 
-                {/* Image Upload */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4">Change Photo</p>
-                    <ImageUpload
-                        value={watch("imageSrc")}
-                        onChange={(imageSrc) => setValue("imageSrc", imageSrc)}
-                    />
+                    <p className="font-bold mb-4">Property Images</p>
+
+                    {/* ✅ Display Existing Images with Delete Option */}
+                    <div className="grid grid-cols-3 gap-3">
+                        {listingImages.map((image, index) => (
+                            <div key={index} className="relative">
+                                <img src={image} alt="Listing Image" className="w-full h-auto rounded-md" />
+                                <button
+                                    type="button"
+                                    onClick={() => handleImageDelete(image)}
+                                    className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* ✅ Allow Uploading More Images if Below 10 */}
+                    {listingImages.length < 10 && (
+                        <ImageUpload
+                            value={listingImages.length > 0 ? listingImages[0] : ""} // ✅ Pass a single image or empty string
+                            onChange={(image) => {
+                                if (listingImages.length < 10) {
+                                    setListingImages([...listingImages, image]); // ✅ Add new image to array
+                                } else {
+                                    toast.error("You can only upload up to 10 images.");
+                                }
+                            }}
+                        />
+                    )}
+
                 </div>
+
 
                 <div className="mb-8">
                     <p className="font-bold mb-4">Location</p>
@@ -265,6 +328,41 @@ const EditUtilityPage = () => {
                         ))}
                     </div>
                 </div>
+
+                <div className="mb-8">
+                    <p className="font-bold mb-4">Registration Details</p>
+
+                    {/* ✅ Registration Number Input */}
+                    <Input
+                        id="regoNumber"
+                        label="Rego Number"
+                        value={regoNumber} // ✅ Fixing the issue here
+                        onChange={(e) => setRegoNumber(e.target.value)}
+                        register={register}
+                        errors={errors}
+                    />
+
+
+                    {/* ✅ Registration Expiry Date Selector */}
+                    <DateSelector
+                        value={regoEndDate}
+                        onChange={(date) => setRegoEndDate(date)}
+
+                    />
+
+                </div>
+
+                <div className="mb-8">
+                    <p className="font-bold mb-4">Registration Image</p>
+
+                    {/* ✅ Upload Rego Image */}
+                    <ImageUpload
+                        value={regoImage}
+                        onChange={(image) => setRegoImage(image)}
+                    />
+                </div>
+
+
 
                 {/* Price Input */}
                 <div className="mb-8">

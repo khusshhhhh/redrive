@@ -41,6 +41,8 @@
       - 📂 **[listingId]**
         - 📄 route.ts
       - 📄 route.ts
+    - 📂 **upload**
+      - 📄 route.ts
   - 📂 **components**
     - 📄 Avatar.tsx
     - 📄 Button.tsx
@@ -77,6 +79,7 @@
       - 📄 ListingMap.tsx
       - 📄 ListingReservation.tsx
     - 📂 **modals**
+      - 📄 DeleteModal.tsx
       - 📄 LoginModal.tsx
       - 📄 Modal.tsx
       - 📄 RegisterModal.tsx
@@ -103,6 +106,7 @@
   - 📄 globals.css
   - 📂 **hooks**
     - 📄 useAmenities.ts
+    - 📄 useCloudinaryUpload.ts
     - 📄 useCountries.ts
     - 📄 useFavorites.ts
     - 📄 useLoginModal.ts
@@ -116,6 +120,8 @@
   - 📂 **listings**
     - 📂 **[listingId]**
       - 📄 ListingClient.tsx
+      - 📂 **images**
+        - 📄 page.tsx
       - 📄 page.tsx
   - 📄 loading.tsx
   - 📄 page.tsx
@@ -129,6 +135,8 @@
     - 📄 ToasterProvider.tsx
   - 📂 **reservations**
     - 📄 ReservationsClient.tsx
+    - 📂 **[reservationId]**
+      - 📄 page.tsx
     - 📄 page.tsx
   - 📂 **review**
     - 📂 **[reservationId]**
@@ -139,6 +147,7 @@
   - 📂 **types**
     - 📄 index.ts
 - 📄 eslint.config.mjs
+- 📄 generate_github_tree.py
 - 📄 ignore.txt
 - 📄 middleware.ts
 - 📄 next.config.js
@@ -152,6 +161,8 @@
 - 📄 postcss.config.mjs
 - 📂 **prisma**
   - 📄 schema.prisma
+- 📄 project_tree.md
+- 📄 project_tree.txt
 - 📄 propmt.txt
 - 📂 **public**
   - 📄 file.svg
@@ -167,6 +178,7 @@
 - 📄 suburbs.csv
 - 📄 tailwind.config.js
 - 📄 tailwind.config.ts
+- 📄 test.Badge.json
 - 📄 test.Listing.json
 - 📄 test.Reservation.json
 - 📄 test.Review.json
