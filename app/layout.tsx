@@ -1,4 +1,4 @@
-import { Poppins } from "next/font/google"; // ✅ Import Poppins font
+import { Montserrat } from "next/font/google"; // ✅ Import Poppins font
 import "../app/globals.css";
 import Navbar from "./components/navbar/Navbar";
 import ClientOnly from "./components/ClientOnly";
@@ -17,10 +17,9 @@ export const metadata = {
 };
 
 // ✅ Apply Poppins font
-const font = Poppins({
+const font = Montserrat({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"], // ✅ Specify weights you need
-  variable: "--font-poppins", // ✅ Optional: Define a CSS variable for easier use
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"], // ✅ Specify weights you need
 });
 
 export default async function RootLayout({
