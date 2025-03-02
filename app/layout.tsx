@@ -1,4 +1,4 @@
-import { Nunito } from "next/font/google";
+import { Poppins } from "next/font/google"; // ✅ Import Poppins font
 import "../app/globals.css";
 import Navbar from "./components/navbar/Navbar";
 import ClientOnly from "./components/ClientOnly";
@@ -16,8 +16,11 @@ export const metadata = {
   description: "Created by Khush Patel",
 };
 
-const font = Nunito({
+// ✅ Apply Poppins font
+const font = Poppins({
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"], // ✅ Specify weights you need
+  variable: "--font-poppins", // ✅ Optional: Define a CSS variable for easier use
 });
 
 export default async function RootLayout({
@@ -27,14 +30,14 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={font.className}>
+      <body className={font.className}> {/* ✅ Apply Poppins font here */}
         <ClientOnly>
           <ToasterProvider />
           <SearchModal />
           <RentModal />
           <LoginModal />
           <RegisterModal />
-          <Navbar currentUser={currentUser} /> {/* ✅ No showSearchBar prop here */}
+          <Navbar currentUser={currentUser} />
         </ClientOnly>
         <div className="pb-20 pt-28">{children}</div>
         <Analytics />
