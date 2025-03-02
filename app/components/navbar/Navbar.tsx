@@ -24,7 +24,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
         <Container>
           <div className="flex flex-row items-center justify-between gap-3 md:gap-0">
             <Logo />
-            {showSearchBar && <Search />} {/* ✅ Conditionally render search bar */}
+            <Search /> {/* ✅ Conditionally render search bar */}
             <UserMenu currentUser={currentUser} />
           </div>
         </Container>
