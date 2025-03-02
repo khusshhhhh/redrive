@@ -42,8 +42,6 @@ const RegisterModal = () => {
 
     // Watch password fields
     const password = watch("password");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const confirmPassword = watch("confirmPassword");
 
     const onSubmit: SubmitHandler<FieldValues> = (data) => {
         setIsLoading(true);
@@ -78,7 +76,11 @@ const RegisterModal = () => {
 
     const togglePasswordVisibility = () => {
         setShowPassword((prevState) => !prevState); // Function to toggle password visibility
-    }
+    };
+
+    const handleGoogleSignIn = async () => {
+        await signIn('google', { callbackUrl: "/" }); // ✅ Redirects to home after Google sign-in
+    };
 
     const bodyContent = (
         <div className="flex flex-col gap-4">
@@ -125,14 +127,14 @@ const RegisterModal = () => {
                     onClick={togglePasswordVisibility} // Click to toggle visibility
                     className="absolute inset-y-0 right-4 flex items-center text-gray-500"
                 >
-                    {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />} {/* Toggle icons */}
+                    {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
                 </button>
             </div>
 
             <div className="text-sm text-gray-500">
-                Password must contain:<br></br>
-                • <b>8-16 characters</b><br></br>
-                • At least <b>one uppercase letter</b><br></br>
+                Password must contain:<br />
+                • <b>8-16 characters</b><br />
+                • At least <b>one uppercase letter</b><br />
                 • At least <b>one number</b>.
             </div>
             {errors.password && <p className="text-red-500 text-sm">{errors.password?.message as string}</p>}
@@ -156,24 +158,26 @@ const RegisterModal = () => {
                     onClick={togglePasswordVisibility} // Click to toggle visibility
                     className="absolute inset-y-0 right-4 flex items-center text-gray-500"
                 >
-                    {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />} {/* Toggle icons */}
+                    {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
                 </button>
             </div>
 
             {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword?.message as string}</p>}
-
         </div>
     );
 
     const footerContent = (
         <div className="flex flex-col gap-4 mt-3 mr-8">
             <hr />
+
+            {/* ✅ Google Sign-In Button */}
             <Button
                 outline
-                label="Continue with Google"
+                label="Sign in with Google"
                 icon={FcGoogle}
-                onClick={async () => { await signIn('google'); }}
+                onClick={handleGoogleSignIn}
             />
+
             <div className="text-neutral-500 text-center mt-4 font-light">
                 <div className="justify-center flex flex-row items-center gap-4 mb-6">
                     <div>Already have an account?</div>
