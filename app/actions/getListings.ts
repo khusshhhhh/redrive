@@ -6,9 +6,11 @@ export interface IListingsParams {
   sleepCount?: number;
   startDate?: string;
   endDate?: string;
-  state?: string; // ✅ Replaced locationValue with state
+  state?: string;
   category?: string;
   information?: string;
+  minPrice?: number | string; // Ensure this accepts both number & string
+  maxPrice?: number | string;
 }
 
 export default async function getListings(params: IListingsParams) {
@@ -19,39 +21,33 @@ export default async function getListings(params: IListingsParams) {
       sleepCount,
       startDate,
       endDate,
-      state, // ✅ Updated to filter by state instead of locationValue
+      state,
       category,
       information,
+      minPrice,
+      maxPrice,
     } = params || {};
 
-    const query: {
-      userId?: string;
-      guestCount?: { gte: number };
-      sleepCount?: { gte: number };
-      startDate?: string;
-      endDate?: string;
-      state?: string; // ✅ Added state filter
-      category?: string;
-      information?: { contains: string; mode: "insensitive" };
-      NOT?: {
-        reservations: {
-          some: {
-            OR: Array<{
-              endDate: { gte: string };
-              startDate: { lte: string };
-            }>;
-          };
-        };
-      };
-    } = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const query: any = {};
 
     if (userId) query.userId = userId;
     if (category) query.category = category;
     if (guestCount) query.guestCount = { gte: +guestCount };
     if (sleepCount) query.sleepCount = { gte: +sleepCount };
-    if (state) query.state = state; // ✅ Search by state
+    if (state) query.state = state;
     if (information)
       query.information = { contains: information, mode: "insensitive" };
+
+    // ✅ Convert minPrice & maxPrice to numbers before filtering
+    const parsedMinPrice = minPrice ? Number(minPrice) : undefined;
+    const parsedMaxPrice = maxPrice ? Number(maxPrice) : undefined;
+
+    if (parsedMinPrice !== undefined || parsedMaxPrice !== undefined) {
+      query.price = {};
+      if (parsedMinPrice !== undefined) query.price.gte = parsedMinPrice;
+      if (parsedMaxPrice !== undefined) query.price.lte = parsedMaxPrice;
+    }
 
     if (startDate && endDate) {
       query.NOT = {
@@ -71,7 +67,7 @@ export default async function getListings(params: IListingsParams) {
       orderBy: { createdAt: "desc" },
     });
 
-    // ✅ Fetch badges dynamically
+    // ✅ Fetch associated badges
     const badgeKeys = listings.map((listing) => listing.badge).filter(Boolean);
     const badges = await prisma.badge.findMany({
       where: { key: { in: badgeKeys } },
@@ -85,10 +81,8 @@ export default async function getListings(params: IListingsParams) {
       createdAt: listing.createdAt.toISOString(),
     }));
   } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    } else {
-      throw new Error("An unknown error occurred");
-    }
+    throw new Error(
+      error instanceof Error ? error.message : "An unknown error occurred"
+    );
   }
 }

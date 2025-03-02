@@ -16,6 +16,7 @@ const states = [
 interface StateSelectorProps {
     value?: { value: string; label: string };
     onChange: (value: { value: string; label: string }) => void;
+    allowAnywhere?: boolean; // Add this line
 }
 
 const StateSelector: React.FC<StateSelectorProps> = ({ value, onChange }) => {
