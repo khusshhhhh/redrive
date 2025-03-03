@@ -13,7 +13,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata = {
   title: "Redrive",
-  description: "Created by Khush Patel",
+  description: "Created & Developed by Khush Patel",
 };
 
 // ✅ Apply Poppins font
