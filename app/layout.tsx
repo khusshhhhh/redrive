@@ -12,7 +12,7 @@ import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata = {
-  title: "Redrive",
+  title: "Redrive 1.0",
   description: "Created & Developed by Khush Patel & Hiral Mahida",
 };
 
