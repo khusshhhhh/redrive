@@ -1,17 +1,23 @@
-"use clients";
+"use client";
+
+import React from "react";
 
 interface MenuItemProps {
   onClick: () => void;
   label: string;
+  icon?: React.ReactNode; // ✅ New prop to accept an icon
 }
 
-const MenuItem: React.FC<MenuItemProps> = ({ onClick, label }) => {
+const MenuItem: React.FC<MenuItemProps> = ({ onClick, label, icon }) => {
   return (
     <div
       onClick={onClick}
-      className="px-8 py-4 hover:bg-neutral-100 transition font-semibold"
+      role="menuitem"
+      tabIndex={0}
+      className="flex items-center gap-3 px-8 py-5 hover:bg-neutral-100 transition font-semibold cursor-pointer"
     >
-      {label}
+      {icon && <span className="text-gray-600">{icon}</span>} {/* ✅ Show icon if provided */}
+      <span className="font-medium">{label}</span>
     </div>
   );
 };

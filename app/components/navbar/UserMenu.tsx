@@ -10,6 +10,7 @@ import useRentModal from "@/app/hooks/useRentModal";
 import { signOut } from "next-auth/react";
 import { SafeUser } from "@/app/types";
 import { useRouter } from "next/navigation";
+import { IconBrandDatabricks, IconCalendar, IconClipboardPlus, IconFilePlus, IconHearts, IconLocationCheck, IconLogin2, IconLogout2 } from "@tabler/icons-react";
 
 interface UserMenuProps {
   currentUser?: SafeUser | null;
@@ -65,7 +66,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
         </div>
         <div
           onClick={toggleOpen}
-          className="p-4 md:py-1 md:px-2 border-[1px] border-neutral-200 flex flex-row items-center gap-3 rounded-full cursor-pointer hover:shadow-md transition"
+          className="p-4 md:py-3 md:px-2 border-[1px] border-neutral-300 flex flex-row items-center gap-3 rounded-full cursor-pointer hover:shadow-md transition"
         >
           <AiOutlineMenu />
           <div className="hidden md:block">
@@ -75,12 +76,12 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
       </div>
 
       {isOpen && (
-        <div className="absolute rounded-xl shadow-md w-[44vw] md:w-52 bg-white overflow-hidden right-0 top-12 text-sm">
+        <div className="absolute rounded-xl shadow-md w-72 md:w-52 bg-white overflow-hidden right-0 top-12 text-sm">
           <div className="flex flex-col cursor-pointer">
             {currentUser && (
               <div
                 onClick={() => { router.push("/profile"); closeMenu(); }}
-                className="px-8 py-3 text-left text-sm font-bold text-black hover:bg-gray-100 transition cursor-pointer"
+                className="px-8 py-5 text-left text-sm font-bold text-black hover:bg-gray-100 transition cursor-pointer"
               >
                 {currentUser.name}
               </div>
@@ -88,20 +89,20 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
             <hr />
             {currentUser ? (
               <>
-                <MenuItem onClick={() => { rentModal.onOpen(); closeMenu(); }} label="Add your items" />
-                <MenuItem onClick={() => { router.push("/trips"); closeMenu(); }} label="Bookings" />
-                <MenuItem onClick={() => { router.push("/reservations"); closeMenu(); }} label="Reservations" />
-                <MenuItem onClick={() => { router.push("/favorites"); closeMenu(); }} label="Favourites" />
-                <MenuItem onClick={() => { router.push("/properties"); closeMenu(); }} label="Utilities" />
+                <MenuItem onClick={() => { rentModal.onOpen(); closeMenu(); }} label="Add your items" icon={<IconFilePlus size={18} className="text-black" />} />
+                <MenuItem onClick={() => { router.push("/trips"); closeMenu(); }} label="Bookings" icon={<IconLocationCheck size={18} className="text-black" />} />
+                <MenuItem onClick={() => { router.push("/reservations"); closeMenu(); }} label="Reservations" icon={<IconCalendar size={18} className="text-black" />} />
+                <MenuItem onClick={() => { router.push("/favorites"); closeMenu(); }} label="Favourites" icon={<IconHearts size={18} className="text-black" />} />
+                <MenuItem onClick={() => { router.push("/properties"); closeMenu(); }} label="Utilities" icon={<IconBrandDatabricks size={18} className="text-black" />} />
                 {/* <MenuItem onClick={() => { router.push("/profile"); closeMenu(); }} label="Profile" /> */}
                 <hr />
-                <MenuItem onClick={() => { signOut(); closeMenu(); }} label="Logout" />
+                <MenuItem onClick={() => { signOut(); closeMenu(); }} label="Logout" icon={<IconLogout2 size={18} className="text-black" />} />
               </>
             ) : (
               <>
-                <MenuItem onClick={() => { loginModal.onOpen(); closeMenu(); }} label="Login" />
+                <MenuItem onClick={() => { loginModal.onOpen(); closeMenu(); }} label="Login" icon={<IconLogin2 size={18} className="text-black" />} />
                 <hr />
-                <MenuItem onClick={() => { registerModal.onOpen(); closeMenu(); }} label="Sign Up" />
+                <MenuItem onClick={() => { registerModal.onOpen(); closeMenu(); }} label="Sign Up" icon={<IconClipboardPlus size={18} className="text-black" />} />
               </>
             )}
           </div>

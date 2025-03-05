@@ -1,11 +1,13 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useState } from "react";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { useEffect, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Input from "@/app/components/inputs/Input";
 import Button from "@/app/components/Button";
-import Avatar from "@/app/components/Avatar";
 import axios from "axios";
+import ImageUpload from "../components/inputs/ImageUpload";
 import { toast, Toaster } from "react-hot-toast";
 import { FaCheck } from "react-icons/fa";
 
@@ -20,6 +22,8 @@ interface ProfileFormData {
     hobbies: string;
     profileVerified: string;
     dreamDestinations: string;
+    licenceImage: string;
+    licenceType: string;
 }
 
 export default function Profile() {
@@ -29,10 +33,12 @@ export default function Profile() {
     const [isSaving, setIsSaving] = useState(false);
     const [userName, setUserName] = useState<string | null>(null); // Store user name
     const [profileVerified, setProfileVerified] = useState<string>("N"); // ✅ Fixed missing state
-
     const [cityInput, setCityInput] = useState<string>("");
     const [suggestedCities, setSuggestedCities] = useState<string[]>([]);
     const [selectedCities, setSelectedCities] = useState<string[]>([]);
+    const [licenseImage, setLicenseImage] = useState<string>(""); // ✅ New state for license upload
+    const [licenseType, setLicenseType] = useState<string>("Driver's License"); // ✅ Default selection
+    const [triggerUpload, setTriggerUpload] = useState<boolean>(false);
 
     useEffect(() => {
         async function fetchUserData() {
@@ -114,7 +120,9 @@ export default function Profile() {
             hobbies: data.hobbies ? data.hobbies.split(",").map((h) => h.trim()) : [],
             dreamDestinations: data.dreamDestinations ? data.dreamDestinations.split(",").map((d) => d.trim()) : [],
             image,
-            profileVerified,
+            profileVerified: licenseImage ? "Y" : profileVerified, // ✅ Update to "Y" if license uploaded
+            licenseImage,
+            licenseType,
         };
 
         try {
@@ -146,11 +154,24 @@ export default function Profile() {
                         {profileVerified === "Y" && <FaCheck className="text-teal-500" size={20} />}
                     </h2>
 
-                    <div className="flex flex-col items-center mb-6">
-                        <label htmlFor="profileImage" className="cursor-pointer">
-                            <Avatar src={image} size={80} />
-                        </label>
-                        <input type="file" id="profileImage" accept="image/*" className="hidden" />
+                    {/* Profile Image Display (Click to Change) */}
+                    <div className="mb-6 flex flex-col items-center">
+                        <h4 className="text-lg font-semibold mb-2">Profile Picture</h4>
+                        <div
+                            className="w-[100px] h-[100px] rounded-full overflow-hidden border cursor-pointer hover:opacity-80 transition"
+                            onClick={() => setTriggerUpload(true)} // ✅ Clicking image triggers upload
+                        >
+                            <img
+                                src={image}
+                                alt="Profile"
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+
+                        {/* Hidden Image Upload Component - Only activates when triggered */}
+                        {triggerUpload && (
+                            <ImageUpload onChange={setImage} value={image} triggerUpload />
+                        )}
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)}>
@@ -246,10 +267,28 @@ export default function Profile() {
                                 </div>
                             </div>
                         </div>
+                        <div className="flex flex-col mt-8">
+                            {/* License Upload Section */}
+                            <div className="mt-8">
+                                <h4 className="text-xl font-semibold">License Verification</h4>
+                                <select
+                                    value={licenseType}
+                                    onChange={(e) => setLicenseType(e.target.value)}
+                                    className="w-full p-4 border rounded-md mt-1"
+                                >
+                                    <option>Driver License</option>
+                                    <option>Boat License</option>
+                                    <option>Other License</option>
+                                </select>
+
+                                <div className="mt-4">
+                                    <ImageUpload onChange={setLicenseImage} value={licenseImage} />
+                                </div>
+                            </div>
+                        </div>
                         <div className="flex w-full justify-end">
                             <Button type="submit" label={isSaving ? "Saving..." : "Save Changes"} disabled={isSaving} />
                         </div>
-
                     </form>
                 </div>
             )}

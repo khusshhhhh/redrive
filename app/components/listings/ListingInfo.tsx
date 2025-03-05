@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useState } from "react";
@@ -70,19 +71,19 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                 )}
                 {/* Basic Details */}
                 <div className="flex items-center gap-4 text-neutral-700">
-                    <div className="flex items-center gap-3"><BsFillPeopleFill size={22} /> {guestCount} guests</div>
+                    <div className="flex items-center gap-3"><BsFillPeopleFill size={18} /> {guestCount} guests</div>
                     <div className="h-5 w-[1px] bg-gray-600"></div>
-                    <div className="flex items-center gap-3"><GiCarDoor size={22} /> {doorCount} doors</div>
+                    <div className="flex items-center gap-3"><GiCarDoor size={18} /> {doorCount} doors</div>
                     <div className="h-5 w-[1px] bg-gray-600"></div>
-                    <div className="flex items-center gap-3"><FaBed size={22} /> {sleepCount} sleeps</div>
+                    <div className="flex items-center gap-3"><FaBed size={18} /> {sleepCount} sleeps</div>
                 </div>
             </div>
             <hr />
 
             {/* Build Information */}
             <div>
-                <div className="text-base font-normal text-neutral-500">Build Information</div>
-                <div className="text-2xl font-bold text-neutral-800">
+                <div className="text-base font-medium">Build Information</div>
+                <div className="text-2xl font-noraml text-neutral-800">
                     {company} {modal} {year}
                 </div>
             </div>
@@ -91,7 +92,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
             {/* Description Section */}
             <div>
                 <div className="flex items-center justify-between cursor-pointer">
-                    <span className="font-bold text-lg">Description</span>
+                    <span className="font-medium text-lg">Description</span>
                     <button onClick={() => setIsExpanded(!isExpanded)} className="text-gray-600 hover:text-black transition">
                         {isExpanded ? <IoIosArrowUp size={24} /> : <IoIosArrowDown size={24} />}
                     </button>
@@ -104,7 +105,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
 
             {/* Location Information */}
             <div>
-                <div className="font-bold text-lg">Location</div>
+                <div className="font-medium text-lg">Location</div>
                 <div className="text-base text-neutral-800">
                     {address}
                 </div>
@@ -118,16 +119,16 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
 
             {/* Additional Information */}
             <div>
-                <div className="font-bold text-lg">Information</div>
+                <div className="font-medium text-lg">Information</div>
                 <div className="text-base text-neutral-800 overflow-clip">{information}</div>
             </div>
             <hr />
 
             {/* Amenities */}
             <div className="">
-                <div className="font-bold text-lg">Amenities</div>
+                <div className="font-medium text-lg">Amenities</div>
                 {amenities && amenities.length > 0 ? (
-                    <div className="mt-6 grid grid-cols-2 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {amenities.map((amenity) => {
                             const amenityData = AMENITIES_LIST.find((a) => a.id === amenity);
                             const IconComponent = amenityData?.icon || IconQuestionMark;

@@ -169,7 +169,7 @@ const SearchModal = () => {
                         </div>
                         <div className="flex justify-between items-center gap-2">
                             <TextField
-                                label="Min Price"
+                                label="Min Price (AUD)"
                                 type="number"
                                 value={priceRange[0]}
                                 onChange={handleMinPriceChange}
@@ -178,7 +178,7 @@ const SearchModal = () => {
                                 sx={{ width: "48%" }}
                             />
                             <TextField
-                                label="Max Price"
+                                label="Max Price (AUD)"
                                 type="number"
                                 value={priceRange[1]}
                                 onChange={handleMaxPriceChange}

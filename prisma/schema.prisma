@@ -26,6 +26,8 @@ model User {
   hobbies        String[]  @default([])  
   dreamDestinations String[] @default([]) 
 
+  licenseImage   String?  // ✅ Stores uploaded license image
+  licenseType    String?  // ✅ Stores selected license type
   profileVerified   String?   @default("N")
 
   accounts     Account[]

@@ -22,9 +22,14 @@ export async function PUT(req: Request) {
       hobbies,
       dreamDestinations,
       image,
+      licenseType,
+      licenseImage,
     } = body;
 
-    // Ensure all fields are mapped correctly
+    // Determine if the profile should be verified
+    const profileVerified = licenseImage ? "Y" : undefined;
+
+    // Update the user profile in the database
     const updatedUser = await prisma.user.update({
       where: { email: session.user.email },
       data: {
@@ -39,6 +44,9 @@ export async function PUT(req: Request) {
           ? dreamDestinations
           : [],
         image: image ?? "",
+        profileVerified: profileVerified ?? undefined, // Update only if license uploaded
+        licenseImage: licenseImage ?? "",
+        licenseType: licenseType ?? "",
       },
     });
 

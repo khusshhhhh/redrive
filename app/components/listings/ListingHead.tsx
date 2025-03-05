@@ -39,7 +39,9 @@ const ListingHead: React.FC<ListingHeadProps> = ({
     return (
         <>
             {/* Title */}
-            <Heading title={title} subtitle="" />
+            <div className="font-semibold">
+                <Heading title={title} subtitle="" />
+            </div>
 
             {/* Responsive Image Display */}
             <div className="relative w-full">

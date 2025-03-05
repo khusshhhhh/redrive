@@ -14,6 +14,7 @@ declare global {
 interface ImageUploadProps {
     onChange: (value: string) => void;
     value: string;
+    triggerUpload?: boolean;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({

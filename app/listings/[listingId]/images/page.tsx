@@ -54,7 +54,7 @@ const ListingImages = () => {
             </button>
 
             {/* Title */}
-            <h2 className="text-2xl font-bold text-center mb-6">Listing Gallery</h2>
+            <h2 className="text-2xl font-semibold text-center mb-6">Listing Gallery</h2>
 
             {/* Responsive Masonry Grid for Images */}
             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8">
@@ -82,10 +82,10 @@ const ListingImages = () => {
                     <div className="relative max-w-5xl w-full">
                         {/* Close Button */}
                         <button
-                            className="absolute top-4 right-0 bg-white text-black p-2 z-50 rounded-full"
+                            className="absolute top-4 right-4 bg-white text-black p-2 z-50 rounded-full"
                             onClick={() => setIsOpen(false)}
                         >
-                            <IconX size={24} />
+                            <IconX size={18} />
                         </button>
 
                         {/* Image Gallery with Custom Arrows */}
@@ -98,20 +98,20 @@ const ListingImages = () => {
                             onClick={() => setIsOpen(false)}
                             renderLeftNav={(onClick, disabled) => (
                                 <button
-                                    className="absolute z-50 top-1/2 transform -translate-y-1/2 bg-white text-black p-3 rounded-full shadow-md hover:bg-gray-300 transition"
+                                    className="absolute invisible lg:visible z-50 top-1/2 transform -translate-y-1/2 bg-white text-black p-3 rounded-full shadow-md hover:bg-gray-300 transition"
                                     onClick={onClick}
                                     disabled={disabled}
                                 >
-                                    <IconArrowLeft size={24} />
+                                    <IconArrowLeft size={18} />
                                 </button>
                             )}
                             renderRightNav={(onClick, disabled) => (
                                 <button
-                                    className="absolute right-0 z-50 top-1/2 transform -translate-y-1/2 bg-white text-black p-3 rounded-full shadow-md hover:bg-gray-300 transition"
+                                    className="absolute invisible lg:visible right-0 z-50 top-1/2 transform -translate-y-1/2 bg-white text-black p-3 rounded-full shadow-md hover:bg-gray-300 transition"
                                     onClick={onClick}
                                     disabled={disabled}
                                 >
-                                    <IconArrowRight size={24} />
+                                    <IconArrowRight size={18} />
                                 </button>
                             )}
                         />

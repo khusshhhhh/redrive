@@ -42,15 +42,15 @@ const Search = () => {
     >
       <div className="flex flex-row gap-10 items-center justify-between">
         {/* ✅ Show selected state */}
-        <div className="text-sm font-semibold px-6">{locationLabel}</div>
+        <div className="text-sm font-medium px-6">{locationLabel}</div>
 
         {/* ✅ Show date range */}
-        <div className="hidden sm:block text-sm font-semibold px-16 border-x-[1px] flex-1 text-center">
+        <div className="hidden sm:block text-sm font-medium px-16 border-x-[1px] flex-1 text-center">
           {durationLabel}
         </div>
 
         {/* ✅ Show guest count */}
-        <div className="text-sm pl-6 pr-2 text-gray-600 flex flex-row items-center gap-3">
+        <div className="text-sm pl-6 pr-2 flex font-medium flex-row items-center gap-3">
           <div className="hidden sm:block">{guestLabel}</div>
           <div className="p-2 bg-teal-500 rounded-full text-white">
             <BiSearch size={18} />

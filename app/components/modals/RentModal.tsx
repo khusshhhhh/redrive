@@ -25,7 +25,7 @@ import { useCloudinaryUpload } from "@/app/hooks/useCloudinaryUpload";
 import Image from "next/image";
 // import Script from "next/script";
 
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 
 
 // Declare google property on window object
@@ -37,6 +37,7 @@ declare global {
 }
 import axios from "axios";
 import toast from "react-hot-toast";
+import { IconX } from "@tabler/icons-react";
 
 
 enum STEPS {
@@ -183,17 +184,16 @@ const RentModal = () => {
     });
 
     const category = watch('category');
-    const location = watch('location');
+    // const location = watch('location');
     const guestCount = watch('guestCount');
     const doorCount = watch('doorCount');
     const sleepCount = watch('sleepCount');
     // const regoNumber = watch('regoNumber');
     const regoEndDate = watch('regoEndDate');
 
-    const Map = useMemo(() => dynamic(() => import('../Map'), {
-        ssr: false
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }), [location]);
+    // const Map = useMemo(() => dynamic(() => import('../Map'), {
+    //     ssr: false
+    // }), [location]);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const setCustomValue = (id: string, value: any) => {
@@ -350,7 +350,7 @@ const RentModal = () => {
                     </div>
 
                     {/* ✅ Google Maps Integration */}
-                    <Map suburb={selectedSuburb?.value} state={selectedState?.value} />
+                    {/* <Map suburb={selectedSuburb?.value} state={selectedState?.value} /> */}
 
                 </div>
             </div>
@@ -436,7 +436,7 @@ const RentModal = () => {
                                         onClick={() => removeImage(index)}
                                         className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
                                     >
-                                        🗑️
+                                        <IconX size={20} />
                                     </button>
                                 </div>
                             ) : null
@@ -612,7 +612,7 @@ const RentModal = () => {
                             onClick={removeRegoImage}
                             className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-100 hover:opacity-80 transition"
                         >
-                            🗑️
+                            <IconX size={20} />
                         </button>
                     </div>
                 )}

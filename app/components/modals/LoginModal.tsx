@@ -103,7 +103,7 @@ const LoginModal = () => {
     )
 
     const footerContent = (
-        <div className="flex flex-col gap-4 mt-3 mr-8">
+        <div className="flex flex-col gap-4 mt-3 mx-6">
             <hr />
             <Button
                 outline
