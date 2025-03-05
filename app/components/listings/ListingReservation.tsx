@@ -4,6 +4,8 @@ import { Range } from 'react-date-range';
 import Calendar from '../inputs/Calender';
 import Button from '../Button';
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
+import { useRouter } from 'next/navigation';
+import { SafeListing } from '@/app/types';
 
 const calculateServiceFee = (totalPrice: number): number => {
     if (totalPrice <= 200) return 10;
@@ -15,6 +17,7 @@ const calculateServiceFee = (totalPrice: number): number => {
 };
 
 interface ListingReservationProps {
+    listing: SafeListing;
     price: number;
     dateRange: Range;
     totalPrice: number;
@@ -31,11 +34,12 @@ interface ListingReservationProps {
 }
 
 const ListingReservation: React.FC<ListingReservationProps> = ({
+    listing,
     price,
     dateRange,
     totalPrice,
     onChangeDate,
-    onSubmit,
+    // onSubmit,
     disabled,
     disabledDates,
     insuranceType,
@@ -46,6 +50,7 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     const redriveFee = Math.round(totalPrice * 0.08);
     const serviceFee = calculateServiceFee(totalPrice);
     const dayCount = differenceInCalendarDays(dateRange.endDate, dateRange.startDate) + 1;
+    const router = useRouter();
 
 
     const handleInsuranceChange = (type: string, fee: number) => {
@@ -166,7 +171,19 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
             </div>
             <hr />
             <div className="p-4">
-                <Button disabled={disabled} label="Book" onClick={async () => onSubmit(insuranceType, insuranceFee)} />
+                <Button
+                    disabled={disabled}
+                    label="Continue"
+                    onClick={() => {
+                        if (!listing?.id) {
+                            console.error("Listing ID is missing!");
+                            return;
+                        }
+
+                        router.push(`/confirm-reservation?listingId=${listing.id}&startDate=${dateRange.startDate.toISOString()}&endDate=${dateRange.endDate.toISOString()}&totalPrice=${totalPrice}&totalFees=${totalFees}&insuranceType=${insuranceType}&insuranceFee=${insuranceFee}`);
+                    }}
+                />
+
             </div>
         </div>
     );

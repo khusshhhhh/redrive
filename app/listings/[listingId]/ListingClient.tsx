@@ -169,6 +169,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                             amenities={listing.amenities} state={""} suburb={""} />
                         <div className="order-last mb-10 md:order-last md:col-span-3">
                             <ListingReservation
+                                listing={listing}
                                 price={listing.price}
                                 serviceFee={calculateServiceFee(totalPrice)}
                                 totalPrice={totalPrice}
