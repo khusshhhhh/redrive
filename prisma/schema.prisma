@@ -20,7 +20,7 @@ model User {
   favoriteIds    String[]  @db.ObjectId
 
   streetAddress  String?
-  city           String?
+  suburb         String?
   state          String?
   postcode       String?
   hobbies        String[]  @default([])  

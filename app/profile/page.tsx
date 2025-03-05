@@ -1,8 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Input from "@/app/components/inputs/Input";
 import Button from "@/app/components/Button";
@@ -10,69 +9,124 @@ import axios from "axios";
 import ImageUpload from "../components/inputs/ImageUpload";
 import { toast, Toaster } from "react-hot-toast";
 import { FaCheck } from "react-icons/fa";
+import SuburbSelector from "../components/inputs/SuburbSelector";
+import StateSelector from "../components/inputs/StateSelector";
 
 interface ProfileFormData {
     name: string;
     email: string;
     number: string;
     streetAddress: string;
-    city: string;
+    suburb: string;
     state: string;
     postcode: string;
     hobbies: string;
     profileVerified: string;
     dreamDestinations: string;
-    licenceImage: string;
-    licenceType: string;
+    licenseImage: string;
+    licenseType: string;
 }
 
 export default function Profile() {
-    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<ProfileFormData>();
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm<ProfileFormData>();
     const [image, setImage] = useState<string>("/images/placeholder.png");
+    const [licenseImage, setLicenseImage] = useState<string>("");
+    const [licenseType, setLicenseType] = useState<string>("Driver's License");
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
-    const [userName, setUserName] = useState<string | null>(null); // Store user name
-    const [profileVerified, setProfileVerified] = useState<string>("N"); // ✅ Fixed missing state
     const [cityInput, setCityInput] = useState<string>("");
     const [suggestedCities, setSuggestedCities] = useState<string[]>([]);
     const [selectedCities, setSelectedCities] = useState<string[]>([]);
-    const [licenseImage, setLicenseImage] = useState<string>(""); // ✅ New state for license upload
-    const [licenseType, setLicenseType] = useState<string>("Driver's License"); // ✅ Default selection
+    const [userName, setUserName] = useState<string | null>(null);
+    const [profileVerified, setProfileVerified] = useState<string>("N");
     const [triggerUpload, setTriggerUpload] = useState<boolean>(false);
+    const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
+    const [selectedSuburb, setSelectedSuburb] = useState<{ value: string; label: string; postcode?: number } | null>(null);
 
     useEffect(() => {
         async function fetchUserData() {
             setIsLoading(true);
             try {
-                const response = await axios.get("/api/auth/user"); // Fetch from new API route
+                console.log("🔄 Fetching user data...");
+                const response = await axios.get("/api/auth/user");
 
+                if (response.status === 200 && response.data) {
+                    console.log("✅ User data received:", response.data);
 
-                if (response.data) {
-                    setUserName(response.data.name || "User"); // Set the name in state
-                    setProfileVerified(response.data.profileVerified || "N"); // ✅ Fix: Ensure profileVerified is stored in state
-                    reset({
-                        name: response.data.name || "",
-                        email: response.data.email || "",
-                        number: response.data.number || "",
-                        streetAddress: response.data.streetAddress || "",
-                        city: response.data.city || "",
-                        state: response.data.state || "",
-                        postcode: response.data.postcode || "",
-                        hobbies: response.data.hobbies?.join(", ") || "",
-                        dreamDestinations: response.data.dreamDestinations?.join(", ") || "",
-                        profileVerified: response.data.profileVerified || "N", // ✅ Fixed missing state
-                    });
+                    setUserName(response.data.name || "User");
+                    setProfileVerified(response.data.profileVerified || "N");
                     setImage(response.data.image || "/images/placeholder.png");
+                    setLicenseImage(response.data.licenseImage || "");
+                    setLicenseType(response.data.licenseType || "Driver's License");
+
+                    // ✅ Use `setValue()` instead of `reset()`
+                    setValue("name", response.data.name || "");
+                    setValue("email", response.data.email || "");
+                    setValue("number", response.data.number || "");
+                    setValue("streetAddress", response.data.streetAddress || "");
+                    setValue("suburb", response.data.suburb || "");
+                    setValue("state", response.data.state || "");
+                    setValue("postcode", response.data.postcode || "");
+                    setValue("hobbies", response.data.hobbies?.join(", ") || "");
+                    setValue("dreamDestinations", response.data.dreamDestinations?.join(", ") || "");
+                    setValue("profileVerified", response.data.profileVerified || "N");
+                    setValue("licenseImage", response.data.licenseImage || "");
+                    setValue("licenseType", response.data.licenseType || "Driver's License");
+
+                    // ✅ Pre-fill state & suburb if data exists
+                    if (response.data.state) {
+                        setSelectedState({ value: response.data.state, label: response.data.state });
+                        setValue("state", response.data.state);
+                    }
+
+                    if (response.data.suburb) {
+                        setSelectedSuburb({
+                            value: response.data.suburb,
+                            label: `${response.data.suburb}, ${response.data.postcode || ""}`,
+                            postcode: response.data.postcode
+                        });
+                        setValue("suburb", response.data.suburb);
+                        setValue("postcode", response.data.postcode || "");
+                    }
+                } else {
+                    console.error("❌ Failed to fetch user data:", response.data);
+                    toast.error("Error loading profile data.");
                 }
             } catch (error) {
+                console.error("❌ Error fetching user:", error);
                 toast.error("Error fetching user data.");
-                console.error("Error fetching user:", error);
             }
             setIsLoading(false);
         }
 
         fetchUserData();
-    }, [reset]);
+    }, [setValue]);
+
+    // ✅ Handle form submission
+    const onSubmit: SubmitHandler<ProfileFormData> = async (data) => {
+        setIsSaving(true);
+
+        const updatedData = {
+            ...data,
+            image,
+            licenseImage,
+            licenseType,
+            profileVerified: licenseImage ? "Y" : profileVerified, // ✅ If license uploaded, mark verified
+            hobbies: data.hobbies ? data.hobbies.split(",").map((h) => h.trim()) : [],
+            dreamDestinations: data.dreamDestinations ? data.dreamDestinations.split(",").map((d) => d.trim()) : [],
+        };
+
+        try {
+            await axios.put("/api/profile", updatedData);
+            toast.success("Profile updated successfully!");
+        } catch (error) {
+            toast.error("Error updating profile. Please try again.");
+            console.error("❌ Error updating profile:", error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
 
     // Fetch cities dynamically from an API when the user types
     useEffect(() => {
@@ -108,43 +162,9 @@ export default function Profile() {
         setSelectedCities(updatedCities);
         setValue("dreamDestinations", updatedCities.join(", ")); // Update form state
     };
-
-    const onSubmit: SubmitHandler<ProfileFormData> = async (data) => {
-        setIsSaving(true);
-
-        const updatedData = {
-            ...data,
-            city: data.city ?? "",
-            state: data.state ?? "",
-            postcode: data.postcode ?? "",
-            hobbies: data.hobbies ? data.hobbies.split(",").map((h) => h.trim()) : [],
-            dreamDestinations: data.dreamDestinations ? data.dreamDestinations.split(",").map((d) => d.trim()) : [],
-            image,
-            profileVerified: licenseImage ? "Y" : profileVerified, // ✅ Update to "Y" if license uploaded
-            licenseImage,
-            licenseType,
-        };
-
-        try {
-            console.log("Updating with data:", updatedData); // ✅ Debug: Check the payload
-            await axios.put("/api/profile", updatedData);
-            toast.success("Profile updated successfully!");
-        } catch (error) {
-            toast.error("Error updating profile.");
-            console.error("Error updating profile:", error);
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-
     return (
         <>
-            {/* Toast Notification Container */}
-            <div>
-                <Toaster />
-            </div>
-
+            <Toaster />
             {isLoading ? (
                 <div className="text-center mt-10">Loading profile...</div>
             ) : (
@@ -154,29 +174,25 @@ export default function Profile() {
                         {profileVerified === "Y" && <FaCheck className="text-teal-500" size={20} />}
                     </h2>
 
-                    {/* Profile Image Display (Click to Change) */}
+                    {/* ✅ Profile Image (Click to Change) */}
                     <div className="mb-6 flex flex-col items-center">
                         <h4 className="text-lg font-semibold mb-2">Profile Picture</h4>
                         <div
                             className="w-[100px] h-[100px] rounded-full overflow-hidden border cursor-pointer hover:opacity-80 transition"
-                            onClick={() => setTriggerUpload(true)} // ✅ Clicking image triggers upload
+                            onClick={() => setTriggerUpload(true)}
                         >
-                            <img
-                                src={image}
-                                alt="Profile"
-                                className="w-full h-full object-cover"
-                            />
+                            <img src={image} alt="Profile" className="w-full h-full object-cover" />
                         </div>
-
-                        {/* Hidden Image Upload Component - Only activates when triggered */}
                         {triggerUpload && (
-                            <ImageUpload onChange={setImage} value={image} triggerUpload />
+                            <ImageUpload onChange={(url) => { setImage(url); setTriggerUpload(false); }} value={image} triggerUpload />
                         )}
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)}>
-                        <div className="flex flex-col mb-8">
-                            <div className="mt-8">
+
+                        {/* ✅ Basic Information */}
+                        <div className="flex flex-col mb-8 gap-6">
+                            <div>
                                 <h4 className="text-xl font-semibold">Basic Information</h4>
                             </div>
                             <div className="flex flex-col gap-6">
@@ -189,35 +205,60 @@ export default function Profile() {
                                     <Input id="email" label="" register={register} disabled errors={errors} />
                                 </div>
                                 <div>
-                                    <label className="text-sm text-gray-600">Mobile Number</label>
-                                    <Input id="number" label="" placeholder="+61 xxx xxx xxx" register={register} required errors={errors} />
+                                    <label className="text-sm text-gray-600">Phone Number</label>
+                                    <Input id="number" label="" register={register} required errors={errors} />
                                 </div>
                             </div>
                         </div>
-                        {/* <hr className="border-[1px] " /> */}
+
+                        {/* ✅ Address Section with Select Inputs */}
                         <div className="flex flex-col mt-8">
-                            <div>
-                                <h4 className="text-xl font-semibold">Address</h4>
-                            </div>
+                            <h4 className="text-xl font-semibold">Address</h4>
+
                             <div className="flex flex-col gap-6">
                                 <div>
                                     <label className="text-sm text-gray-600">Address Line</label>
                                     <Input id="streetAddress" label="" register={register} errors={errors} />
                                 </div>
-                                <div>
-                                    <label className="text-sm text-gray-600">City</label>
-                                    <Input id="city" label="" register={register} errors={errors} />
-                                </div>
+
+                                {/* ✅ State Selector */}
                                 <div>
                                     <label className="text-sm text-gray-600">State</label>
-                                    <Input id="state" label="" register={register} errors={errors} />
+                                    <StateSelector
+                                        value={selectedState}
+                                        onChange={(selected) => {
+                                            setSelectedState(selected);
+                                            setSelectedSuburb(null); // ✅ Reset suburb when state changes
+                                            setValue("state", selected.value);
+                                            setValue("suburb", "");
+                                            setValue("postcode", "");
+                                        }}
+                                    />
                                 </div>
+
+                                {/* ✅ Suburb Selector */}
+                                <div>
+                                    <label className="text-sm text-gray-600">Suburb</label>
+                                    <SuburbSelector
+                                        state={selectedState?.value}
+                                        value={selectedSuburb}
+                                        onChange={(selected) => {
+                                            setSelectedSuburb(selected);
+                                            setValue("suburb", selected.value);
+                                            setValue("postcode", selected.postcode?.toString() || "");
+                                        }}
+                                    />
+                                </div>
+
                                 <div>
                                     <label className="text-sm text-gray-600">Postcode</label>
-                                    <Input id="postcode" label="" register={register} errors={errors} />
+                                    <Input id="postcode" label="" register={register} errors={errors} disabled />
                                 </div>
                             </div>
                         </div>
+
+                        {/* ✅ Hobbies */}
+
                         <div className="flex flex-col mt-8">
                             <div>
                                 <h4 className="text-xl font-semibold">Tell us something!</h4>
@@ -267,26 +308,26 @@ export default function Profile() {
                                 </div>
                             </div>
                         </div>
-                        <div className="flex flex-col mt-8">
-                            {/* License Upload Section */}
-                            <div className="mt-8">
-                                <h4 className="text-xl font-semibold">License Verification</h4>
-                                <select
-                                    value={licenseType}
-                                    onChange={(e) => setLicenseType(e.target.value)}
-                                    className="w-full p-4 border rounded-md mt-1"
-                                >
-                                    <option>Driver License</option>
-                                    <option>Boat License</option>
-                                    <option>Other License</option>
-                                </select>
 
-                                <div className="mt-4">
-                                    <ImageUpload onChange={setLicenseImage} value={licenseImage} />
-                                </div>
+                        {/* ✅ License Verification */}
+                        <div className="mt-8">
+                            <h4 className="text-xl font-semibold">License Verification</h4>
+                            <select
+                                value={licenseType}
+                                onChange={(e) => setLicenseType(e.target.value)}
+                                className="w-full p-4 border rounded-md mt-1"
+                            >
+                                <option>Driver License</option>
+                                <option>Boat License</option>
+                                <option>Other License</option>
+                            </select>
+
+                            <div className="mt-4">
+                                <ImageUpload onChange={setLicenseImage} value={licenseImage} />
                             </div>
                         </div>
-                        <div className="flex w-full justify-end">
+
+                        <div className="flex w-full justify-end mt-6">
                             <Button type="submit" label={isSaving ? "Saving..." : "Save Changes"} disabled={isSaving} />
                         </div>
                     </form>

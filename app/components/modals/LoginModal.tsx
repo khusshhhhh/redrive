@@ -114,10 +114,10 @@ const LoginModal = () => {
             <div className="text-neutral-500 text-center mt-4 font-light">
 
                 <div className="justify-center flex flex-row items-center gap-4 mb-6">
-                    <div>
+                    <div className='text-neutral-800 font-regular'>
                         First time using Redrive?
                     </div>
-                    <div onClick={toggle} className="text-neutral-800 cursor-pointer hover:underline">
+                    <div onClick={toggle} className="text-neutral-800 font-bold cursor-pointer hover:underline">
                         Create an account
                     </div>
                 </div>
