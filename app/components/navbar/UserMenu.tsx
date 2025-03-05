@@ -10,7 +10,7 @@ import useRentModal from "@/app/hooks/useRentModal";
 import { signOut } from "next-auth/react";
 import { SafeUser } from "@/app/types";
 import { useRouter } from "next/navigation";
-import { IconBrandDatabricks, IconCalendar, IconClipboardPlus, IconFilePlus, IconHearts, IconLocationCheck, IconLogin2, IconLogout2 } from "@tabler/icons-react";
+import { IconBrandDatabricks, IconCalendar, IconClipboardPlus, IconFilePlus, IconHearts, IconLocationCheck, IconLogin2, IconLogout2, IconUserEdit } from "@tabler/icons-react";
 
 interface UserMenuProps {
   currentUser?: SafeUser | null;
@@ -81,9 +81,14 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
             {currentUser && (
               <div
                 onClick={() => { router.push("/profile"); closeMenu(); }}
-                className="px-8 py-5 text-left text-sm font-bold text-black hover:bg-gray-100 transition cursor-pointer"
+                className="flex flex-row gap-3 px-8 py-5 text-left text-sm font-bold text-black hover:bg-gray-100 transition cursor-pointer"
               >
-                {currentUser.name}
+                <div>
+                  <IconUserEdit size={18} />
+                </div>
+                <div>
+                  {currentUser.name}
+                </div>
               </div>
             )}
             <hr />

@@ -93,7 +93,7 @@ const ReviewPage = () => {
             </div>
             <div className="">
                 <button
-                    className="mt-3 bg-teal-500 text-white px-4 py-2 rounded disabled:opacity-50"
+                    className="mt-3 bg-teal-500 text-white px-4 py-2 rounded disabled:opa-50"
                     disabled={loading}
                     onClick={handleSubmit}
                 >

@@ -61,7 +61,7 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     const totalFees = totalPrice + redriveFee + serviceFee + insuranceFee; // ✅ Include insurance cost
 
     return (
-        <div className="bg-white shadow-md shadow-gray-600/30 rounded-xl border-[1px] border-neutral-200 overflow-hidden mt-10 md:mt-0">
+        <div className="bg-white shadow-lg shadow-gray-600/20 rounded-xl border-[1px] border-neutral-200 overflow-hidden mt-10 md:mt-0">
             <div className="flex flex-row items-center gap-1 p-4">
                 <div className="text-2xl font-semibold">$ {price}</div>
                 <div className="font-light text-neutral-600">per day</div>

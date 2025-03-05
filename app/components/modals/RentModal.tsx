@@ -393,7 +393,7 @@ const RentModal = () => {
     if (step == STEPS.IMAGES) {
         bodyContent = (
             <div className="flex flex-col gap-8">
-                <Heading title="Add photos of your utility" subtitle="Upload up to 10 images." />
+                <Heading title="Add photos of your utility" subtitle="We recommand 5 to 10 photos." />
 
                 {/* ✅ File Input */}
                 <input

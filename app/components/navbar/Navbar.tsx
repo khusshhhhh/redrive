@@ -16,7 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
   const pathname = usePathname(); // ✅ Now inside Client Component
 
   // ✅ Hide search bar on listing pages
-  const showSearchBar = !pathname.startsWith("/listings/");
+  const showSearchBar = !pathname.startsWith("/confirm-reservation");
 
   return (
     <div className="fixed w-full bg-white z-10 shadow-sm">
@@ -24,7 +24,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
         <Container>
           <div className="flex flex-row items-center justify-between gap-3 md:gap-0">
             <Logo />
-            <Search /> {/* ✅ Conditionally render search bar */}
+            {showSearchBar && <Search />} {/* ✅ Conditionally render search bar */}
             <UserMenu currentUser={currentUser} />
           </div>
         </Container>

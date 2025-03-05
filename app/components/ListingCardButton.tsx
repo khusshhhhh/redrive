@@ -15,7 +15,7 @@ const ListingCardButton: React.FC<ListingCardButtonProps> = ({ label, onClick, d
             <button
                 onClick={onClick}
                 disabled={disabled}
-                className={`w-full py-3 font-semibold rounded-lg transition
+                className={`w-full py-3 font-medium rounded-lg transition
                 ${disabled ? "bg-gray-400 cursor-not-allowed" :
                         variant === "primary"
                             ? "bg-white text-teal-500 border-[2px] border-teal-400 hover:bg-teal-400 hover:text-white"
