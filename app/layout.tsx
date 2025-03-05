@@ -13,7 +13,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata = {
   title: "Redrive",
-  description: "Created & Developed by Khush & Hiral Patel",
+  description: "Created & Developed by Khush Patel & Hiral Mahida",
 };
 
 // ✅ Apply Poppins font
