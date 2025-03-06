@@ -60,7 +60,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
         <div className="col-span-4 flex flex-col gap-8">
             {/* Host Information */}
             <div className="flex flex-col gap-6">
-                <div className="text-xl font-semibold flex items-center gap-2">
+                {/* <div className="text-xl font-semibold flex items-center gap-2">
                     <span>Hosted by {user?.name}</span>
                     <Avatar src={user?.image} />
                 </div>
@@ -68,14 +68,14 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     <div className="text-teal-500 flex items-center gap-2">
                         Verified Host <FaCheck className="text-teal-500" size={18} />
                     </div>
-                )}
+                )} */}
                 {/* Basic Details */}
-                <div className="flex items-center gap-4 text-neutral-700">
-                    <div className="flex items-center gap-3"><BsFillPeopleFill size={18} /> {guestCount} guests</div>
+                <div className="flex items-center gap-3 md:gap-4 text-neutral-700">
+                    <div className="flex items-center gap-2 md:gap-3"><BsFillPeopleFill size={18} /> {guestCount} guests</div>
                     <div className="h-5 w-[1px] bg-gray-600"></div>
-                    <div className="flex items-center gap-3"><GiCarDoor size={18} /> {doorCount} doors</div>
+                    <div className="flex items-center gap-2 md:gap-3"><GiCarDoor size={18} /> {doorCount} doors</div>
                     <div className="h-5 w-[1px] bg-gray-600"></div>
-                    <div className="flex items-center gap-3"><FaBed size={18} /> {sleepCount} sleeps</div>
+                    <div className="flex items-center gap-2 md:gap-3"><FaBed size={18} /> {sleepCount} sleeps</div>
                 </div>
             </div>
             <hr />
