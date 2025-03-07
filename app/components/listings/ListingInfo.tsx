@@ -128,7 +128,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
             <div className="">
                 <div className="font-medium text-lg">Amenities</div>
                 {amenities && amenities.length > 0 ? (
-                    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {amenities.map((amenity) => {
                             const amenityData = AMENITIES_LIST.find((a) => a.id === amenity);
                             const IconComponent = amenityData?.icon || IconQuestionMark;

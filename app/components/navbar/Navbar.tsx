@@ -16,6 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
   const pathname = usePathname(); // ✅ Now inside Client Component
 
   // ✅ Hide search bar on listing pages
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const showSearchBar = !pathname.startsWith("/confirm-reservation");
 
   return (
@@ -24,7 +25,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
         <Container>
           <div className="flex flex-row items-center justify-between gap-3 md:gap-0">
             <Logo />
-            {showSearchBar && <Search />} {/* ✅ Conditionally render search bar */}
+            <Search /> {/* ✅ Conditionally render search bar */}
             <UserMenu currentUser={currentUser} />
           </div>
         </Container>

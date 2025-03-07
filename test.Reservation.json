@@ -1,28 +1,38 @@
 [
   {
     "_id": {
-      "$oid": "67b2b0018113005670dfb2b7"
+      "$oid": "67c968e17a02aa3902ca24cc"
     },
     "userId": {
-      "$oid": "67b55ad622d62858c9045bea"
+      "$oid": "67c81a02669922eadd4d23d0"
     },
     "listingId": {
-      "$oid": "67b26ea3a337dce78b1c7cdf"
+      "$oid": "67c824d5669922eadd4d23db"
     },
     "startDate": {
-      "$date": "2025-02-02T13:30:00.000Z"
+      "$date": "2025-03-04T08:35:23.778Z"
     },
     "endDate": {
-      "$date": "2025-02-05T13:30:00.000Z"
+      "$date": "2025-03-04T08:35:23.778Z"
     },
     "totalPrice": {
-      "$numberLong": "48888"
+      "$numberLong": "200"
+    },
+    "redriveFee": {
+      "$numberLong": "16"
+    },
+    "serviceFee": {
+      "$numberLong": "10"
+    },
+    "insuranceType": "No Insurance",
+    "insuranceFee": {
+      "$numberLong": "0"
     },
     "totalFees": {
-      "$numberLong": "51821"
+      "$numberLong": "226"
     },
     "createdAt": {
-      "$date": "2025-02-17T03:41:53.011Z"
+      "$date": "2025-03-06T09:20:33.976Z"
     }
   }
 ]

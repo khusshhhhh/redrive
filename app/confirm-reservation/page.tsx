@@ -63,7 +63,7 @@ export default function ConfirmReservation() {
     return (
         <Container>
             <Toaster />
-            <div className="max-w-3xl mx-auto p-6 rounded-lg mt-4">
+            <div className="max-w-3xl mx-auto sm:max-w-xl rounded-lg">
                 <h2 className="text-2xl font-semibold text-center mb-6">Confirm Your Booking</h2>
 
                 {/* Listing Details */}
@@ -146,8 +146,8 @@ export default function ConfirmReservation() {
                         </div>
 
                         {/* Confirm Button */}
-                        <div className="flex flex-row mt-6">
-                            <div className="w-1/2 pr-2">
+                        <div className="flex flex-col sm:flex-row mt-6 gap-4">
+                            <div className="w-full">
                                 <button
                                     onClick={router.back}
                                     className="w-full py-3 text-md font-semibold rounded-lg bg-white text-red-600 border-[2px] border-red-600 transition-all duration-300"
@@ -155,7 +155,7 @@ export default function ConfirmReservation() {
                                     Cancel
                                 </button>
                             </div>
-                            <div className="w-1/2 pl-2">
+                            <div className="w-full">
                                 <button
                                     onClick={handleConfirmBooking}
                                     className="w-full py-3 text-md font-semibold rounded-lg bg-teal-500 text-white hover:bg-teal-600 transition-all duration-400"
