@@ -11,12 +11,14 @@ interface HomeProps {
 }
 
 const Home = async ({ searchParams }: HomeProps) => {
-  // ✅ Ensure searchParams exists
-  const params = searchParams ? { ...searchParams } : {};
+  // Ensure searchParams is awaited before using its properties.
+  const resolvedSearchParams = await Promise.resolve(searchParams);
+  const params: IListingsParams = resolvedSearchParams ? { ...resolvedSearchParams } : {};
 
-  // Ensure params is properly handled
-  if (!searchParams) {
-    const urlParams = new URLSearchParams((await headers()).get("referer") || "");
+  // Fallback: if no searchParams, attempt to extract from referer headers.
+  if (!resolvedSearchParams) {
+    const referer = (await headers()).get("referer") || "";
+    const urlParams = new URLSearchParams(referer);
     urlParams.forEach((value, key) => {
       params[key] = value;
     });
