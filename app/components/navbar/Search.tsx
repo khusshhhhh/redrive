@@ -1,16 +1,20 @@
 "use client";
 
-import useSearchModal from "@/app/hooks/useSearchModal";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import qs from "query-string";
+import { useRouter, useSearchParams } from "next/navigation";
 import { differenceInDays } from "date-fns";
-import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { BiSearch } from "react-icons/bi";
+import useSearchModal from "@/app/hooks/useSearchModal";
+import { IconX } from "@tabler/icons-react";
 
 const Search = () => {
-  const searchModal = useSearchModal();
+  const router = useRouter();
   const params = useSearchParams();
+  const searchModal = useSearchModal();
 
-  // ✅ Get selected state from search params
+  // Retrieve filters from URL params
   const stateValue = params?.get("state") || "Anywhere";
   const startDate = params?.get("startDate");
   const endDate = params?.get("endDate");
@@ -22,8 +26,8 @@ const Search = () => {
 
   const durationLabel = useMemo(() => {
     if (startDate && endDate) {
-      const start = new Date(startDate as string);
-      const end = new Date(endDate as string);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
       let diff = differenceInDays(end, start);
       if (diff === 0) diff = 1;
       return `${diff} Days`;
@@ -35,27 +39,57 @@ const Search = () => {
     return guestCount ? `${guestCount} Guests` : "Add Guests";
   }, [guestCount]);
 
+  // Determine if any filter is applied
+  const filtersApplied = useMemo(() => {
+    return (
+      (stateValue && stateValue !== "Anywhere") ||
+      startDate ||
+      endDate ||
+      guestCount
+    );
+  }, [stateValue, startDate, endDate, guestCount]);
+
+  // Handler to clear filters by navigating to the base route without query parameters
+  const handleClearFilters = () => {
+    router.push("/");
+  };
+
   return (
-    <div
-      onClick={searchModal.onOpen}
-      className="border-[1px] w-full md:w-auto py-2 rounded-full shadow-sm hover:shadow-md transition cursor-pointer"
-    >
-      <div className="flex flex-row gap-10 items-center justify-between">
-        {/* ✅ Show selected state */}
-        <div className="text-sm font-medium px-6">{locationLabel}</div>
+    <div className="flex flex-row items-center gap-4">
+      <div
+        onClick={searchModal.onOpen}
+        className="border-[1px] w-full md:w-auto py-2 rounded-full shadow-sm hover:shadow-md transition cursor-pointer"
+      >
+        <div className="flex flex-row gap-10 items-center justify-between">
+          {/* Selected Location */}
+          <div className="text-sm font-medium px-6">{locationLabel}</div>
 
-        {/* ✅ Show date range */}
-        <div className="hidden sm:block text-sm font-medium px-16 border-x-[1px] flex-1 text-center">
-          {durationLabel}
-        </div>
+          {/* Date Range */}
+          <div className="hidden sm:block text-sm font-medium px-16 border-x-[1px] flex-1 text-center">
+            {durationLabel}
+          </div>
 
-        {/* ✅ Show guest count */}
-        <div className="text-sm pl-6 pr-2 flex font-medium flex-row items-center gap-3">
-          <div className="hidden sm:block">{guestLabel}</div>
-          <div className="p-2 bg-teal-500 rounded-full text-white">
-            <BiSearch size={18} />
+          {/* Guest Count */}
+          <div className="text-sm pl-6 pr-2 flex font-medium flex-row items-center gap-3">
+            <div className="hidden sm:block">{guestLabel}</div>
+            <div className="p-2 bg-teal-500 rounded-full text-white">
+              <BiSearch size={18} />
+            </div>
           </div>
         </div>
+      </div>
+      {/* Show Clear Filters button only if a filter is applied */}
+      <div>
+        {filtersApplied && (
+          <div className="text-center">
+            <button
+              onClick={handleClearFilters}
+              className="p-3 bg-white text-black rounded-full hover:border-teal-600 border-[1px] border-gray-800 hover:bg-teal-600 hover:text-white transition"
+            >
+              <IconX size={16} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
