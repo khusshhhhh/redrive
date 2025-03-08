@@ -14,11 +14,10 @@ import YearSelect from "@/app/components/inputs/YearSelect";
 import FuelSelector from "@/app/components/inputs/FuelSelector";
 import { categories } from "@/app/components/navbar/Categories";
 import TextArea from "@/app/components/inputs/TextArea";
-import { AMENITIES_LIST } from "@/app/hooks/useAmenities"; // ✅ Import amenities list
+import { AMENITIES_LIST } from "@/app/hooks/useAmenities";
 import StateSelector from "@/app/components/inputs/StateSelector";
 import SuburbSelector from "@/app/components/inputs/SuburbSelector";
 import DateSelector from "@/app/components/inputs/DateSelector";
-
 
 interface Listing {
     id: string;
@@ -35,8 +34,6 @@ interface Listing {
     state: string;
     suburb: string;
     address: string;
-    latitude?: number;
-    longitude?: number;
     amenities: string[];
     imageSrcs: string[];
     regoNumber: string;
@@ -50,14 +47,13 @@ const EditUtilityPage = () => {
     const listingId = params?.listingId as string;
 
     const [loading, setLoading] = useState(false);
-    const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]); // ✅ Added state
+    const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
     const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
     const [selectedSuburb, setSelectedSuburb] = useState<{ value: string; label: string } | null>(null);
     const [listingImages, setListingImages] = useState<string[]>([]);
     const [regoNumber, setRegoNumber] = useState("");
     const [regoEndDate, setRegoEndDate] = useState("");
     const [regoImage, setRegoImage] = useState("");
-
 
     const {
         register,
@@ -82,19 +78,20 @@ const EditUtilityPage = () => {
             suburb: "",
             address: "",
             amenities: [],
-            regoNumber: '',
+            regoNumber: "",
             regoEndDate: new Date(),
             regoImage: "",
         },
     });
 
+    // Fetch the listing details (including images) on mount.
     useEffect(() => {
         if (!listingId) return;
 
-        axios.get(`/api/listings/${listingId}`)
-            .then(response => {
+        axios
+            .get(`/api/listings/${listingId}`)
+            .then((response) => {
                 const data: Listing = response.data;
-                // ✅ Populate form with fetched data
                 setValue("title", data.title);
                 setValue("description", data.description);
                 setValue("information", data.information);
@@ -108,46 +105,59 @@ const EditUtilityPage = () => {
                 setValue("state", data.state);
                 setValue("suburb", data.suburb);
                 setValue("address", data.address);
+                setValue("amenities", data.amenities);
 
-                // ✅ Load existing images
+                // Load images and registration details
                 setListingImages(data.imageSrcs || []);
-
-                // ✅ Load registration details
                 setRegoNumber(data.regoNumber || "");
-                setRegoEndDate(data.regoEndDate ? new Date(data.regoEndDate).toISOString().split("T")[0] : "");
+                setRegoEndDate(
+                    data.regoEndDate ? new Date(data.regoEndDate).toISOString().split("T")[0] : ""
+                );
                 setRegoImage(data.regoImage || "");
 
                 setSelectedState({ value: data.state, label: data.state });
                 setSelectedSuburb({ value: data.suburb, label: data.suburb });
-                setSelectedAmenities(data.amenities || []); // ✅ Set existing amenities
+                setSelectedAmenities(data.amenities || []);
             })
             .catch(() => toast.error("Failed to load listing."));
     }, [listingId, setValue]);
 
+    // Toggle an amenity
     const toggleAmenity = (id: string) => {
-        setSelectedAmenities(prev =>
-            prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
+        setSelectedAmenities((prev) =>
+            prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]
         );
     };
 
-    if (listingImages.length > 10) {
-        toast.error("You can only upload up to 10 images.");
-        return;
-    }
+    // Delete an image from the listing
+    const handleImageDelete = (imageToDelete: string) => {
+        setListingImages((prev) => prev.filter((img) => img !== imageToDelete));
+    };
+
+    // Add a new image if below the 10-image limit
+    const handleAddImage = (imageUrl: string) => {
+        if (listingImages.length >= 10) {
+            toast.error("You can only upload up to 10 images.");
+            return;
+        }
+        setListingImages((prev) => [...prev, imageUrl]);
+    };
 
     const onSubmit = async (data: FieldValues) => {
         setLoading(true);
-
         try {
             await axios.put(`/api/listings/${listingId}`, {
-                ...data, state: selectedState?.value, suburb: selectedSuburb?.value, amenities: selectedAmenities,
+                ...data,
+                state: selectedState?.value,
+                suburb: selectedSuburb?.value,
+                amenities: selectedAmenities,
                 imageSrcs: listingImages,
                 regoNumber,
                 regoEndDate,
                 regoImage,
-            }); // ✅ Send amenities
+            });
             toast.success("Utility updated successfully!");
-            router.push("/properties"); // Redirect after update
+            router.push("/properties");
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
             toast.error("Something went wrong.");
@@ -156,43 +166,24 @@ const EditUtilityPage = () => {
         }
     };
 
-    const handleImageDelete = (imageToDelete: string) => {
-        setListingImages(listingImages.filter((img) => img !== imageToDelete));
-    };
-
-
     return (
         <div className="max-w-3xl mx-auto p-6 bg-white">
             <h2 className="text-2xl font-bold mb-6 text-center">Edit Your Utility</h2>
-            <form onSubmit={handleSubmit(onSubmit)} className="">
+            <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Title */}
                 <div className="mb-8">
-                    <Input
-                        id="title"
-                        label="Title"
-                        register={register}
-                        errors={errors}
-                        required
-                    />
+                    <Input id="title" label="Title" register={register} errors={errors} required />
                 </div>
+
                 {/* Description */}
                 <div className="mb-8">
-                    <Input
-                        id="description"
-                        label="Description"
-                        register={register}
-                        errors={errors}
-                        required
-                    />
+                    <Input id="description" label="Description" register={register} errors={errors} required />
                 </div>
 
-
-
-
                 {/* Category Selection */}
-                <div>
+                <div className="mb-8">
                     <p className="font-bold mb-4">Select Category</p>
-                    <div className="grid grid-cols-2 md:grid-cols-2 gap-3 mb-8">
+                    <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
                         {categories.map((categoryItem) => (
                             <CategoryInput
                                 key={categoryItem.label}
@@ -205,14 +196,17 @@ const EditUtilityPage = () => {
                     </div>
                 </div>
 
+                {/* Images Section */}
                 <div className="mb-8">
                     <p className="font-bold mb-4">Property Images</p>
-
-                    {/* ✅ Display Existing Images with Delete Option */}
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-3 gap-3 mb-4">
                         {listingImages.map((image, index) => (
                             <div key={index} className="relative">
-                                <img src={image} alt="Listing Image" className="w-full h-auto rounded-md" />
+                                <img
+                                    src={image}
+                                    alt={`Image ${index + 1}`}
+                                    className="w-full h-auto rounded-md"
+                                />
                                 <button
                                     type="button"
                                     onClick={() => handleImageDelete(image)}
@@ -223,34 +217,28 @@ const EditUtilityPage = () => {
                             </div>
                         ))}
                     </div>
-
-                    {/* ✅ Allow Uploading More Images if Below 10 */}
                     {listingImages.length < 10 && (
-                        <ImageUpload
-                            value={listingImages.length > 0 ? listingImages[0] : ""} // ✅ Pass a single image or empty string
-                            onChange={(image) => {
-                                if (listingImages.length < 10) {
-                                    setListingImages([...listingImages, image]); // ✅ Add new image to array
-                                } else {
-                                    toast.error("You can only upload up to 10 images.");
-                                }
-                            }}
-                        />
+                        <div className="mb-4">
+                            <ImageUpload value="" onChange={handleAddImage} />
+                        </div>
                     )}
-
                 </div>
 
-
+                {/* Location */}
                 <div className="mb-8">
                     <p className="font-bold mb-4">Location</p>
                     <div className="flex flex-col gap-6">
                         <StateSelector value={selectedState} onChange={setSelectedState} />
-                        <SuburbSelector state={selectedState?.value} value={selectedSuburb} onChange={setSelectedSuburb} />
+                        <SuburbSelector
+                            state={selectedState?.value}
+                            value={selectedSuburb}
+                            onChange={setSelectedSuburb}
+                        />
                         <Input id="address" label="Number & Street Address" register={register} errors={errors} required />
                     </div>
                 </div>
 
-                {/* Counters */}
+                {/* Utility Details Counters */}
                 <div className="mb-8 space-y-6">
                     <p className="font-bold mb-4">Utility Details</p>
                     <Counter
@@ -273,7 +261,6 @@ const EditUtilityPage = () => {
                     />
                 </div>
 
-
                 {/* Year Select */}
                 <div className="mb-8">
                     <p className="font-bold mb-4">Year</p>
@@ -287,9 +274,10 @@ const EditUtilityPage = () => {
                         required
                     />
                 </div>
+
+                {/* Fuel Selector */}
                 <div className="mb-8">
                     <p className="font-bold mb-4">Fuel</p>
-                    {/* Fuel Selector */}
                     <FuelSelector
                         id="fuelType"
                         label=""
@@ -300,17 +288,13 @@ const EditUtilityPage = () => {
                     />
                 </div>
 
+                {/* Additional Information */}
                 <div className="mb-8">
                     <p className="font-bold mb-4">Additional Information</p>
-                    <TextArea
-                        id="information"
-                        label=""
-                        register={register}
-                        errors={errors}
-                        required
-                    />
+                    <TextArea id="information" label="" register={register} errors={errors} required />
                 </div>
 
+                {/* Amenities Selection */}
                 <div className="mb-8">
                     <p className="font-bold mb-4">Select Amenities</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -319,7 +303,9 @@ const EditUtilityPage = () => {
                                 key={amenity.id}
                                 type="button"
                                 onClick={() => toggleAmenity(amenity.id)}
-                                className={`p-3 flex items-center gap-2 border-2 rounded-md transition ${selectedAmenities.includes(amenity.id) ? "bg-black text-white" : "bg-gray-100 text-gray-700"
+                                className={`p-3 flex items-center gap-2 border-2 rounded-md transition ${selectedAmenities.includes(amenity.id)
+                                    ? "bg-black text-white"
+                                    : "bg-gray-100 text-gray-700"
                                     }`}
                             >
                                 <i className={`${amenity.icon} text-lg`}></i>
@@ -329,42 +315,27 @@ const EditUtilityPage = () => {
                     </div>
                 </div>
 
+                {/* Registration Details */}
                 <div className="mb-8">
                     <p className="font-bold mb-4">Registration Details</p>
-
-                    {/* ✅ Registration Number Input */}
                     <Input
                         id="regoNumber"
                         label="Rego Number"
-                        value={regoNumber} // ✅ Fixing the issue here
+                        value={regoNumber}
                         onChange={(e) => setRegoNumber(e.target.value)}
                         register={register}
                         errors={errors}
                     />
-
-
-                    {/* ✅ Registration Expiry Date Selector */}
-                    <DateSelector
-                        value={regoEndDate}
-                        onChange={(date) => setRegoEndDate(date)}
-
-                    />
-
+                    <DateSelector value={regoEndDate} onChange={(date) => setRegoEndDate(date)} />
                 </div>
 
+                {/* Registration Image */}
                 <div className="mb-8">
                     <p className="font-bold mb-4">Registration Image</p>
-
-                    {/* ✅ Upload Rego Image */}
-                    <ImageUpload
-                        value={regoImage}
-                        onChange={(image) => setRegoImage(image)}
-                    />
+                    <ImageUpload value={regoImage} onChange={(image) => setRegoImage(image)} />
                 </div>
 
-
-
-                {/* Price Input */}
+                {/* Pricing */}
                 <div className="mb-8">
                     <p className="font-bold mb-4">Pricing</p>
                     <Input
@@ -377,6 +348,7 @@ const EditUtilityPage = () => {
                     />
                 </div>
 
+                {/* Submit and Go Back Buttons */}
                 <div className="flex flex-row gap-4">
                     <button
                         type="submit"
@@ -388,14 +360,11 @@ const EditUtilityPage = () => {
                     <button
                         type="button"
                         className="border-[3px] border-black hover:border-teal-500 hover:text-teal-500 w-full bg-white text-black font-semibold px-6 py-4 rounded-lg transition-all disabled:opacity-50"
-                        onClick={() => router.back()} // ✅ Navigates back to the previous page
+                        onClick={() => router.back()}
                     >
                         Go Back
                     </button>
-
                 </div>
-                {/* Submit Button */}
-
             </form>
         </div>
     );

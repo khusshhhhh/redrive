@@ -206,7 +206,7 @@ export default function Profile() {
                                 </div>
                                 <div>
                                     <label className="text-sm text-gray-600">Phone Number</label>
-                                    <Input id="number" label="" register={register} required errors={errors} />
+                                    <Input id="number" label="" register={register} errors={errors} />
                                 </div>
                             </div>
                         </div>

@@ -10,11 +10,11 @@ export default async function getListingById(paramsPromise: IParams) {
     const { listingId } = params;
 
     const listing = await prisma.listing.findUnique({
-      where: {
-        id: listingId,
-      },
+      where: { id: listingId },
       include: {
-        user: true,
+        user: {
+          include: { listings: true }, // Include the user's listings
+        },
       },
     });
 
@@ -30,6 +30,10 @@ export default async function getListingById(paramsPromise: IParams) {
         createdAt: listing.user.createdAt.toISOString(),
         updatedAt: listing.user.updatedAt.toISOString(),
         emailVerified: listing.user.emailVerified?.toISOString() || null,
+        listings: listing.user.listings.map((l) => ({
+          ...l,
+          createdAt: l.createdAt.toISOString(),
+        })),
       },
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

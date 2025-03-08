@@ -1,13 +1,10 @@
-'use client';
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
-
 import { useCallback } from "react";
 import { TbPhotoPlus } from "react-icons/tb";
 
 declare global {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let cloudinary: any;
 }
 
@@ -17,13 +14,16 @@ interface ImageUploadProps {
     triggerUpload?: boolean;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({
-    onChange,
-    value
-}) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value }) => {
     const handleUpload = useCallback((result: any) => {
-        onChange(result.info.secure_url);
+        // Check if multiple files were uploaded
+        if (Array.isArray(result.info)) {
+            result.info.forEach((file: any) => {
+                onChange(file.secure_url);
+            });
+        } else {
+            onChange(result.info.secure_url);
+        }
     }, [onChange]);
 
     return (
@@ -31,7 +31,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             onSuccess={handleUpload}
             uploadPreset="redrive"
             options={{
-                maxFiles: 1
+                maxFiles: 10  // Allow selecting up to 10 images at once
             }}
         >
             {({ open }) => {
@@ -44,13 +44,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                             Click To Upload
                         </div>
                         {value && (
-                            <div
-                                className="absolute inset-0 w-full h-full">
+                            <div className="absolute inset-0 w-full h-full">
                                 <Image
                                     alt="Upload"
                                     fill
                                     style={{ objectFit: 'cover' }}
-                                    src={value} />
+                                    src={value}
+                                />
                             </div>
                         )}
                     </div>
@@ -58,7 +58,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             }}
         </CldUploadWidget>
     );
-
 };
 
 export default ImageUpload;
