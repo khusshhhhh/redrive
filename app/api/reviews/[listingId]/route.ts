@@ -4,21 +4,24 @@ import prisma from "@/app/libs/prismadb";
 export async function GET(
   request: Request,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any // Override type checking for params
+  context: any
 ) {
-  try {
-    if (!context.params || !context.params.listingId) {
-      // ✅ Prevent accessing undefined params
-      return NextResponse.json(
-        { error: "Invalid request: Missing listing ID" },
-        { status: 400 }
-      );
-    }
-    const { listingId } = context.params;
+  // Await context.params to ensure it is resolved
+  const resolvedParams = await Promise.resolve(context.params);
 
+  if (!resolvedParams || !resolvedParams.listingId) {
+    return NextResponse.json(
+      { error: "Invalid request: Missing listing ID" },
+      { status: 400 }
+    );
+  }
+
+  const { listingId } = resolvedParams;
+
+  try {
     const reviews = await prisma.review.findMany({
       where: { listingId },
-      include: { user: { select: { name: true, image: true } } }, // Include user details
+      include: { user: { select: { name: true, image: true } } },
       orderBy: { createdAt: "desc" },
     });
 

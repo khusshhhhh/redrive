@@ -4,11 +4,13 @@ import ClientOnly from "@/app/components/ClientOnly";
 import EmptyState from "@/app/components/EmptyState";
 import ListingClient from "./ListingClient";
 import getReservations from "@/app/actions/getReservations";
-// import { GetServerSidePropsContext } from "next";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ListingPage = async ({ params }: { params: any }) => {
-    if (!params || !params.listingId) { // ✅ Ensure params exists before accessing listingId
+    // Await params to ensure they are resolved before use
+    const resolvedParams = await Promise.resolve(params);
+
+    if (!resolvedParams || !resolvedParams.listingId) {
         return (
             <ClientOnly>
                 <EmptyState />
@@ -16,7 +18,7 @@ const ListingPage = async ({ params }: { params: any }) => {
         );
     }
 
-    const { listingId } = params; // ✅ Destructure inside the function scope
+    const { listingId } = resolvedParams;
 
     const listing = await getListingById({ listingId });
     const reservations = await getReservations({ listingId });
