@@ -54,7 +54,7 @@ const ListingImages = () => {
             </button>
 
             {/* Title */}
-            <h2 className="text-2xl font-semibold text-center mb-6">Listing Gallery</h2>
+            <h2 className="text-2xl font-semibold text-center mb-6">Photo Gallery</h2>
 
             {/* Responsive Masonry Grid for Images */}
             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8">
