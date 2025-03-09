@@ -8,10 +8,10 @@ import type { NextRequest } from "next/server";
  */
 export async function GET(
   request: NextRequest,
-  context: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  { params }: { params: { listingId: string } }
 ) {
   try {
-    const { listingId } = context.params;
+    const { listingId } = params;
 
     if (!listingId) {
       return NextResponse.json(
@@ -32,7 +32,10 @@ export async function GET(
     return NextResponse.json(listing, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: "Internal Server Error", details: error.message },
+      {
+        error: "Internal Server Error",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }
@@ -43,11 +46,11 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  context: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  { params }: { params: { listingId: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
-    const { listingId } = context.params;
+    const { listingId } = params;
 
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -84,7 +87,7 @@ export async function PUT(
       regoImage,
     } = body;
 
-    // ✅ Validate required fields
+    // Validate required fields
     if (
       !title ||
       !description ||
@@ -103,7 +106,7 @@ export async function PUT(
       );
     }
 
-    // ✅ Validate that no more than 10 images are uploaded
+    // Validate that no more than 10 images are uploaded
     if (imageSrcs.length > 10) {
       return NextResponse.json(
         { error: "Maximum 10 images allowed" },
@@ -118,7 +121,7 @@ export async function PUT(
         description,
         information,
         category,
-        imageSrcs, // ✅ Store array of images
+        imageSrcs, // Store array of images
         guestCount,
         doorCount,
         sleepCount,
@@ -132,15 +135,18 @@ export async function PUT(
         latitude: latitude ? parseFloat(latitude) : null,
         longitude: longitude ? parseFloat(longitude) : null,
         regoNumber,
-        regoEndDate: regoEndDate ? new Date(regoEndDate) : null, // ✅ Ensure valid date
-        regoImage, // ✅ Update single rego image
+        regoEndDate: regoEndDate ? new Date(regoEndDate) : null, // Ensure valid date
+        regoImage, // Update single rego image
       },
     });
 
     return NextResponse.json(updatedListing, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: "Internal Server Error", details: error.message },
+      {
+        error: "Internal Server Error",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }
@@ -151,11 +157,11 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  context: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  { params }: { params: { listingId: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
-    const { listingId } = context.params;
+    const { listingId } = params;
 
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -168,7 +174,7 @@ export async function DELETE(
       );
     }
 
-    // ✅ Check if the listing exists and belongs to the current user
+    // Check if the listing exists and belongs to the current user
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
     });
@@ -184,7 +190,7 @@ export async function DELETE(
       );
     }
 
-    // ✅ Delete the listing
+    // Delete the listing
     await prisma.listing.delete({
       where: { id: listingId },
     });

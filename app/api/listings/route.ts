@@ -129,7 +129,10 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("❌ Internal Server Error:", error);
     return NextResponse.json(
-      { error: "Internal Server Error", details: error.message },
+      {
+        error: "Internal Server Error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }
