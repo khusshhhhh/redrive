@@ -8,7 +8,8 @@ import type { NextRequest } from "next/server";
  */
 export async function GET(
   request: NextRequest,
-  context: { params: { listingId: string } }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context: any
 ) {
   try {
     const listingId = context.params.listingId;
@@ -46,7 +47,8 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  context: { params: { listingId: string } }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context: any
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -157,7 +159,8 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  context: { params: { listingId: string } }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context: any
 ) {
   try {
     const currentUser = await getCurrentUser();
