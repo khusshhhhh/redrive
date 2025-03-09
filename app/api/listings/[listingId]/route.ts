@@ -8,10 +8,10 @@ import type { NextRequest } from "next/server";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { listingId: string } }
+  context: { params: { listingId: string } }
 ) {
   try {
-    const { listingId } = params;
+    const listingId = context.params.listingId;
 
     if (!listingId) {
       return NextResponse.json(
@@ -46,11 +46,11 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { listingId: string } }
+  context: { params: { listingId: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
-    const { listingId } = params;
+    const listingId = context.params.listingId;
 
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -157,11 +157,11 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { listingId: string } }
+  context: { params: { listingId: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
-    const { listingId } = params;
+    const listingId = context.params.listingId;
 
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -203,7 +203,6 @@ export async function DELETE(
     });
   } catch (error) {
     console.error("❌ Error deleting listing:", error);
-
     return NextResponse.json(
       {
         error: "Internal Server Error",
