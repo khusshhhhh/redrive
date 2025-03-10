@@ -1,6 +1,8 @@
 "use client";
 
 import { FieldErrors, FieldValues, UseFormSetValue, UseFormWatch } from "react-hook-form";
+import { FaGasPump, FaBolt, FaLeaf, FaCar } from "react-icons/fa";
+import { BsFuelPumpDiesel } from "react-icons/bs";
 
 interface FuelSelectorProps {
     id: string;
@@ -12,7 +14,13 @@ interface FuelSelectorProps {
     errors: FieldErrors;
 }
 
-const FUEL_OPTIONS = ["Petrol", "Diesel", "EV", "Hybrid", "None"];
+const FUEL_OPTIONS = [
+    { label: "Petrol", icon: <FaGasPump /> },
+    { label: "Diesel", icon: <BsFuelPumpDiesel /> },
+    { label: "EV", icon: <FaBolt /> },
+    { label: "Hybrid", icon: <FaLeaf /> },
+    { label: "None", icon: <FaCar /> },
+];
 
 const FuelSelector: React.FC<FuelSelectorProps> = ({
     id,
@@ -32,18 +40,18 @@ const FuelSelector: React.FC<FuelSelectorProps> = ({
         <div className="w-full">
             <label className="text-md text-neutral-500 mb-2 block">{label}</label>
             <div className="grid grid-cols-2 gap-4">
-                {FUEL_OPTIONS.map((fuel) => (
+                {FUEL_OPTIONS.map(({ label: fuelLabel, icon }) => (
                     <button
-                        key={fuel}
+                        key={fuelLabel}
                         type="button"
                         disabled={disabled}
-                        onClick={() => handleFuelSelection(fuel)}
-                        className={`flex-1 py-3 px-4 text-center rounded-md transition
-                            ${selectedFuel === fuel ? "bg-black text-white" : "bg-gray-200 text-gray-700"}
+                        onClick={() => handleFuelSelection(fuelLabel)}
+                        className={`flex items-center justify-center gap-2 py-3 px-4 text-center rounded-md transition
+                            ${selectedFuel === fuelLabel ? "bg-black text-white" : "bg-gray-200 text-gray-700"}
                             ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-black hover:text-white"}
                         `}
                     >
-                        {fuel}
+                        {icon} {fuelLabel}
                     </button>
                 ))}
             </div>
