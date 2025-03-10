@@ -68,6 +68,8 @@ model Listing {
   doorCount     Int
   sleepCount    Int
   fuelType      String
+  fuelEconomy   Float?    // ✅ Allowing null values for fuel economy
+  driveChain    String    // ✅ Adding a new drive chain field
   year          Int
   information   String?
   userId        String   @db.ObjectId

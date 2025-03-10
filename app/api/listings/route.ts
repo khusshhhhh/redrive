@@ -26,6 +26,8 @@ export async function POST(request: Request) {
       modal,
       year,
       fuelType,
+      fuelEconomy, // ✅ New field
+      driveChain, // ✅ New field
       price,
       information,
       amenities = [],
@@ -39,6 +41,8 @@ export async function POST(request: Request) {
       regoImage = "",
       badge, // ✅ Default to empty string
     } = body;
+
+    const parsedFuelEconomy = fuelEconomy ? parseFloat(fuelEconomy) : null; // ✅ Ensure float or null
 
     // ✅ Ensure valid address
     const finalAddress = address?.trim() !== "" ? address : "Unknown";
@@ -60,6 +64,7 @@ export async function POST(request: Request) {
       !modal ||
       !year ||
       !fuelType ||
+      !driveChain ||
       !state ||
       !suburb ||
       price === undefined
@@ -104,6 +109,8 @@ export async function POST(request: Request) {
         modal,
         year: parsedYear,
         fuelType,
+        driveChain, // ✅ Storing drive chain
+        fuelEconomy: parsedFuelEconomy, // ✅ Storing fuel economy
         information,
         price: parsedPrice,
         state,

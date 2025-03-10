@@ -16,6 +16,8 @@ import TextArea from "../inputs/TextArea";
 import StateSelector from "../inputs/StateSelector";
 import SuburbSelector from "../inputs/SuburbSelector";
 import DateSelector from "../inputs/DateSelector";
+import DriveChainSelector from "../inputs/DriveChainSelector";
+
 
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { useMemo, useState } from "react";
@@ -167,6 +169,8 @@ const RentModal = () => {
             doorCount: 0,
             sleepCount: 0,
             fuelType: '',
+            fuelEconomy: '',
+            driveChain: '',
             year: '',
             price: 1,
             title: '',
@@ -357,8 +361,6 @@ const RentModal = () => {
         );
     }
 
-
-
     if (step == STEPS.INFO) {
         bodyContent = (
             <div className="flex flex-col gap-8">
@@ -447,9 +449,6 @@ const RentModal = () => {
         );
     }
 
-
-
-
     if (step == STEPS.DESCRIPTION) {
         bodyContent = (
             <div className="flex flex-col gap-8">
@@ -515,6 +514,24 @@ const RentModal = () => {
                     setValue={setValue}
                     errors={errors}
                     required
+                />
+                <DriveChainSelector
+                    id="driveChain"
+                    label="Drive Chain"
+                    disabled={isLoading}
+                    watch={watch}
+                    setValue={setValue}
+                    errors={errors}
+                    required
+                />
+                <Input
+                    id="fuelEconomy"
+                    label="Fuel Economy (L/100km)"
+                    type="number"
+                    disabled={isLoading}
+                    register={register}
+                    errors={errors}
+                    required={false}  // ✅ This field is optional
                 />
 
             </div>

@@ -1,0 +1,197 @@
+[
+  {
+    "_id": {
+      "$oid": "67c824d5669922eadd4d23db"
+    },
+    "title": "Car in Adelaide",
+    "description": "Adelaide Khush Patel",
+    "company": "Ford",
+    "modal": "Mondeo",
+    "imageSrcs": [
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741389355/vbsloefqkqfx0czrv0pu.webp",
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741390696/svnywq92turzdsepvmpo.avif"
+    ],
+    "createdAt": {
+      "$date": "2025-03-05T10:17:57.985Z"
+    },
+    "category": "Car",
+    "guestCount": {
+      "$numberLong": "5"
+    },
+    "doorCount": {
+      "$numberLong": "4"
+    },
+    "sleepCount": {
+      "$numberLong": "2"
+    },
+    "fuelType": "Petrol",
+    "fuelEconomy": 7.5,
+    "driveChain": "All Wheel Drive",
+    "year": {
+      "$numberLong": "2010"
+    },
+    "information": "Hiiiiiiiiiiii",
+    "userId": {
+      "$oid": "67c81a02669922eadd4d23d0"
+    },
+    "price": {
+      "$numberLong": "200"
+    },
+    "amenities": [
+      "air_conditioner",
+      "microwave",
+      "fridge",
+      "cookery",
+      "coffee_machine",
+      "wood",
+      "ski_stand",
+      "charging_station",
+      "wifi",
+      "speaker",
+      "cruise_control",
+      "solar_panel",
+      "ramp_access"
+    ],
+    "badge": null,
+    "state": "SA",
+    "suburb": "Wingfield",
+    "address": "3 Penley Avenue",
+    "latitude": null,
+    "longitude": null,
+    "regoNumber": "S168CBO",
+    "regoEndDate": {
+      "$date": "2025-07-16T00:00:00.000Z"
+    },
+    "regoImage": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741169865/listings/qgouelj0p5zwy4scq9qn.png"
+  },
+  {
+    "_id": {
+      "$oid": "67ce28d933e90bc8c2f940bf"
+    },
+    "title": "The best Beast in Adelaide",
+    "description": "Owned by Khush Patel",
+    "company": "RAM",
+    "modal": "1500 TRX",
+    "imageSrcs": [
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741563643/listings/rctibde1qmwkcb7f5so4.jpg",
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741563643/listings/xpvajqlmaaon4eatfpkq.png",
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741563642/listings/jfeqijgykb6pig8vzghe.webp",
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741563643/listings/ikxpn9zqmbcj2pvbkspr.webp",
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741563642/listings/iowkeohaprqivgobinaq.jpg",
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741563645/listings/oqxgd5qetszu3qcv8dvj.jpg"
+    ],
+    "createdAt": {
+      "$date": "2025-03-09T23:48:41.659Z"
+    },
+    "category": "Utes",
+    "guestCount": {
+      "$numberLong": "5"
+    },
+    "doorCount": {
+      "$numberLong": "4"
+    },
+    "sleepCount": {
+      "$numberLong": "0"
+    },
+    "fuelType": "Petrol",
+    "fuelEconomy": 10.2,
+    "driveChain": "All Wheel Drive",
+    "year": {
+      "$numberLong": "2024"
+    },
+    "information": "Hello Hiral",
+    "userId": {
+      "$oid": "67ca561edb340f22adb7f6b3"
+    },
+    "price": {
+      "$numberLong": "300"
+    },
+    "amenities": [
+      "air_conditioner",
+      "heater",
+      "microwave",
+      "basic_pantry",
+      "kitchen_tools",
+      "fridge",
+      "bbq",
+      "cookery",
+      "coffee_machine",
+      "camping_table"
+    ],
+    "badge": null,
+    "state": "SA",
+    "suburb": "Enfield",
+    "address": "45 Taunton Avenue",
+    "latitude": null,
+    "longitude": null,
+    "regoNumber": "S168CBO1",
+    "regoEndDate": {
+      "$date": "2026-02-03T00:00:00.000Z"
+    },
+    "regoImage": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741563718/listings/fzjm4sw7ezvf9xxriw8y.png"
+  },
+  {
+    "_id": {
+      "$oid": "67ce40f2884d60e246d25d7c"
+    },
+    "title": "The beast in Adelaide",
+    "description": "Owned by Khush Patel",
+    "company": "RAM",
+    "modal": "1500 TRX",
+    "imageSrcs": [
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741570174/listings/jsqn43evjizbiegftvnf.jpg",
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741570174/listings/orhms2x31zjvpvac93e7.png",
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741570173/listings/qiph9uxonxhywpp2gqmx.webp",
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741570176/listings/ynl98ggkbg4n0ojyydit.webp",
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741570174/listings/m3cr5cdw8kykpnys0ph7.jpg",
+      "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741570176/listings/xowl4gqtvfx2kpc6idlv.jpg"
+    ],
+    "createdAt": {
+      "$date": "2025-03-10T01:31:30.572Z"
+    },
+    "category": "Utes",
+    "guestCount": {
+      "$numberLong": "5"
+    },
+    "doorCount": {
+      "$numberLong": "4"
+    },
+    "sleepCount": {
+      "$numberLong": "0"
+    },
+    "fuelType": "Petrol",
+    "fuelEconomy": 10.2,
+    "driveChain": "All Wheel Drive",
+    "year": {
+      "$numberLong": "2021"
+    },
+    "information": "HELLLO",
+    "userId": {
+      "$oid": "67ca561edb340f22adb7f6b3"
+    },
+    "price": {
+      "$numberLong": "1000"
+    },
+    "amenities": [
+      "air_conditioner",
+      "heater",
+      "basic_pantry",
+      "microwave",
+      "fridge",
+      "bbq",
+      "kitchen_tools",
+      "cookery"
+    ],
+    "badge": null,
+    "state": "SA",
+    "suburb": "Enfield",
+    "address": "45 Taunton Avenue",
+    "latitude": null,
+    "longitude": null,
+    "regoNumber": "S168CBO2",
+    "regoEndDate": {
+      "$date": "2026-10-17T00:00:00.000Z"
+    },
+    "regoImage": "https://res.cloudinary.com/dmdm6dh09/image/upload/v1741570280/listings/zsz4prco7z3mkigy6slm.png"
+  }
+]
