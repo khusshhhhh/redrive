@@ -524,16 +524,17 @@ const RentModal = () => {
                     errors={errors}
                     required
                 />
-                <Input
-                    id="fuelEconomy"
-                    label="Fuel Economy (L/100km)"
-                    type="number"
-                    disabled={isLoading}
-                    register={register}
-                    errors={errors}
-                    required={false}  // ✅ This field is optional
-                />
-
+                <div>
+                    <Input
+                        id="fuelEconomy"
+                        label="Fuel Economy (L/100km)"
+                        type="number"
+                        disabled={isLoading}
+                        register={register}
+                        errors={errors}
+                        required={false}  // ✅ This field is optional
+                    />
+                </div>
             </div>
         );
     }

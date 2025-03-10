@@ -93,7 +93,7 @@ const Modal: React.FC<ModalProps> = ({
                         <div className="relative p-6 flex-auto max-h-[70vh] overflow-y-auto">{body}</div>
 
                         {/* Modal Footer */}
-                        <div className="flex flex-row items-center gap-4 p-6 w-full border-t bg-white sticky bottom-0 z-10">
+                        <div className="flex flex-row items-center gap-4 px-6 w-full border-t bg-white sticky bottom-0 z-10">
                             {secondaryAction && secondaryActionLabel && (
                                 <Button outline disabled={disabled} label={secondaryActionLabel} onClick={handleSecondaryAction} />
                             )}

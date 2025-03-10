@@ -1,6 +1,8 @@
 "use client";
 
+import { IconCar4wd } from "@tabler/icons-react";
 import { FieldErrors, FieldValues, UseFormSetValue, UseFormWatch } from "react-hook-form";
+import { FaCarSide, FaRoad, FaMinusCircle } from "react-icons/fa";
 
 interface DriveChainSelectorProps {
     id: string;
@@ -12,7 +14,13 @@ interface DriveChainSelectorProps {
     errors: FieldErrors;
 }
 
-const DRIVE_CHAIN_OPTIONS = ["Front Wheel Drive", "Rear Wheel Drive", "All Wheel Drive", "4x4", "NA"];
+const DRIVE_CHAIN_OPTIONS = [
+    { label: "Front Wheel Drive", icon: <FaCarSide /> },
+    { label: "Rear Wheel Drive", icon: <FaRoad /> },
+    { label: "All Wheel Drive", icon: <IconCar4wd size={18} /> },
+    { label: "4x4", icon: <IconCar4wd size={18} /> },
+    { label: "NA", icon: <FaMinusCircle /> },
+];
 
 const DriveChainSelector: React.FC<DriveChainSelectorProps> = ({
     id,
@@ -32,17 +40,18 @@ const DriveChainSelector: React.FC<DriveChainSelectorProps> = ({
         <div className="w-full">
             <label className="text-md text-neutral-500 mb-2 block">{label}</label>
             <div className="grid grid-cols-2 gap-4">
-                {DRIVE_CHAIN_OPTIONS.map((driveChain) => (
+                {DRIVE_CHAIN_OPTIONS.map(({ label: driveChainLabel, icon }) => (
                     <button
-                        key={driveChain}
+                        key={driveChainLabel}
                         type="button"
                         disabled={disabled}
-                        onClick={() => handleDriveChainSelection(driveChain)}
-                        className={`flex-1 py-3 px-4 text-center rounded-md transition
-                            ${selectedDriveChain === driveChain ? "bg-black text-white" : "bg-gray-200 text-gray-700"}
-                            ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-black hover:text-white"}`}
+                        onClick={() => handleDriveChainSelection(driveChainLabel)}
+                        className={`flex items-center justify-center gap-2 py-3 px-4 text-center rounded-md transition
+                            ${selectedDriveChain === driveChainLabel ? "bg-black text-white" : "bg-gray-200 text-gray-700"}
+                            ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-black hover:text-white"}
+                        `}
                     >
-                        {driveChain}
+                        {icon} {driveChainLabel}
                     </button>
                 ))}
             </div>
