@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import ListingReservation from "@/app/components/listings/ListingReservation";
 import { Range } from "react-date-range";
 import Reviews from "@/app/components/reviews/Reviews";
+import { IconUserCheck } from "@tabler/icons-react";
 
 const initialDateRange = {
     startDate: new Date(),
@@ -164,6 +165,8 @@ const ListingClient: React.FC<ListingClientProps> = ({
                             doorCount={listing.doorCount}
                             guestCount={listing.guestCount}
                             sleepCount={listing.sleepCount}
+                            fuelEconomy={listing.fuelEconomy}
+                            driveChain={listing.driveChain}
                             // ✅ Replace locationValue with formatted address
                             address={`${listing.suburb}, ${listing.state}`}
                             amenities={listing.amenities} state={""} suburb={""} />
@@ -187,8 +190,9 @@ const ListingClient: React.FC<ListingClientProps> = ({
                         </div>
                     </div>
                     <div className="mt-2">
-                        <div>
-                            <div className="font-bold text-lg">Reviews</div>
+                        <div className="flex flex-row gap-3 items-center">
+                            <IconUserCheck size={18} />
+                            <div className="font-normal text-base">Reviews</div>
                         </div>
                         <div className="mt-6">
                             <Reviews listingId={listing.id} />

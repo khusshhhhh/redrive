@@ -5,13 +5,13 @@ import { useState, useMemo } from "react";
 import { SafeUser } from "@/app/types";
 import { IconType } from "react-icons";
 import Avatar from "../Avatar";
-import { FaCheck } from "react-icons/fa";
+import { FaCheck, FaGasPump } from "react-icons/fa";
 import { BsCheckLg, BsFillPeopleFill } from "react-icons/bs";
 import { GiCarDoor } from "react-icons/gi";
 import { FaBed } from "react-icons/fa";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { AMENITIES_LIST } from "@/app/hooks/useAmenities";
-import { IconQuestionMark, IconShieldCheckFilled } from "@tabler/icons-react";
+import { IconCar4wd, IconDashboard, IconFileDescription, IconFileInfo, IconGasStation, IconGauge, IconLogs, IconMapPin, IconQuestionMark, IconShieldCheckFilled } from "@tabler/icons-react";
 import ListingMap from "./ListingMap";
 import { getHostingDuration } from "@/app/helpers/getHostingDuration";
 
@@ -34,6 +34,8 @@ interface ListingInfoProps {
     suburb: string;
     address: string;
     amenities?: string[];
+    fuelEconomy?: number | null;
+    driveChain?: string | null;
 }
 
 const ListingInfo: React.FC<ListingInfoProps> = ({
@@ -49,7 +51,9 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
     state,
     suburb,
     address,
-    amenities
+    amenities,
+    fuelEconomy,
+    driveChain
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -75,6 +79,17 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
         return getHostingDuration(new Date(earliestListing.createdAt));
     }, [user]);
 
+    // Determine fuel economy label
+    let fuelEconomyLabel = "";
+    if (fuelEconomy !== null && fuelEconomy !== undefined) {
+        if (fuelEconomy < 8) {
+            fuelEconomyLabel = "* This vehicle is fuel-efficient, saving you money on long trips.";
+        } else if (fuelEconomy >= 8 && fuelEconomy <= 13) {
+            fuelEconomyLabel = "* A balanced fuel economy, offering a smooth and reliable ride.";
+        } else {
+            fuelEconomyLabel = "* Strong performance with decent fuel usage for power and speed.";
+        }
+    }
 
     return (
         <div className="col-span-4 flex flex-col gap-8">
@@ -97,18 +112,24 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
             <hr />
 
             {/* Build Information */}
-            <div>
-                <div className="text-base font-medium">Build Information</div>
-                <div className="text-2xl font-normal text-neutral-800">
+            <div className="flex flex-col gap-2">
+                <div className="flex flex-row gap-3 items-center">
+                    <IconDashboard size={18} />
+                    <div className="text-base font-normal">Basic Information</div>
+                </div>
+                <div className="ml-7 text-xl font-medium text-neutral-800">
                     {company} {modal} {year}
                 </div>
             </div>
             <hr />
 
             {/* Description Section */}
-            <div>
+            <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between cursor-pointer">
-                    <span className="font-medium text-lg">Description</span>
+                    <div className="flex flex-row gap-3 items-center">
+                        <IconFileDescription size={20} />
+                        <span className="text-base font-normal">Description</span>
+                    </div>
                     <button
                         onClick={() => setIsExpanded(!isExpanded)}
                         className="text-gray-600 hover:text-black transition"
@@ -116,31 +137,68 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                         {isExpanded ? <IoIosArrowUp size={24} /> : <IoIosArrowDown size={24} />}
                     </button>
                 </div>
-                <div className={`overflow-hidden transition-max-height duration-300 ease-in-out ${isExpanded ? "max-h-[500px]" : "max-h-[50px]"}`}>
+                <div className={`ml-7 overflow-hidden text-base font-medium transition-max-height duration-300 ease-in-out ${isExpanded ? "max-h-[500px]" : "max-h-[50px]"}`}>
                     {isExpanded ? description : shortDescription}
                 </div>
             </div>
             <hr />
 
+            {/* Fuel Economy Section */}
+            {fuelEconomy !== null && fuelEconomy !== undefined && (
+                <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-row gap-3 items-center">
+                            <IconGasStation size={18} />
+                            <div className="text-base font-normal">Fuel Economy</div>
+                        </div>
+                        <div className="ml-7 text-base font-medium"><span className="text-xl">{fuelEconomy}</span> L/100km</div>
+                    </div>
+                    <div className="ml-7 text-sm">{fuelEconomyLabel}</div>
+                </div>
+            )}
+
+            {/* Drive Chain Section */}
+            {driveChain && driveChain !== "NA" && (
+                <div>
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-row gap-3 items-center">
+                            <IconCar4wd size={18} />
+                            <div className="text-base font-normal">Drive Chain</div>
+                        </div>
+                        <div className="ml-7 text-base font-medium"><span className="text-xl">{driveChain}</span></div>
+                    </div>
+                    <hr className="mt-8" />
+                </div>
+            )}
+
             {/* Location Information */}
-            <div>
-                <div className="font-medium text-lg">Location</div>
-                <div className="text-base text-neutral-800">{address}</div>
+            <div className="flex flex-col gap-2">
+                <div className="flex flex-row gap-3 items-center">
+                    <IconMapPin size={18} />
+                    <div className="text-base font-normal">Location</div>
+                </div>
+                <div className="ml-7 text-xl font-medium">{address}</div>
             </div>
             <hr />
 
             {/* Additional Information */}
-            <div>
-                <div className="font-medium text-lg">Information</div>
-                <div className="text-base text-neutral-800 overflow-clip">{information}</div>
+            <div className="flex flex-col gap-2">
+                <div className="flex flex-row gap-3 items-center">
+                    <IconFileInfo size={18} />
+                    <div className="font-normal text-base">Information</div>
+                </div>
+                <div className="ml-7 text-base text-neutral-800 overflow-clip">{information}</div>
             </div>
             <hr />
 
             {/* Amenities */}
             <div>
-                <div className="font-medium text-lg">Amenities</div>
+                <div className="flex flex-row items-center gap-3">
+                    <IconLogs size={18} />
+                    <div className="font-normal text-base">Amenities</div>
+                </div>
                 {amenities && amenities.length > 0 ? (
-                    <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="ml-7 mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {amenities.map((amenity) => {
                             const amenityData = AMENITIES_LIST.find((a) => a.id === amenity);
                             const IconComponent = amenityData?.icon || IconQuestionMark;
@@ -195,7 +253,6 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     </div>
                 </div>
             </div>
-
         </div>
     );
 };
