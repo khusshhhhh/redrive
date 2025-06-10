@@ -1,6 +1,6 @@
 # 🚀 **REDRIVE - MVP Completed & More Features in Development!** 🚀
 
-> _A Solo Developer’s Triumph Over 40+ Days, 220+ Hours, Countless Debugging Sessions, and Unstoppable Determination—with immense support from my life partner, Hiral! ❤️_
+> _New Branch: A Solo Developer’s Triumph Over 40+ Days, 220+ Hours, Countless Debugging Sessions, and Unstoppable Determination—with immense support from my life partner, Hiral! ❤️_
 
 ---
 
