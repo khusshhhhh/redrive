@@ -102,7 +102,10 @@ const LoginModal = () => {
                 </button>
             </div>
             <div
-                onClick={resetPasswordModal.onOpen}
+                onClick={() => {
+                    loginModal.onClose();
+                    resetPasswordModal.onOpen();
+                }}
                 className="text-sm text-neutral-500 underline cursor-pointer"
             >
                 Reset your password
