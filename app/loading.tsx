@@ -1,8 +1,8 @@
-import SkeletonLoader from "./components/SkeletonLoader";
+import Loader from "./components/Loader";
 
 const Loading = () => {
     return (
-        <SkeletonLoader />
+        <Loader />
     );
 };
 
