@@ -11,6 +11,7 @@ import {
 
 import useRegisterModal from "@/app/hooks/useRegisterModal";
 import useLoginModal from '@/app/hooks/useLoginModal';
+import useResetPasswordModal from '@/app/hooks/useResetPasswordModal';
 
 import Heading from '../Heading';
 import Input from '../inputs/Input';
@@ -25,6 +26,7 @@ const LoginModal = () => {
     const registerModal = useRegisterModal();
     const router = useRouter();
     const loginModal = useLoginModal();
+    const resetPasswordModal = useResetPasswordModal();
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -98,6 +100,15 @@ const LoginModal = () => {
                 >
                     {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />} {/* Toggle icons */}
                 </button>
+            </div>
+            <div
+                onClick={() => {
+                    loginModal.onClose();
+                    resetPasswordModal.onOpen();
+                }}
+                className="text-sm text-neutral-500 underline cursor-pointer"
+            >
+                Reset your password
             </div>
         </div>
     )
