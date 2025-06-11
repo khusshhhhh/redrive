@@ -152,7 +152,6 @@
         📁 auth
             📄 [...nextauth].ts
 📄 postcss.config.js
-📄 postcss.config.mjs
 📁 prisma
     📄 schema.prisma
 📄 project_tree.md

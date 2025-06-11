@@ -301,7 +301,6 @@ If you’re an investor... well, **call me! 😆**
     - 📂 **auth**
       - 📄 [...nextauth].ts
 - 📄 postcss.config.js
-- 📄 postcss.config.mjs
 - 📂 **prisma**
   - 📄 schema.prisma
 - 📄 propmt.txt
