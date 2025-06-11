@@ -8,6 +8,7 @@ import LoginModal from "./components/modals/LoginModal";
 import getCurrentUser from "./actions/getCurrentUser";
 import RentModal from "./components/modals/RentModal";
 import SearchModal from "./components/modals/SearchModal";
+import ResetPasswordModal from "./components/modals/ResetPasswordModal";
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
@@ -34,6 +35,7 @@ export default async function RootLayout({
           <ToasterProvider />
           <SearchModal />
           <RentModal />
+          <ResetPasswordModal />
           <LoginModal />
           <RegisterModal />
           <Navbar currentUser={currentUser} />

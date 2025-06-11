@@ -1,6 +1,6 @@
 # 🚀 **REDRIVE - MVP Completed & More Features in Development!** 🚀
 
-> _New Branch: A Solo Developer’s Triumph Over 40+ Days, 220+ Hours, Countless Debugging Sessions, and Unstoppable Determination—with immense support from my life partner, Hiral! ❤️_
+> _A Solo Developer’s Triumph Over 40+ Days, 220+ Hours, Countless Debugging Sessions, and Unstoppable Determination—with immense support from my life partner, Hiral! ❤️_
 
 ---
 
@@ -301,7 +301,6 @@ If you’re an investor... well, **call me! 😆**
     - 📂 **auth**
       - 📄 [...nextauth].ts
 - 📄 postcss.config.js
-- 📄 postcss.config.mjs
 - 📂 **prisma**
   - 📄 schema.prisma
 - 📄 propmt.txt
