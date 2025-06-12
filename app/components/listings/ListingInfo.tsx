@@ -151,7 +151,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                             <IconGasStation size={18} />
                             <div className="text-base font-normal">Fuel Economy</div>
                         </div>
-                        <div className="ml-7 text-base font-medium"><span className="text-xl">{fuelEconomy}</span> L/100km</div>
+                        <div className="ml-7 text-base font-medium"><span className="text-base">{fuelEconomy}</span> L/100km</div>
                     </div>
                     <div className="ml-7 text-sm">{fuelEconomyLabel}</div>
                 </div>
@@ -162,10 +162,10 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                 <div>
                     <div className="flex flex-col gap-2">
                         <div className="flex flex-row gap-3 items-center">
-                            <IconCar4wd size={18} />
+                            <IconCar4wd size={16} />
                             <div className="text-base font-normal">Drive Chain</div>
                         </div>
-                        <div className="ml-7 text-base font-medium"><span className="text-xl">{driveChain}</span></div>
+                        <div className="ml-7 text-base font-medium"><span className="text-base">{driveChain}</span></div>
                     </div>
                     <hr className="mt-8" />
                 </div>
@@ -177,7 +177,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     <IconMapPin size={18} />
                     <div className="text-base font-normal">Location</div>
                 </div>
-                <div className="ml-7 text-xl font-medium">{address}</div>
+                <div className="ml-7 text-base font-medium">{address}</div>
             </div>
             <hr />
 
