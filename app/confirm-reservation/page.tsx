@@ -167,7 +167,12 @@ export default function ConfirmReservation() {
 
                     </>
                 ) : (
-                    <p className="text-center text-gray-600">Loading listing details...</p>
+                    <div className="animate-pulse space-y-4">
+                        <div className="h-64 w-full bg-gray-200 rounded-lg" />
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="h-4 bg-gray-200 rounded" />
+                        ))}
+                    </div>
                 )}
             </div>
         </Container>

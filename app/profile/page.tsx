@@ -166,7 +166,18 @@ export default function Profile() {
         <>
             <Toaster />
             {isLoading ? (
-                <div className="text-center mt-10">Loading profile...</div>
+                <div className="max-w-2xl mx-auto p-6 mt-10 animate-pulse space-y-6">
+                    <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto" />
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="w-[100px] h-[100px] rounded-full bg-gray-200" />
+                        <div className="h-4 w-1/2 bg-gray-200 rounded" />
+                    </div>
+                    <div className="space-y-4">
+                        {Array.from({ length: 8 }).map((_, i) => (
+                            <div key={i} className="h-4 bg-gray-200 rounded" />
+                        ))}
+                    </div>
+                </div>
             ) : (
                 <div className="max-w-2xl mx-auto p-6 bg-white mt-10">
                     <h2 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2">
