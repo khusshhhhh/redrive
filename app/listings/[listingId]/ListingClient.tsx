@@ -64,6 +64,9 @@ const ListingClient: React.FC<ListingClientProps> = ({
     const [insuranceType, setInsuranceType] = useState("No Insurance"); // ✅ Default to No Insurance
     const [insuranceFee, setInsuranceFee] = useState(0); // ✅ Default fee is 0
 
+    // Disable booking actions if the viewer is the listing owner
+    const isOwner = currentUser?.id === listing.userId;
+
 
     const onCreateReservation = useCallback((insuranceType: string, insuranceFee: number) => {
         if (!currentUser) {
@@ -180,7 +183,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                                 onChangeDate={(value) => setDateRange(value)}
                                 dateRange={dateRange}
                                 onSubmit={onCreateReservation}
-                                disabled={isLoading}
+                                disabled={isLoading || isOwner}
                                 disabledDates={disabledDates}
                                 insuranceType={insuranceType} // ✅ Add insurance state
                                 setInsuranceType={setInsuranceType} // ✅ Allow user to update it

@@ -39,6 +39,26 @@ export async function POST(request: Request) {
       );
     }
 
+    // ✅ Fetch listing to ensure it exists and check ownership
+    const listing = await prisma.listing.findUnique({
+      where: { id: listingId },
+    });
+
+    if (!listing) {
+      return NextResponse.json(
+        { error: "Listing not found" },
+        { status: 404 }
+      );
+    }
+
+    // ✅ Prevent users from booking their own listings
+    if (listing.userId === currentUser.id) {
+      return NextResponse.json(
+        { error: "You cannot book your own listing" },
+        { status: 403 }
+      );
+    }
+
     // Ensure `insuranceType` and `insuranceFee` are properly handled
     const finalInsuranceType = insuranceType || "No Insurance"; // Default if not provided
     const finalInsuranceFee = insuranceFee || 0;
