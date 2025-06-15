@@ -1,6 +1,8 @@
 'use client';
 
 import AsyncSelect from 'react-select/async';
+import { useEffect, useRef } from 'react';
+import { loadGoogleMaps } from '@/app/libs/GoogleMapLoader';
 
 interface AddressAutocompleteProps {
   state?: string;
@@ -10,26 +12,44 @@ interface AddressAutocompleteProps {
 }
 
 const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({ state, suburb, value, onChange }) => {
+  const serviceRef = useRef<google.maps.places.AutocompleteService | null>(null);
+
+  useEffect(() => {
+    loadGoogleMaps().then((google) => {
+      serviceRef.current = new google.maps.places.AutocompleteService();
+    });
+  }, []);
+
   const loadOptions = async (inputValue: string) => {
-    if (!inputValue || !state || !suburb) {
+    if (!inputValue || !state || !suburb || !serviceRef.current) {
       return [];
     }
-    try {
-      const query = new URLSearchParams({
-        input: inputValue,
-        state,
-        suburb,
-      });
-      const res = await fetch(`/api/places?${query.toString()}`);
-      const data = await res.json();
-      return data.map((place: { description: string }) => ({
-        value: place.description,
-        label: place.description,
-      }));
-    } catch (error) {
-      console.error('Error fetching address options:', error);
-      return [];
-    }
+
+    return new Promise<{ value: string; label: string }[]>((resolve) => {
+      serviceRef.current!.getPlacePredictions(
+        {
+          input: inputValue,
+          types: ['address'],
+          componentRestrictions: { country: 'au' },
+        },
+        (predictions) => {
+          const results =
+            predictions?.filter((p) => {
+              const desc = p.description.toLowerCase();
+              const matchSuburb = suburb ? desc.includes(suburb.toLowerCase()) : true;
+              const matchState = state ? desc.includes(state.toLowerCase()) : true;
+              return matchSuburb && matchState;
+            }) || [];
+
+          resolve(
+            results.map((p) => ({
+              value: p.description,
+              label: p.description,
+            }))
+          );
+        }
+      );
+    });
   };
 
   return (

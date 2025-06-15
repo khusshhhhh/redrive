@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import suburbs from "@/public/test.Suburb.json";
+import type { NextRequest } from "next/server";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const input = searchParams.get("input");
@@ -20,9 +22,23 @@ export async function GET(req: Request) {
     }
 
     // ✅ Google Places API for address autocomplete
+    let locationBias = "";
+    if (suburb && state) {
+      const found = (
+        suburbs as Array<{ suburb: string; state: string; lat: number; lng: number }>
+      ).find(
+        (s) =>
+          s.suburb.toLowerCase() === suburb.toLowerCase() &&
+          s.state.toLowerCase() === state.toLowerCase()
+      );
+      if (found) {
+        locationBias = `&location=${found.lat},${found.lng}&radius=50000`;
+      }
+    }
+
     const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
       input
-    )}&types=address&components=country:AU&key=${googleApiKey}`;
+    )}&types=address&components=country:AU${locationBias}&key=${googleApiKey}`;
 
     const response = await fetch(apiUrl);
     const data = await response.json();
