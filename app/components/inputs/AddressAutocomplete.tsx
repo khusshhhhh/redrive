@@ -15,9 +15,17 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({ state, suburb
       return [];
     }
     try {
-      const res = await fetch(`/api/places?input=${encodeURIComponent(inputValue)}&state=${encodeURIComponent(state)}&suburb=${encodeURIComponent(suburb)}`);
+      const query = new URLSearchParams({
+        input: inputValue,
+        state,
+        suburb,
+      });
+      const res = await fetch(`/api/places?${query.toString()}`);
       const data = await res.json();
-      return data.map((place: { description: string }) => ({ value: place.description, label: place.description }));
+      return data.map((place: { description: string }) => ({
+        value: place.description,
+        label: place.description,
+      }));
     } catch (error) {
       console.error('Error fetching address options:', error);
       return [];

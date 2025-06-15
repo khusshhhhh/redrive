@@ -7,14 +7,11 @@ export async function GET(req: Request) {
     const suburb = searchParams.get("suburb");
     const state = searchParams.get("state");
 
-    if (!input || !suburb || !state) {
-      return NextResponse.json(
-        { error: "Missing parameters" },
-        { status: 400 }
-      );
+    if (!input) {
+      return NextResponse.json([], { status: 200 });
     }
 
-    const googleApiKey = process.env.GOOGLE_PLACES_API_KEY;
+    const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!googleApiKey) {
       return NextResponse.json(
         { error: "Google API Key is missing" },
@@ -34,11 +31,15 @@ export async function GET(req: Request) {
       return NextResponse.json([], { status: 200 });
     }
 
-    // ✅ Filter results by suburb and state
+    // ✅ Filter results by suburb and state if provided
     const filteredResults = data.predictions.filter(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (place: any) =>
-        place.description.includes(suburb) && place.description.includes(state)
+      (place: any) => {
+        const desc = place.description.toLowerCase();
+        const matchSuburb = suburb ? desc.includes(suburb.toLowerCase()) : true;
+        const matchState = state ? desc.includes(state.toLowerCase()) : true;
+        return matchSuburb && matchState;
+      }
     );
 
     return NextResponse.json(filteredResults, { status: 200 });

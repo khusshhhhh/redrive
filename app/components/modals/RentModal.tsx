@@ -351,7 +351,7 @@ const RentModal = () => {
                             Number & Street Address
                         </label>
                         <AddressAutocomplete
-                            state={selectedState?.label}
+                            state={selectedState?.value}
                             suburb={selectedSuburb?.value}
                             value={selectedAddress}
                             onChange={setSelectedAddress}
