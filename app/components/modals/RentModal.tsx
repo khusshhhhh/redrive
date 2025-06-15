@@ -6,6 +6,7 @@ import Modal from "./Modal";
 import CategoryInput from "../inputs/CategoryInput";
 // import CountrySelect from "../inputs/CountrySelect";
 import Input from "../inputs/Input";
+import AddressAutocomplete from "../inputs/AddressAutocomplete";
 import YearSelect from "../inputs/YearSelect";
 import FuelSelector from "../inputs/FuelSelector";
 import Counter from "../inputs/Counter";
@@ -20,7 +21,7 @@ import DriveChainSelector from "../inputs/DriveChainSelector";
 
 
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { categories } from "../navbar/Categories";
 import { useRouter } from "next/navigation";
 import { useCloudinaryUpload } from "@/app/hooks/useCloudinaryUpload";
@@ -62,13 +63,22 @@ const RentModal = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
     const [selectedSuburb, setSelectedSuburb] = useState<{ value: string; label: string } | null>(null);
-    const [address, setAddress] = useState<string>("");
+    const [selectedAddress, setSelectedAddress] = useState<{ value: string; label: string } | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { uploadImage, loading } = useCloudinaryUpload();
     const [imageSrcs, setImageSrcs] = useState<string[]>([]);
     const [regoImage, setRegoImage] = useState<string>("");
     const [uploading, setUploading] = useState(false); // ✅ Uploading State
     const [uploadingRego, setUploadingRego] = useState(false);
+
+    useEffect(() => {
+        setSelectedSuburb(null);
+        setSelectedAddress(null);
+    }, [selectedState]);
+
+    useEffect(() => {
+        setSelectedAddress(null);
+    }, [selectedSuburb]);
 
     // ✅ Remove an Image from State
     const removeImage = (indexToRemove: number) => {
@@ -164,7 +174,6 @@ const RentModal = () => {
             category: '',
             state: '',
             suburb: '',
-            address: '',
             guestCount: 0,
             doorCount: 0,
             sleepCount: 0,
@@ -233,7 +242,7 @@ const RentModal = () => {
             regoImage,
             state: selectedState?.value,
             suburb: selectedSuburb?.value,
-            address: address.trim() !== "" ? address : "Unknown",
+            address: selectedAddress?.value?.trim() || "Unknown",
         };
 
         axios.post('/api/listings', finalData, {
@@ -341,16 +350,12 @@ const RentModal = () => {
                         <label className="block text-gray-700 text-sm font-bold mb-2">
                             Number & Street Address
                         </label>
-                        <Input
-                            id="address"
-                            label="Street Address"
-                            register={register}
-                            errors={errors}
-                            required
-                            validate={(value) => value.trim() !== "" || "Address is required"} // ✅ Ensure non-empty value
-                            onChange={(e) => setAddress(e.target.value)} // ✅ Keep Address in State
+                        <AddressAutocomplete
+                            state={selectedState?.label}
+                            suburb={selectedSuburb?.value}
+                            value={selectedAddress}
+                            onChange={setSelectedAddress}
                         />
-
                     </div>
 
                     {/* ✅ Google Maps Integration */}
