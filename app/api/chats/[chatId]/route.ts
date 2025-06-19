@@ -42,7 +42,7 @@ export async function GET(request: NextRequest, context: { params: { chatId: str
 }
 
 // POST new message
-export async function POST(request: Request, context: { params: { chatId: string } }) {
+export async function POST(request: NextRequest, context: { params: { chatId: string } }) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
