@@ -34,6 +34,8 @@ model User {
   listings     Listing[]
   reservations Reservation[]
   reviews      Review[]
+  messagesSent Message[] @relation("UserMessages")
+
 }
 
 model Account {
@@ -131,3 +133,23 @@ model Badge {
   key   String @unique
   value String
 }
+
+model Chat {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  participantIds String[] @db.ObjectId
+  messages     Message[]
+  createdAt    DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  chatId    String   @db.ObjectId
+  senderId  String   @db.ObjectId
+  text      String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+
+  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender User @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
+}
+

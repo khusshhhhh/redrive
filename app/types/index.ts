@@ -25,3 +25,20 @@ export type SafeUser = Omit<
   updatedAt: string;
   emailVerified: string | null;
 };
+
+export type SafeMessage = {
+  id: string;
+  chatId: string;
+  senderId: string;
+  text: string | null;
+  imageUrl: string | null;
+  createdAt: string;
+  sender: SafeUser;
+};
+
+export type SafeChat = {
+  id: string;
+  participantIds: string[];
+  createdAt: string;
+  messages: SafeMessage[];
+};
