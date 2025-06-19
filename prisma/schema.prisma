@@ -34,6 +34,8 @@ model User {
   listings     Listing[]
   reservations Reservation[]
   reviews      Review[]
+  messagesSent Message[] @relation("UserMessages")
+
 }
 
 model Account {
@@ -148,6 +150,6 @@ model Message {
   createdAt DateTime @default(now())
 
   chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  sender User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  sender User @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
 }
 
