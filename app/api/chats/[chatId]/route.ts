@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
-import type { NextRequest } from "next/server";
 
-// GET: Fetch messages from a chat
+// ✅ GET: Fetch messages for a chat
 export async function GET(
-  request: NextRequest,
-  context: { params: { chatId: string } }
+  req: NextRequest,
+  { params }: { params?: Record<string, string> }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -14,7 +14,10 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const chatId = context.params.chatId;
+    const chatId = params?.chatId;
+    if (!chatId) {
+      return NextResponse.json({ error: "Chat ID missing" }, { status: 400 });
+    }
 
     const chat = await prisma.chat.findUnique({
       where: { id: chatId },
@@ -49,18 +52,15 @@ export async function GET(
 
     return NextResponse.json(safeChat);
   } catch (error) {
-    console.error("Error fetching messages:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    console.error("GET /api/chats/[chatId] error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
-// POST: Send a message to a chat
+// ✅ POST: Send a message to a chat
 export async function POST(
-  request: NextRequest,
-  context: { params: { chatId: string } }
+  req: NextRequest,
+  { params }: { params?: Record<string, string> }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -68,8 +68,12 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const chatId = context.params.chatId;
-    const { text, imageUrl } = await request.json();
+    const chatId = params?.chatId;
+    if (!chatId) {
+      return NextResponse.json({ error: "Chat ID missing" }, { status: 400 });
+    }
+
+    const { text, imageUrl } = await req.json();
 
     const chat = await prisma.chat.findUnique({
       where: { id: chatId },
@@ -104,10 +108,7 @@ export async function POST(
 
     return NextResponse.json(safeMessage, { status: 201 });
   } catch (error) {
-    console.error("Error sending message:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    console.error("POST /api/chats/[chatId] error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
