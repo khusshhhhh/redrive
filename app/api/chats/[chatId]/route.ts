@@ -3,10 +3,10 @@ import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import type { NextRequest } from "next/server";
 
-// ✅ GET: Fetch all messages for a chat
+// GET: Fetch messages from a chat
 export async function GET(
   request: NextRequest,
-  { params }: { params: Record<string, string> }
+  context: { params: { chatId: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -14,7 +14,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const chatId = params.chatId;
+    const chatId = context.params.chatId;
 
     const chat = await prisma.chat.findUnique({
       where: { id: chatId },
@@ -49,7 +49,7 @@ export async function GET(
 
     return NextResponse.json(safeChat);
   } catch (error) {
-    console.error("Error fetching messages", error);
+    console.error("Error fetching messages:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -57,10 +57,10 @@ export async function GET(
   }
 }
 
-// ✅ POST: Send a new message in a chat
+// POST: Send a message to a chat
 export async function POST(
   request: NextRequest,
-  { params }: { params: Record<string, string> }
+  context: { params: { chatId: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -68,7 +68,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const chatId = params.chatId;
+    const chatId = context.params.chatId;
     const { text, imageUrl } = await request.json();
 
     const chat = await prisma.chat.findUnique({
@@ -104,7 +104,7 @@ export async function POST(
 
     return NextResponse.json(safeMessage, { status: 201 });
   } catch (error) {
-    console.error("Error sending message", error);
+    console.error("Error sending message:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
