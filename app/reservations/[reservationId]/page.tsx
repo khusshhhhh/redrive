@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation"; // ✅ Import useParams
 import axios from "axios";
 import Container from "@/app/components/Container";
 import Heading from "@/app/components/Heading";
-import { SafeReservation } from "@/app/types";
+import { SafeReservation, SafeUser } from "@/app/types";
 import toast from "react-hot-toast";
 import { FaCheck } from "react-icons/fa";
 import Image from "next/image";
@@ -16,7 +16,14 @@ const ReservationDetails = () => {
     const { reservationId } = params as { reservationId: string }; // ✅ Extract reservationId properly
 
     const [reservation, setReservation] = useState<SafeReservation | null>(null);
+    const [currentUser, setCurrentUser] = useState<SafeUser | null>(null);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        axios.get('/api/auth/user')
+            .then(res => setCurrentUser(res.data))
+            .catch(() => setCurrentUser(null));
+    }, []);
 
     useEffect(() => {
         if (!reservationId) return; // ✅ Prevent running request if reservationId is undefined
@@ -48,6 +55,17 @@ const ReservationDetails = () => {
     if (!reservation) {
         return <p className="text-center text-red-500">Reservation not found.</p>;
     }
+
+    const otherUserId = currentUser?.id === reservation.user.id ? reservation.listing.userId : reservation.user.id;
+
+    const startChat = async () => {
+        try {
+            const res = await axios.post('/api/chats', { userId: otherUserId });
+            router.push(`/messages/${res.data.id}`);
+        } catch {
+            toast.error('Failed to start chat');
+        }
+    };
 
     return (
         <Container>
@@ -97,6 +115,12 @@ const ReservationDetails = () => {
                         </div>
                     </div>
                     <div className="items-center justify-center flex gap-4">
+                        <button
+                            onClick={startChat}
+                            className="bg-teal-500 text-white px-4 py-3 rounded-md hover:bg-teal-600 transition"
+                        >
+                            Message
+                        </button>
                         <button
                             onClick={() => router.push("/reservations")}
                             className="bg-white text-teal-500 px-16 py-3 rounded-md hover:bg-teal-500 hover:text-white border-[2px] border-teal-500 transition"
