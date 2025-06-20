@@ -44,7 +44,17 @@ const ReservationsClient: React.FC<ReservationsClientProps> = ({
                 title="Reservations"
                 subtitle="Bookings on your utilities"
             />
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-col-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-8">
+            <div className="px-2
+                      z-9
+                      pt-8
+                      grid
+                      grid-cols-1
+                      sm:grid-cols-2
+                      md:grid-cols-3
+                      lg:grid-cols-6
+                      xl:grid-cols-6
+                      2xl:grid-cols-6
+                      gap-8">
                 {reservations.map((reservation) => (
                     <div key={reservation.id} className="flex flex-col">
                         <ListingCard
@@ -59,7 +69,7 @@ const ReservationsClient: React.FC<ReservationsClientProps> = ({
                         />
                         <button
                             onClick={() => router.push(`/reservations/${reservation.id}`)}
-                            className="font-medium mt-2 bg-white text-teal-500 px-4 py-3 border-[2px] border-teal-500 rounded-md hover:text-white hover:bg-teal-500 transition"
+                            className="font-medium mt-2 bg-white text-teal-500 px-4 py-2 border-[2px] border-teal-500 rounded-md hover:text-white hover:bg-teal-500 transition"
                         >
                             View reservation
                         </button>
