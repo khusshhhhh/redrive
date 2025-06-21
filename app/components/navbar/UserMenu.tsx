@@ -2,12 +2,13 @@
 
 import Avatar from "../Avatar";
 import { useCallback, useEffect, useRef, useState } from "react";
+import axios from "axios";
 import MenuItem from "./MenuItem";
 import useRegisterModal from "@/app/hooks/useRegisterModal";
 import useLoginModal from "@/app/hooks/useLoginModal";
 import useRentModal from "@/app/hooks/useRentModal";
 import { signOut } from "next-auth/react";
-import { SafeUser } from "@/app/types";
+import { SafeUser, SafeChat } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { IconBrandDatabricks, IconCalendar, IconClipboardPlus, IconFilePlus, IconHearts, IconLocationCheck, IconLogin2, IconLogout2, IconMenu3, IconUserEdit, IconMessage } from "@tabler/icons-react";
 
@@ -21,12 +22,24 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
   const loginModal = useLoginModal();
   const rentModal = useRentModal();
   const [isOpen, setIsOpen] = useState(false);
+  const [hasMessages, setHasMessages] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Toggle menu open/close
   const toggleOpen = useCallback(() => {
     setIsOpen((value) => !value);
   }, []);
+
+  // Check if there are any unread messages
+  useEffect(() => {
+    if (!currentUser) return;
+    axios
+      .get('/api/chats')
+      .then((res) =>
+        setHasMessages((res.data as SafeChat[]).some((chat) => chat.unreadCount > 0))
+      )
+      .catch(() => setHasMessages(false));
+  }, [currentUser]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -69,7 +82,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
         >
           <IconMenu3 />
           <div className="hidden md:block">
-            <Avatar src={currentUser?.image} />
+            <Avatar src={currentUser?.image} showBadge={hasMessages} />
           </div>
         </div>
       </div>

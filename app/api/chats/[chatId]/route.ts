@@ -33,12 +33,43 @@ export async function GET(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
+    const otherId = chat.participantIds.find((id) => id !== currentUser.id);
+    const otherUser = otherId
+      ? await prisma.user.findUnique({ where: { id: otherId } })
+      : null;
+
+    // Mark unread messages as read for current user
+    await prisma.message.updateMany({
+      where: {
+        chatId,
+        senderId: { not: currentUser.id },
+        NOT: { readByIds: { has: currentUser.id } },
+      },
+      data: { readByIds: { push: currentUser.id } },
+    });
+
+    const unreadCount = chat.messages.filter(
+      (m) => m.senderId !== currentUser.id && !m.readByIds.includes(currentUser.id)
+    ).length;
+
     const safeChat = {
       ...chat,
       createdAt: chat.createdAt.toISOString(),
+      unreadCount,
+      otherUser: otherUser
+        ? {
+            ...otherUser,
+            createdAt: otherUser.createdAt.toISOString(),
+            updatedAt: otherUser.updatedAt.toISOString(),
+            emailVerified: otherUser.emailVerified
+              ? otherUser.emailVerified.toISOString()
+              : null,
+          }
+        : null,
       messages: chat.messages.map((m) => ({
         ...m,
         createdAt: m.createdAt.toISOString(),
+        readByIds: m.readByIds,
         sender: {
           ...m.sender,
           createdAt: m.sender.createdAt.toISOString(),
@@ -73,7 +104,7 @@ export async function POST(
       return NextResponse.json({ error: "Chat ID missing" }, { status: 400 });
     }
 
-    const { text, imageUrl } = await req.json();
+    const { text } = await req.json();
 
     const chat = await prisma.chat.findUnique({
       where: { id: chatId },
@@ -88,7 +119,7 @@ export async function POST(
         chatId,
         senderId: currentUser.id,
         text,
-        imageUrl,
+        readByIds: [currentUser.id],
       },
       include: { sender: true },
     });
@@ -96,6 +127,7 @@ export async function POST(
     const safeMessage = {
       ...message,
       createdAt: message.createdAt.toISOString(),
+      readByIds: message.readByIds,
       sender: {
         ...message.sender,
         createdAt: message.sender.createdAt.toISOString(),

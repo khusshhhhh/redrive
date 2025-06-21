@@ -19,20 +19,47 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    const safeChats = chats.map(chat => ({
-      ...chat,
-      createdAt: chat.createdAt.toISOString(),
-      messages: chat.messages.map(m => ({
-        ...m,
-        createdAt: m.createdAt.toISOString(),
-        sender: {
-          ...m.sender,
-          createdAt: m.sender.createdAt.toISOString(),
-          updatedAt: m.sender.updatedAt.toISOString(),
-          emailVerified: m.sender.emailVerified ? m.sender.emailVerified.toISOString() : null,
-        },
-      })),
-    }));
+    const safeChats = await Promise.all(
+      chats.map(async (chat) => {
+        const otherId = chat.participantIds.find((id) => id !== currentUser.id);
+        const otherUser = otherId
+          ? await prisma.user.findUnique({ where: { id: otherId } })
+          : null;
+
+        const unreadCount = chat.messages.filter(
+          (m) => m.senderId !== currentUser.id && !m.readByIds.includes(currentUser.id)
+        ).length;
+
+        return {
+          ...chat,
+          createdAt: chat.createdAt.toISOString(),
+          unreadCount,
+          otherUser: otherUser
+            ? {
+                ...otherUser,
+                createdAt: otherUser.createdAt.toISOString(),
+                updatedAt: otherUser.updatedAt.toISOString(),
+                emailVerified: otherUser.emailVerified
+                  ? otherUser.emailVerified.toISOString()
+                  : null,
+              }
+            : null,
+          messages: chat.messages.map((m) => ({
+            ...m,
+            createdAt: m.createdAt.toISOString(),
+            readByIds: m.readByIds,
+            sender: {
+              ...m.sender,
+              createdAt: m.sender.createdAt.toISOString(),
+              updatedAt: m.sender.updatedAt.toISOString(),
+              emailVerified: m.sender.emailVerified
+                ? m.sender.emailVerified.toISOString()
+                : null,
+            },
+          })),
+        };
+      })
+    );
 
     return NextResponse.json(safeChats);
   } catch (error) {

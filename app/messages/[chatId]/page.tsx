@@ -5,30 +5,43 @@ import axios from "axios";
 import Container from "@/app/components/Container";
 import Heading from "@/app/components/Heading";
 import { SafeChat, SafeMessage } from "@/app/types";
-import { useParams } from "next/navigation";
-import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { IconSend } from "@tabler/icons-react";
 
 const ChatPage = () => {
   const { chatId } = useParams();
+  const router = useRouter();
   const [chat, setChat] = useState<SafeChat | null>(null);
   const [text, setText] = useState("");
-  const [image, setImage] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!chatId) return;
-    axios.get(`/api/chats/${chatId}`).then(res => setChat(res.data)).catch(() => toast.error("Failed to load chat"));
+    const fetchChat = () =>
+      axios
+        .get(`/api/chats/${chatId}`)
+        .then((res) => setChat(res.data))
+        .catch(() => toast.error("Failed to load chat"));
+
+    fetchChat();
+    const interval = setInterval(fetchChat, 3000);
+    axios.get("/api/auth/user").then((res) => setCurrentUserId(res.data.id));
+    return () => clearInterval(interval);
   }, [chatId]);
 
   const sendMessage = async () => {
-    if (!text && !image) return;
+    if (!text.trim()) return;
     setSending(true);
     try {
-      const res = await axios.post(`/api/chats/${chatId}`, { text, imageUrl: image });
-      setChat(prev => prev ? { ...prev, messages: [...prev.messages, res.data as SafeMessage] } : prev);
+      const res = await axios.post(`/api/chats/${chatId}`, { text });
+      setChat((prev) =>
+        prev
+          ? { ...prev, messages: [...prev.messages, res.data as SafeMessage] }
+          : prev
+      );
       setText("");
-      setImage(null);
     } catch {
       toast.error("Failed to send");
     }
@@ -46,42 +59,45 @@ const ChatPage = () => {
 
   return (
     <Container>
-      <div className="max-w-2xl mx-auto py-8">
-        <Heading title="Conversation" subtitle="" />
-        <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto border p-4 rounded-md">
-          {chat.messages.map(m => (
-            <div key={m.id} className="flex flex-col">
-              <div className="text-sm text-gray-600">{m.sender.name || m.sender.email}</div>
-              {m.text && <div className="p-2">{m.text}</div>}
-              {m.imageUrl && (
-                <Image src={m.imageUrl} alt="photo" width={200} height={200} className="rounded" />
-              )}
+      <div className="w-full sm:max-w-2xl mx-auto py-8 px-2">
+        <button
+          onClick={() => router.back()}
+          className="mb-4 text-sm text-teal-500 hover:underline"
+        >
+          Back
+        </button>
+        <Heading title={chat.otherUser?.name || "Conversation"} subtitle="" />
+        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border p-2 sm:p-4 rounded-md">
+          {chat.messages.map((m) => (
+            <div
+              key={m.id}
+              className={`flex ${m.senderId === currentUserId ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`px-3 py-2 rounded-lg max-w-xs animate-pop ${
+                  m.senderId === currentUserId ? "bg-teal-500 text-white" : "bg-gray-100"
+                }`}
+              >
+                {m.text}
+              </div>
             </div>
           ))}
         </div>
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex gap-2 sm:gap-4">
           <input
             value={text}
             onChange={e => setText(e.target.value)}
-            className="flex-1 border p-2 rounded"
+            className="flex-1 border p-2 sm:p-3 rounded"
             placeholder="Type a message"
           />
-          <input type="file" accept="image/*" onChange={e => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onloadend = () => setImage(reader.result as string);
-            reader.readAsDataURL(file);
-          }} />
-          <button onClick={sendMessage} disabled={sending} className="bg-teal-500 text-white px-4 rounded">
-            Send
+          <button
+            onClick={sendMessage}
+            disabled={sending}
+            className="bg-teal-500 text-white px-4 sm:px-6 rounded flex items-center justify-center"
+          >
+            <IconSend size={20} />
           </button>
         </div>
-        {image && (
-          <div className="mt-2">
-            <Image src={image} alt="preview" width={100} height={100} className="rounded" />
-          </div>
-        )}
       </div>
     </Container>
   );
