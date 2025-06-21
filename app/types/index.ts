@@ -41,4 +41,5 @@ export type SafeChat = {
   participantIds: string[];
   createdAt: string;
   messages: SafeMessage[];
+  otherUser: SafeUser | null;
 };

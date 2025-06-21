@@ -6,29 +6,34 @@ import Container from "@/app/components/Container";
 import Heading from "@/app/components/Heading";
 import { SafeChat, SafeMessage } from "@/app/types";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import toast from "react-hot-toast";
+import { IconSend } from "@tabler/icons-react";
 
 const ChatPage = () => {
   const { chatId } = useParams();
   const [chat, setChat] = useState<SafeChat | null>(null);
   const [text, setText] = useState("");
-  const [image, setImage] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!chatId) return;
-    axios.get(`/api/chats/${chatId}`).then(res => setChat(res.data)).catch(() => toast.error("Failed to load chat"));
+    axios
+      .get(`/api/chats/${chatId}`)
+      .then((res) => setChat(res.data))
+      .catch(() => toast.error("Failed to load chat"));
+    axios.get("/api/auth/user").then((res) => setCurrentUserId(res.data.id));
   }, [chatId]);
 
   const sendMessage = async () => {
-    if (!text && !image) return;
+    if (!text.trim()) return;
     setSending(true);
     try {
-      const res = await axios.post(`/api/chats/${chatId}`, { text, imageUrl: image });
-      setChat(prev => prev ? { ...prev, messages: [...prev.messages, res.data as SafeMessage] } : prev);
+      const res = await axios.post(`/api/chats/${chatId}`, { text });
+      setChat((prev) =>
+        prev ? { ...prev, messages: [...prev.messages, res.data as SafeMessage] } : prev
+      );
       setText("");
-      setImage(null);
     } catch {
       toast.error("Failed to send");
     }
@@ -47,15 +52,20 @@ const ChatPage = () => {
   return (
     <Container>
       <div className="max-w-2xl mx-auto py-8">
-        <Heading title="Conversation" subtitle="" />
-        <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto border p-4 rounded-md">
-          {chat.messages.map(m => (
-            <div key={m.id} className="flex flex-col">
-              <div className="text-sm text-gray-600">{m.sender.name || m.sender.email}</div>
-              {m.text && <div className="p-2">{m.text}</div>}
-              {m.imageUrl && (
-                <Image src={m.imageUrl} alt="photo" width={200} height={200} className="rounded" />
-              )}
+        <Heading title={chat.otherUser?.name || "Conversation"} subtitle="" />
+        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border p-4 rounded-md">
+          {chat.messages.map((m) => (
+            <div
+              key={m.id}
+              className={`flex ${m.senderId === currentUserId ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`px-3 py-2 rounded-lg max-w-xs animate-fadeIn ${
+                  m.senderId === currentUserId ? "bg-teal-500 text-white" : "bg-gray-100"
+                }`}
+              >
+                {m.text}
+              </div>
             </div>
           ))}
         </div>
@@ -66,22 +76,14 @@ const ChatPage = () => {
             className="flex-1 border p-2 rounded"
             placeholder="Type a message"
           />
-          <input type="file" accept="image/*" onChange={e => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onloadend = () => setImage(reader.result as string);
-            reader.readAsDataURL(file);
-          }} />
-          <button onClick={sendMessage} disabled={sending} className="bg-teal-500 text-white px-4 rounded">
-            Send
+          <button
+            onClick={sendMessage}
+            disabled={sending}
+            className="bg-teal-500 text-white px-4 rounded flex items-center justify-center"
+          >
+            <IconSend size={20} />
           </button>
         </div>
-        {image && (
-          <div className="mt-2">
-            <Image src={image} alt="preview" width={100} height={100} className="rounded" />
-          </div>
-        )}
       </div>
     </Container>
   );
