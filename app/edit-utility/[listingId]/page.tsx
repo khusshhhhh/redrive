@@ -170,9 +170,10 @@ const EditUtilityPage = () => {
                 regoNumber,
                 regoEndDate,
                 regoImage,
-                cleaningFeeOption,
-                cleaningFeeAmount: cleaningFeeAmount || null,
-                returnCleaningFeeAmount: returnCleaningFeeAmount || null,
+                // ✅ submit cleaning fee values from the form data
+                cleaningFeeOption: data.cleaningFeeOption,
+                cleaningFeeAmount: data.cleaningFeeAmount || null,
+                returnCleaningFeeAmount: data.returnCleaningFeeAmount || null,
             });
             toast.success("Utility updated successfully!");
             router.push("/properties");

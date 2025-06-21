@@ -238,9 +238,10 @@ const RentModal = () => {
             state: selectedState?.value,
             suburb: selectedSuburb?.value,
             address: address.trim() !== "" ? address : "Unknown",
-            cleaningFeeOption,
-            cleaningFeeAmount: cleaningFeeAmount || null,
-            returnCleaningFeeAmount: returnCleaningFeeAmount || null,
+            // ✅ use the submitted form values directly
+            cleaningFeeOption: data.cleaningFeeOption,
+            cleaningFeeAmount: data.cleaningFeeAmount || null,
+            returnCleaningFeeAmount: data.returnCleaningFeeAmount || null,
         };
 
         axios.post('/api/listings', finalData, {
