@@ -59,7 +59,8 @@ const ListingClient: React.FC<ListingClientProps> = ({
 
     const [isLoading, setIsLoading] = useState(false);
     const [totalPrice, setTotalPrice] = useState(listing.price);
-    const [totalFees, setTotalFees] = useState(listing.price * 1.08); // Including Redrive Fee (6%)
+    const initialFees = listing.price * 1.08 + (listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0);
+    const [totalFees, setTotalFees] = useState(initialFees);
     const [dateRange, setDateRange] = useState<Range>(initialDateRange);
     const [insuranceType, setInsuranceType] = useState("No Insurance"); // ✅ Default to No Insurance
     const [insuranceFee, setInsuranceFee] = useState(0); // ✅ Default fee is 0
@@ -129,10 +130,12 @@ const ListingClient: React.FC<ListingClientProps> = ({
                 const newServiceFee = calculateServiceFee(newTotalPrice);
 
                 setTotalPrice(newTotalPrice);
-                setTotalFees(newTotalPrice + newRedriveFee + newServiceFee); // ✅ Update total fees
+                const cleaning = listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0;
+                setTotalFees(newTotalPrice + newRedriveFee + newServiceFee + cleaning); // include cleaning fee
             } else {
                 setTotalPrice(listing.price);
-                setTotalFees(listing.price * 1.08);
+                const cleaning = listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0;
+                setTotalFees(listing.price * 1.08 + cleaning);
             }
         }
     }, [dateRange, listing.price]);

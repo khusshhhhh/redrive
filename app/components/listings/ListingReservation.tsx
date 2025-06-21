@@ -56,6 +56,9 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     const router = useRouter();
     const [infoPopup, setInfoPopup] = useState<string | null>(null);
 
+    const upfrontCleaningFee = listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0;
+    const returnCleaningFee = listing.cleaningFeeOption === 'UPON_RETURNING' ? (listing.returnCleaningFeeAmount || 0) : 0;
+
     const insuranceDetails = {
         "Risk Taker": {
             price: "AU$ 20/day",
@@ -79,7 +82,7 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
         setInsuranceFee(fee * dayCount);
     };
 
-    const totalFees = totalPrice + redriveFee + serviceFee + insuranceFee; // ✅ Include insurance cost
+    const totalFees = totalPrice + redriveFee + serviceFee + insuranceFee + upfrontCleaningFee; // include cleaning fee if charged now
 
     return (
         <div className="bg-white shadow-none md:shadow-lg shadow-gray-600/20 rounded-xl border-[1px] border-neutral-200 overflow-hidden mt-10 md:mt-0">
@@ -104,6 +107,17 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                     <div>Redrive Fees</div>
                     <div className="font-normal">AU$ {redriveFee}</div>
                 </div>
+                {upfrontCleaningFee > 0 && (
+                    <div className="mt-2 flex flex-row items-center justify-between font-normal text-base">
+                        <div>Cleaning Fee</div>
+                        <div className="font-normal">AU$ {upfrontCleaningFee}</div>
+                    </div>
+                )}
+                {returnCleaningFee > 0 && (
+                    <div className="mt-2 text-sm text-neutral-600">
+                        Cleaning fee of AU$ {returnCleaningFee} will be charged upon return.
+                    </div>
+                )}
                 <hr className="mt-6" />
 
                 {/* ✅ Styled Insurance Options */}
@@ -154,7 +168,7 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                             return;
                         }
 
-                        router.push(`/confirm-reservation?listingId=${listing.id}&startDate=${dateRange.startDate.toISOString()}&endDate=${dateRange.endDate.toISOString()}&totalPrice=${totalPrice}&totalFees=${totalFees}&insuranceType=${insuranceType}&insuranceFee=${insuranceFee}`);
+                        router.push(`/confirm-reservation?listingId=${listing.id}&startDate=${dateRange.startDate.toISOString()}&endDate=${dateRange.endDate.toISOString()}&totalPrice=${totalPrice}&totalFees=${totalFees}&insuranceType=${insuranceType}&insuranceFee=${insuranceFee}&cleaningFee=${upfrontCleaningFee}&returnCleaningFee=${returnCleaningFee}`);
                     }}
                 />
 

@@ -4,6 +4,9 @@ export type SafeListing = Omit<Listing, "createdAt" | "regoImage"> & {
   createdAt: string;
   regoImage: string; // ✅ Ensure regoImage is always a string
   badgeValue?: string;
+  cleaningFeeOption?: string | null;
+  cleaningFeeAmount?: number | null;
+  returnCleaningFeeAmount?: number | null;
 };
 
 export type SafeReservation = Omit<

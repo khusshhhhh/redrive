@@ -52,6 +52,7 @@ enum STEPS {
     AMENITIES = 6,
     LEGAL = 7,
     PRICE = 8,
+    CLEANING = 9,
 }
 
 const RentModal = () => {
@@ -184,6 +185,9 @@ const RentModal = () => {
             imageSrcs: [], // ✅ Prevents errors from undefined imageSrcs
             amenities: [], // ✅ Ensures amenities are an empty array by default
             regoImage: '', // ✅ Ensures regoImage is an empty string instead of undefined
+            cleaningFeeOption: 'NO',
+            cleaningFeeAmount: '',
+            returnCleaningFeeAmount: '',
         }
     });
 
@@ -194,6 +198,9 @@ const RentModal = () => {
     const sleepCount = watch('sleepCount');
     // const regoNumber = watch('regoNumber');
     const regoEndDate = watch('regoEndDate');
+    const cleaningFeeOption = watch('cleaningFeeOption');
+    const cleaningFeeAmount = watch('cleaningFeeAmount');
+    const returnCleaningFeeAmount = watch('returnCleaningFeeAmount');
 
     // const Map = useMemo(() => dynamic(() => import('../Map'), {
     //     ssr: false
@@ -221,7 +228,7 @@ const RentModal = () => {
 
         console.log("Submitting data:", data);
 
-        if (step !== STEPS.PRICE) {
+        if (step !== STEPS.CLEANING) {
             return onNext();
         }
 
@@ -234,6 +241,9 @@ const RentModal = () => {
             state: selectedState?.value,
             suburb: selectedSuburb?.value,
             address: address.trim() !== "" ? address : "Unknown",
+            cleaningFeeOption,
+            cleaningFeeAmount: cleaningFeeAmount || null,
+            returnCleaningFeeAmount: returnCleaningFeeAmount || null,
         };
 
         axios.post('/api/listings', finalData, {
@@ -259,7 +269,7 @@ const RentModal = () => {
 
 
     const actionLabel = useMemo(() => {
-        if (step === STEPS.PRICE) {
+        if (step === STEPS.CLEANING) {
             return 'Create';
         }
 
@@ -657,6 +667,73 @@ const RentModal = () => {
                     errors={errors}
                     required
                 />
+            </div>
+        );
+    }
+
+    if (step === STEPS.CLEANING) {
+        bodyContent = (
+            <div className="flex flex-col gap-8">
+                <Heading
+                    title="Cleaning Fees"
+                    subtitle="Do you want charge the customer for cleaning fees?"
+                />
+                <div className="flex flex-col gap-4">
+                    <label className="flex items-center gap-2">
+                        <input
+                            type="radio"
+                            value="YES"
+                            checked={cleaningFeeOption === 'YES'}
+                            onChange={() => setCustomValue('cleaningFeeOption', 'YES')}
+                        />
+                        Yes
+                    </label>
+                    <label className="flex items-center gap-2">
+                        <input
+                            type="radio"
+                            value="NO"
+                            checked={cleaningFeeOption === 'NO'}
+                            onChange={() => setCustomValue('cleaningFeeOption', 'NO')}
+                        />
+                        No
+                    </label>
+                    <label className="flex items-center gap-2">
+                        <input
+                            type="radio"
+                            value="UPON_RETURNING"
+                            checked={cleaningFeeOption === 'UPON_RETURNING'}
+                            onChange={() => setCustomValue('cleaningFeeOption', 'UPON_RETURNING')}
+                        />
+                        Upon Returning
+                    </label>
+                </div>
+                {cleaningFeeOption === 'YES' && (
+                    <Input
+                        id="cleaningFeeAmount"
+                        label="Cleaning Fee (AUD)"
+                        type="number"
+                        register={register}
+                        errors={errors}
+                        disabled={isLoading}
+                        required
+                    />
+                )}
+                {cleaningFeeOption === 'UPON_RETURNING' && (
+                    <div className="flex flex-col gap-2">
+                        <p className="text-sm text-neutral-600">
+                            User can add desired amount to charge when the utility is returned.
+                        </p>
+                        <Input
+                            id="returnCleaningFeeAmount"
+                            label="Amount on Return (AUD)"
+                            type="number"
+                            register={register}
+                            errors={errors}
+                            disabled={isLoading}
+                            required
+                        />
+                    </div>
+                )}
             </div>
         );
     }
