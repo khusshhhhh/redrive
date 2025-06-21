@@ -7,16 +7,23 @@ import Heading from "@/app/components/Heading";
 import { SafeChat } from "@/app/types";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import useLoginModal from "@/app/hooks/useLoginModal";
+import Button from "@/app/components/Button";
 
 const MessagesPage = () => {
   const [chats, setChats] = useState<SafeChat[] | null>(null);
+  const [unauthorized, setUnauthorized] = useState(false);
   const router = useRouter();
+  const loginModal = useLoginModal();
 
   useEffect(() => {
     axios
       .get("/api/chats")
       .then((res) => setChats(res.data))
-      .catch(() => setChats([]));
+      .catch((err) => {
+        setChats([]);
+        if (err.response?.status === 401) setUnauthorized(true);
+      });
   }, []);
 
   if (!chats) {
@@ -26,6 +33,16 @@ const MessagesPage = () => {
         <div className="h-20 bg-gray-200 rounded" />
         <div className="h-20 bg-gray-200 rounded" />
       </div>
+    );
+  }
+
+  if (unauthorized) {
+    return (
+      <Container>
+        <div className="max-w-2xl mx-auto py-8 flex justify-center">
+          <Button label="Login to view messages" onClick={loginModal.onOpen} />
+        </div>
+      </Container>
     );
   }
 

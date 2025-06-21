@@ -5,12 +5,13 @@ import axios from "axios";
 import Container from "@/app/components/Container";
 import Heading from "@/app/components/Heading";
 import { SafeChat, SafeMessage } from "@/app/types";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { IconSend } from "@tabler/icons-react";
 
 const ChatPage = () => {
   const { chatId } = useParams();
+  const router = useRouter();
   const [chat, setChat] = useState<SafeChat | null>(null);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
@@ -18,11 +19,16 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (!chatId) return;
-    axios
-      .get(`/api/chats/${chatId}`)
-      .then((res) => setChat(res.data))
-      .catch(() => toast.error("Failed to load chat"));
+    const fetchChat = () =>
+      axios
+        .get(`/api/chats/${chatId}`)
+        .then((res) => setChat(res.data))
+        .catch(() => toast.error("Failed to load chat"));
+
+    fetchChat();
+    const interval = setInterval(fetchChat, 3000);
     axios.get("/api/auth/user").then((res) => setCurrentUserId(res.data.id));
+    return () => clearInterval(interval);
   }, [chatId]);
 
   const sendMessage = async () => {
@@ -51,16 +57,22 @@ const ChatPage = () => {
 
   return (
     <Container>
-      <div className="max-w-2xl mx-auto py-8">
+      <div className="w-full sm:max-w-2xl mx-auto py-8 px-2">
+        <button
+          onClick={() => router.back()}
+          className="mb-4 text-sm text-teal-500 hover:underline"
+        >
+          Back
+        </button>
         <Heading title={chat.otherUser?.name || "Conversation"} subtitle="" />
-        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border p-4 rounded-md">
+        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border p-2 sm:p-4 rounded-md">
           {chat.messages.map((m) => (
             <div
               key={m.id}
               className={`flex ${m.senderId === currentUserId ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`px-3 py-2 rounded-lg max-w-xs animate-fadeIn ${
+                className={`px-3 py-2 rounded-lg max-w-xs animate-pop ${
                   m.senderId === currentUserId ? "bg-teal-500 text-white" : "bg-gray-100"
                 }`}
               >
@@ -69,17 +81,17 @@ const ChatPage = () => {
             </div>
           ))}
         </div>
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex gap-2 sm:gap-4">
           <input
             value={text}
             onChange={e => setText(e.target.value)}
-            className="flex-1 border p-2 rounded"
+            className="flex-1 border p-2 sm:p-3 rounded"
             placeholder="Type a message"
           />
           <button
             onClick={sendMessage}
             disabled={sending}
-            className="bg-teal-500 text-white px-4 rounded flex items-center justify-center"
+            className="bg-teal-500 text-white px-4 sm:px-6 rounded flex items-center justify-center"
           >
             <IconSend size={20} />
           </button>

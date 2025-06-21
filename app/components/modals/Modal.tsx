@@ -71,7 +71,7 @@ const Modal: React.FC<ModalProps> = ({
             onClick={handleClose} // Close when clicking outside
         >
             <div
-                className="relative w-full md:w-4/6 lg:w-3/6 xl:w-2/5 my-6 mx-auto h-[95%] lg:h-[95%] md:h-[95%] px-4"
+                className="relative w-full sm:w-11/12 md:w-4/6 lg:w-3/6 xl:w-2/5 my-6 mx-auto h-[95%] px-4"
                 onClick={(e) => e.stopPropagation()} // Prevent modal from closing when clicking inside
             >
                 {/* Modal Content */}
