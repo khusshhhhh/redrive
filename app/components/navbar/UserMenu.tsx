@@ -33,12 +33,19 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
   // Check if there are any unread messages
   useEffect(() => {
     if (!currentUser) return;
-    axios
-      .get('/api/chats')
-      .then((res) =>
-        setHasMessages((res.data as SafeChat[]).some((chat) => chat.unreadCount > 0))
-      )
-      .catch(() => setHasMessages(false));
+    const fetchChats = () =>
+      axios
+        .get('/api/chats')
+        .then((res) =>
+          setHasMessages(
+            (res.data as SafeChat[]).some((chat) => chat.unreadCount > 0)
+          )
+        )
+        .catch(() => setHasMessages(false));
+
+    fetchChats();
+    const interval = setInterval(fetchChats, 10000);
+    return () => clearInterval(interval);
   }, [currentUser]);
 
   // Close menu when clicking outside

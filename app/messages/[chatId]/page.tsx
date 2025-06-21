@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Container from "@/app/components/Container";
 import Heading from "@/app/components/Heading";
 import { SafeChat, SafeMessage } from "@/app/types";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { IconSend } from "@tabler/icons-react";
+import { IconSend, IconArrowLeft } from "@tabler/icons-react";
+import { format } from "date-fns";
 
 const ChatPage = () => {
   const { chatId } = useParams();
@@ -16,6 +17,7 @@ const ChatPage = () => {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!chatId) return;
@@ -30,6 +32,11 @@ const ChatPage = () => {
     axios.get("/api/auth/user").then((res) => setCurrentUserId(res.data.id));
     return () => clearInterval(interval);
   }, [chatId]);
+
+  // Scroll to bottom whenever messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chat?.messages.length]);
 
   const sendMessage = async () => {
     if (!text.trim()) return;
@@ -62,26 +69,40 @@ const ChatPage = () => {
       <div className="w-full sm:max-w-2xl mx-auto py-8 px-2">
         <button
           onClick={() => router.back()}
-          className="mb-4 text-sm text-teal-500 hover:underline"
+          className="mb-4 flex items-center gap-1 text-sm text-teal-500 hover:underline"
         >
-          Back
+          <IconArrowLeft size={16} /> Back
         </button>
         <Heading title={chat.otherUser?.name || "Conversation"} subtitle="" />
-        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border p-2 sm:p-4 rounded-md">
-          {chat.messages.map((m) => (
-            <div
-              key={m.id}
-              className={`flex ${m.senderId === currentUserId ? "justify-end" : "justify-start"}`}
-            >
+        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border p-2 sm:p-4 rounded-md bg-white">
+          {chat.messages.map((m) => {
+            const isCurrent = m.senderId === currentUserId;
+            return (
               <div
-                className={`px-3 py-2 rounded-lg max-w-xs animate-pop ${
-                  m.senderId === currentUserId ? "bg-teal-500 text-white" : "bg-gray-100"
-                }`}
+                key={m.id}
+                className={`flex items-end gap-1 ${isCurrent ? "justify-end" : "justify-start"}`}
               >
-                {m.text}
+                {!isCurrent && (
+                  <span className="text-xs text-gray-500">
+                    {format(new Date(m.createdAt), "p")}
+                  </span>
+                )}
+                <div
+                  className={`px-3 py-2 rounded-lg max-w-xs animate-pop ${
+                    isCurrent ? "bg-teal-500 text-white" : "bg-gray-100"
+                  }`}
+                >
+                  {m.text}
+                </div>
+                {isCurrent && (
+                  <span className="text-xs text-gray-500">
+                    {format(new Date(m.createdAt), "p")}
+                  </span>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
+          <div ref={messagesEndRef} />
         </div>
         <div className="mt-4 flex gap-2 sm:gap-4">
           <input
