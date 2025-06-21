@@ -88,8 +88,13 @@ model Listing {
 
   // ✅ New fields for registration details
   regoNumber   String?  @unique // Ensure unique registration numbers
-  regoEndDate  DateTime? 
+  regoEndDate  DateTime?
   regoImage    String?  // Store Cloudinary image URL
+
+  // Cleaning fee details
+  cleaningFeeOption        String?  // "YES", "NO", or "UPON_RETURNING"
+  cleaningFeeAmount        Int?
+  returnCleaningFeeAmount  Int?
 
   user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   reservations Reservation[]

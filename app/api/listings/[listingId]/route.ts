@@ -87,6 +87,9 @@ export async function PUT(
       regoNumber,
       regoEndDate,
       regoImage,
+      cleaningFeeOption,
+      cleaningFeeAmount,
+      returnCleaningFeeAmount,
     } = body;
 
     // Validate required fields
@@ -139,6 +142,9 @@ export async function PUT(
         regoNumber,
         regoEndDate: regoEndDate ? new Date(regoEndDate) : null, // Ensure valid date
         regoImage, // Update single rego image
+        cleaningFeeOption: cleaningFeeOption ?? null,
+        cleaningFeeAmount: cleaningFeeAmount ? parseInt(cleaningFeeAmount, 10) : null,
+        returnCleaningFeeAmount: returnCleaningFeeAmount ? parseInt(returnCleaningFeeAmount, 10) : null,
       },
     });
 

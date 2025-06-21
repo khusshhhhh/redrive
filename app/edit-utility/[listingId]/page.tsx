@@ -39,6 +39,9 @@ interface Listing {
     regoNumber: string;
     regoEndDate: string;
     regoImage: string;
+    cleaningFeeOption?: string;
+    cleaningFeeAmount?: number;
+    returnCleaningFeeAmount?: number;
 }
 
 const EditUtilityPage = () => {
@@ -54,6 +57,9 @@ const EditUtilityPage = () => {
     const [regoNumber, setRegoNumber] = useState("");
     const [regoEndDate, setRegoEndDate] = useState("");
     const [regoImage, setRegoImage] = useState("");
+    const [cleaningFeeOption, setCleaningFeeOption] = useState('NO');
+    const [cleaningFeeAmount, setCleaningFeeAmount] = useState('');
+    const [returnCleaningFeeAmount, setReturnCleaningFeeAmount] = useState('');
 
     const {
         register,
@@ -81,6 +87,9 @@ const EditUtilityPage = () => {
             regoNumber: "",
             regoEndDate: new Date(),
             regoImage: "",
+            cleaningFeeOption: 'NO',
+            cleaningFeeAmount: '',
+            returnCleaningFeeAmount: '',
         },
     });
 
@@ -106,6 +115,9 @@ const EditUtilityPage = () => {
                 setValue("suburb", data.suburb);
                 setValue("address", data.address);
                 setValue("amenities", data.amenities);
+                setValue("cleaningFeeOption", data.cleaningFeeOption || 'NO');
+                setValue("cleaningFeeAmount", data.cleaningFeeAmount || '');
+                setValue("returnCleaningFeeAmount", data.returnCleaningFeeAmount || '');
 
                 // Load images and registration details
                 setListingImages(data.imageSrcs || []);
@@ -114,6 +126,9 @@ const EditUtilityPage = () => {
                     data.regoEndDate ? new Date(data.regoEndDate).toISOString().split("T")[0] : ""
                 );
                 setRegoImage(data.regoImage || "");
+                setCleaningFeeOption(data.cleaningFeeOption || 'NO');
+                setCleaningFeeAmount(data.cleaningFeeAmount ? String(data.cleaningFeeAmount) : '');
+                setReturnCleaningFeeAmount(data.returnCleaningFeeAmount ? String(data.returnCleaningFeeAmount) : '');
 
                 setSelectedState({ value: data.state, label: data.state });
                 setSelectedSuburb({ value: data.suburb, label: data.suburb });
@@ -155,6 +170,9 @@ const EditUtilityPage = () => {
                 regoNumber,
                 regoEndDate,
                 regoImage,
+                cleaningFeeOption,
+                cleaningFeeAmount: cleaningFeeAmount || null,
+                returnCleaningFeeAmount: returnCleaningFeeAmount || null,
             });
             toast.success("Utility updated successfully!");
             router.push("/properties");
@@ -346,6 +364,67 @@ const EditUtilityPage = () => {
                         errors={errors}
                         required
                     />
+                </div>
+
+                {/* Cleaning Fees */}
+                <div className="mb-8">
+                    <p className="font-bold mb-4">Cleaning Fees</p>
+                    <div className="flex flex-col gap-2">
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="radio"
+                                value="YES"
+                                checked={cleaningFeeOption === 'YES'}
+                                onChange={() => setCleaningFeeOption('YES')}
+                            />
+                            Yes
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="radio"
+                                value="NO"
+                                checked={cleaningFeeOption === 'NO'}
+                                onChange={() => setCleaningFeeOption('NO')}
+                            />
+                            No
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="radio"
+                                value="UPON_RETURNING"
+                                checked={cleaningFeeOption === 'UPON_RETURNING'}
+                                onChange={() => setCleaningFeeOption('UPON_RETURNING')}
+                            />
+                            Upon Returning
+                        </label>
+                    </div>
+                    {cleaningFeeOption === 'YES' && (
+                        <Input
+                            id="cleaningFeeAmount"
+                            label="Cleaning Fee (AUD)"
+                            type="number"
+                            value={cleaningFeeAmount}
+                            onChange={(e) => setCleaningFeeAmount(e.target.value)}
+                            register={register}
+                            errors={errors}
+                        />
+                    )}
+                    {cleaningFeeOption === 'UPON_RETURNING' && (
+                        <div className="mt-4 flex flex-col gap-2">
+                            <p className="text-sm text-neutral-600">
+                                User can add desired amount after the utility is returned.
+                            </p>
+                            <Input
+                                id="returnCleaningFeeAmount"
+                                label="Amount on Return (AUD)"
+                                type="number"
+                                value={returnCleaningFeeAmount}
+                                onChange={(e) => setReturnCleaningFeeAmount(e.target.value)}
+                                register={register}
+                                errors={errors}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Submit and Go Back Buttons */}

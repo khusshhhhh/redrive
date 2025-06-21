@@ -40,6 +40,9 @@ export async function POST(request: Request) {
       regoEndDate,
       regoImage = "",
       badge, // ✅ Default to empty string
+      cleaningFeeOption,
+      cleaningFeeAmount,
+      returnCleaningFeeAmount,
     } = body;
 
     const parsedFuelEconomy = fuelEconomy ? parseFloat(fuelEconomy) : null; // ✅ Ensure float or null
@@ -82,6 +85,9 @@ export async function POST(request: Request) {
     const parsedLatitude = latitude ? parseFloat(latitude) : null;
     const parsedLongitude = longitude ? parseFloat(longitude) : null;
 
+    const parsedCleaningFeeAmount = cleaningFeeAmount ? parseInt(cleaningFeeAmount, 10) : null;
+    const parsedReturnCleaningFeeAmount = returnCleaningFeeAmount ? parseInt(returnCleaningFeeAmount, 10) : null;
+
     // ✅ Ensure amenities is an array
     const formattedAmenities = Array.isArray(amenities) ? amenities : [];
 
@@ -123,6 +129,9 @@ export async function POST(request: Request) {
         regoNumber: formattedRegoNumber,
         regoEndDate: formattedRegoEndDate,
         regoImage: formattedRegoImage,
+        cleaningFeeOption: cleaningFeeOption ?? null,
+        cleaningFeeAmount: parsedCleaningFeeAmount,
+        returnCleaningFeeAmount: parsedReturnCleaningFeeAmount,
         createdAt: new Date(),
       },
     });

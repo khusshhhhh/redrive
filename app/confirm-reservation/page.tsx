@@ -19,6 +19,8 @@ export default function ConfirmReservation() {
     const totalFees = searchParams.get("totalFees");
     const insuranceType = searchParams.get("insuranceType");
     const insuranceFee = searchParams.get("insuranceFee");
+    const cleaningFee = searchParams.get("cleaningFee");
+    const returnCleaningFee = searchParams.get("returnCleaningFee");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [listing, setListing] = useState<any>(null);
@@ -120,6 +122,17 @@ export default function ConfirmReservation() {
                                     <span>Redrive Fees:</span>
                                     <span>AU$ {Math.round(Number(totalPrice) * 0.08)}</span>
                                 </div>
+                                {cleaningFee && Number(cleaningFee) > 0 && (
+                                    <div className="flex justify-between">
+                                        <span>Cleaning Fee:</span>
+                                        <span>AU$ {cleaningFee}</span>
+                                    </div>
+                                )}
+                                {returnCleaningFee && Number(returnCleaningFee) > 0 && (
+                                    <div className="text-sm text-neutral-600 mt-1">
+                                        Cleaning fee of AU$ {returnCleaningFee} will be charged upon return.
+                                    </div>
+                                )}
                             </div>
                             <hr />
                             <div className="flex flex-col gap-3">
