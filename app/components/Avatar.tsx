@@ -22,7 +22,7 @@ const Avatar: React.FC<AvatarProps> = ({ src, size = 30, showBadge }) => {
         />
       </div>
       {showBadge && (
-        <span className="absolute top-0 right-0 block h-3 w-3 bg-teal-500 rounded-full ring-2 ring-white" />
+        <span className="absolute top-0 right-0 h-3 w-3 bg-teal-500 rounded-full ring-2 ring-white" />
       )}
     </div>
   );
