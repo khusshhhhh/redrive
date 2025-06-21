@@ -147,6 +147,7 @@ model Message {
   senderId  String   @db.ObjectId
   text      String?
   imageUrl  String?
+  readByIds String[] @db.ObjectId @default([])
   createdAt DateTime @default(now())
 
   chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)

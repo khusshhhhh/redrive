@@ -38,9 +38,24 @@ export async function GET(
       ? await prisma.user.findUnique({ where: { id: otherId } })
       : null;
 
+    // Mark unread messages as read for current user
+    await prisma.message.updateMany({
+      where: {
+        chatId,
+        senderId: { not: currentUser.id },
+        NOT: { readByIds: { has: currentUser.id } },
+      },
+      data: { readByIds: { push: currentUser.id } },
+    });
+
+    const unreadCount = chat.messages.filter(
+      (m) => m.senderId !== currentUser.id && !m.readByIds.includes(currentUser.id)
+    ).length;
+
     const safeChat = {
       ...chat,
       createdAt: chat.createdAt.toISOString(),
+      unreadCount,
       otherUser: otherUser
         ? {
             ...otherUser,
@@ -54,6 +69,7 @@ export async function GET(
       messages: chat.messages.map((m) => ({
         ...m,
         createdAt: m.createdAt.toISOString(),
+        readByIds: m.readByIds,
         sender: {
           ...m.sender,
           createdAt: m.sender.createdAt.toISOString(),
@@ -103,6 +119,7 @@ export async function POST(
         chatId,
         senderId: currentUser.id,
         text,
+        readByIds: [currentUser.id],
       },
       include: { sender: true },
     });
@@ -110,6 +127,7 @@ export async function POST(
     const safeMessage = {
       ...message,
       createdAt: message.createdAt.toISOString(),
+      readByIds: message.readByIds,
       sender: {
         ...message.sender,
         createdAt: message.sender.createdAt.toISOString(),

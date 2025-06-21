@@ -8,7 +8,7 @@ import useRegisterModal from "@/app/hooks/useRegisterModal";
 import useLoginModal from "@/app/hooks/useLoginModal";
 import useRentModal from "@/app/hooks/useRentModal";
 import { signOut } from "next-auth/react";
-import { SafeUser } from "@/app/types";
+import { SafeUser, SafeChat } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { IconBrandDatabricks, IconCalendar, IconClipboardPlus, IconFilePlus, IconHearts, IconLocationCheck, IconLogin2, IconLogout2, IconMenu3, IconUserEdit, IconMessage } from "@tabler/icons-react";
 
@@ -30,12 +30,14 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
     setIsOpen((value) => !value);
   }, []);
 
-  // Check if there are any messages
+  // Check if there are any unread messages
   useEffect(() => {
     if (!currentUser) return;
     axios
       .get('/api/chats')
-      .then((res) => setHasMessages(res.data.length > 0))
+      .then((res) =>
+        setHasMessages((res.data as SafeChat[]).some((chat) => chat.unreadCount > 0))
+      )
       .catch(() => setHasMessages(false));
   }, [currentUser]);
 

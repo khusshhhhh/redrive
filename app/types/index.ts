@@ -32,6 +32,7 @@ export type SafeMessage = {
   senderId: string;
   text: string | null;
   imageUrl: string | null;
+  readByIds: string[];
   createdAt: string;
   sender: SafeUser;
 };
@@ -42,4 +43,5 @@ export type SafeChat = {
   createdAt: string;
   messages: SafeMessage[];
   otherUser: SafeUser | null;
+  unreadCount?: number;
 };

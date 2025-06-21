@@ -26,9 +26,14 @@ export async function GET() {
           ? await prisma.user.findUnique({ where: { id: otherId } })
           : null;
 
+        const unreadCount = chat.messages.filter(
+          (m) => m.senderId !== currentUser.id && !m.readByIds.includes(currentUser.id)
+        ).length;
+
         return {
           ...chat,
           createdAt: chat.createdAt.toISOString(),
+          unreadCount,
           otherUser: otherUser
             ? {
                 ...otherUser,
@@ -42,6 +47,7 @@ export async function GET() {
           messages: chat.messages.map((m) => ({
             ...m,
             createdAt: m.createdAt.toISOString(),
+            readByIds: m.readByIds,
             sender: {
               ...m.sender,
               createdAt: m.sender.createdAt.toISOString(),

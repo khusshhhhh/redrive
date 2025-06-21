@@ -37,7 +37,9 @@ const ChatPage = () => {
     try {
       const res = await axios.post(`/api/chats/${chatId}`, { text });
       setChat((prev) =>
-        prev ? { ...prev, messages: [...prev.messages, res.data as SafeMessage] } : prev
+        prev
+          ? { ...prev, messages: [...prev.messages, res.data as SafeMessage] }
+          : prev
       );
       setText("");
     } catch {
