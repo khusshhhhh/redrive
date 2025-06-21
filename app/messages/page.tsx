@@ -64,7 +64,7 @@ const MessagesPage = () => {
                   alt={chat.otherUser?.name || "User"}
                   width={40}
                   height={40}
-                  className="rounded-full object-cover"
+                  className="rounded-md object-cover"
                 />
                 <div className="flex-1">
                   <div className="font-semibold flex items-center gap-2">

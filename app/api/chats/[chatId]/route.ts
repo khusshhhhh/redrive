@@ -48,7 +48,13 @@ export async function GET(
       data: { readByIds: { push: currentUser.id } },
     });
 
-    const unreadCount = chat.messages.filter(
+    const updatedMessages = await prisma.message.findMany({
+      where: { chatId },
+      orderBy: { createdAt: "asc" },
+      include: { sender: true },
+    });
+
+    const unreadCount = updatedMessages.filter(
       (m) => m.senderId !== currentUser.id && !m.readByIds.includes(currentUser.id)
     ).length;
 
@@ -66,7 +72,7 @@ export async function GET(
               : null,
           }
         : null,
-      messages: chat.messages.map((m) => ({
+      messages: updatedMessages.map((m) => ({
         ...m,
         createdAt: m.createdAt.toISOString(),
         readByIds: m.readByIds,
