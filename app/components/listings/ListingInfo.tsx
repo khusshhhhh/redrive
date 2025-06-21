@@ -12,7 +12,6 @@ import { FaBed } from "react-icons/fa";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { AMENITIES_LIST } from "@/app/hooks/useAmenities";
 import { IconCar4wd, IconDashboard, IconFileDescription, IconFileInfo, IconGasStation, IconGauge, IconLogs, IconMapPin, IconQuestionMark, IconShieldCheckFilled } from "@tabler/icons-react";
-import ListingMap from "./ListingMap";
 import { getHostingDuration } from "@/app/helpers/getHostingDuration";
 
 interface ListingInfoProps {
@@ -61,8 +60,6 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
     const words = description.split(" ");
     const shortDescription = words.slice(0, 20).join(" ") + "...";
 
-    // Debug log to inspect listings
-    console.log("User listings:", user?.listings);
 
     // Calculate hosting duration from user's earliest listing createdAt date
     const hostingSinceLabel = useMemo(() => {

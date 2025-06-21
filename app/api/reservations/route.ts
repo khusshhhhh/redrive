@@ -21,7 +21,6 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    console.log("Received reservation data:", body); // ✅ Log the request body
 
     const {
       listingId,
@@ -63,12 +62,6 @@ export async function POST(request: Request) {
     const finalInsuranceType = insuranceType || "No Insurance"; // Default if not provided
     const finalInsuranceFee = insuranceFee || 0;
 
-    console.log(
-      "Insurance Selected:",
-      finalInsuranceType,
-      "Fee:",
-      finalInsuranceFee
-    ); // ✅ Log insurance details
 
     const redriveFee = Math.round(totalPrice * 0.08);
     const serviceFee = calculateServiceFee(totalPrice);

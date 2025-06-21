@@ -204,7 +204,6 @@ export async function DELETE(
       where: { id: listingId },
     });
 
-    console.log(`✅ Listing ${listingId} deleted successfully`);
 
     return NextResponse.json({
       success: true,
