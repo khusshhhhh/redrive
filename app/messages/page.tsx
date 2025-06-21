@@ -39,7 +39,7 @@ const MessagesPage = () => {
   if (unauthorized) {
     return (
       <Container>
-        <div className="max-w-2xl mx-auto py-8 flex justify-center">
+        <div className="max-w-xs mx-auto py-40 flex justify-center">
           <Button label="Login to view messages" onClick={loginModal.onOpen} />
         </div>
       </Container>

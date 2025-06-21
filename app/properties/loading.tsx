@@ -7,8 +7,8 @@ const Loading = () => (
       <div className="h-8 bg-gray-200 rounded w-36" />
       <div className="h-4 bg-gray-200 rounded w-52 mt-2" />
     </div>
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-8">
-      {Array.from({ length: 5 }).map((_, i) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-6 2xl:grid-cols-6 gap-8">
+      {Array.from({ length: 12 }).map((_, i) => (
         <SkeletonCard key={i} />
       ))}
     </div>
