@@ -16,7 +16,6 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log("✅ Received request body:", body); // Debugging log
 
     if (!body || Object.keys(body).length === 0) {
       return NextResponse.json(
@@ -44,7 +43,6 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log("✅ User registered successfully:", user);
 
     return NextResponse.json(user, { status: 201 });
   } catch (error) {

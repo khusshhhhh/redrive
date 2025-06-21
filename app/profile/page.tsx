@@ -47,11 +47,9 @@ export default function Profile() {
         async function fetchUserData() {
             setIsLoading(true);
             try {
-                console.log("🔄 Fetching user data...");
                 const response = await axios.get("/api/auth/user");
 
                 if (response.status === 200 && response.data) {
-                    console.log("✅ User data received:", response.data);
 
                     setUserName(response.data.name || "User");
                     setProfileVerified(response.data.profileVerified || "N");
