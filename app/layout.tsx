@@ -19,7 +19,7 @@ export const metadata = {
 // ✅ Apply Poppins font
 const font = Montserrat({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"], // ✅ Specify weights you need
+  weight: ["400", "700"],
 });
 
 export default async function RootLayout({

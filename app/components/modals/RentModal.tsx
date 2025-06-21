@@ -21,13 +21,11 @@ import DriveChainSelector from "../inputs/DriveChainSelector";
 
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { categories } from "../navbar/Categories";
 import { useRouter } from "next/navigation";
 import { useCloudinaryUpload } from "@/app/hooks/useCloudinaryUpload";
 import Image from "next/image";
-// import Script from "next/script";
-
-// import dynamic from "next/dynamic";
 
 
 // Declare google property on window object
@@ -202,9 +200,10 @@ const RentModal = () => {
     const cleaningFeeAmount = watch('cleaningFeeAmount');
     const returnCleaningFeeAmount = watch('returnCleaningFeeAmount');
 
-    // const Map = useMemo(() => dynamic(() => import('../Map'), {
-    //     ssr: false
-    // }), [location]);
+    const Map = useMemo(
+        () => dynamic(() => import('../Map'), { ssr: false }),
+        [selectedState, selectedSuburb]
+    );
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const setCustomValue = (id: string, value: any) => {
@@ -225,8 +224,6 @@ const RentModal = () => {
     };
 
     const onSubmit: SubmitHandler<FieldValues> = (data) => {
-
-        console.log("Submitting data:", data);
 
         if (step !== STEPS.CLEANING) {
             return onNext();
@@ -363,8 +360,7 @@ const RentModal = () => {
 
                     </div>
 
-                    {/* ✅ Google Maps Integration */}
-                    {/* <Map suburb={selectedSuburb?.value} state={selectedState?.value} /> */}
+                    <Map suburb={selectedSuburb?.value} state={selectedState?.value} />
 
                 </div>
             </div>

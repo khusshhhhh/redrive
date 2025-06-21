@@ -12,7 +12,6 @@ export async function POST(request: Request) {
 
     // ✅ Parse request body
     const body = await request.json();
-    console.log("📥 Received request body:", JSON.stringify(body, null, 2));
 
     const {
       title,
@@ -136,10 +135,6 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log(
-      "✅ Listing created successfully:",
-      JSON.stringify(listing, null, 2)
-    );
 
     return NextResponse.json(listing, { status: 201 });
   } catch (error) {
