@@ -46,5 +46,4 @@ export type SafeChat = {
   createdAt: string;
   messages: SafeMessage[];
   otherUser: SafeUser | null;
-  unreadCount?: number;
 };

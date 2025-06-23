@@ -54,14 +54,9 @@ export async function GET(
       include: { sender: true },
     });
 
-    const unreadCount = updatedMessages.filter(
-      (m) => m.senderId !== currentUser.id && !m.readByIds.includes(currentUser.id)
-    ).length;
-
     const safeChat = {
       ...chat,
       createdAt: chat.createdAt.toISOString(),
-      unreadCount,
       otherUser: otherUser
         ? {
             ...otherUser,
