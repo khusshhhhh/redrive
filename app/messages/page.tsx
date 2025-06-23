@@ -69,11 +69,6 @@ const MessagesPage = () => {
                 <div className="flex-1">
                   <div className="font-semibold flex items-center gap-2">
                     {chat.otherUser?.name || chat.otherUser?.email}
-                    {chat.unreadCount ? (
-                      <span className="ml-auto bg-teal-500 text-white text-xs rounded-full px-2">
-                        {chat.unreadCount}
-                      </span>
-                    ) : null}
                   </div>
                   {last && (
                     <div className="text-sm text-gray-600 truncate">
