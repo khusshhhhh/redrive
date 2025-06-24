@@ -53,7 +53,9 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
                     oneDayAfterEnd.setDate(oneDayAfterEnd.getDate() + 1);
 
                     const canReview = today >= oneDayAfterEnd;
-                    const canCancel = today < reservationStartDate; // Only allow canceling before the start date
+                    const cancelDeadline = new Date(reservationStartDate);
+                    cancelDeadline.setDate(cancelDeadline.getDate() - 2);
+                    const canCancel = today < cancelDeadline; // Only allow canceling at least 2 days before start
 
                     return (
                         <ListingCard

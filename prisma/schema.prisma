@@ -113,6 +113,7 @@ model Reservation {
   insuranceType String   // ✅ Stores "Risk Taker", "Happy Driver", or "No Insurance"
   insuranceFee  Int      // ✅ Stores calculated insurance cost
   totalFees  Int
+  status     String   @default("REVIEWING") // NEW: reviewing, APPROVED, DECLINED
   createdAt  DateTime @default(now())
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)

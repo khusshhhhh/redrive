@@ -54,7 +54,7 @@ export default function ConfirmReservation() {
                 insuranceFee: Number(insuranceFee),
             });
 
-            toast.success("Booking confirmed!");
+            toast.success("Booking request sent!");
             router.push("/trips"); // ✅ Redirect user to "My Trips" page
         } catch (error) {
             console.error("❌ Error confirming booking:", error);
@@ -66,7 +66,7 @@ export default function ConfirmReservation() {
         <Container>
             <Toaster />
             <div className="max-w-3xl mx-auto sm:max-w-xl rounded-lg">
-                <h2 className="text-2xl font-semibold text-center mb-6">Confirm Your Booking</h2>
+                <h2 className="text-2xl font-semibold text-center mb-6">Review Your Booking Request</h2>
 
                 {/* Listing Details */}
                 {listing ? (
@@ -173,7 +173,7 @@ export default function ConfirmReservation() {
                                     onClick={handleConfirmBooking}
                                     className="w-full py-3 text-md font-semibold rounded-lg bg-teal-500 text-white hover:bg-teal-600 transition-all duration-400"
                                 >
-                                    Confirm Booking
+                                    Request Booking
                                 </button>
                             </div>
                         </div>

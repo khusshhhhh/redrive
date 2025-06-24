@@ -79,6 +79,7 @@ export async function POST(request: Request) {
         insuranceType: finalInsuranceType,
         insuranceFee: finalInsuranceFee,
         totalFees,
+        status: "REVIEWING",
       },
     });
 
