@@ -134,7 +134,9 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                         {isExpanded ? <IoIosArrowUp size={24} /> : <IoIosArrowDown size={24} />}
                     </button>
                 </div>
-                <div className={`ml-7 overflow-hidden text-base font-medium transition-max-height duration-300 ease-in-out ${isExpanded ? "max-h-[500px]" : "max-h-[50px]"}`}>
+                <div
+                    className={`ml-7 overflow-hidden text-base font-medium whitespace-pre-line transition-max-height duration-300 ease-in-out ${isExpanded ? "max-h-[500px]" : "max-h-[50px]"}`}
+                >
                     {isExpanded ? description : shortDescription}
                 </div>
             </div>
@@ -184,7 +186,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     <IconFileInfo size={18} />
                     <div className="font-normal text-base">Information</div>
                 </div>
-                <div className="ml-7 text-base text-neutral-800 overflow-clip">{information}</div>
+                <div className="ml-7 text-base text-neutral-800 overflow-clip whitespace-pre-line">{information}</div>
             </div>
             <hr />
 

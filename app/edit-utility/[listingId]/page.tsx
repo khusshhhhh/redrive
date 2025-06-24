@@ -196,7 +196,7 @@ const EditUtilityPage = () => {
 
                 {/* Description */}
                 <div className="mb-8">
-                    <Input id="description" label="Description" register={register} errors={errors} required />
+                    <TextArea id="description" label="Description" register={register} errors={errors} required />
                 </div>
 
                 {/* Category Selection */}
