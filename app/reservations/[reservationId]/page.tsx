@@ -75,7 +75,9 @@ const ReservationDetails = () => {
             const res = await axios.patch(`/api/reservations/${reservation.id}`, { status });
             setReservation(res.data);
             toast.success(`Reservation ${status.toLowerCase()}`);
-        } catch {
+            router.refresh();
+        } catch (error) {
+            console.error('Failed to update status:', error);
             toast.error('Failed to update status');
         }
     };
