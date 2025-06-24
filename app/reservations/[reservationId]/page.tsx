@@ -58,6 +58,8 @@ const ReservationDetails = () => {
 
     const otherUserId = currentUser?.id === reservation.user.id ? reservation.listing.userId : reservation.user.id;
 
+    const listing = reservation.listing;
+
     const startChat = async () => {
         try {
             const res = await axios.post('/api/chats', { userId: otherUserId });
@@ -74,11 +76,24 @@ const ReservationDetails = () => {
 
                 <div className="bg-white mt-6 flex flex-col gap-6">
                     <div className="p-6 border-[2px] rounded-xl border-gray-200">
-                        <h2 className="text-xl font-semibold">Utility: {reservation.listing.title}</h2>
-                        <div className="mt-4 flex flex-col gap-3">
-                            <p className="text-gray-700"><span className="font-bold">Location: </span>{reservation.listing.suburb}, {reservation.listing.state}</p>
-                            <p className="text-gray-700"><span className="font-bold">Price: </span> AU${reservation.totalPrice}</p>
-                            <p className="text-gray-700"><span className="font-bold">Insurance Type: </span>{reservation.insuranceType}</p>
+                        <h2 className="text-xl font-semibold">{listing.title}</h2>
+                        <div className="mt-4 flex flex-col md:flex-row gap-6">
+                            <Image
+                                src={listing.imageSrcs?.[0] || "/images/placeholder.png"}
+                                alt={listing.title}
+                                width={320}
+                                height={220}
+                                className="rounded-md object-cover"
+                            />
+                            <div className="flex flex-col gap-2 text-gray-700 text-sm">
+                                <p><span className="font-bold">Location:</span> {listing.suburb}, {listing.state}</p>
+                                <p><span className="font-bold">Category:</span> {listing.category}</p>
+                                <p><span className="font-bold">Build:</span> {listing.company} {listing.modal} ({listing.year})</p>
+                                <p><span className="font-bold">Guests:</span> {listing.guestCount} &nbsp;|&nbsp; <span className="font-bold">Doors:</span> {listing.doorCount} &nbsp;|&nbsp; <span className="font-bold">Sleeps:</span> {listing.sleepCount}</p>
+                                {listing.amenities && listing.amenities.length > 0 && (
+                                    <p><span className="font-bold">Amenities:</span> {listing.amenities.join(', ')}</p>
+                                )}
+                            </div>
                         </div>
                     </div>
                     <div className="p-6 border-[2px] rounded-xl border-gray-200">
@@ -112,6 +127,23 @@ const ReservationDetails = () => {
                         <div className="mt-4 flex flex-col gap-3">
                             <p className="text-gray-700"><span className="font-bold">From: </span>{new Date(reservation.startDate).toDateString()}</p>
                             <p className="text-gray-700"><span className="font-bold">To: </span>{new Date(reservation.endDate).toDateString()}</p>
+                        </div>
+                    </div>
+                    <div className="p-6 border-[2px] rounded-xl border-gray-200">
+                        <h3 className="text-lg font-semibold">Cost Breakdown</h3>
+                        <div className="mt-4 flex flex-col gap-2 text-sm text-gray-700">
+                            <p><span className="font-bold">Reservation Cost:</span> AU${reservation.totalPrice}</p>
+                            <p><span className="font-bold">Service Fee:</span> AU${reservation.serviceFee}</p>
+                            <p><span className="font-bold">Redrive Fee:</span> AU${reservation.redriveFee}</p>
+                            <p><span className="font-bold">Insurance ({reservation.insuranceType}):</span> AU${reservation.insuranceFee}</p>
+                            {listing.cleaningFeeOption === 'YES' && (
+                                <p><span className="font-bold">Cleaning Fee:</span> AU${listing.cleaningFeeAmount}</p>
+                            )}
+                            {listing.cleaningFeeOption === 'UPON_RETURNING' && (
+                                <p><span className="font-bold">Return Cleaning Fee:</span> AU${listing.returnCleaningFeeAmount}</p>
+                            )}
+                            <hr className="my-2" />
+                            <p className="font-semibold"><span className="font-bold">Total:</span> AU${reservation.totalFees}</p>
                         </div>
                     </div>
                     <div className="items-center justify-center flex gap-4">

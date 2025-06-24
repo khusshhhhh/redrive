@@ -197,8 +197,6 @@ const RentModal = () => {
     // const regoNumber = watch('regoNumber');
     const regoEndDate = watch('regoEndDate');
     const cleaningFeeOption = watch('cleaningFeeOption');
-    const cleaningFeeAmount = watch('cleaningFeeAmount');
-    const returnCleaningFeeAmount = watch('returnCleaningFeeAmount');
 
     const Map = useMemo(
         () => dynamic(() => import('../Map'), { ssr: false }),
