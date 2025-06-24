@@ -13,6 +13,7 @@ import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { AMENITIES_LIST } from "@/app/hooks/useAmenities";
 import { IconCar4wd, IconDashboard, IconFileDescription, IconFileInfo, IconGasStation, IconGauge, IconLogs, IconMapPin, IconQuestionMark, IconShieldCheckFilled } from "@tabler/icons-react";
 import { getHostingDuration } from "@/app/helpers/getHostingDuration";
+import ListingMap from "./ListingMap";
 
 interface ListingInfoProps {
     user: SafeUser & { listings?: { createdAt: string }[] };
