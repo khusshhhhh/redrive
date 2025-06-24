@@ -472,7 +472,7 @@ const RentModal = () => {
                     errors={errors}
                     required
                 />
-                <Input
+                <TextArea
                     id="description"
                     label="Description in 100 words"
                     disabled={isLoading}
