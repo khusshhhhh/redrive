@@ -103,7 +103,18 @@ export async function DELETE(
       );
     }
 
-    // Delete the reservation
+    // Check cancellation window: allow up to 2 days before start date
+    const today = new Date();
+    const twoDaysBefore = new Date(reservation.startDate);
+    twoDaysBefore.setDate(twoDaysBefore.getDate() - 2);
+
+    if (today > twoDaysBefore) {
+      return NextResponse.json(
+        { error: "Too late to cancel this reservation" },
+        { status: 400 }
+      );
+    }
+
     await prisma.reservation.delete({
       where: { id: reservationId },
     });
@@ -114,6 +125,54 @@ export async function DELETE(
     );
   } catch (error) {
     console.error("Error canceling reservation:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH: update reservation status
+export async function PATCH(
+  request: NextRequest,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context: any
+) {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { reservationId } = context.params;
+    const body = await request.json();
+    const { status } = body;
+
+    if (!reservationId || !status) {
+      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+    }
+
+    const reservation = await prisma.reservation.findUnique({
+      where: { id: reservationId },
+      include: { listing: true },
+    });
+
+    if (!reservation) {
+      return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
+    }
+
+    if (reservation.listing.userId !== currentUser.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const updated = await prisma.reservation.update({
+      where: { id: reservationId },
+      data: { status },
+    });
+
+    return NextResponse.json(updated, { status: 200 });
+  } catch (error) {
+    console.error("Error updating reservation:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

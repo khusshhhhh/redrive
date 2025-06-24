@@ -18,6 +18,7 @@ export type SafeReservation = Omit<
   endDate: string;
   user: SafeUser; // ✅ Ensure user is required
   listing: SafeListing;
+  status: string;
 };
 
 export type SafeUser = Omit<

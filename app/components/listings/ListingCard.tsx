@@ -92,6 +92,9 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     <div className="font-medium">AUD {price}</div>
                     {!reservation && <div className="font-light">per day</div>}
                 </div>
+                {reservation && (
+                    <div className="text-xs font-semibold">Status: {reservation.status}</div>
+                )}
                 <div className="gap-0">
                     {/* ✅ Show Edit Button only if 'showEditButton' is true */}
                     {showEditButton && (

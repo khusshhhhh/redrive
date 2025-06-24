@@ -69,6 +69,19 @@ const ReservationDetails = () => {
         }
     };
 
+    const handleStatus = async (status: string) => {
+        if (!reservation) return;
+        try {
+            const res = await axios.patch(`/api/reservations/${reservation.id}`, { status });
+            setReservation(res.data);
+            toast.success(`Reservation ${status.toLowerCase()}`);
+            router.refresh();
+        } catch (error) {
+            console.error('Failed to update status:', error);
+            toast.error('Failed to update status');
+        }
+    };
+
     return (
         <Container>
             <div className="max-w-3xl mx-auto py-8">
@@ -144,6 +157,23 @@ const ReservationDetails = () => {
                             )}
                             <hr className="my-2" />
                             <p className="font-semibold"><span className="font-bold">Total:</span> AU${reservation.totalFees}</p>
+                            <p className="font-semibold mt-2">Status: {reservation.status}</p>
+                            {currentUser?.id === listing.userId && reservation.status === "REVIEWING" && (
+                                <div className="flex gap-3 mt-2">
+                                    <button
+                                        onClick={() => handleStatus('APPROVED')}
+                                        className="bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition"
+                                    >
+                                        Approve
+                                    </button>
+                                    <button
+                                        onClick={() => handleStatus('DECLINED')}
+                                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
+                                    >
+                                        Decline
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className="items-center justify-center flex gap-4">
