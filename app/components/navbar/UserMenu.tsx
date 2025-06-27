@@ -76,12 +76,12 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
       </div>
 
       {isOpen && (
-        <div className="absolute rounded-xl shadow-md w-72 md:w-52 bg-white overflow-hidden right-0 top-12 text-sm">
+        <div className="absolute rounded-xl shadow-md w-72 md:w-52 bg-white dark:bg-gray-800 overflow-hidden right-0 top-12 text-sm">
           <div className="flex flex-col cursor-pointer">
             {currentUser && (
               <div
                 onClick={() => { router.push("/profile"); closeMenu(); }}
-                className="flex flex-row gap-3 px-8 py-5 text-left text-sm font-bold text-black hover:bg-gray-100 transition cursor-pointer"
+                className="flex flex-row gap-3 px-8 py-5 text-left text-sm font-bold text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer"
               >
                 <div>
                   <IconUserEdit size={18} />
@@ -94,21 +94,21 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
             <hr />
             {currentUser ? (
               <>
-                <MenuItem onClick={() => { rentModal.onOpen(); closeMenu(); }} label="Add your items" icon={<IconFilePlus size={18} className="text-black" />} />
-                <MenuItem onClick={() => { router.push("/trips"); closeMenu(); }} label="Bookings" icon={<IconLocationCheck size={18} className="text-black" />} />
-                <MenuItem onClick={() => { router.push("/reservations"); closeMenu(); }} label="Reservations" icon={<IconCalendar size={18} className="text-black" />} />
-                <MenuItem onClick={() => { router.push("/favorites"); closeMenu(); }} label="Favourites" icon={<IconHearts size={18} className="text-black" />} />
-                <MenuItem onClick={() => { router.push("/properties"); closeMenu(); }} label="My Utilities" icon={<IconBrandDatabricks size={18} className="text-black" />} />
-                <MenuItem onClick={() => { router.push("/messages"); closeMenu(); }} label="Messages" icon={<IconMessage size={18} className="text-black" />} />
+                <MenuItem onClick={() => { rentModal.onOpen(); closeMenu(); }} label="Add your items" icon={<IconFilePlus size={18} className="text-black dark:text-white" />} />
+                <MenuItem onClick={() => { router.push("/trips"); closeMenu(); }} label="Bookings" icon={<IconLocationCheck size={18} className="text-black dark:text-white" />} />
+                <MenuItem onClick={() => { router.push("/reservations"); closeMenu(); }} label="Reservations" icon={<IconCalendar size={18} className="text-black dark:text-white" />} />
+                <MenuItem onClick={() => { router.push("/favorites"); closeMenu(); }} label="Favourites" icon={<IconHearts size={18} className="text-black dark:text-white" />} />
+                <MenuItem onClick={() => { router.push("/properties"); closeMenu(); }} label="My Utilities" icon={<IconBrandDatabricks size={18} className="text-black dark:text-white" />} />
+                <MenuItem onClick={() => { router.push("/messages"); closeMenu(); }} label="Messages" icon={<IconMessage size={18} className="text-black dark:text-white" />} />
                 {/* <MenuItem onClick={() => { router.push("/profile"); closeMenu(); }} label="Profile" /> */}
                 <hr />
-                <MenuItem onClick={() => { signOut(); closeMenu(); }} label="Logout" icon={<IconLogout2 size={18} className="text-black" />} />
+                <MenuItem onClick={() => { signOut(); closeMenu(); }} label="Logout" icon={<IconLogout2 size={18} className="text-black dark:text-white" />} />
               </>
             ) : (
               <>
-                <MenuItem onClick={() => { loginModal.onOpen(); closeMenu(); }} label="Login" icon={<IconLogin2 size={18} className="text-black" />} />
+                <MenuItem onClick={() => { loginModal.onOpen(); closeMenu(); }} label="Login" icon={<IconLogin2 size={18} className="text-black dark:text-white" />} />
                 <hr />
-                <MenuItem onClick={() => { registerModal.onOpen(); closeMenu(); }} label="Sign Up" icon={<IconClipboardPlus size={18} className="text-black" />} />
+                <MenuItem onClick={() => { registerModal.onOpen(); closeMenu(); }} label="Sign Up" icon={<IconClipboardPlus size={18} className="text-black dark:text-white" />} />
               </>
             )}
           </div>

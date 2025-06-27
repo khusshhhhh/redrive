@@ -76,7 +76,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                     />
                     {/* ✅ Show badge dynamically if it exists */}
                     {data.badgeValue && (
-                        <div className="absolute top-3 left-3 bg-white text-black font-bold text-sm px-4 py-2 rounded-md">
+                        <div className="absolute top-3 left-3 bg-white dark:bg-gray-800 text-black dark:text-white font-bold text-sm px-4 py-2 rounded-md">
                             {data.badgeValue}
                         </div>
                     )}

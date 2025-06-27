@@ -58,7 +58,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                     />
 
                     <div className="absolute top-3 left-3">
-                        <button className="bg-white text-black p-1 rounded-full"
+                        <button className="bg-white dark:bg-gray-800 text-black dark:text-white p-1 rounded-full"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 router.back()
@@ -69,7 +69,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                     <div>
                         {/* Show All Images Button */}
                         <button
-                            className="flex flex-row gap-1 items-center absolute bottom-3 left-3 bg-white text-black font-semibold text-sm px-4 py-2 rounded-md"
+                            className="flex flex-row gap-1 items-center absolute bottom-3 left-3 bg-white dark:bg-gray-800 text-black dark:text-white font-semibold text-sm px-4 py-2 rounded-md"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 router.push(`/listings/${id}/images`);
@@ -101,7 +101,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                         />
 
                         <div className="absolute top-3 left-3">
-                            <button className="bg-white text-black p-1 rounded-full"
+                            <button className="bg-white dark:bg-gray-800 text-black dark:text-white p-1 rounded-full"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     router.back()
@@ -113,7 +113,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                         {/* Show All Images Button */}
                         <div>
                             <button
-                                className="flex flex-row gap-1 items-center absolute bottom-3 left-3 bg-white text-black font-semibold text-sm px-4 py-2 rounded-md"
+                                className="flex flex-row gap-1 items-center absolute bottom-3 left-3 bg-white dark:bg-gray-800 text-black dark:text-white font-semibold text-sm px-4 py-2 rounded-md"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     router.push(`/listings/${id}/images`);
@@ -160,7 +160,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                     >
                         {/* Close Button */}
                         <button
-                            className="absolute top-6 right-6 bg-white text-black rounded-full p-2 z-50 hover:bg-gray-300 transition"
+                            className="absolute top-6 right-6 bg-white dark:bg-gray-800 text-black dark:text-white rounded-full p-2 z-50 hover:bg-gray-300 dark:hover:bg-gray-700 transition"
                             onClick={() => setSelectedImage(null)}
                         >
                             <IoClose size={24} />

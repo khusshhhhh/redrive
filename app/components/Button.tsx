@@ -41,9 +41,9 @@ const Button: React.FC<ButtonProps> = ({
             onClick={handleClick}
             disabled={disabled || loading}
             className={`relative flex items-center justify-center gap-2 my-4 disabled:opacity-70 disabled:cursor-not-allowed rounded-lg hover:opacity-80 transition w-full
-                ${outline ? 'bg-white' : 'bg-teal-500'}
-                ${outline ? 'border-black' : 'border-teal-500'}
-                ${outline ? 'text-black' : 'text-white'}
+                ${outline ? 'bg-white dark:bg-gray-800' : 'bg-teal-500'}
+                ${outline ? 'border-black dark:border-gray-200' : 'border-teal-500'}
+                ${outline ? 'text-black dark:text-white' : 'text-white'}
                 ${small ? 'py-1 text-sm font-light border-[1px]' : 'py-3 text-md font-semibold border-2'}`}
         >
             {loading ? (

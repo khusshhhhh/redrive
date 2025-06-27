@@ -217,7 +217,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
             </div>
 
             {/* User Info */}
-            <div className="bg-white shadow-none md:shadow-lg shadow-gray-600/20 rounded-xl border-[1px] border-neutral-200 p-10 my-8">
+            <div className="bg-white dark:bg-gray-800 shadow-none md:shadow-lg shadow-gray-600/20 rounded-xl border-[1px] border-neutral-200 dark:border-gray-600 p-10 my-8">
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-10 items-center">
                     {/* Image Block */}
                     <div className="col-span-1 md:col-span-2 flex justify-center">

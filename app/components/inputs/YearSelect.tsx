@@ -36,10 +36,10 @@ const YearSelect: React.FC<YearSelectProps> = ({
                 {...register(id, { required })}
                 value={selectedYear}
                 onChange={(e) => setValue(id, e.target.value)}
-                className={`peer w-full p-4 pt-6 font-light bg-white border-2 rounded-md outline-none transition disabled:opacity-70 disabled:cursor-not-allowed
-                            pl-4 appearance-none 
-                            ${errors[id] ? "border-red-300" : "border-neutral-300"}
-                            ${errors[id] ? "focus:border-red-200" : "focus:border-black"}
+                className={`peer w-full p-4 pt-6 font-light bg-white dark:bg-gray-800 border-2 rounded-md outline-none transition disabled:opacity-70 disabled:cursor-not-allowed
+                            pl-4 appearance-none
+                            ${errors[id] ? "border-red-300" : "border-neutral-300 dark:border-gray-600"}
+                            ${errors[id] ? "focus:border-red-200" : "focus:border-black dark:focus:border-gray-200"}
                 `}
             >
                 <option value="" disabled hidden>Select Year</option>

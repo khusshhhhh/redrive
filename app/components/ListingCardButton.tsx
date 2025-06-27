@@ -18,8 +18,8 @@ const ListingCardButton: React.FC<ListingCardButtonProps> = ({ label, onClick, d
                 className={`w-full py-2 font-medium rounded-lg transition
                 ${disabled ? "bg-gray-400 cursor-not-allowed" :
                         variant === "primary"
-                            ? "bg-white text-teal-500 border-[2px] border-teal-400 hover:bg-teal-400 hover:text-white"
-                            : "bg-white text-red-500 border-[2px] border-red-400 hover:bg-red-400 hover:text-white"}
+                            ? "bg-white dark:bg-gray-800 text-teal-500 dark:text-teal-400 border-[2px] border-teal-400 hover:bg-teal-400 hover:text-white"
+                            : "bg-white dark:bg-gray-800 text-red-500 dark:text-red-400 border-[2px] border-red-400 hover:bg-red-400 hover:text-white"}
             `}
             >
                 {label}

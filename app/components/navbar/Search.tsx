@@ -84,7 +84,7 @@ const Search = () => {
           <div className="text-center">
             <button
               onClick={handleClearFilters}
-              className="p-3 bg-white text-black rounded-full hover:border-teal-600 border-[1px] border-gray-800 hover:bg-teal-600 hover:text-white transition"
+              className="p-3 bg-white dark:bg-gray-700 text-black dark:text-white rounded-full hover:border-teal-600 border-[1px] border-gray-800 dark:border-gray-200 hover:bg-teal-600 hover:text-white transition"
             >
               <IconX size={16} />
             </button>

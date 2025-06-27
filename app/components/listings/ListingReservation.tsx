@@ -85,7 +85,7 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     const totalFees = totalPrice + redriveFee + serviceFee + insuranceFee + upfrontCleaningFee; // include cleaning fee if charged now
 
     return (
-        <div className="bg-white shadow-none md:shadow-lg shadow-gray-600/20 rounded-xl border-[1px] border-neutral-200 overflow-hidden mt-10 md:mt-0">
+        <div className="bg-white dark:bg-gray-800 shadow-none md:shadow-lg shadow-gray-600/20 rounded-xl border-[1px] border-neutral-200 dark:border-gray-600 overflow-hidden mt-10 md:mt-0">
             <div className="flex flex-row items-center gap-1 p-4">
                 <div className="text-2xl font-semibold">$ {price}</div>
                 <div className="font-light text-neutral-600">per day</div>
@@ -125,19 +125,19 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                     <div className="font-bold mb-4">Insurance Options</div>
                     <div className="flex flex-col space-y-3 relative">
                         {Object.keys(insuranceDetails).map((type) => (
-                            <label key={type} className="flex flex-row gap-3 items-center cursor-pointer transition-all duration-300 hover:border-black">
+                            <label key={type} className="flex flex-row gap-3 items-center cursor-pointer transition-all duration-300 hover:border-black dark:hover:border-gray-300">
                                 <input type="radio" name="insurance" value={type} checked={insuranceType === type} onChange={() => handleInsuranceChange(type, type === "Risk Taker" ? 20 : type === "Happy Driver" ? 40 : 0)} className="hidden" />
-                                <div className={`mt-1 w-4 h-4 flex justify-center items-center border-2 rounded-full transition-all duration-300 ${insuranceType === type ? "border-black bg-black" : "border-gray-400 bg-white"}`}>{insuranceType === type && <div className="w-2 h-2 bg-white rounded-full"></div>}</div>
+                                <div className={`mt-1 w-4 h-4 flex justify-center items-center border-2 rounded-full transition-all duration-300 ${insuranceType === type ? "border-black bg-black" : "border-gray-400 bg-white dark:bg-gray-700"}`}>{insuranceType === type && <div className="w-2 h-2 bg-white rounded-full"></div>}</div>
                                 <div className="flex flex-row items-center gap-3">
                                     <span className="text-base font-medium">{type}</span>
                                     <button type="button" onClick={() => setInfoPopup(infoPopup === type ? null : type)}>
-                                        <Info size={16} className="text-gray-500 hover:text-black" />
+                                        <Info size={16} className="text-gray-500 hover:text-black dark:hover:text-white" />
                                     </button>
                                 </div>
                             </label>
                         ))}
                         {infoPopup && (
-                            <Card className="absolute left-2 p-4 w-72 shadow-lg z-10 bg-white border rounded-lg" onClose={() => setInfoPopup(null)}>
+                            <Card className="absolute left-2 p-4 w-72 shadow-lg z-10 bg-white dark:bg-gray-800 border rounded-lg" onClose={() => setInfoPopup(null)}>
                                 <CardContent>
                                     <div className="font-medium text-lg mb-2">{infoPopup}</div>
                                     <div className="text-sm text-gray-600">{insuranceDetails[infoPopup].description}</div>

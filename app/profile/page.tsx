@@ -177,7 +177,7 @@ export default function Profile() {
                     </div>
                 </div>
             ) : (
-                <div className="max-w-2xl mx-auto p-6 bg-white mt-10">
+                <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-gray-800 mt-10">
                     <h2 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2">
                         Hey, {userName}
                         {profileVerified === "Y" && <FaCheck className="text-teal-500" size={20} />}
@@ -288,11 +288,11 @@ export default function Profile() {
                                     />
                                     {/* Show Suggestions */}
                                     {suggestedCities.length > 0 && (
-                                        <ul className="border mt-1 bg-white shadow-lg max-h-40 overflow-auto rounded-md">
+                                        <ul className="border mt-1 bg-white dark:bg-gray-800 shadow-lg max-h-40 overflow-auto rounded-md">
                                             {suggestedCities.map((city, index) => (
                                                 <li
                                                     key={index}
-                                                    className="p-2 hover:bg-gray-200 cursor-pointer"
+                                                    className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
                                                     onClick={() => addCity(city)}
                                                 >
                                                     {city}

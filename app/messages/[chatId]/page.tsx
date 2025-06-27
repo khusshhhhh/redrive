@@ -74,7 +74,7 @@ const ChatPage = () => {
           <IconArrowLeft size={16} /> Back
         </button>
         <Heading title={chat.otherUser?.name || "Conversation"} subtitle="" />
-        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border p-2 sm:p-4 rounded-md bg-white">
+        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border p-2 sm:p-4 rounded-md bg-white dark:bg-gray-800">
           {chat.messages.map((m) => {
             const isCurrent = m.senderId === currentUserId;
             return (
@@ -89,7 +89,7 @@ const ChatPage = () => {
                 )}
                 <div
                   className={`px-3 py-2 rounded-lg max-w-xs animate-pop ${
-                    isCurrent ? "bg-teal-500 text-white" : "bg-gray-100"
+                    isCurrent ? "bg-teal-500 text-white" : "bg-gray-100 dark:bg-gray-700"
                   }`}
                 >
                   {m.text}

@@ -186,7 +186,7 @@ const EditUtilityPage = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto p-6 bg-white">
+        <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-800">
             <h2 className="text-2xl font-bold mb-6 text-center">Edit Your Utility</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Title */}
@@ -439,7 +439,7 @@ const EditUtilityPage = () => {
                     </button>
                     <button
                         type="button"
-                        className="border-[3px] border-black hover:border-teal-500 hover:text-teal-500 w-full bg-white text-black font-semibold px-6 py-4 rounded-lg transition-all disabled:opacity-50"
+                        className="border-[3px] border-black dark:border-gray-200 hover:border-teal-500 hover:text-teal-500 w-full bg-white dark:bg-gray-800 text-black dark:text-white font-semibold px-6 py-4 rounded-lg transition-all disabled:opacity-50"
                         onClick={() => router.back()}
                     >
                         Go Back
