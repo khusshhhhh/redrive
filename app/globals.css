@@ -8,6 +8,14 @@ body,
   height: 100%;
 }
 
+body {
+  @apply bg-white text-black;
+}
+
+.dark body {
+  @apply bg-gray-900 text-white;
+}
+
 .leaflet-bottom,
 .leaflet-control,
 .leaflet-pane,

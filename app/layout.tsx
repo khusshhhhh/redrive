@@ -10,6 +10,7 @@ import RentModal from "./components/modals/RentModal";
 import SearchModal from "./components/modals/SearchModal";
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import ThemeProvider from "./providers/ThemeProvider";
 
 export const metadata = {
   title: "Redrive 1.0",
@@ -29,18 +30,20 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={font.className}> {/* ✅ Apply Poppins font here */}
-        <ClientOnly>
-          <ToasterProvider />
-          <SearchModal />
-          <RentModal />
-          <LoginModal />
-          <RegisterModal />
-          <Navbar currentUser={currentUser} />
-        </ClientOnly>
-        <div className="pb-20 pt-28">{children}</div>
-        <Analytics />
-        <SpeedInsights />
+      <body className={font.className}>
+        <ThemeProvider>
+          <ClientOnly>
+            <ToasterProvider />
+            <SearchModal />
+            <RentModal />
+            <LoginModal />
+            <RegisterModal />
+            <Navbar currentUser={currentUser} />
+          </ClientOnly>
+          <div className="pb-20 pt-28">{children}</div>
+          <Analytics />
+          <SpeedInsights />
+        </ThemeProvider>
       </body>
     </html>
   );
