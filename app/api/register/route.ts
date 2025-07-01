@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import prisma from "@/app/libs/prismadb";
 import { NextResponse } from "next/server";
+import { sendOtpEmail } from "@/app/libs/email";
 
 export async function POST(request: Request) {
   try {
@@ -33,6 +34,14 @@ export async function POST(request: Request) {
       );
     }
 
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "Email already registered" },
+        { status: 400 }
+      );
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const user = await prisma.user.create({
@@ -43,8 +52,26 @@ export async function POST(request: Request) {
       },
     });
 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    return NextResponse.json(user, { status: 201 });
+    await prisma.verificationToken.create({
+      data: {
+        email,
+        token: otp,
+        expires: new Date(Date.now() + 10 * 60 * 1000),
+      },
+    });
+
+    try {
+      await sendOtpEmail(email, otp);
+    } catch (e) {
+      console.error("❌ Failed to send OTP email:", e);
+    }
+
+    return NextResponse.json(
+      { message: "OTP sent to email", userId: user.id },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("❌ Error registering user:", error);
     return NextResponse.json(

@@ -323,3 +323,33 @@ If you’re an investor... well, **call me! 😆**
 - 📄 test.Reservation.json
 - 📄 test.Review.json
 - 📄 tsconfig.json
+
+## Email OTP Verification
+
+The registration flow now sends a one-time password (OTP) to verify new accounts. To enable email delivery, create the following environment variables:
+
+```
+SMTP_HOST=your_smtp_host
+SMTP_PORT=587
+SMTP_USER=your_smtp_username
+SMTP_PASS=your_smtp_password
+SMTP_FROM="Redrive <no-reply@yourdomain.com>"
+```
+
+Install dependencies and start the development server:
+
+```bash
+npm install
+npm run dev
+```
+
+During sign up, users receive a 6-digit OTP email using this template:
+
+```
+Welcome to Redrive!
+Use the following code to verify your email address:
+<OTP>
+This code is valid for 10 minutes.
+```
+
+Submit the OTP to `/api/verify-otp` to activate the account.
