@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import type { NextRequest } from "next/server";
+import { notificationService } from "@/app/services/notificationService";
 
 // ✅ GET: Fetch reservation details with user included
 export async function GET(
@@ -15,7 +16,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { reservationId } = context.params;
+    const { reservationId } = await context.params;
 
     if (!reservationId) {
       return NextResponse.json(
@@ -77,12 +78,15 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const reservationId = context.params?.reservationId;
+    const { reservationId } = await context.params;
 
     // Validate the reservation
     const reservation = await prisma.reservation.findUnique({
       where: { id: reservationId },
-      include: { listing: true },
+      include: { 
+        listing: true,
+        user: true 
+      },
     });
 
     if (!reservation) {
@@ -115,9 +119,26 @@ export async function DELETE(
       );
     }
 
+    // Determine who cancelled and notify the other party
+    const cancelledBy = currentUser.id === reservation.userId ? "you" : reservation.listing.title + " owner";
+    const notifyUserId = currentUser.id === reservation.userId ? reservation.listing.userId : reservation.userId;
+
     await prisma.reservation.delete({
       where: { id: reservationId },
     });
+
+    // Send cancellation notification
+    try {
+      await notificationService.notifyBookingCancelled(
+        notifyUserId,
+        reservation.listing.title,
+        reservation.id,
+        cancelledBy
+      );
+    } catch (notificationError) {
+      console.error("Error sending cancellation notification:", notificationError);
+      // Don't fail the cancellation if notification fails
+    }
 
     return NextResponse.json(
       { success: true, message: "Reservation canceled" },
@@ -144,7 +165,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { reservationId } = context.params;
+    const { reservationId } = await context.params;
     const body = await request.json();
     const { status } = body;
 
@@ -154,7 +175,10 @@ export async function PATCH(
 
     const reservation = await prisma.reservation.findUnique({
       where: { id: reservationId },
-      include: { listing: true },
+      include: { 
+        listing: true,
+        user: true 
+      },
     });
 
     if (!reservation) {
@@ -169,6 +193,26 @@ export async function PATCH(
       where: { id: reservationId },
       data: { status },
     });
+
+    // Send notification based on status change
+    try {
+      if (status === "APPROVED") {
+        await notificationService.notifyBookingApproved(
+          reservation.userId,
+          reservation.listing.title,
+          reservation.id
+        );
+      } else if (status === "DECLINED") {
+        await notificationService.notifyBookingDeclined(
+          reservation.userId,
+          reservation.listing.title,
+          reservation.id
+        );
+      }
+    } catch (notificationError) {
+      console.error("Error sending notification:", notificationError);
+      // Don't fail the reservation update if notification fails
+    }
 
     return NextResponse.json(updated, { status: 200 });
   } catch (error) {

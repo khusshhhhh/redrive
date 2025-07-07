@@ -35,6 +35,7 @@ model User {
   reservations Reservation[]
   reviews      Review[]
   messagesSent Message[] @relation("UserMessages")
+  notifications Notification[]
 
 }
 
@@ -158,5 +159,47 @@ model Message {
 
   chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
   sender User @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  type        NotificationType
+  title       String
+  message     String
+  data        Json?    // Additional data like listingId, reservationId, etc.
+  read        Boolean  @default(false)
+  actionUrl   String?  // Where to redirect when clicked
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime? // Optional expiration for time-sensitive notifications
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+}
+
+enum NotificationType {
+  BOOKING_REQUEST       // New booking request received
+  BOOKING_APPROVED      // Your booking was approved
+  BOOKING_DECLINED      // Your booking was declined
+  BOOKING_CANCELLED     // Booking was cancelled
+  BOOKING_REMINDER      // Upcoming booking reminder
+  BOOKING_COMPLETED     // Booking completed
+  
+  REVIEW_RECEIVED       // New review on your listing
+  REVIEW_REMINDER       // Reminder to leave a review
+  
+  MESSAGE_RECEIVED      // New message in chat
+  
+  LISTING_FAVORITED     // Someone favorited your listing
+  LISTING_UPDATED       // Your listing was updated
+  
+  PROFILE_VERIFIED      // Profile verification status change
+  PAYMENT_RECEIVED      // Payment received
+  PAYMENT_REQUIRED      // Payment required
+  
+  SYSTEM_UPDATE         // System notifications
+  SECURITY_ALERT        // Security-related notifications
 }
 

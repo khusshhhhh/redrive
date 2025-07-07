@@ -10,6 +10,7 @@ import { signOut } from "next-auth/react";
 import { SafeUser } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { IconBrandDatabricks, IconCalendar, IconClipboardPlus, IconFilePlus, IconHearts, IconLocationCheck, IconLogin2, IconLogout2, IconMenu3, IconUserEdit, IconMessage } from "@tabler/icons-react";
+import NotificationBell from "@/app/components/notifications/NotificationBell";
 
 interface UserMenuProps {
   currentUser?: SafeUser | null;
@@ -64,6 +65,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
         >
           Add your items
         </div>
+        {currentUser && <NotificationBell />}
         <div
           onClick={toggleOpen}
           className="py-2 px-3 border-[1px] border-neutral-300 flex flex-row items-center gap-3 rounded-full cursor-pointer hover:shadow-md transition"
@@ -100,6 +102,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
                 <MenuItem onClick={() => { router.push("/favorites"); closeMenu(); }} label="Favourites" icon={<IconHearts size={18} className="text-black" />} />
                 <MenuItem onClick={() => { router.push("/properties"); closeMenu(); }} label="My Utilities" icon={<IconBrandDatabricks size={18} className="text-black" />} />
                 <MenuItem onClick={() => { router.push("/messages"); closeMenu(); }} label="Messages" icon={<IconMessage size={18} className="text-black" />} />
+                <MenuItem onClick={() => { router.push("/notifications"); closeMenu(); }} label="Notifications" icon={<IconMessage size={18} className="text-black" />} />
                 {/* <MenuItem onClick={() => { router.push("/profile"); closeMenu(); }} label="Profile" /> */}
                 <hr />
                 <MenuItem onClick={() => { signOut(); closeMenu(); }} label="Logout" icon={<IconLogout2 size={18} className="text-black" />} />
