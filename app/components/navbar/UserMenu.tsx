@@ -102,7 +102,6 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
                 <MenuItem onClick={() => { router.push("/favorites"); closeMenu(); }} label="Favourites" icon={<IconHearts size={18} className="text-black" />} />
                 <MenuItem onClick={() => { router.push("/properties"); closeMenu(); }} label="My Utilities" icon={<IconBrandDatabricks size={18} className="text-black" />} />
                 <MenuItem onClick={() => { router.push("/messages"); closeMenu(); }} label="Messages" icon={<IconMessage size={18} className="text-black" />} />
-                <MenuItem onClick={() => { router.push("/notifications"); closeMenu(); }} label="Notifications" icon={<IconMessage size={18} className="text-black" />} />
                 {/* <MenuItem onClick={() => { router.push("/profile"); closeMenu(); }} label="Profile" /> */}
                 <hr />
                 <MenuItem onClick={() => { signOut(); closeMenu(); }} label="Logout" icon={<IconLogout2 size={18} className="text-black" />} />
