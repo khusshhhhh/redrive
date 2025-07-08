@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import { notificationService } from "@/app/services/notificationService";
 
 export async function POST(request: Request) {
   try {
@@ -48,6 +49,15 @@ export async function POST(request: Request) {
       );
     }
 
+    // Get listing details for the notification
+    const listing = await prisma.listing.findUnique({
+      where: { id: listingId },
+    });
+
+    if (!listing) {
+      return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+    }
+
     // Create the review
     const review = await prisma.review.create({
       data: {
@@ -57,6 +67,20 @@ export async function POST(request: Request) {
         text,
       },
     });
+
+    // Send review notification to listing owner
+    try {
+      await notificationService.notifyReviewReceived(
+        listing.userId,
+        currentUser.name || "Someone",
+        listing.title,
+        rating,
+        listingId
+      );
+    } catch (notificationError) {
+      console.error("Error sending review notification:", notificationError);
+      // Don't fail the review creation if notification fails
+    }
 
     return NextResponse.json(review, { status: 201 });
   } catch (error) {

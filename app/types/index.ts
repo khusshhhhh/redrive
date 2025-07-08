@@ -1,4 +1,4 @@
-import { Listing, Reservation, User } from "@prisma/client";
+import { Listing, Reservation, User, Notification, NotificationType } from "@prisma/client";
 
 export type SafeListing = Omit<Listing, "createdAt" | "regoImage"> & {
   createdAt: string;
@@ -48,3 +48,11 @@ export type SafeChat = {
   messages: SafeMessage[];
   otherUser: SafeUser | null;
 };
+
+export type SafeNotification = Omit<Notification, "createdAt" | "expiresAt"> & {
+  createdAt: string;
+  expiresAt?: string | null;
+  user?: SafeUser;
+};
+
+export { NotificationType };

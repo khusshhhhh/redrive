@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import { notificationService } from "@/app/services/notificationService";
 
 // ✅ Function to determine service fee based on total price
 const calculateServiceFee = (totalPrice: number): number => {
@@ -82,6 +83,19 @@ export async function POST(request: Request) {
         status: "REVIEWING",
       },
     });
+
+    // Send booking request notification to listing owner
+    try {
+      await notificationService.notifyBookingRequest(
+        listing.userId,
+        currentUser.name || "Someone",
+        listing.title,
+        reservation.id
+      );
+    } catch (notificationError) {
+      console.error("Error sending booking request notification:", notificationError);
+      // Don't fail the reservation creation if notification fails
+    }
 
     return NextResponse.json(reservation, { status: 201 });
   } catch (error) {

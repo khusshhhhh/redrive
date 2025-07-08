@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
 import type { NextRequest } from "next/server";
+import { notificationService } from "@/app/services/notificationService";
 
 // ✅ POST: Add listing to favorites
 export async function POST(request: NextRequest) {
@@ -22,6 +23,26 @@ export async function POST(request: NextRequest) {
     where: { id: currentUser.id },
     data: { favoriteIds },
   });
+
+  // Get listing details for the notification
+  try {
+    const listing = await prisma.listing.findUnique({
+      where: { id: listingId },
+    });
+
+    if (listing && listing.userId !== currentUser.id) {
+      // Send favorite notification to listing owner (don't notify if user favorites their own listing)
+      await notificationService.notifyListingFavorited(
+        listing.userId,
+        currentUser.name || "Someone",
+        listing.title,
+        listingId
+      );
+    }
+  } catch (notificationError) {
+    console.error("Error sending favorite notification:", notificationError);
+    // Don't fail the favorite action if notification fails
+  }
 
   return NextResponse.json(user);
 }
