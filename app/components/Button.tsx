@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { IconType } from "react-icons";
-import { ImSpinner2 } from "react-icons/im"; // Import a spinner icon
+import DotLoader from "./DotLoader";
 
 interface ButtonProps {
     label: string;
@@ -47,11 +47,14 @@ const Button: React.FC<ButtonProps> = ({
                 ${small ? 'py-1 text-sm font-light border-[1px]' : 'py-3 text-md font-semibold border-2'}`}
         >
             {loading ? (
-                <ImSpinner2 size={20} className="animate-spin" />
+                <DotLoader 
+                    size={small ? "sm" : "md"} 
+                    color={outline ? "#000000" : "#ffffff"} 
+                />
             ) : Icon ? (
                 <Icon size={24} className="absolute left-4 top-1/2 transform -translate-y-1/2" />
             ) : null}
-            {loading ? "Processing..." : label}
+            {loading ? "Loading..." : label}
         </button>
     );
 };
