@@ -4,7 +4,7 @@
 
 ![REDRIVE Banner](https://img.shields.io/badge/REDRIVE-1.1.0-blue?style=for-the-badge&logo=car&logoColor=white)
 
-**🏆 A Solo Developer's Journey: 60+ Days | 320+ Hours | Infinite Passion**
+**🏆 A Solo Developer's Journey: 100+ Days | 650+ Hours | Infinite Passion**
 
 _From Concept to Production-Ready Platform_
 
@@ -14,27 +14,37 @@ _From Concept to Production-Ready Platform_
 [![Prisma](https://img.shields.io/badge/Prisma-6.11-2D3748?style=flat-square&logo=prisma)](https://www.prisma.io/)
 [![Supabase](https://img.shields.io/badge/Supabase-2.50-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com/)
 
-![Platform Demo](https://res.cloudinary.com/your-cloud/image/upload/v1/demo/redrive-platform.jpg)
-
 </div>
 
 ---
 
 ## 🌟 What is REDRIVE?
 
-**REDRIVE** is a next-generation peer-to-peer vehicle rental platform that transforms how people access transportation. From weekend getaways in motorhomes to daily commutes with eco-friendly cars, REDRIVE connects vehicle owners with renters in a seamless, secure ecosystem.
+**REDRIVE** is a uniquely Australian platform designed with a passion for adventure and innovation. Think Airbnb, but for adventure seekers. Redrive makes it simple and seamless to rent out a wide range of adventurous utilities—from **utes, caravans, and campervans to yachts, jetskis, and more.**
+
+Whether you're planning a rugged outback road trip, a coastal cruise, or a weekend of watersports, Redrive connects Australians with the tools they need to make it unforgettable. The platform is crafted with a modern, smooth, and intuitive user experience, allowing both renters and owners to interact effortlessly.
 
 ### 🎯 The Vision
 
-_"Democratizing transportation access while creating income opportunities for vehicle owners."_
+_"To empower every Aussie to unlock adventure by seamlessly sharing and accessing utility vehicles through a modern, trusted platform."_
 
-### 🚀 Platform Highlights
+### 🚀 Key Highlights
 
-- **10+ Vehicle Categories**: Cars, Utes, Bikes, Caravans, Motorhomes, Boats, Yachts, Trucks
-- **100+ Amenities**: From basic air conditioning to advanced camping setups
-- **Real-time Everything**: Notifications, booking updates, chat messaging
-- **Dual Database Architecture**: MongoDB + Supabase for ultimate reliability
-- **Mobile-First Design**: Perfect experience on every device
+- Rent and list a wide variety of utility vehicles and equipment
+
+- Tailored for Aussie adventurers and their love for the outdoors
+
+- Built with a sleek, user-friendly interface for a frictionless booking experience
+
+- Secure, verified listings and user profiles
+
+- Reviews, ratings, and personalized recommendations
+
+- 10+ Vehicle Categories: Cars, Utes, Bikes, Caravans, Motorhomes, Boats, Yachts, Trucks
+- 100+ Amenities: From basic air conditioning to advanced camping setups
+- Real-time Everything: Notifications, booking updates, chat messaging
+- Dual Database Architecture: MongoDB + Supabase for ultimate reliability
+- Mobile-First Design: Perfect experience on every device
 
 ---
 
@@ -55,47 +65,22 @@ graph TB
     J[📊 Analytics] --> K[📈 Vercel Analytics]
     L[🚀 Deployment] --> M[⚡ Vercel Edge]
 
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style E fill:#e8f5e8
-    style F fill:#fff3e0
+    style A fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+    style B fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+    style C fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+    style D fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+    style E fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+    style F fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+    style G fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+    style H fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+    style I fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+    style J fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+    style K fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+    style L fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+    style M fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
 ```
 
 ---
-
-## 🛠️ Technical Excellence
-
-### **Core Stack**
-
-```typescript
-interface TechStack {
-  frontend: {
-    framework: "Next.js 14";
-    runtime: "React 19";
-    language: "TypeScript 5";
-    styling: "TailwindCSS 3.4";
-    icons: ["Tabler Icons", "Lucide", "FontAwesome"];
-  };
-  backend: {
-    api: "Next.js API Routes";
-    serverActions: "Next.js Server Actions";
-    middleware: "Custom Auth Middleware";
-    validation: "React Hook Form";
-  };
-  database: {
-    primary: "MongoDB 6.13";
-    orm: "Prisma 6.11";
-    realtime: "Supabase PostgreSQL";
-    caching: "Vercel Edge Cache";
-  };
-  infrastructure: {
-    hosting: "Vercel";
-    storage: "Cloudinary";
-    maps: "Google Maps API";
-    analytics: "Vercel Analytics + Speed Insights";
-  };
-}
-```
 
 ### **Advanced Features**
 
@@ -233,23 +218,6 @@ users, listings, reservations, reviews, notifications
 -- Full-text search capabilities
 ```
 
-### **Data Synchronization**
-
-```typescript
-class DualDatabaseService {
-  async createListing(data) {
-    const mongoResult = await prisma.listing.create(data);
-    await supabase.from("listings").insert(transformData(data));
-    return mongoResult;
-  }
-
-  async syncData(table: string) {
-    // Intelligent sync with conflict resolution
-    // Background job for data consistency
-  }
-}
-```
-
 ---
 
 ## 🚀 Feature Showcase
@@ -345,9 +313,9 @@ interface PricingCalculation {
 
 This entire platform was conceived, designed, and built by a single developer through:
 
-- **60+ Days** of continuous development
-- **320+ Hours** of coding, debugging, and optimization
-- **1000+ Commits** across the development cycle
+- **100+ Days** of continuous development
+- **650+ Hours** of coding, debugging, and optimization
+- **200+ Commits** across the development cycle
 - **Zero External Development** - every line of code is original
 
 ### **🧠 Technical Challenges Conquered**
@@ -379,7 +347,7 @@ This entire platform was conceived, designed, and built by a single developer th
 
 ## 🔮 Future Roadmap
 
-### **🚀 Phase 1: Enhanced Experience (Q2 2024)**
+### **🚀 Phase 1: Enhanced Experience (Q2 2025)**
 
 <table>
 <tr><th>Feature</th><th>Status</th><th>Priority</th><th>Description</th></tr>
@@ -389,21 +357,21 @@ This entire platform was conceived, designed, and built by a single developer th
 <tr><td>📱 Progressive Web App</td><td>Planning</td><td>🟡 Medium</td><td>Native app experience in browser</td></tr>
 </table>
 
-### **🤖 Phase 2: AI-Powered Features (Q3 2024)**
+### **🤖 Phase 2: AI-Powered Features (Q3 2025)**
 
 - **Smart Recommendations** - ML-based vehicle suggestions
 - **Dynamic Pricing** - AI-optimized pricing recommendations
 - **Fraud Detection** - Pattern recognition for security
 - **Chatbot Support** - 24/7 automated customer service
 
-### **🌍 Phase 3: Platform Expansion (Q4 2024)**
+### **🌍 Phase 3: Platform Expansion (Q4 2025)**
 
 - **Multi-Region Support** - Expand beyond Australia
 - **Fleet Management** - Tools for commercial operators
 - **Loyalty Program** - Rewards for frequent users
 - **API Marketplace** - Third-party integrations
 
-### **🚁 Phase 4: Innovation Labs (2025)**
+### **🚁 Phase 4: Innovation Labs (2026)**
 
 - **IoT Integration** - Smart vehicle connectivity
 - **Blockchain Verification** - Decentralized identity system
@@ -411,58 +379,6 @@ This entire platform was conceived, designed, and built by a single developer th
 - **Carbon Tracking** - Environmental impact monitoring
 
 ---
-
-## 🔧 Development Setup
-
-### **Prerequisites**
-
-```bash
-# Required versions
-Node.js >= 18.0.0
-npm >= 9.0.0
-MongoDB >= 6.0.0
-```
-
-### **Environment Configuration**
-
-```bash
-# Core Database
-DATABASE_URL="mongodb://..."
-NEXTAUTH_SECRET="your-secret-key"
-
-# Authentication Providers
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-
-# Cloud Services
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your-cloudinary-name"
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="your-maps-api-key"
-
-# Supabase (Dual Database)
-NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-key"
-SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
-
-# Feature Flags
-ENABLE_DUAL_DATABASE="true"
-SUPABASE_SYNC_ON_WRITE="true"
-```
-
-### **Quick Start**
-
-```bash
-# Clone and install
-git clone https://github.com/yourusername/redrive.git
-cd redrive
-npm install
-
-# Database setup
-npx prisma generate
-npx prisma db push
-
-# Start development server
-npm run dev
-```
 
 ### **Project Structure**
 
@@ -505,37 +421,12 @@ redrive/
 | Metric                   | Score  |
 | ------------------------ | ------ |
 | Lighthouse Performance   | 98/100 |
-| First Contentful Paint   | <1.2s  |
-| Largest Contentful Paint | <2.5s  |
-| Time to Interactive      | <3.8s  |
-| Cumulative Layout Shift  | <0.1   |
+| First Contentful Paint   | < 1.2s |
+| Largest Contentful Paint | < 2.5s |
+| Time to Interactive      | < 3.8s |
+| Cumulative Layout Shift  | < 0.1  |
 
 </div>
-
----
-
-## 💡 Innovation Highlights
-
-### **🏗️ Architectural Innovations**
-
-1. **Dual Database Strategy** - Combines MongoDB flexibility with PostgreSQL power
-2. **Progressive Enhancement** - Works offline with service workers
-3. **Edge-First Design** - Leverages Vercel Edge Functions for global performance
-4. **Type-Safe Everything** - End-to-end TypeScript with Prisma generated types
-
-### **🎨 UX Innovations**
-
-1. **Gestural Navigation** - Swipe-based mobile interactions
-2. **Predictive Loading** - Pre-fetch based on user behavior
-3. **Contextual Animations** - Meaningful motion design
-4. **Adaptive Interface** - Changes based on user preferences
-
-### **🔒 Security Innovations**
-
-1. **Zero-Trust Architecture** - Every request is validated
-2. **Biometric Integration** - Touch/Face ID support ready
-3. **Blockchain Ready** - Prepared for Web3 features
-4. **Privacy by Design** - GDPR/CCPA compliant from ground up
 
 ---
 
@@ -583,11 +474,9 @@ _"To transform how people access transportation by building trust, enabling conn
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/yourprofile)
 [![Twitter](https://img.shields.io/badge/Twitter-Follow-1DA1F2?style=for-the-badge&logo=twitter)](https://twitter.com/yourhandle)
 
-### **💌 Contact**
+### **Contact**
 
-📧 **Email**: khush@redrive.com.au  
-🌐 **Website**: [redrive.com.au](https://redrive.com.au)  
-📱 **Demo**: [demo.redrive.com.au](https://demo.redrive.com.au)
+📧 **Email**: workforkhush8@gmail.com
 
 </div>
 
@@ -608,11 +497,3 @@ _"This platform represents more than code—it's proof that with determination, 
 **Built with 💻 TypeScript, ⚡ Next.js, and ❤️ Passion**
 
 _Every commit tells a story. Every feature solves a problem. Every user interaction validates the vision._
-
----
-
-**⭐ Star this repository if REDRIVE inspires you to build something amazing!**
-
-![Footer Banner](https://img.shields.io/badge/Made%20with-%E2%9D%A4%EF%B8%8F%20%26%20%E2%98%95-red?style=for-the-badge)
-
-</div>
