@@ -31,7 +31,7 @@ export default function ConfirmReservation() {
         if (!listingId) return;
 
         // Fetch listing details from API
-        axios.get(`/api/listings/${listingId}`)
+        axios.get(`/api/listings-dual/${listingId}`)
             .then((response) => {
                 setListing(response.data);
                 setHost(response.data.user); // ✅ Store the host details separately
@@ -44,7 +44,7 @@ export default function ConfirmReservation() {
 
     const handleConfirmBooking = async () => {
         try {
-            await axios.post("/api/reservations", {
+            await axios.post("/api/reservations-dual", {
                 listingId,
                 startDate,
                 endDate,

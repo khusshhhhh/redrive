@@ -243,7 +243,7 @@ const RentModal = () => {
             returnCleaningFeeAmount: data.returnCleaningFeeAmount || null,
         };
 
-        axios.post('/api/listings', finalData, {
+        axios.post('/api/listings-dual', finalData, {
             headers: {
                 "Content-Type": "application/json" // ✅ Ensure JSON format
             }

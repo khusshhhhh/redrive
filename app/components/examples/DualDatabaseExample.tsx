@@ -34,7 +34,7 @@ export default function DualDatabaseExample() {
       };
 
       // This would call the dual database API route
-      const response = await fetch('/api/listings', {
+      const response = await fetch('/api/listings-dual', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(listingData)

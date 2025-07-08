@@ -98,7 +98,7 @@ const EditUtilityPage = () => {
         if (!listingId) return;
 
         axios
-            .get(`/api/listings/${listingId}`)
+            .get(`/api/listings-dual/${listingId}`)
             .then((response) => {
                 const data: Listing = response.data;
                 setValue("title", data.title);
@@ -161,7 +161,7 @@ const EditUtilityPage = () => {
     const onSubmit = async (data: FieldValues) => {
         setLoading(true);
         try {
-            await axios.put(`/api/listings/${listingId}`, {
+            await axios.put(`/api/listings-dual/${listingId}`, {
                 ...data,
                 state: selectedState?.value,
                 suburb: selectedSuburb?.value,
