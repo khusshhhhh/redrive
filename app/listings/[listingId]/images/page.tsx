@@ -19,7 +19,7 @@ const ListingImages = () => {
     useEffect(() => {
         const fetchImages = async () => {
             try {
-                const response = await fetch(`/api/listings/${listingId}`);
+                const response = await fetch(`/api/listings-dual/${listingId}`);
                 const data = await response.json();
                 setImageSrcs(data.imageSrcs || []);
             } catch (error) {
