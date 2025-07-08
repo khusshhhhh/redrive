@@ -1,11 +1,11 @@
-'use client;'
+'use client';
 
-import { PuffLoader } from "react-spinners";
+import DotLoader from "./DotLoader";
 
 const Loader = () => {
     return (
         <div className="h-[70vh] flex flex-col justify-center items-center">
-            <PuffLoader size={100} color="teal-500" />
+            <DotLoader size="lg" color="#14b8a6" />
         </div>
     );
 };
