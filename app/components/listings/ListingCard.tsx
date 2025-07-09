@@ -7,7 +7,6 @@ import { format } from 'date-fns';
 import Image from "next/image";
 import HeartButton from "../HeartButton";
 import ListingCardButton from "../ListingCardButton";
-import useCountries from "@/app/hooks/useCountries";
 
 interface ListingCardProps {
     data: SafeListing;
@@ -31,9 +30,6 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
     showEditButton = false,
 }) => {
     const router = useRouter();
-    const { getByValue } = useCountries();
-
-    const location = getByValue(data.locationValue);
 
     const handleCancel = useCallback(
         (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -129,5 +125,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
         </div>
     );
 });
+
+ListingCard.displayName = 'ListingCard';
 
 export default ListingCard;
