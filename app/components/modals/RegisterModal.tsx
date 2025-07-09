@@ -17,8 +17,6 @@ import Button from '../Button';
 import { signIn } from 'next-auth/react';
 import useLoginModal from '@/app/hooks/useLoginModal';
 import Modal from './Modal';
-import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai"; // Added eye icons for show/hide password feature
-
 const RegisterModal = () => {
     const registerModal = useRegisterModal();
     const loginModal = useLoginModal();
@@ -42,6 +40,21 @@ const RegisterModal = () => {
 
     // Watch password fields
     const password = watch("password");
+
+    // Password validation helpers
+    const getPasswordValidation = (password: string) => {
+        return {
+            minLength: password.length >= 8,
+            hasUppercase: /[A-Z]/.test(password),
+            hasLowercase: /[a-z]/.test(password),
+            hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)
+        };
+    };
+
+    const isPasswordValid = (password: string) => {
+        const validation = getPasswordValidation(password);
+        return validation.minLength && validation.hasUppercase && validation.hasLowercase && validation.hasSpecialChar;
+    };
 
     const onSubmit: SubmitHandler<FieldValues> = (data) => {
         setIsLoading(true);
@@ -75,11 +88,32 @@ const RegisterModal = () => {
     }, [loginModal, registerModal]);
 
     const togglePasswordVisibility = () => {
-        setShowPassword((prevState) => !prevState); // Function to toggle password visibility
+        setShowPassword((prevState) => !prevState);
     };
 
     const handleGoogleSignIn = async () => {
-        await signIn('google', { callbackUrl: "/" }); // ✅ Redirects to home after Google sign-in
+        await signIn('google', { callbackUrl: "/" });
+    };
+
+    // Validation rule component
+    const ValidationRule = ({ isValid, text }: { isValid: boolean; text: string }) => (
+        <div className={`flex items-center gap-2 text-sm ${isValid ? 'text-green-600' : 'text-gray-500'}`}>
+            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
+                isValid 
+                    ? 'bg-green-100 border-green-500 text-green-600' 
+                    : 'bg-gray-100 border-gray-300 text-gray-400'
+            }`}>
+                {isValid ? '✓' : '✕'}
+            </span>
+            <span className={isValid ? 'line-through' : ''}>{text}</span>
+        </div>
+    );
+
+    const passwordValidation = password ? getPasswordValidation(password) : {
+        minLength: false,
+        hasUppercase: false,
+        hasLowercase: false,
+        hasSpecialChar: false
     };
 
     const bodyContent = (
@@ -108,42 +142,58 @@ const RegisterModal = () => {
             <div className='relative'>
                 <Input
                     id="password"
-                    type={showPassword ? "text" : "password"} // Toggle input type based on state
+                    type={showPassword ? "text" : "password"}
                     label="Password"
                     errors={errors}
                     disabled={isLoading}
                     register={register}
                     required
                     validate={(value: string) => {
-                        if (value.length < 8) return "Password must be at least 8 characters";
-                        if (value.length > 16) return "Password must not exceed 16 characters";
-                        if (!/[A-Z]/.test(value)) return "Must contain at least one uppercase letter";
-                        if (!/\d/.test(value)) return "Must contain at least one number";
+                        if (!isPasswordValid(value)) {
+                            return "Password must meet all requirements below";
+                        }
                         return true;
                     }}
                 />
                 <button
                     type="button"
-                    onClick={togglePasswordVisibility} // Click to toggle visibility
-                    className="absolute inset-y-0 right-4 flex items-center text-gray-500"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-4 flex items-center text-gray-500 hover:text-gray-700"
                 >
-                    {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
+                    <span className="text-lg">{showPassword ? '🙈' : '👁️'}</span>
                 </button>
             </div>
 
-            <div className="text-sm text-gray-500">
-                Password must contain:<br />
-                • <b>8-16 characters</b><br />
-                • At least <b>one uppercase letter</b><br />
-                • At least <b>one number</b>.
+            {/* Live Password Validation Feedback */}
+            <div className="bg-gray-50 p-4 rounded-lg border">
+                <div className="text-sm font-medium text-gray-700 mb-3">Password Requirements:</div>
+                <div className="space-y-2">
+                    <ValidationRule 
+                        isValid={passwordValidation.minLength} 
+                        text="At least 8 characters" 
+                    />
+                    <ValidationRule 
+                        isValid={passwordValidation.hasUppercase} 
+                        text="One uppercase letter (A-Z)" 
+                    />
+                    <ValidationRule 
+                        isValid={passwordValidation.hasLowercase} 
+                        text="One lowercase letter (a-z)" 
+                    />
+                    <ValidationRule 
+                        isValid={passwordValidation.hasSpecialChar} 
+                        text="One special character (!@#$%^&*)" 
+                    />
+                </div>
             </div>
+
             {errors.password && <p className="text-red-500 text-sm">{errors.password?.message as string}</p>}
 
             {/* Confirm Password Field */}
             <div className='relative'>
                 <Input
                     id="confirmPassword"
-                    type={showPassword ? "text" : "password"} // Toggle input type based on state
+                    type={showPassword ? "text" : "password"}
                     label="Confirm Password"
                     disabled={isLoading}
                     register={register}
@@ -155,10 +205,10 @@ const RegisterModal = () => {
                 />
                 <button
                     type="button"
-                    onClick={togglePasswordVisibility} // Click to toggle visibility
-                    className="absolute inset-y-0 right-4 flex items-center text-gray-500"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-4 flex items-center text-gray-500 hover:text-gray-700"
                 >
-                    {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
+                    <span className="text-lg">{showPassword ? '🙈' : '👁️'}</span>
                 </button>
             </div>
 
@@ -170,7 +220,7 @@ const RegisterModal = () => {
         <div className="flex flex-col gap-4 mt-3 mx-6">
             <hr />
 
-            {/* ✅ Google Sign-In Button */}
+            {/* Google Sign-In Button */}
             <Button
                 outline
                 label="Sign in with Google"
