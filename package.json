@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "analyze": "cross-env ANALYZE=true next build",
+    "bundle-analyzer": "npx @next/bundle-analyzer",
+    "analyze-performance": "node scripts/analyze-bundle.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -54,6 +57,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@next/bundle-analyzer": "^15.2.3",
     "@tailwindcss/postcss": "^4.0.5",
     "@types/bcrypt": "^5.0.2",
     "@types/leaflet": "^1.9.16",
@@ -63,6 +67,7 @@
     "@types/react-date-range": "^1.4.9",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.20",
+    "cross-env": "^7.0.3",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
     "next": "^15.2.3",
