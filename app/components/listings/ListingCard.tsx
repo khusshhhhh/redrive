@@ -2,7 +2,7 @@
 
 import { SafeListing, SafeUser, SafeReservation } from "@/app/types";
 import { useRouter } from "next/navigation";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, memo } from "react";
 import { format } from 'date-fns';
 import Image from "next/image";
 import HeartButton from "../HeartButton";
@@ -19,7 +19,7 @@ interface ListingCardProps {
     showEditButton?: boolean;
 }
 
-const ListingCard: React.FC<ListingCardProps> = ({
+const ListingCard: React.FC<ListingCardProps> = memo(({
     data,
     reservation,
     onAction,
@@ -41,11 +41,16 @@ const ListingCard: React.FC<ListingCardProps> = ({
     );
 
     const price = useMemo(() => {
-        return reservation ? reservation.totalPrice : data.price;
+        if (reservation) {
+            return reservation.totalPrice;
+        }
+        return data.price;
     }, [reservation, data.price]);
 
     const reservationDate = useMemo(() => {
-        if (!reservation) return null;
+        if (!reservation) {
+            return null;
+        }
         const start = new Date(reservation.startDate);
         const end = new Date(reservation.endDate);
         return `${format(start, 'PP')} - ${format(end, 'PP')}`;
@@ -119,6 +124,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
             </div>
         </div>
     );
-};
+});
+
+ListingCard.displayName = 'ListingCard';
 
 export default ListingCard;

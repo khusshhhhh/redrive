@@ -8,6 +8,7 @@ import LoginModal from "./components/modals/LoginModal";
 import getCurrentUser from "./actions/getCurrentUser";
 import RentModal from "./components/modals/RentModal";
 import SearchModal from "./components/modals/SearchModal";
+import DataPreloader from "./providers/DataPreloader";
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
@@ -16,10 +17,12 @@ export const metadata = {
   description: "Created & Developed by Khush Patel & Hiral Mahida",
 };
 
-// ✅ Apply Poppins font
+// Optimize font loading with display swap and preload
 const font = Montserrat({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800"],
+  display: 'swap',
+  preload: true,
 });
 
 export default async function RootLayout({
@@ -29,8 +32,15 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        {/* Preload critical resources */}
+        <link rel="preload" href="/test.Suburb.json" as="fetch" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="//maps.googleapis.com" />
+        <link rel="dns-prefetch" href="//res.cloudinary.com" />
+      </head>
       <body className={font.className}> {/* ✅ Apply Poppins font here */}
         <ClientOnly>
+          <DataPreloader />
           <ToasterProvider />
           <SearchModal />
           <RentModal />

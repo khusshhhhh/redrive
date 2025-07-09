@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, memo } from "react";
 import { loadGoogleMaps } from "@/app/libs/GoogleMapLoader";
+import SuburbDataLoader from "@/app/libs/SuburbDataLoader";
 
 interface MapProps {
     suburb?: string;
@@ -10,7 +11,7 @@ interface MapProps {
     longitude?: number;
 }
 
-const Map: React.FC<MapProps> = ({ suburb, state, latitude, longitude }) => {
+const Map: React.FC<MapProps> = memo(({ suburb, state, latitude, longitude }) => {
     const mapRef = useRef<HTMLDivElement | null>(null);
     const [mapLocation, setMapLocation] = useState<{ lat: number; lng: number } | null>(null);
 
@@ -20,20 +21,24 @@ const Map: React.FC<MapProps> = ({ suburb, state, latitude, longitude }) => {
             return;
         }
 
-        if (!suburb || !state) return;
+        if (!suburb || !state) {
+            setMapLocation(null);
+            return;
+        }
 
-        fetch("/test.Suburb.json")
-            .then((res) => res.json())
-            .then((data) => {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const foundSuburb = data.find((s: any) => s.suburb === suburb && s.state === state);
-                if (foundSuburb) {
-                    setMapLocation({ lat: foundSuburb.lat, lng: foundSuburb.lng });
-                } else {
-                    setMapLocation(null);
-                }
-            })
-            .catch((error) => console.error("❌ Error loading suburb data:", error));
+        const loadLocation = async () => {
+            try {
+                const dataLoader = SuburbDataLoader.getInstance();
+                await dataLoader.loadData();
+                const coordinates = dataLoader.findSuburbCoordinates(suburb, state);
+                setMapLocation(coordinates);
+            } catch (error) {
+                console.error("❌ Error loading suburb data:", error);
+                setMapLocation(null);
+            }
+        };
+
+        loadLocation();
     }, [suburb, state, latitude, longitude]);
 
     useEffect(() => {
@@ -52,14 +57,19 @@ const Map: React.FC<MapProps> = ({ suburb, state, latitude, longitude }) => {
                 title: suburb || "Selected Location",
             });
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [mapLocation]);
+    }, [mapLocation, suburb]);
 
     return (
         <>
-            {mapLocation ? <div ref={mapRef} className="h-[45vh] rounded-lg w-full" /> : <p className="text-gray-500 text-center">Map location is not available.</p>}
+            {mapLocation ? (
+                <div ref={mapRef} className="h-[45vh] rounded-lg w-full" />
+            ) : (
+                <p className="text-gray-500 text-center">Map location is not available.</p>
+            )}
         </>
     );
-};
+});
+
+Map.displayName = 'Map';
 
 export default Map;
