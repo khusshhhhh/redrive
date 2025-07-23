@@ -1,0 +1,452 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "Next.js 15.2.3",
+    "React 19.0.0",
+    "MongoDB",
+    "Prisma ORM",
+    "Supabase",
+    "NextAuth.js",
+    "Tailwind CSS",
+    "Cloudinary",
+    "Google Maps API",
+    "BCryptJS",
+    "Zustand"
+  ],
+  "features": [
+    {
+      "name": "User Authentication & Registration",
+      "description": "Complete user authentication system with email/password registration, profile management, and license verification",
+      "files": [
+        "app/api/register/route.ts",
+        "app/api/auth/user/route.ts",
+        "app/api/profile/route.ts",
+        "app/api/profile/[userId]/route.ts",
+        "pages/api/auth/[...nextauth].ts"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/register": {
+            "post": {
+              "summary": "Register new user",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "email": { "type": "string" },
+                        "name": { "type": "string" },
+                        "password": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/profile": {
+            "put": {
+              "summary": "Update user profile",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "number": { "type": "string" },
+                        "streetAddress": { "type": "string" },
+                        "suburb": { "type": "string" },
+                        "state": { "type": "string" },
+                        "postcode": { "type": "string" },
+                        "licenseType": { "type": "string" },
+                        "licenseImage": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Vehicle Listings Management",
+      "description": "Complete vehicle listing system for motorhomes and cars with detailed specifications, images, and location data",
+      "files": [
+        "app/api/listings/route.ts",
+        "app/api/listings-dual/route.ts",
+        "app/api/listings/[listingId]/route.ts"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/listings": {
+            "post": {
+              "summary": "Create new vehicle listing",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "title": { "type": "string" },
+                        "description": { "type": "string" },
+                        "imageSrcs": {
+                          "type": "array",
+                          "items": { "type": "string" }
+                        },
+                        "category": { "type": "string" },
+                        "guestCount": { "type": "integer" },
+                        "doorCount": { "type": "integer" },
+                        "sleepCount": { "type": "integer" },
+                        "company": { "type": "string" },
+                        "modal": { "type": "string" },
+                        "year": { "type": "integer" },
+                        "fuelType": { "type": "string" },
+                        "driveChain": { "type": "string" },
+                        "price": { "type": "integer" },
+                        "state": { "type": "string" },
+                        "suburb": { "type": "string" },
+                        "address": { "type": "string" },
+                        "regoNumber": { "type": "string" },
+                        "regoEndDate": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/listings/{listingId}": {
+            "get": {
+              "summary": "Get listing by ID",
+              "parameters": [
+                {
+                  "name": "listingId",
+                  "in": "path",
+                  "required": true,
+                  "schema": { "type": "string" }
+                }
+              ]
+            },
+            "put": {
+              "summary": "Update listing",
+              "parameters": [
+                {
+                  "name": "listingId",
+                  "in": "path",
+                  "required": true,
+                  "schema": { "type": "string" }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Reservation System",
+      "description": "Complete booking system with insurance options, fee calculations, and status management",
+      "files": [
+        "app/api/reservations/route.ts",
+        "app/api/reservations-dual/route.ts",
+        "app/api/reservations/[reservationId]/route.ts"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/reservations": {
+            "post": {
+              "summary": "Create new reservation",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "listingId": { "type": "string" },
+                        "startDate": { "type": "string", "format": "date" },
+                        "endDate": { "type": "string", "format": "date" },
+                        "totalPrice": { "type": "integer" },
+                        "insuranceType": { "type": "string" },
+                        "insuranceFee": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "get": {
+              "summary": "Get all reservations"
+            }
+          },
+          "/api/reservations/{reservationId}": {
+            "get": {
+              "summary": "Get reservation by ID",
+              "parameters": [
+                {
+                  "name": "reservationId",
+                  "in": "path",
+                  "required": true,
+                  "schema": { "type": "string" }
+                }
+              ]
+            },
+            "put": {
+              "summary": "Update reservation status"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Reviews & Ratings",
+      "description": "User review system with rating validation and notification integration",
+      "files": [
+        "app/api/reviews/route.ts",
+        "app/api/reviews/[listingId]/route.ts"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/reviews": {
+            "post": {
+              "summary": "Create review",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "listingId": { "type": "string" },
+                        "rating": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 5
+                        },
+                        "text": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Real-time Messaging",
+      "description": "Chat system for communication between users with message history and read receipts",
+      "files": ["app/api/chats/route.ts", "app/api/chats/[chatId]/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/chats": {
+            "post": {
+              "summary": "Create or get chat",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "userId": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "get": {
+              "summary": "Get user's chats"
+            }
+          },
+          "/api/chats/{chatId}": {
+            "post": {
+              "summary": "Send message",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "text": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Notifications System",
+      "description": "Comprehensive notification system for bookings, reviews, messages, and system updates",
+      "files": [
+        "app/api/notifications/route.ts",
+        "app/api/notifications/[notificationId]/route.ts",
+        "app/api/notifications/bulk/route.ts",
+        "app/api/cron/notifications/route.ts"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/notifications": {
+            "get": {
+              "summary": "Get user notifications",
+              "parameters": [
+                {
+                  "name": "unread",
+                  "in": "query",
+                  "schema": { "type": "boolean" }
+                },
+                {
+                  "name": "limit",
+                  "in": "query",
+                  "schema": { "type": "integer" }
+                }
+              ]
+            },
+            "post": {
+              "summary": "Create notification",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "userId": { "type": "string" },
+                        "type": { "type": "string" },
+                        "title": { "type": "string" },
+                        "message": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Favorites System",
+      "description": "User favorites management for saving preferred listings",
+      "files": ["app/api/favorites/[listingId]/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/favorites/{listingId}": {
+            "post": {
+              "summary": "Add to favorites"
+            },
+            "delete": {
+              "summary": "Remove from favorites"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Location Services",
+      "description": "Google Places API integration for address autocomplete and location validation",
+      "files": ["app/api/places/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/places": {
+            "get": {
+              "summary": "Get address suggestions",
+              "parameters": [
+                {
+                  "name": "input",
+                  "in": "query",
+                  "required": true,
+                  "schema": { "type": "string" }
+                },
+                {
+                  "name": "suburb",
+                  "in": "query",
+                  "required": true,
+                  "schema": { "type": "string" }
+                },
+                {
+                  "name": "state",
+                  "in": "query",
+                  "required": true,
+                  "schema": { "type": "string" }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "File Upload System",
+      "description": "Cloudinary integration for image uploads including vehicle photos and license documents",
+      "files": ["app/api/upload/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/upload": {
+            "post": {
+              "summary": "Upload image to Cloudinary",
+              "requestBody": {
+                "content": {
+                  "multipart/form-data": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "file": { "type": "string", "format": "binary" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Database Synchronization",
+      "description": "Dual database system with MongoDB as primary and Supabase as secondary with sync capabilities",
+      "files": ["app/api/sync/route.ts", "app/api/migration/status/route.ts"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/api/sync": {
+            "post": {
+              "summary": "Sync data between databases",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "tableName": { "type": "string" },
+                        "limit": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "get": {
+              "summary": "Get sync status"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

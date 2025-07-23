@@ -1,0 +1,408 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Registration with Valid Email and Password",
+    "description": "Verify that a new user can register successfully with valid email, name, and password.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to user registration API endpoint."
+      },
+      {
+        "type": "action",
+        "description": "Submit registration details with valid email, name, and password."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify registration API returns success status and user is created."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User Registration with Invalid Email Format",
+    "description": "Verify that registration fails when the email format is invalid.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Submit registration request with invalid email format."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the registration API returns an error related to invalid email."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "User Authentication with Correct Credentials",
+    "description": "Verify login succeeds for user with correct email and password credentials.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to login API."
+      },
+      {
+        "type": "action",
+        "description": "Provide valid user email and password."
+      },
+      {
+        "type": "action",
+        "description": "Submit login request."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login is successful and authentication token is returned."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "User Authentication with Incorrect Password",
+    "description": "Verify login fails when password is incorrect.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Submit login with valid email but incorrect password."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login API responds with authentication failure."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Profile Update with Valid License Verification Details",
+    "description": "Ensure user can update profile including license type and upload license image.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send profile update request with complete details including licenseType and licenseImage."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify profile update succeeds and data is persisted."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Profile Update with Missing Required Fields",
+    "description": "Verify profile update fails or handles gracefully when important fields like streetAddress are missing.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Submit profile update with missing streetAddress or other required address fields."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API returns an appropriate validation error."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Create Vehicle Listing with Valid Data and Multiple Images",
+    "description": "Verify a vehicle listing can be created successfully with all required fields and multiple image URLs.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send new vehicle listing with valid fields: title, description, category, specs, address, and imageSrcs including multiple images."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify listing creation API returns success and listing details are stored."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Create Vehicle Listing with Missing Mandatory Fields",
+    "description": "Verify the API rejects listing creation when mandatory fields such as category or price are missing.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt to create vehicle listing omitting required fields like category or price."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the API returns appropriate validation error messages."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Update Vehicle Listing with Valid Modifications",
+    "description": "Ensure vehicle listing details can be updated successfully using valid data.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Update existing vehicle listing using listingId with new valid details."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the update API success response and that changes are correctly saved."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Reservation Creation with Correct Total Price Calculation",
+    "description": "Verify that creating a reservation calculates total price accurately including insurance fees.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Create reservation with listingId, startDate, endDate, insuranceType and insuranceFee."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the totalPrice field reflects correct calculation including insurance fee and any other applicable fees."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Reservation Creation with Invalid Date Range",
+    "description": "Verify reservation fails or returns error when endDate is before startDate.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt to create reservation with endDate earlier than startDate."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API returns an error indicating invalid date range."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Update Reservation Status to Confirmed",
+    "description": "Ensure reservation status can be updated successfully from pending to confirmed.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send status update request for reservation to change status to confirmed."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify status update API succeeds and reservation status changes accordingly."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Submit Review Post-Trip with Valid Rating",
+    "description": "Verify that users can submit reviews only after the trip has ended with valid star ratings between 1 and 5.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Submit a review for a completed listing specifying a rating from 1 to 5, and optional text."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify review API accepts the review and stores it successfully."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Submit Review with Invalid Rating Value",
+    "description": "Verify the system rejects review submissions with rating outside permitted range (1-5).",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Submit a review with rating = 0 or rating = 6."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the review API returns validation error for invalid rating."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Real-Time Chat Message Exchange Between Users",
+    "description": "Verify users can create/get chat sessions and send messages successfully with timestamps and read receipts.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Create or retrieve chat session with another user."
+      },
+      {
+        "type": "action",
+        "description": "Send a text message through chat."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify message is delivered, stored, and includes timestamp and read receipt data."
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Notifications Retrieval with Filtering and Bulk Update",
+    "description": "Verify user can retrieve notifications filtered by read/unread status and perform bulk state update.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Retrieve notifications with unread=true filter and specify limit."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify only unread notifications up to limit are returned."
+      },
+      {
+        "type": "action",
+        "description": "Perform bulk update to mark multiple notifications as read."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify bulk update request succeeds and notifications states are changed."
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Add and Remove Vehicle Listings from Favorites",
+    "description": "Verify users can add listings to favorites and remove them correctly with API confirmation.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send request to add a specific listing to favorites."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API confirms addition and listing appears in favorites."
+      },
+      {
+        "type": "action",
+        "description": "Send request to remove the listing from favorites."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify removal confirmation and listing is no longer in favorites."
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Google Places API Address Autocomplete Validation",
+    "description": "Verify that submitting partial location input returns accurate and relevant address suggestions.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Query address autocomplete API with valid input string, suburb, and state."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API returns list of relevant address suggestions."
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Image Upload to Cloudinary with Valid File",
+    "description": "Verify that image uploads succeed when valid image file is submitted via Cloudinary integration endpoint.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Upload supported image file via multipart/form-data to image upload API."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API returns success and provides image URL."
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Image Upload with Unsupported File Type",
+    "description": "Verify that image upload fails gracefully when submitting unsupported file types.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt to upload a non-image or unsupported format file to upload API."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API returns appropriate error about invalid file type."
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Data Synchronization Success Between MongoDB and Supabase",
+    "description": "Verify that data synchronization API correctly syncs specified table data with limit applied without conflicts.",
+    "category": "integration",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger data synchronization for a selected table with a given limit."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify synchronization completes without errors and data is consistent in both databases."
+      }
+    ]
+  },
+  {
+    "id": "TC022",
+    "title": "Data Synchronization Status Retrieval",
+    "description": "Verify retrieval of synchronization status via the sync status API endpoint.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send request to get synchronization status."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify status response includes recent sync activities and is consistent."
+      }
+    ]
+  }
+]

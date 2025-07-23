@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "register new user with valid data",
+    "description": "Test the /api/register endpoint to ensure a new user can be registered successfully with valid email, name, and password."
+  },
+  {
+    "id": "TC002",
+    "title": "get authenticated user data",
+    "description": "Test the /api/auth/user/route.ts GET endpoint to verify it returns the authenticated user's data correctly."
+  },
+  {
+    "id": "TC003",
+    "title": "update user profile with valid fields",
+    "description": "Test the /api/profile PUT endpoint to update user profile fields including name, address, license type, and license image, and verify successful update."
+  },
+  {
+    "id": "TC004",
+    "title": "get user profile by user id",
+    "description": "Test the /api/profile/{userId} GET endpoint to retrieve the profile information for a given user ID."
+  },
+  {
+    "id": "TC005",
+    "title": "create new vehicle listing with complete data",
+    "description": "Test the /api/listings POST endpoint to create a new vehicle listing with all required fields including title, description, images, category, specifications, location, and registration details."
+  },
+  {
+    "id": "TC006",
+    "title": "get vehicle listing by listing id",
+    "description": "Test the /api/listings/{listingId} GET endpoint to retrieve vehicle listing details by its ID."
+  },
+  {
+    "id": "TC007",
+    "title": "update vehicle listing by listing id",
+    "description": "Test the /api/listings/{listingId} PUT endpoint to update details of an existing vehicle listing identified by listing ID."
+  },
+  {
+    "id": "TC008",
+    "title": "create new reservation with insurance and pricing",
+    "description": "Test the /api/reservations POST endpoint to create a new reservation including listing ID, start and end dates, total price, insurance type, and insurance fee."
+  },
+  {
+    "id": "TC009",
+    "title": "get all reservations for user",
+    "description": "Test the /api/reservations GET endpoint to retrieve all reservations for the authenticated user."
+  },
+  {
+    "id": "TC010",
+    "title": "update reservation status",
+    "description": "Test the /api/reservations/{reservationId} PUT endpoint to update the status of a reservation identified by reservation ID."
+  }
+]
