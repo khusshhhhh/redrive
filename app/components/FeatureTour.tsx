@@ -10,7 +10,7 @@ import {
   Star, 
   Zap,
   CheckCircle,
-  Skip,
+  SkipForward,
   PlayCircle
 } from 'lucide-react';
 import Button from './Button';
@@ -250,7 +250,7 @@ const FeatureTour: React.FC<FeatureTourProps> = ({ onComplete, onSkip }) => {
                     onClick={skipTour}
                     small
                     outline
-                    icon={Skip}
+                    icon={SkipForward}
                   >
                     Skip Tour
                   </Button>

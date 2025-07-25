@@ -4,23 +4,26 @@ import { useState } from "react";
 import { IconType } from "react-icons";
 import DotLoader from "./DotLoader";
 
-interface ButtonProps {
-    label: string;
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    label?: string;
+    children?: React.ReactNode;
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void> | void;
     disabled?: boolean;
     outline?: boolean;
     small?: boolean;
-    icon?: IconType;
+    icon?: IconType | React.ComponentType<any>;
     type?: "button" | "submit" | "reset";
 }
 
 const Button: React.FC<ButtonProps> = ({
     label,
+    children,
     onClick,
     disabled,
     outline,
     small,
-    icon: Icon
+    icon: Icon,
+    ...props
 }) => {
     const [loading, setLoading] = useState(false);
 
@@ -45,6 +48,7 @@ const Button: React.FC<ButtonProps> = ({
                 ${outline ? 'border-black' : 'border-teal-500'}
                 ${outline ? 'text-black' : 'text-white'}
                 ${small ? 'py-1 text-sm font-light border-[1px]' : 'py-3 text-md font-semibold border-2'}`}
+            {...props}
         >
             {loading ? (
                 <DotLoader 
@@ -54,7 +58,7 @@ const Button: React.FC<ButtonProps> = ({
             ) : Icon ? (
                 <Icon size={24} className="absolute left-4 top-1/2 transform -translate-y-1/2" />
             ) : null}
-            {loading ? "Loading..." : label}
+            {loading ? "Loading..." : (children || label)}
         </button>
     );
 };
