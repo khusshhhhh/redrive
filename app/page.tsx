@@ -8,7 +8,7 @@ import SearchFilters from "./components/SearchFilters";
 import SavedSearches from "./components/SavedSearches";
 import QuickActions from "./components/QuickActions";
 import SmartRecommendations from "./components/SmartRecommendations";
-import FeatureTour, { useFeatureTour } from "./components/FeatureTour";
+// import FeatureTour, { useFeatureTour } from "./components/FeatureTour";
 import { headers } from "next/headers";
 
 interface HomeProps {
@@ -40,37 +40,29 @@ const Home = async ({ searchParams }: HomeProps) => {
       <Container>
         <div className="pt-24 space-y-6">
           {/* Quick Actions - Always visible */}
-          <div data-tour="quick-actions">
-            <QuickActions currentUser={currentUser} />
-          </div>
+          <QuickActions currentUser={currentUser} />
 
           {/* Search Filters */}
-          <div data-tour="search-filters">
-            <SearchFilters 
-              onFiltersChange={() => {}} // This would integrate with actual search functionality
-              initialFilters={params}
-            />
-          </div>
+          <SearchFilters 
+            onFiltersChange={() => {}} // This would integrate with actual search functionality
+            initialFilters={params}
+          />
 
           {/* Saved Searches - Only for authenticated users */}
           {currentUser && (
-            <div data-tour="saved-searches">
-              <SavedSearches
-                currentFilters={params}
-                onApplySearch={() => {}} // This would integrate with actual search functionality
-              />
-            </div>
+            <SavedSearches
+              currentFilters={params}
+              onApplySearch={() => {}} // This would integrate with actual search functionality
+            />
           )}
 
           {/* Smart Recommendations - Show when no active filters or few results */}
           {(!hasFilters || listings.length < 3) && (
-            <div data-tour="recommendations">
-              <SmartRecommendations
-                currentUser={currentUser}
-                viewedListings={[]} // This would come from user's browsing history
-                favoriteListings={[]} // This would come from user's favorites
-              />
-            </div>
+            <SmartRecommendations
+              currentUser={currentUser}
+              viewedListings={[]} // This would come from user's browsing history
+              favoriteListings={[]} // This would come from user's favorites
+            />
           )}
 
           {/* Results Header */}

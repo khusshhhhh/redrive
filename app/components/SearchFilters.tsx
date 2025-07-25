@@ -91,7 +91,6 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
             small
             outline
             icon={Filter}
-            data-tour="filter-button"
           >
             Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
           </Button>

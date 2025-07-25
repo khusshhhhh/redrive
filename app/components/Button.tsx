@@ -4,7 +4,7 @@ import { useState } from "react";
 import { IconType } from "react-icons";
 import DotLoader from "./DotLoader";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps {
     label?: string;
     children?: React.ReactNode;
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void> | void;
@@ -13,6 +13,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     small?: boolean;
     icon?: IconType | React.ComponentType<any>;
     type?: "button" | "submit" | "reset";
+    className?: string;
+    [key: string]: any; // Allow additional props like data-tour
 }
 
 const Button: React.FC<ButtonProps> = ({
