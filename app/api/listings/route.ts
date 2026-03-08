@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
+import type { NextRequest } from "next/server";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     // ✅ Fetch current user
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

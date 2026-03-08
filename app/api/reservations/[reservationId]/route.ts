@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
+import type { NextRequest } from "next/server";
 import type { NextRequest } from "next/server";
 import { notificationService } from "@/app/services/notificationService";
 
@@ -11,7 +12,7 @@ export async function GET(
   context: any // Override type checking for params
 ) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -73,7 +74,7 @@ export async function DELETE(
   context: any // Override type checking for params
 ) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -160,7 +161,7 @@ export async function PATCH(
   context: any
 ) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

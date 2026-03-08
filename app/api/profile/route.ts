@@ -3,7 +3,7 @@ import prisma from "@/app/libs/prismadb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
-export async function PUT(req: Request) {
+export async function PUT(request: NextRequest, req: Request) {
   try {
     const session = await getServerSession(authOptions);
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
+import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import type { NextRequest } from "next/server";
 
@@ -51,7 +52,7 @@ export async function PUT(
   context: any
 ) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
     const listingId = context.params.listingId;
 
     if (!currentUser) {
@@ -169,7 +170,7 @@ export async function DELETE(
   context: any
 ) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
     const listingId = context.params.listingId;
 
     if (!currentUser) {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
+import type { NextRequest } from "next/server";
 import { notificationService } from "@/app/services/notificationService";
 
 // ✅ Function to determine service fee based on total price
@@ -14,9 +15,9 @@ const calculateServiceFee = (totalPrice: number): number => {
 };
 
 // ✅ POST: Create a reservation
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -110,7 +111,7 @@ export async function POST(request: Request) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(req: Request) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
