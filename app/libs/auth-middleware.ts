@@ -19,7 +19,7 @@ export interface AuthUser {
  * 2. JWT tokens (for API testing)
  */
 export async function getCurrentUserEnhanced(
-  request?: NextRequest
+  request?: Request | NextRequest
 ): Promise<AuthUser | null> {
   try {
     // Method 1: Try NextAuth session first (standard app flow)

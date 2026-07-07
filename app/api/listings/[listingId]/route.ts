@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
-import type { NextRequest } from "next/server";
 
 /**
  * ✅ GET: Fetch a specific listing by ID (Includes state, suburb, amenities, images, and rego details)

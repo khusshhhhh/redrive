@@ -1,17 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/app/types/supabase';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; // For server-side operations
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-role-key';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
+
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  console.warn('Supabase env vars missing; using placeholder credentials for local development.');
+}
 
 // Create a service client with elevated permissions (use carefully!)
 export const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseServiceKey);
 
 // Regular client for standard operations
-export const supabaseClient = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
 export class SupabaseService {
   

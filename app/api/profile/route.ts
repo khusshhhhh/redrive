@@ -3,7 +3,7 @@ import prisma from "@/app/libs/prismadb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
-export async function PUT(request: NextRequest, req: Request) {
+export async function PUT(request: Request) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -11,7 +11,7 @@ export async function PUT(request: NextRequest, req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json();
+    const body = await request.json();
     const {
       name,
       number,

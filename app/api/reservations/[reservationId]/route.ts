@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
-import type { NextRequest } from "next/server";
 import { notificationService } from "@/app/services/notificationService";
 
 // ✅ GET: Fetch reservation details with user included
