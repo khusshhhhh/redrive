@@ -1,12 +1,13 @@
 import prisma from "@/app/libs/prismadb";
 import { NotificationType } from "@/app/types";
+import { Prisma } from "@prisma/client";
 
 interface CreateNotificationParams {
   userId: string;
   type: NotificationType;
   title: string;
   message: string;
-  data?: any;
+  data?: Prisma.InputJsonValue;
   actionUrl?: string;
   expiresAt?: Date;
 }

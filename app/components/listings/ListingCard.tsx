@@ -81,7 +81,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                     />
                     {/* ✅ Show badge dynamically if it exists */}
                     {data.badgeValue && (
-                        <div className="absolute top-3 left-3 bg-white text-black font-bold text-sm px-4 py-2 rounded-md">
+                        <div className="absolute top-3 left-3 bg-white dark:bg-neutral-800 text-black dark:text-neutral-100 font-bold text-sm px-4 py-2 rounded-md">
                             {data.badgeValue}
                         </div>
                     )}
@@ -89,16 +89,16 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                         <HeartButton listingId={data.id} currentUser={currentUser} />
                     </div>
                 </div>
-                <div className="font-medium text-base">{data.title}</div>
-                <div className="font-light text-neutral-500 text-xs">
+                <div className="font-medium text-base text-black dark:text-neutral-100">{data.title}</div>
+                <div className="font-light text-neutral-500 dark:text-neutral-400 text-xs">
                     {reservationDate || data.category} | {data.suburb}, {data.state}
                 </div>
-                <div className="flex flex-row items-center gap-1 text-sm">
+                <div className="flex flex-row items-center gap-1 text-sm text-black dark:text-neutral-100">
                     <div className="font-medium">AUD {price}</div>
                     {!reservation && <div className="font-light">per day</div>}
                 </div>
                 {reservation && (
-                    <div className="text-xs font-semibold">Status: {reservation.status}</div>
+                    <div className="text-xs font-semibold text-black dark:text-neutral-100">Status: {reservation.status}</div>
                 )}
                 <div className="gap-0">
                     {/* ✅ Show Edit Button only if 'showEditButton' is true */}

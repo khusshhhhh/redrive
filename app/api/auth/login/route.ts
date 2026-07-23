@@ -37,6 +37,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!process.env.NEXTAUTH_SECRET) {
+      return NextResponse.json(
+        { error: "Server misconfiguration: NEXTAUTH_SECRET is not set" },
+        { status: 500 }
+      );
+    }
+
     // Generate JWT token for testing purposes
     const token = jwt.sign(
       {
@@ -44,7 +51,7 @@ export async function POST(request: NextRequest) {
         email: user.email,
         name: user.name,
       },
-      process.env.NEXTAUTH_SECRET || "fallback-secret",
+      process.env.NEXTAUTH_SECRET,
       { expiresIn: "24h" }
     );
 

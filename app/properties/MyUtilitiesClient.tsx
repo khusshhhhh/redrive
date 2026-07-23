@@ -31,7 +31,7 @@ const MyUtilitiesClient: React.FC<MyUtilitiesClientProps> = ({
     const onDelete = () => {
         if (!deletingId) return;
 
-        axios.delete(`/api/listings-dual/${deletingId}`)
+        axios.delete(`/api/listings/${deletingId}`)
             .then(() => {
                 toast.success("Listing deleted successfully!");
                 router.refresh();

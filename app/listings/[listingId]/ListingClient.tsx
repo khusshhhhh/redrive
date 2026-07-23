@@ -15,6 +15,7 @@ import ListingReservation from "@/app/components/listings/ListingReservation";
 import { Range } from "react-date-range";
 import Reviews from "@/app/components/reviews/Reviews";
 import { IconUserCheck } from "@tabler/icons-react";
+import useRecentlyViewed from "@/app/hooks/useRecentlyViewed";
 
 const initialDateRange = {
     startDate: new Date(),
@@ -41,6 +42,12 @@ const ListingClient: React.FC<ListingClientProps> = ({
 }) => {
     const loginModal = useLoginModal();
     const router = useRouter();
+    const { addRecentlyViewed } = useRecentlyViewed();
+
+    useEffect(() => {
+        addRecentlyViewed(listing.id);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [listing.id]);
 
     const disabledDates = useMemo(() => {
         let dates: Date[] = [];
@@ -138,7 +145,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                 setTotalFees(listing.price * 1.08 + cleaning);
             }
         }
-    }, [dateRange, listing.price]);
+    }, [dateRange, listing.price, listing.cleaningFeeOption, listing.cleaningFeeAmount]);
 
     const category = useMemo(() => {
         return categories.find((item) => item.label === listing.category) || {
@@ -150,7 +157,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
 
     return (
         <Container>
-            <div className="max-w-screen-2xl px-1 mx-auto md:mx-10">
+            <div className="max-w-screen-2xl px-4 mx-auto md:mx-10">
                 <div className="flex flex-col gap-6">
                     <ListingHead
                         title={listing.title}
@@ -196,7 +203,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                         </div>
                     </div>
                     <div className="mt-2">
-                        <div className="flex flex-row gap-3 items-center">
+                        <div className="flex flex-row gap-3 items-center text-black dark:text-neutral-100">
                             <IconUserCheck size={18} />
                             <div className="font-normal text-base">Reviews</div>
                         </div>

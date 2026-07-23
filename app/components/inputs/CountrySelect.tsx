@@ -21,6 +21,8 @@ const CountrySelect: React.FC<CountrySelectProps> = ({ value, onChange }) => {
 
     return (
         <div>
+            {/* TODO: dark mode styling for react-select — control/menu backgrounds are
+                react-select's default (white) since no `styles` overrides are set here. */}
             <Select
                 placeholder="Anywhere"
                 isClearable

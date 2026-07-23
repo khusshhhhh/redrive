@@ -24,6 +24,42 @@ body,
   width: 100% !important;
 }
 
+/* Hide scrollbar on the mobile category row while keeping it scrollable */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Dark mode overrides for third-party widgets that don't respect Tailwind's
+   dark: classes (react-date-range calendar, leaflet controls). */
+:root[data-theme="dark"] .rdrCalendarWrapper,
+.dark .rdrCalendarWrapper {
+  background-color: #262626;
+  color: #e5e5e5;
+}
+
+:root[data-theme="dark"] .rdrDayNumber span,
+.dark .rdrDayNumber span {
+  color: #e5e5e5;
+}
+
+:root[data-theme="dark"] .rdrMonthAndYearPickers select,
+.dark .rdrMonthAndYearPickers select {
+  color: #171717;
+}
+
+.dark .leaflet-tile {
+  filter: brightness(0.85) invert(1) contrast(0.9) hue-rotate(180deg) saturate(0.6);
+}
+
+.dark .leaflet-container {
+  background: #1f1f1f;
+}
+
 /* Dot loader animation */
 @keyframes dotPulse {
   0%, 80%, 100% {

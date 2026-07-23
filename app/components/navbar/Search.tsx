@@ -58,14 +58,14 @@ const Search = () => {
     <div className="flex flex-row items-center gap-4">
       <div
         onClick={searchModal.onOpen}
-        className="border-[1px] w-full md:w-auto py-2 rounded-full shadow-sm hover:shadow-md transition cursor-pointer"
+        className="border-[1px] dark:border-neutral-600 w-full md:w-auto py-2 rounded-full shadow-sm hover:shadow-md transition cursor-pointer bg-white dark:bg-neutral-800 text-black dark:text-neutral-100"
       >
         <div className="flex flex-row gap-10 items-center justify-between">
           {/* Selected Location */}
           <div className="text-sm font-medium px-6">{locationLabel}</div>
 
           {/* Date Range */}
-          <div className="hidden sm:block text-sm font-medium px-16 border-x-[1px] flex-1 text-center">
+          <div className="hidden sm:block text-sm font-medium px-16 border-x-[1px] dark:border-neutral-600 flex-1 text-center">
             {durationLabel}
           </div>
 
@@ -84,7 +84,7 @@ const Search = () => {
           <div className="text-center">
             <button
               onClick={handleClearFilters}
-              className="p-3 bg-white text-black rounded-full hover:border-teal-600 border-[1px] border-gray-800 hover:bg-teal-600 hover:text-white transition"
+              className="p-3 bg-white dark:bg-neutral-800 text-black dark:text-neutral-100 rounded-full hover:border-teal-600 border-[1px] border-gray-800 dark:border-neutral-500 hover:bg-teal-600 hover:text-white transition"
             >
               <IconX size={16} />
             </button>

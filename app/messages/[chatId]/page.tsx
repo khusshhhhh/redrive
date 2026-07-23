@@ -58,8 +58,8 @@ const ChatPage = () => {
   if (!chat) {
     return (
       <div className="pt-24 px-4 animate-pulse space-y-6">
-        <div className="h-6 bg-gray-200 rounded w-1/3" />
-        <div className="h-20 bg-gray-200 rounded" />
+        <div className="h-6 bg-gray-200 dark:bg-neutral-700 rounded w-1/3" />
+        <div className="h-20 bg-gray-200 dark:bg-neutral-700 rounded" />
       </div>
     );
   }
@@ -74,7 +74,7 @@ const ChatPage = () => {
           <IconArrowLeft size={16} /> Back
         </button>
         <Heading title={chat.otherUser?.name || "Conversation"} subtitle="" />
-        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border p-2 sm:p-4 rounded-md bg-white">
+        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border dark:border-neutral-700 p-2 sm:p-4 rounded-md bg-white dark:bg-neutral-800">
           {chat.messages.map((m) => {
             const isCurrent = m.senderId === currentUserId;
             return (
@@ -83,19 +83,19 @@ const ChatPage = () => {
                 className={`flex items-end gap-1 ${isCurrent ? "justify-end" : "justify-start"}`}
               >
                 {!isCurrent && (
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-neutral-400">
                     {format(new Date(m.createdAt), "p")}
                   </span>
                 )}
                 <div
-                  className={`px-3 py-2 rounded-lg max-w-xs animate-pop ${
-                    isCurrent ? "bg-teal-500 text-white" : "bg-gray-100"
+                  className={`px-3 py-2 rounded-lg max-w-[80%] sm:max-w-xs animate-pop ${
+                    isCurrent ? "bg-teal-500 text-white" : "bg-gray-100 dark:bg-neutral-700 dark:text-neutral-100"
                   }`}
                 >
                   {m.text}
                 </div>
                 {isCurrent && (
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-neutral-400">
                     {format(new Date(m.createdAt), "p")}
                   </span>
                 )}
@@ -108,7 +108,7 @@ const ChatPage = () => {
           <input
             value={text}
             onChange={e => setText(e.target.value)}
-            className="flex-1 border p-2 sm:p-3 rounded"
+            className="flex-1 border dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 p-2 sm:p-3 rounded"
             placeholder="Type a message"
           />
           <button

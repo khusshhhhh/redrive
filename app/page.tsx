@@ -1,3 +1,5 @@
+import Link from "next/link";
+import Image from "next/image";
 import getListings, { IListingsParams } from "./actions/getListings";
 import getCurrentUser from "./actions/getCurrentUser";
 import ClientOnly from "./components/ClientOnly";
@@ -8,8 +10,23 @@ import SearchFilters from "./components/SearchFilters";
 import SavedSearches from "./components/SavedSearches";
 import QuickActions from "./components/QuickActions";
 import SmartRecommendations from "./components/SmartRecommendations";
+import RecentlyViewed from "./components/RecentlyViewed";
 // import FeatureTour, { useFeatureTour } from "./components/FeatureTour";
 import { headers } from "next/headers";
+
+const EXPLORE_CATEGORIES = [
+  { name: "Car", count: "1,200+", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300" },
+  { name: "Motorhomes", count: "850+", color: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300" },
+  { name: "Boats", count: "450+", color: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300" },
+  { name: "Bikes", count: "320+", color: "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300" },
+  { name: "Utes", count: "680+", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300" },
+];
+
+const POPULAR_DESTINATIONS = [
+  { city: "Sydney", state: "NSW", vehicles: "2,400+", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400" },
+  { city: "Melbourne", state: "VIC", vehicles: "1,800+", image: "https://images.unsplash.com/photo-1514395462725-fb4566210144?w=400" },
+  { city: "Brisbane", state: "QLD", vehicles: "1,200+", image: "https://images.unsplash.com/photo-1583684646989-46b3a04fcd3d?w=400" },
+];
 
 interface HomeProps {
   searchParams?: IListingsParams;
@@ -65,22 +82,25 @@ const Home = async ({ searchParams }: HomeProps) => {
             />
           )}
 
+          {/* Recently Viewed - only for returning visitors with browsing history */}
+          {!hasFilters && <RecentlyViewed currentUser={currentUser} />}
+
           {/* Results Header */}
           {hasFilters && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-neutral-100">
                     {listings.length === 0 ? 'No vehicles found' : `${listings.length} vehicle${listings.length !== 1 ? 's' : ''} found`}
                   </h2>
                   {listings.length > 0 && (
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-neutral-400 mt-1">
                       Showing results for your search criteria
                     </p>
                   )}
                 </div>
                 {listings.length > 0 && (
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500 dark:text-neutral-400">
                     Sorted by relevance
                   </div>
                 )}
@@ -92,7 +112,7 @@ const Home = async ({ searchParams }: HomeProps) => {
           {listings.length === 0 ? (
             <EmptyState showReset />
           ) : (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
               <div className="
                 grid
                 grid-cols-1
@@ -115,7 +135,7 @@ const Home = async ({ searchParams }: HomeProps) => {
               {/* Load More Button - if there are many results */}
               {listings.length >= 20 && (
                 <div className="mt-8 text-center">
-                  <button className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                  <button className="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-400 transition-colors">
                     Load More Vehicles
                   </button>
                 </div>
@@ -127,51 +147,45 @@ const Home = async ({ searchParams }: HomeProps) => {
           {!hasFilters && listings.length > 0 && (
             <div className="space-y-6">
               {/* Featured Categories */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-4">
                   Explore Categories
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {[
-                    { name: 'Cars', count: '1,200+', color: 'bg-blue-100 text-blue-800' },
-                    { name: 'Motorhomes', count: '850+', color: 'bg-green-100 text-green-800' },
-                    { name: 'Boats', count: '450+', color: 'bg-cyan-100 text-cyan-800' },
-                    { name: 'Bikes', count: '320+', color: 'bg-orange-100 text-orange-800' },
-                    { name: 'Utes', count: '680+', color: 'bg-purple-100 text-purple-800' }
-                  ].map((category) => (
-                    <div
+                  {EXPLORE_CATEGORIES.map((category) => (
+                    <Link
                       key={category.name}
-                      className="text-center p-4 bg-gray-50 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors"
+                      href={`/?category=${encodeURIComponent(category.name)}`}
+                      className="text-center p-4 bg-gray-50 dark:bg-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-600 rounded-lg cursor-pointer transition-colors"
                     >
                       <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${category.color} mb-2`}>
                         {category.count}
                       </div>
-                      <div className="font-medium text-gray-900">{category.name}</div>
-                    </div>
+                      <div className="font-medium text-gray-900 dark:text-neutral-100">{category.name}</div>
+                    </Link>
                   ))}
                 </div>
               </div>
 
               {/* Popular Locations */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-4">
                   Popular Destinations
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[
-                    { city: 'Sydney', vehicles: '2,400+', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400' },
-                    { city: 'Melbourne', vehicles: '1,800+', image: 'https://images.unsplash.com/photo-1514395462725-fb4566210144?w=400' },
-                    { city: 'Brisbane', vehicles: '1,200+', image: 'https://images.unsplash.com/photo-1583684646989-46b3a04fcd3d?w=400' }
-                  ].map((location) => (
-                    <div
+                  {POPULAR_DESTINATIONS.map((location) => (
+                    <Link
                       key={location.city}
-                      className="relative overflow-hidden rounded-lg cursor-pointer group"
+                      href={`/?state=${location.state}`}
+                      className="relative overflow-hidden rounded-lg cursor-pointer group block"
                       style={{ aspectRatio: '16/9' }}
                     >
-                      <img
+                      <Image
                         src={location.image}
                         alt={location.city}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end">
                         <div className="p-4 text-white">
@@ -179,7 +193,7 @@ const Home = async ({ searchParams }: HomeProps) => {
                           <p className="text-sm opacity-90">{location.vehicles} vehicles</p>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>

@@ -9,6 +9,7 @@ import getCurrentUser from "./actions/getCurrentUser";
 import RentModal from "./components/modals/RentModal";
 import SearchModal from "./components/modals/SearchModal";
 import DataPreloader from "./providers/DataPreloader";
+import ThemeProvider from "./providers/ThemeProvider";
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
@@ -31,24 +32,26 @@ export default async function RootLayout({
   const currentUser = await getCurrentUser();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Preload critical resources */}
         <link rel="preload" href="/test.Suburb.json" as="fetch" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//maps.googleapis.com" />
         <link rel="dns-prefetch" href="//res.cloudinary.com" />
       </head>
-      <body className={font.className}> {/* ✅ Apply Poppins font here */}
-        <ClientOnly>
-          <DataPreloader />
-          <ToasterProvider />
-          <SearchModal />
-          <RentModal />
-          <LoginModal />
-          <RegisterModal />
-          <Navbar currentUser={currentUser} />
-        </ClientOnly>
-        <div className="pb-20 pt-28">{children}</div>
+      <body className={`${font.className} bg-white dark:bg-neutral-900 text-black dark:text-neutral-100 transition-colors`}>
+        <ThemeProvider>
+          <ClientOnly>
+            <DataPreloader />
+            <ToasterProvider />
+            <SearchModal />
+            <RentModal />
+            <LoginModal />
+            <RegisterModal />
+            <Navbar currentUser={currentUser} />
+          </ClientOnly>
+          <div className="pb-20 pt-28">{children}</div>
+        </ThemeProvider>
         <Analytics />
         <SpeedInsights />
       </body>

@@ -29,9 +29,9 @@ const MessagesPage = () => {
   if (!chats) {
     return (
       <div className="pt-24 px-4 animate-pulse space-y-6">
-        <div className="h-6 bg-gray-200 rounded w-1/3" />
-        <div className="h-20 bg-gray-200 rounded" />
-        <div className="h-20 bg-gray-200 rounded" />
+        <div className="h-6 bg-gray-200 dark:bg-neutral-700 rounded w-1/3" />
+        <div className="h-20 bg-gray-200 dark:bg-neutral-700 rounded" />
+        <div className="h-20 bg-gray-200 dark:bg-neutral-700 rounded" />
       </div>
     );
   }
@@ -57,7 +57,7 @@ const MessagesPage = () => {
               <div
                 key={chat.id}
                 onClick={() => router.push(`/messages/${chat.id}`)}
-                className="p-4 border-[2px] rounded-md cursor-pointer hover:bg-gray-50 flex gap-3 items-center"
+                className="p-4 border-[2px] dark:border-neutral-700 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-700 flex gap-3 items-center"
               >
                 <Image
                   src={chat.otherUser?.image || "/images/placeholder.png"}
@@ -67,11 +67,11 @@ const MessagesPage = () => {
                   className="rounded-md object-cover"
                 />
                 <div className="flex-1">
-                  <div className="font-semibold flex items-center gap-2">
+                  <div className="font-semibold flex items-center gap-2 dark:text-neutral-100">
                     {chat.otherUser?.name || chat.otherUser?.email}
                   </div>
                   {last && (
-                    <div className="text-sm text-gray-600 truncate">
+                    <div className="text-sm text-gray-600 dark:text-neutral-400 truncate">
                       {last.text || ""}
                     </div>
                   )}

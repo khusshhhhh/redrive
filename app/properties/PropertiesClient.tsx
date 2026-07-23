@@ -24,7 +24,7 @@ const PropertiesClient: React.FC<PropertiesClientProps> = ({
     const onDelete = useCallback((id: string) => {
         setDeletingId(id);
 
-        axios.delete(`/api/listings-dual/${id}`)
+        axios.delete(`/api/listings/${id}`)
             .then(() => {
                 toast.success('Listing deleted successfully!');
                 router.refresh();
@@ -41,7 +41,7 @@ const PropertiesClient: React.FC<PropertiesClientProps> = ({
     return (
         <Container>
             <Heading title="Utility" subtitle="List of your utilities!!" />
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-8">
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {listings.length > 0 ? (
                     listings.map((listing) => (
                         <ListingCard
@@ -55,7 +55,7 @@ const PropertiesClient: React.FC<PropertiesClientProps> = ({
                         />
                     ))
                 ) : (
-                    <p className="text-gray-500 text-center col-span-full">No listings available.</p>
+                    <p className="text-gray-500 dark:text-neutral-400 text-center col-span-full">No listings available.</p>
                 )}
             </div>
         </Container>

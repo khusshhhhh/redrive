@@ -22,6 +22,8 @@ interface StateSelectorProps {
 const StateSelector: React.FC<StateSelectorProps> = ({ value, onChange }) => {
     return (
         <div>
+            {/* TODO: dark mode styling for react-select — control/menu backgrounds are
+                react-select's default (white) since no `styles` overrides are set here. */}
             <Select
                 placeholder="Select a State"
                 isClearable

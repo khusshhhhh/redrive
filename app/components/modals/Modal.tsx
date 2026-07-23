@@ -79,21 +79,21 @@ const Modal: React.FC<ModalProps> = ({
                     className={`transition-transform duration-300 h-full 
           ${showModal ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}
                 >
-                    <div className="relative flex flex-col w-full h-full lg:h-auto md:h-auto bg-white border-0 rounded-lg shadow-lg outline-none overflow-hidden">
+                    <div className="relative flex flex-col w-full h-full lg:h-auto md:h-auto bg-white dark:bg-neutral-900 border-0 rounded-lg shadow-lg outline-none overflow-hidden">
 
                         {/* Modal Header */}
-                        <div className="relative flex items-center justify-center p-6 border-b bg-white top-0 z-10">
-                            <button onClick={handleClose} className="absolute left-9 p-1 border-0 hover:opacity-70 transition">
+                        <div className="relative flex items-center justify-center p-6 border-b dark:border-neutral-700 bg-white dark:bg-neutral-900 top-0 z-10">
+                            <button onClick={handleClose} className="absolute left-4 z-20 p-1 border-0 hover:opacity-70 transition text-black dark:text-neutral-100">
                                 <IoMdClose size={18} />
                             </button>
-                            <div className="text-lg font-semibold">{title}</div>
+                            <div className="text-lg font-semibold text-black dark:text-neutral-100 px-10 text-center truncate">{title}</div>
                         </div>
 
                         {/* Modal Body */}
-                        <div className="relative p-6 flex-auto max-h-[70vh] overflow-y-auto">{body}</div>
+                        <div className="relative p-6 flex-auto max-h-[70vh] overflow-y-auto text-black dark:text-neutral-100">{body}</div>
 
                         {/* Modal Footer */}
-                        <div className="flex flex-row items-center gap-4 px-6 w-full border-t bg-white sticky bottom-0 z-10">
+                        <div className="flex flex-row items-center gap-4 px-6 w-full border-t dark:border-neutral-700 bg-white dark:bg-neutral-900 sticky bottom-0 z-10">
                             {secondaryAction && secondaryActionLabel && (
                                 <Button outline disabled={disabled} label={secondaryActionLabel} onClick={handleSecondaryAction} />
                             )}

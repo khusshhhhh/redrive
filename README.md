@@ -12,7 +12,6 @@ _From Concept to Production-Ready Platform_
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-6.0-green?style=flat-square&logo=mongodb)](https://www.mongodb.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.11-2D3748?style=flat-square&logo=prisma)](https://www.prisma.io/)
-[![Supabase](https://img.shields.io/badge/Supabase-2.50-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com/)
 
 </div>
 
@@ -43,7 +42,7 @@ _"To empower every Aussie to unlock adventure by seamlessly sharing and accessin
 - 10+ Vehicle Categories: Cars, Utes, Bikes, Caravans, Motorhomes, Boats, Yachts, Trucks
 - 100+ Amenities: From basic air conditioning to advanced camping setups
 - Real-time Everything: Notifications, booking updates, chat messaging
-- Dual Database Architecture: MongoDB + Supabase for ultimate reliability
+- Light & Dark Mode: full theme support across the entire app
 - Mobile-First Design: Perfect experience on every device
 
 ---
@@ -57,11 +56,9 @@ graph TB
     B --> D[📡 API Layer]
 
     D --> E[💾 MongoDB Primary]
-    D --> F[🐘 Supabase SQL]
     D --> G[☁️ Cloudinary CDN]
     D --> H[🗺️ Google Maps API]
 
-    I[🔔 Real-time Events] --> F
     J[📊 Analytics] --> K[📈 Vercel Analytics]
     L[🚀 Deployment] --> M[⚡ Vercel Edge]
 
@@ -185,9 +182,7 @@ Every component designed for touch-first interaction:
 
 ## 🗄️ Database Architecture
 
-### **Dual Database Strategy**
-
-#### **MongoDB (Primary)**
+### **Database (MongoDB via Prisma)**
 
 ```javascript
 // Collections
@@ -206,16 +201,6 @@ Reviews: {
 Notifications: {
   type, message, actions, expiry;
 }
-```
-
-#### **Supabase (Analytics & Real-time)**
-
-```sql
--- PostgreSQL Tables with RLS
-users, listings, reservations, reviews, notifications
--- Triggers for real-time subscriptions
--- PostGIS for geographic queries
--- Full-text search capabilities
 ```
 
 ---
@@ -396,9 +381,14 @@ redrive/
 │   ├── libs/              # Utility Libraries
 │   └── services/          # Business Logic
 ├── prisma/                # Database Schema
-├── public/                # Static Assets
-└── supabase/              # Supabase Configuration
+└── public/                # Static Assets
 ```
+
+### **Environment Setup**
+
+Copy `.env.example` to `.env` and fill in the values (see the comments in
+that file for where to get each one — MongoDB connection string, NextAuth
+secret, Google OAuth/Maps/Places keys, and Cloudinary credentials).
 
 ---
 

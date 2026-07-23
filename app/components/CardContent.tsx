@@ -18,11 +18,11 @@ export const Card = ({ children, className = "", onClose }) => {
     }, [onClose]);
 
     return (
-        <div ref={cardRef} className={`relative bg-white shadow-lg border rounded-lg p-4 ${className}`}>
+        <div ref={cardRef} className={`relative bg-white dark:bg-neutral-800 shadow-lg border dark:border-neutral-700 rounded-lg p-4 ${className}`}>
             {/* Close Button */}
             <button
                 onClick={onClose}
-                className="absolute top-4 right-4 text-gray-500 hover:text-black transition"
+                className="absolute top-4 right-4 text-gray-500 dark:text-neutral-400 hover:text-black dark:hover:text-neutral-100 transition"
             >
                 <IoMdClose size={22} />
             </button>

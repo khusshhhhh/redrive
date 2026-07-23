@@ -85,10 +85,10 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     const totalFees = totalPrice + redriveFee + serviceFee + insuranceFee + upfrontCleaningFee; // include cleaning fee if charged now
 
     return (
-        <div className="bg-white shadow-none md:shadow-lg shadow-gray-600/20 rounded-xl border-[1px] border-neutral-200 overflow-hidden mt-10 md:mt-0">
+        <div className="bg-white dark:bg-neutral-800 shadow-none md:shadow-lg shadow-gray-600/20 rounded-xl border-[1px] border-neutral-200 dark:border-neutral-700 overflow-hidden mt-10 md:mt-0">
             <div className="flex flex-row items-center gap-1 p-4">
                 <div className="text-2xl font-semibold">$ {price}</div>
-                <div className="font-light text-neutral-600">per day</div>
+                <div className="font-light text-neutral-600 dark:text-neutral-400">per day</div>
             </div>
             <hr />
             <Calendar value={dateRange} disabledDates={disabledDates} onChange={(value) => onChangeDate(value.selection)} />
@@ -114,7 +114,7 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                     </div>
                 )}
                 {returnCleaningFee > 0 && (
-                    <div className="mt-2 text-sm text-neutral-600">
+                    <div className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
                         Cleaning fee of AU$ {returnCleaningFee} will be charged upon return.
                     </div>
                 )}
@@ -127,21 +127,21 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                         {Object.keys(insuranceDetails).map((type) => (
                             <label key={type} className="flex flex-row gap-3 items-center cursor-pointer transition-all duration-300 hover:border-black">
                                 <input type="radio" name="insurance" value={type} checked={insuranceType === type} onChange={() => handleInsuranceChange(type, type === "Risk Taker" ? 20 : type === "Happy Driver" ? 40 : 0)} className="hidden" />
-                                <div className={`mt-1 w-4 h-4 flex justify-center items-center border-2 rounded-full transition-all duration-300 ${insuranceType === type ? "border-black bg-black" : "border-gray-400 bg-white"}`}>{insuranceType === type && <div className="w-2 h-2 bg-white rounded-full"></div>}</div>
+                                <div className={`mt-1 w-4 h-4 flex justify-center items-center border-2 rounded-full transition-all duration-300 ${insuranceType === type ? "border-black bg-black dark:border-neutral-200 dark:bg-neutral-200" : "border-gray-400 bg-white dark:border-neutral-600 dark:bg-neutral-800"}`}>{insuranceType === type && <div className="w-2 h-2 bg-white dark:bg-neutral-900 rounded-full"></div>}</div>
                                 <div className="flex flex-row items-center gap-3">
                                     <span className="text-base font-medium">{type}</span>
                                     <button type="button" onClick={() => setInfoPopup(infoPopup === type ? null : type)}>
-                                        <Info size={16} className="text-gray-500 hover:text-black" />
+                                        <Info size={16} className="text-gray-500 hover:text-black dark:text-neutral-400 dark:hover:text-neutral-100" />
                                     </button>
                                 </div>
                             </label>
                         ))}
                         {infoPopup && (
-                            <Card className="absolute left-2 p-4 w-72 shadow-lg z-10 bg-white border rounded-lg" onClose={() => setInfoPopup(null)}>
+                            <Card className="absolute left-2 p-4 w-72 max-w-[calc(100vw-2rem)] shadow-lg z-10 bg-white dark:bg-neutral-800 border dark:border-neutral-700 rounded-lg" onClose={() => setInfoPopup(null)}>
                                 <CardContent>
                                     <div className="font-medium text-lg mb-2">{infoPopup}</div>
-                                    <div className="text-sm text-gray-600">{insuranceDetails[infoPopup].description}</div>
-                                    {insuranceDetails[infoPopup].excess && <div className="text-sm text-gray-600 mt-1">{insuranceDetails[infoPopup].excess}</div>}
+                                    <div className="text-sm text-gray-600 dark:text-neutral-400">{insuranceDetails[infoPopup].description}</div>
+                                    {insuranceDetails[infoPopup].excess && <div className="text-sm text-gray-600 dark:text-neutral-400 mt-1">{insuranceDetails[infoPopup].excess}</div>}
                                     <div className="text-sm font-semibold mt-2">{insuranceDetails[infoPopup].price}</div>
                                 </CardContent>
                             </Card>

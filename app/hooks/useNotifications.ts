@@ -3,6 +3,13 @@ import axios from "axios";
 import { SafeNotification } from "@/app/types";
 import { toast } from "react-hot-toast";
 
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.error || fallback;
+  }
+  return fallback;
+};
+
 interface NotificationResponse {
   notifications: SafeNotification[];
   totalCount: number;
@@ -58,9 +65,9 @@ export const useNotifications = ({
       setUnreadCount(data.unreadCount);
       setTotalCount(data.totalCount);
       setHasMore(data.hasMore);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error fetching notifications:", error);
-      setError(error.response?.data?.error || "Failed to fetch notifications");
+      setError(getErrorMessage(error, "Failed to fetch notifications"));
     } finally {
       setLoading(false);
     }
@@ -82,7 +89,7 @@ export const useNotifications = ({
       setUnreadCount(prev => Math.max(0, prev - 1));
       
       return true;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error marking notification as read:", error);
       toast.error("Failed to mark notification as read");
       return false;
@@ -104,7 +111,7 @@ export const useNotifications = ({
 
       toast.success("All notifications marked as read");
       return true;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error marking all notifications as read:", error);
       toast.error("Failed to mark all notifications as read");
       return false;
@@ -126,7 +133,7 @@ export const useNotifications = ({
       }
 
       return true;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error deleting notification:", error);
       toast.error("Failed to delete notification");
       return false;
@@ -147,7 +154,7 @@ export const useNotifications = ({
 
       toast.success("All read notifications deleted");
       return true;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error deleting read notifications:", error);
       toast.error("Failed to delete read notifications");
       return false;

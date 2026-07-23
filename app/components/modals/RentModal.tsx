@@ -24,7 +24,6 @@ import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { categories } from "../navbar/Categories";
 import { useRouter } from "next/navigation";
-import { useCloudinaryUpload } from "@/app/hooks/useCloudinaryUpload";
 import Image from "next/image";
 
 
@@ -62,8 +61,6 @@ const RentModal = () => {
     const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
     const [selectedSuburb, setSelectedSuburb] = useState<{ value: string; label: string } | null>(null);
     const [address, setAddress] = useState<string>("");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { uploadImage, loading } = useCloudinaryUpload();
     const [imageSrcs, setImageSrcs] = useState<string[]>([]);
     const [regoImage, setRegoImage] = useState<string>("");
     const [uploading, setUploading] = useState(false); // ✅ Uploading State
@@ -243,7 +240,7 @@ const RentModal = () => {
             returnCleaningFeeAmount: data.returnCleaningFeeAmount || null,
         };
 
-        axios.post('/api/listings-dual', finalData, {
+        axios.post('/api/listings', finalData, {
             headers: {
                 "Content-Type": "application/json" // ✅ Ensure JSON format
             }
@@ -322,7 +319,7 @@ const RentModal = () => {
                 <div className="flex flex-col gap-8">
                     {/* ✅ State Selector */}
                     <div>
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                        <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2">
                             State
                         </label>
                         <StateSelector
@@ -333,7 +330,7 @@ const RentModal = () => {
 
                     {/* ✅ Suburb Selector (Dynamically updates based on state) */}
                     <div>
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                        <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2">
                             Suburb
                         </label>
                         <SuburbSelector
@@ -345,7 +342,7 @@ const RentModal = () => {
 
                     {/* ✅ Google Places Autocomplete for Address */}
                     <div>
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                        <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2">
                             Number & Street Address
                         </label>
                         <Input
@@ -414,7 +411,7 @@ const RentModal = () => {
                 />
                 <label
                     htmlFor="listingImages"
-                    className="cursor-pointer p-4 border-2 border-dashed rounded-lg text-center text-gray-600"
+                    className="cursor-pointer p-4 border-2 border-dashed rounded-lg text-center text-gray-600 dark:text-neutral-400 dark:border-neutral-600"
                 >
                     {uploading ? "Uploading..." : "Click to Upload Listing Images"}
                 </label>
@@ -422,7 +419,7 @@ const RentModal = () => {
                 {/* ✅ Show Uploading Spinner */}
                 {uploading && (
                     <div className="flex justify-center items-center">
-                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-600"></div>
+                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-600 dark:border-neutral-400"></div>
                     </div>
                 )}
 
@@ -431,7 +428,7 @@ const RentModal = () => {
                     <div className="grid grid-cols-3 gap-2 overflow-hidden">
                         {imageSrcs.map((src, index) => (
                             src ? (  // ✅ Only Render if src Exists
-                                <div key={index} className="relative w-40 h-40 group">
+                                <div key={index} className="relative w-full aspect-square group">
                                     <Image
                                         alt={`Uploaded Image ${index + 1}`}
                                         src={src}
@@ -599,7 +596,7 @@ const RentModal = () => {
 
                 {/* ✅ Registration Expiry Date */}
                 <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Registration Expiry Date</label>
+                    <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2">Registration Expiry Date</label>
                     <div className="mt-4">
                         <DateSelector
                             value={regoEndDate}
@@ -616,20 +613,20 @@ const RentModal = () => {
                     className="hidden"
                     id="regoDocument"
                 />
-                <label htmlFor="regoDocument" className="cursor-pointer p-4 border-2 border-dashed rounded-lg text-center text-gray-600">
+                <label htmlFor="regoDocument" className="cursor-pointer p-4 border-2 border-dashed rounded-lg text-center text-gray-600 dark:text-neutral-400 dark:border-neutral-600">
                     {uploadingRego ? "Uploading..." : "Click to Upload Legal Document"}
                 </label>
 
                 {/* ✅ Show Uploading Spinner */}
                 {uploadingRego && (
                     <div className="flex justify-center items-center">
-                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-600"></div>
+                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-600 dark:border-neutral-400"></div>
                     </div>
                 )}
 
                 {/* ✅ Show Uploaded Legal Document with Delete Option */}
                 {regoImage && (
-                    <div className="mt-4 relative overflow-hidden w-60 h-60">
+                    <div className="mt-4 relative overflow-hidden w-full aspect-square">
                         <Image alt="Legal Document" src={regoImage} width={240} height={240} className="object-cover rounded-lg" />
                         {/* ✅ Delete Button */}
                         <button
@@ -716,7 +713,7 @@ const RentModal = () => {
                 )}
                 {cleaningFeeOption === 'UPON_RETURNING' && (
                     <div className="flex flex-col gap-2">
-                        <p className="text-sm text-neutral-600">
+                        <p className="text-sm text-neutral-600 dark:text-neutral-400">
                             User can add desired amount to charge when the utility is returned.
                         </p>
                         <Input

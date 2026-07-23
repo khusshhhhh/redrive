@@ -93,15 +93,15 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
         <div className="col-span-4 flex flex-col gap-8">
             {/* Basic Details */}
             <div className="flex flex-col gap-6">
-                <div className="flex items-center gap-3 md:gap-4 text-neutral-700">
+                <div className="flex items-center gap-3 md:gap-4 text-neutral-700 dark:text-neutral-300">
                     <div className="flex items-center gap-2 md:gap-3">
                         <BsFillPeopleFill size={18} /> {guestCount} guests
                     </div>
-                    <div className="h-5 w-[1px] bg-gray-600"></div>
+                    <div className="h-5 w-[1px] bg-gray-600 dark:bg-neutral-600"></div>
                     <div className="flex items-center gap-2 md:gap-3">
                         <GiCarDoor size={18} /> {doorCount} doors
                     </div>
-                    <div className="h-5 w-[1px] bg-gray-600"></div>
+                    <div className="h-5 w-[1px] bg-gray-600 dark:bg-neutral-600"></div>
                     <div className="flex items-center gap-2 md:gap-3">
                         <FaBed size={18} /> {sleepCount} sleeps
                     </div>
@@ -115,7 +115,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     <IconDashboard size={18} />
                     <div className="text-base font-normal">Basic Information</div>
                 </div>
-                <div className="ml-7 text-xl font-medium text-neutral-800">
+                <div className="ml-7 text-xl font-medium text-neutral-800 dark:text-neutral-300">
                     {company} {modal} {year}
                 </div>
             </div>
@@ -130,7 +130,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     </div>
                     <button
                         onClick={() => setIsExpanded(!isExpanded)}
-                        className="text-gray-600 hover:text-black transition"
+                        className="text-gray-600 hover:text-black dark:text-neutral-400 dark:hover:text-neutral-100 transition"
                     >
                         {isExpanded ? <IoIosArrowUp size={24} /> : <IoIosArrowDown size={24} />}
                     </button>
@@ -187,7 +187,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     <IconFileInfo size={18} />
                     <div className="font-normal text-base">Information</div>
                 </div>
-                <div className="ml-7 text-base text-neutral-800 overflow-clip whitespace-pre-line">{information}</div>
+                <div className="ml-7 text-base text-neutral-800 dark:text-neutral-300 overflow-clip whitespace-pre-line">{information}</div>
             </div>
             <hr />
 
@@ -205,19 +205,19 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
 
                             return (
                                 <div key={amenity} className="flex items-center gap-4 mt-4">
-                                    <IconComponent size={24} stroke={2} className="text-gray-700" />
-                                    <span className="text-gray-800">{amenityData?.name || amenity}</span>
+                                    <IconComponent size={24} stroke={2} className="text-gray-700 dark:text-neutral-300" />
+                                    <span className="text-gray-800 dark:text-neutral-300">{amenityData?.name || amenity}</span>
                                 </div>
                             );
                         })}
                     </div>
                 ) : (
-                    <p className="text-gray-500">No amenities available for this listing.</p>
+                    <p className="text-gray-500 dark:text-neutral-400">No amenities available for this listing.</p>
                 )}
             </div>
 
             {/* User Info */}
-            <div className="bg-white shadow-none md:shadow-lg shadow-gray-600/20 rounded-xl border-[1px] border-neutral-200 p-10 my-8">
+            <div className="bg-white dark:bg-neutral-800 shadow-none md:shadow-lg shadow-gray-600/20 rounded-xl border-[1px] border-neutral-200 dark:border-neutral-700 p-10 my-8">
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-10 items-center">
                     {/* Image Block */}
                     <div className="col-span-1 md:col-span-2 flex justify-center">

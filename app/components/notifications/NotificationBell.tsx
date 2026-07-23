@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Bell, X, Check, CheckCheck, Trash2 } from "lucide-react";
+import { Bell, Check, CheckCheck, Trash2 } from "lucide-react";
 import { useNotifications } from "@/app/hooks/useNotifications";
 import { useRouter } from "next/navigation";
 import { SafeNotification, NotificationType } from "@/app/types";
@@ -125,7 +125,7 @@ const NotificationBell = () => {
       {/* Bell Icon with Badge */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+        className="relative p-2 text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-neutral-100 transition-colors duration-200"
       >
         <Bell size={24} />
         {unreadCount > 0 && (
@@ -137,14 +137,14 @@ const NotificationBell = () => {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-gray-200 dark:border-neutral-700 z-50 max-h-96 overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <h3 className="font-semibold text-gray-900">Notifications</h3>
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-700">
+            <h3 className="font-semibold text-gray-900 dark:text-neutral-100">Notifications</h3>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1"
               >
                 <CheckCheck size={16} />
                 Mark all read
@@ -155,28 +155,28 @@ const NotificationBell = () => {
           {/* Notifications List */}
           <div className="max-h-80 overflow-y-auto">
             {loading ? (
-              <div className="p-4 text-center text-gray-500">
+              <div className="p-4 text-center text-gray-500 dark:text-neutral-400">
                 Loading notifications...
               </div>
             ) : recentNotifications.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-8 text-center text-gray-500 dark:text-neutral-400">
                 <Bell size={48} className="mx-auto mb-2 opacity-50" />
                 <p>No notifications yet</p>
-                <p className="text-sm">We'll notify you when something happens</p>
+                <p className="text-sm">We&apos;ll notify you when something happens</p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100 dark:divide-neutral-700">
                 {recentNotifications.map((notification) => (
                   <div
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200 ${
-                      !notification.read ? "bg-blue-50" : ""
+                    className={`p-4 hover:bg-gray-50 dark:hover:bg-neutral-700 cursor-pointer transition-colors duration-200 ${
+                      !notification.read ? "bg-blue-50 dark:bg-blue-900/20" : ""
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       {/* Icon */}
-                      <div className="flex-shrink-0 text-lg">
+                      <div className={`flex-shrink-0 text-lg ${getNotificationColor(notification.type)}`}>
                         {getNotificationIcon(notification.type)}
                       </div>
 
@@ -185,16 +185,16 @@ const NotificationBell = () => {
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <p className={`text-sm font-medium ${
-                              !notification.read ? "text-gray-900" : "text-gray-700"
+                              !notification.read ? "text-gray-900 dark:text-neutral-100" : "text-gray-700 dark:text-neutral-300"
                             }`}>
                               {notification.title}
                             </p>
                             <p className={`text-sm mt-1 ${
-                              !notification.read ? "text-gray-700" : "text-gray-500"
+                              !notification.read ? "text-gray-700 dark:text-neutral-300" : "text-gray-500 dark:text-neutral-400"
                             }`}>
                               {notification.message}
                             </p>
-                            <p className="text-xs text-gray-400 mt-2">
+                            <p className="text-xs text-gray-400 dark:text-neutral-500 mt-2">
                               {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                             </p>
                           </div>
@@ -204,7 +204,7 @@ const NotificationBell = () => {
                             {!notification.read && (
                               <button
                                 onClick={(e) => handleMarkAsRead(e, notification.id)}
-                                className="p-1 text-gray-400 hover:text-blue-600 rounded"
+                                className="p-1 text-gray-400 dark:text-neutral-500 hover:text-blue-600 rounded"
                                 title="Mark as read"
                               >
                                 <Check size={14} />
@@ -212,7 +212,7 @@ const NotificationBell = () => {
                             )}
                             <button
                               onClick={(e) => handleDelete(e, notification.id)}
-                              className="p-1 text-gray-400 hover:text-red-600 rounded"
+                              className="p-1 text-gray-400 dark:text-neutral-500 hover:text-red-600 rounded"
                               title="Delete"
                             >
                               <Trash2 size={14} />

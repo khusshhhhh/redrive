@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Sparkles, 
-  TrendingUp, 
-  MapPin, 
-  Clock, 
-  Star, 
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Sparkles,
+  TrendingUp,
+  MapPin,
+  Clock,
   DollarSign,
   ChevronRight,
   Eye,
@@ -29,7 +28,7 @@ interface RecommendationSection {
   id: string;
   title: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
   color: string;
   listings: SafeListing[];
   reason: string;
@@ -151,11 +150,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
     }
   ];
 
-  useEffect(() => {
-    generateRecommendations();
-  }, [currentUser, userLocation, viewedListings, favoriteListings]);
-
-  const generateRecommendations = async () => {
+  const generateRecommendations = useCallback(async () => {
     setLoading(true);
     
     // Simulate API delay
@@ -268,7 +263,12 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
     
     setRecommendations(filteredSections);
     setLoading(false);
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser, userLocation, viewedListings, favoriteListings]);
+
+  useEffect(() => {
+    generateRecommendations();
+  }, [generateRecommendations]);
 
   const toggleSection = (sectionId: string) => {
     const newExpanded = new Set(expandedSections);
@@ -286,15 +286,15 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-6 p-6">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700 mb-6 p-6">
         <div className="animate-pulse">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-5 h-5 bg-gray-300 rounded"></div>
-            <div className="h-6 bg-gray-300 rounded w-48"></div>
+            <div className="w-5 h-5 bg-gray-300 dark:bg-neutral-700 rounded"></div>
+            <div className="h-6 bg-gray-300 dark:bg-neutral-700 rounded w-48"></div>
           </div>
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-gray-100 rounded-lg"></div>
+              <div key={i} className="h-20 bg-gray-100 dark:bg-neutral-700 rounded-lg"></div>
             ))}
           </div>
         </div>
@@ -307,21 +307,21 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-6">
-      <div className="p-4 border-b border-gray-200">
+    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700 mb-6">
+      <div className="p-4 border-b border-gray-200 dark:border-neutral-700">
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-purple-500" />
-          <h3 className="font-semibold text-gray-900">Recommended for You</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-neutral-100">Recommended for You</h3>
           <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
             Personalized
           </span>
         </div>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-gray-600 dark:text-neutral-400 mt-1">
           Curated selections based on your preferences and activity
         </p>
       </div>
 
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-gray-200 dark:divide-neutral-700">
         {recommendations.map((section, index) => {
           const Icon = section.icon;
           const isExpanded = expandedSections.has(section.id);
@@ -337,17 +337,17 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
                 <div className="flex items-center gap-3">
                   <Icon className={`w-5 h-5 ${section.color}`} />
                   <div>
-                    <h4 className="font-medium text-gray-900">{section.title}</h4>
-                    <p className="text-sm text-gray-600">{section.description}</p>
+                    <h4 className="font-medium text-gray-900 dark:text-neutral-100">{section.title}</h4>
+                    <p className="text-sm text-gray-600 dark:text-neutral-400">{section.description}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                  <span className="text-xs text-gray-500 dark:text-neutral-400 bg-gray-100 dark:bg-neutral-700 px-2 py-1 rounded">
                     {section.listings.length} vehicle{section.listings.length > 1 ? 's' : ''}
                   </span>
                   {!isFirst && (
-                    <ChevronRight 
-                      className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} 
+                    <ChevronRight
+                      className={`w-4 h-4 text-gray-400 dark:text-neutral-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
                     />
                   )}
                 </div>
@@ -355,7 +355,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
 
               {shouldShow && (
                 <div className="space-y-3">
-                  <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded-lg">
+                  <div className="text-xs text-gray-500 dark:text-neutral-400 bg-blue-50 dark:bg-neutral-700 p-2 rounded-lg">
                     <Sparkles className="inline w-3 h-3 mr-1" />
                     {section.reason}
                   </div>
@@ -392,7 +392,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
       </div>
 
       {/* Refresh Recommendations */}
-      <div className="p-4 border-t border-gray-200 text-center">
+      <div className="p-4 border-t border-gray-200 dark:border-neutral-700 text-center">
         <Button
           onClick={generateRecommendations}
           small

@@ -44,10 +44,10 @@ const ReservationDetails = () => {
     if (loading) {
         return (
             <div className="max-w-3xl mx-auto py-8 animate-pulse space-y-4">
-                <div className="h-6 bg-gray-200 rounded w-1/3" />
-                <div className="h-40 bg-gray-200 rounded" />
-                <div className="h-4 bg-gray-200 rounded" />
-                <div className="h-4 bg-gray-200 rounded" />
+                <div className="h-6 bg-gray-200 dark:bg-neutral-700 rounded w-1/3" />
+                <div className="h-40 bg-gray-200 dark:bg-neutral-700 rounded" />
+                <div className="h-4 bg-gray-200 dark:bg-neutral-700 rounded" />
+                <div className="h-4 bg-gray-200 dark:bg-neutral-700 rounded" />
             </div>
         );
     }
@@ -87,9 +87,9 @@ const ReservationDetails = () => {
             <div className="max-w-3xl mx-auto py-8">
                 <Heading title="Reservation Details" subtitle="Full booking details" />
 
-                <div className="bg-white mt-6 flex flex-col gap-6">
-                    <div className="p-6 border-[2px] rounded-xl border-gray-200">
-                        <h2 className="text-xl font-semibold">{listing.title}</h2>
+                <div className="bg-white dark:bg-neutral-900 mt-6 flex flex-col gap-6">
+                    <div className="p-6 border-[2px] rounded-xl border-gray-200 dark:border-neutral-700">
+                        <h2 className="text-xl font-semibold dark:text-neutral-100">{listing.title}</h2>
                         <div className="mt-4 flex flex-col md:flex-row gap-6">
                             <Image
                                 src={listing.imageSrcs?.[0] || "/images/placeholder.png"}
@@ -98,7 +98,7 @@ const ReservationDetails = () => {
                                 height={220}
                                 className="rounded-md object-cover"
                             />
-                            <div className="flex flex-col gap-2 text-gray-700 text-sm">
+                            <div className="flex flex-col gap-2 text-gray-700 dark:text-neutral-300 text-sm">
                                 <p><span className="font-bold">Location:</span> {listing.suburb}, {listing.state}</p>
                                 <p><span className="font-bold">Category:</span> {listing.category}</p>
                                 <p><span className="font-bold">Build:</span> {listing.company} {listing.modal} ({listing.year})</p>
@@ -109,8 +109,8 @@ const ReservationDetails = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="p-6 border-[2px] rounded-xl border-gray-200">
-                        <h3 className="text-lg font-semibold">User Details</h3>
+                    <div className="p-6 border-[2px] rounded-xl border-gray-200 dark:border-neutral-700">
+                        <h3 className="text-lg font-semibold dark:text-neutral-100">User Details</h3>
                         <div className="mt-4 flex flex-col">
                             <Image
                                 src={reservation.user.image || "/images/placeholder.png"}
@@ -122,10 +122,10 @@ const ReservationDetails = () => {
                             />
                         </div>
                         <div className="mt-4 flex flex-col gap-3">
-                            <p className="text-gray-700"><span className="font-bold">Name: </span>{reservation.user.name || "N/A"}</p>
-                            <p className="text-gray-700"><span className="font-bold">Email: </span>{reservation.user.email}</p>
-                            <p className="text-gray-700"><span className="font-bold">Phone: </span>{reservation.user.number || "N/A"}</p>
-                            <p className="text-gray-700"><span className="font-bold">Address: </span>{reservation.user.streetAddress || "N/A"}, {reservation.user.suburb}, {reservation.user.state}, {reservation.user.postcode}</p>
+                            <p className="text-gray-700 dark:text-neutral-300"><span className="font-bold">Name: </span>{reservation.user.name || "N/A"}</p>
+                            <p className="text-gray-700 dark:text-neutral-300"><span className="font-bold">Email: </span>{reservation.user.email}</p>
+                            <p className="text-gray-700 dark:text-neutral-300"><span className="font-bold">Phone: </span>{reservation.user.number || "N/A"}</p>
+                            <p className="text-gray-700 dark:text-neutral-300"><span className="font-bold">Address: </span>{reservation.user.streetAddress || "N/A"}, {reservation.user.suburb}, {reservation.user.state}, {reservation.user.postcode}</p>
                         </div>
                         <div className="mt-4">
                             {reservation.user?.profileVerified === "Y" && (
@@ -135,16 +135,16 @@ const ReservationDetails = () => {
                             )}
                         </div>
                     </div>
-                    <div className="p-6 border-[2px] rounded-xl border-gray-200">
-                        <h3 className="text-lg font-semibold">Booking Period:</h3>
+                    <div className="p-6 border-[2px] rounded-xl border-gray-200 dark:border-neutral-700">
+                        <h3 className="text-lg font-semibold dark:text-neutral-100">Booking Period:</h3>
                         <div className="mt-4 flex flex-col gap-3">
-                            <p className="text-gray-700"><span className="font-bold">From: </span>{new Date(reservation.startDate).toDateString()}</p>
-                            <p className="text-gray-700"><span className="font-bold">To: </span>{new Date(reservation.endDate).toDateString()}</p>
+                            <p className="text-gray-700 dark:text-neutral-300"><span className="font-bold">From: </span>{new Date(reservation.startDate).toDateString()}</p>
+                            <p className="text-gray-700 dark:text-neutral-300"><span className="font-bold">To: </span>{new Date(reservation.endDate).toDateString()}</p>
                         </div>
                     </div>
-                    <div className="p-6 border-[2px] rounded-xl border-gray-200">
-                        <h3 className="text-lg font-semibold">Cost Breakdown</h3>
-                        <div className="mt-4 flex flex-col gap-2 text-sm text-gray-700">
+                    <div className="p-6 border-[2px] rounded-xl border-gray-200 dark:border-neutral-700">
+                        <h3 className="text-lg font-semibold dark:text-neutral-100">Cost Breakdown</h3>
+                        <div className="mt-4 flex flex-col gap-2 text-sm text-gray-700 dark:text-neutral-300">
                             <p><span className="font-bold">Reservation Cost:</span> AU${reservation.totalPrice}</p>
                             <p><span className="font-bold">Service Fee:</span> AU${reservation.serviceFee}</p>
                             <p><span className="font-bold">Redrive Fee:</span> AU${reservation.redriveFee}</p>
@@ -155,7 +155,7 @@ const ReservationDetails = () => {
                             {listing.cleaningFeeOption === 'UPON_RETURNING' && (
                                 <p><span className="font-bold">Return Cleaning Fee:</span> AU${listing.returnCleaningFeeAmount}</p>
                             )}
-                            <hr className="my-2" />
+                            <hr className="my-2 dark:border-neutral-700" />
                             <p className="font-semibold"><span className="font-bold">Total:</span> AU${reservation.totalFees}</p>
                             <p className="font-semibold mt-2">Status: {reservation.status}</p>
                             {currentUser?.id === listing.userId && reservation.status === "REVIEWING" && (
@@ -185,7 +185,7 @@ const ReservationDetails = () => {
                         </button>
                         <button
                             onClick={() => router.push("/reservations")}
-                            className="bg-white text-teal-500 px-16 py-3 rounded-md hover:bg-teal-500 hover:text-white border-[2px] border-teal-500 transition"
+                            className="bg-white dark:bg-neutral-900 text-teal-500 px-16 py-3 rounded-md hover:bg-teal-500 hover:text-white border-[2px] border-teal-500 transition"
                         >
                             Go Back
                         </button>

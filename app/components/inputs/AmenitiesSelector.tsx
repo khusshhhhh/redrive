@@ -33,7 +33,7 @@ const AmenitiesSelector: React.FC<AmenitiesSelectorProps> = ({
 
     return (
         <div className="w-full">
-            <label className="text-md font-semibold text-gray-600">Select Amenities</label>
+            <label className="text-md font-semibold text-gray-600 dark:text-neutral-400">Select Amenities</label>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mt-4">
                 {AMENITIES_LIST.map((amenity) => {
                     const IconComponent = amenity.icon || IconQuestionMark; // ✅ Use Tabler Icon or fallback
@@ -45,7 +45,7 @@ const AmenitiesSelector: React.FC<AmenitiesSelectorProps> = ({
                             className={`group p-4 flex items-center gap-3 border-2 rounded-md transition 
         ${selectedAmenities.includes(amenity.id)
                                     ? "bg-black text-white"
-                                    : "bg-gray-100 text-gray-700 hover:bg-black hover:text-white"
+                                    : "bg-gray-100 text-gray-700 dark:bg-neutral-700 dark:text-neutral-300 hover:bg-black hover:text-white"
                                 }`}
                         >
                             <IconComponent {...ICON_PROPS} /> {/* ✅ Icon will change color on hover */}

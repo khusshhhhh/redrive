@@ -29,7 +29,7 @@ const CategoryInput: React.FC<CategoryInputProps> = ({
         transition
         cursor-pointer
         items-start
-        ${selected ? 'border-black' : 'border-neutral-200'}
+        ${selected ? 'border-black dark:border-neutral-300' : 'border-neutral-200 dark:border-neutral-700'}
       `}
         >
             <Icon size={32} />

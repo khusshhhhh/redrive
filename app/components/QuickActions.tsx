@@ -1,19 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Plus, 
-  MessageCircle, 
-  Calendar, 
-  Star, 
-  MapPin, 
+import {
+  Plus,
+  MessageCircle,
+  Calendar,
+  Star,
+  MapPin,
   TrendingUp,
   Heart,
-  Settings,
-  HelpCircle,
   Zap,
-  Filter,
-  Bell
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { SafeUser } from '@/app/types';
@@ -126,12 +122,12 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-6">
-      <div className="p-4 border-b border-gray-200">
+    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700 mb-6">
+      <div className="p-4 border-b border-gray-200 dark:border-neutral-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Zap className="w-5 h-5 text-blue-500" />
-            <h3 className="font-semibold text-gray-900">Quick Actions</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-neutral-100">Quick Actions</h3>
           </div>
           {regularActions.length > 0 && (
             <Button
@@ -182,7 +178,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
               <button
                 key={action.id}
                 onClick={() => handleActionClick(action)}
-                className="relative p-3 text-center bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group"
+                className="relative p-3 text-center bg-gray-50 dark:bg-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-600 rounded-lg transition-colors group"
               >
                 {action.badge && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -192,8 +188,8 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
                 <div className={`${action.color} w-12 h-12 rounded-lg mx-auto mb-2 flex items-center justify-center group-hover:scale-110 transition-transform`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <h4 className="font-medium text-sm text-gray-900 mb-1">{action.label}</h4>
-                <p className="text-xs text-gray-600 leading-tight">{action.description}</p>
+                <h4 className="font-medium text-sm text-gray-900 dark:text-neutral-100 mb-1">{action.label}</h4>
+                <p className="text-xs text-gray-600 dark:text-neutral-400 leading-tight">{action.description}</p>
               </button>
             );
           })}
@@ -214,19 +210,19 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
 
       {/* Quick Stats for authenticated users */}
       {currentUser && (
-        <div className="border-t border-gray-200 p-4">
+        <div className="border-t border-gray-200 dark:border-neutral-700 p-4">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-blue-600">12</div>
-              <div className="text-xs text-gray-600">Total Trips</div>
+              <div className="text-xs text-gray-600 dark:text-neutral-400">Total Trips</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-green-600">$1,240</div>
-              <div className="text-xs text-gray-600">Earned</div>
+              <div className="text-xs text-gray-600 dark:text-neutral-400">Earned</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-yellow-600">4.9</div>
-              <div className="text-xs text-gray-600">Rating</div>
+              <div className="text-xs text-gray-600 dark:text-neutral-400">Rating</div>
             </div>
           </div>
         </div>
@@ -234,10 +230,10 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
 
       {/* Guest Call-to-Action */}
       {!currentUser && (
-        <div className="border-t border-gray-200 p-4 bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="border-t border-gray-200 dark:border-neutral-700 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-neutral-800 dark:to-neutral-800">
           <div className="text-center">
-            <h4 className="font-semibold text-gray-900 mb-2">Join REDRIVE Today</h4>
-            <p className="text-sm text-gray-600 mb-3">
+            <h4 className="font-semibold text-gray-900 dark:text-neutral-100 mb-2">Join REDRIVE Today</h4>
+            <p className="text-sm text-gray-600 dark:text-neutral-400 mb-3">
               Access personalized features, save favorites, and start your adventure!
             </p>
             <div className="flex gap-2 justify-center">

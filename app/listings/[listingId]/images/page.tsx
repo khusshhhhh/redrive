@@ -19,7 +19,7 @@ const ListingImages = () => {
     useEffect(() => {
         const fetchImages = async () => {
             try {
-                const response = await fetch(`/api/listings-dual/${listingId}`);
+                const response = await fetch(`/api/listings/${listingId}`);
                 const data = await response.json();
                 setImageSrcs(data.imageSrcs || []);
             } catch (error) {
@@ -48,13 +48,13 @@ const ListingImages = () => {
             {/* Back Button */}
             <button
                 onClick={() => router.back()}
-                className="mb-4 bg-white font-semibold text-black border-[2px] border-black hover:bg-black hover:text-white transition px-4 py-2 rounded-md"
+                className="mb-4 bg-white dark:bg-neutral-900 font-semibold text-black dark:text-neutral-100 border-[2px] border-black dark:border-neutral-600 hover:bg-black hover:text-white transition px-4 py-2 rounded-md"
             >
                 Back
             </button>
 
             {/* Title */}
-            <h2 className="text-2xl font-semibold text-center mb-6">Photo Gallery</h2>
+            <h2 className="text-2xl font-semibold text-center mb-6 dark:text-neutral-100">Photo Gallery</h2>
 
             {/* Responsive Masonry Grid for Images */}
             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8">

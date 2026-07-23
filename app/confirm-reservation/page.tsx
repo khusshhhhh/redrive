@@ -31,7 +31,7 @@ export default function ConfirmReservation() {
         if (!listingId) return;
 
         // Fetch listing details from API
-        axios.get(`/api/listings-dual/${listingId}`)
+        axios.get(`/api/listings/${listingId}`)
             .then((response) => {
                 setListing(response.data);
                 setHost(response.data.user); // ✅ Store the host details separately
@@ -44,7 +44,7 @@ export default function ConfirmReservation() {
 
     const handleConfirmBooking = async () => {
         try {
-            await axios.post("/api/reservations-dual", {
+            await axios.post("/api/reservations", {
                 listingId,
                 startDate,
                 endDate,
@@ -66,7 +66,7 @@ export default function ConfirmReservation() {
         <Container>
             <Toaster />
             <div className="max-w-3xl mx-auto sm:max-w-xl rounded-lg">
-                <h2 className="text-2xl font-semibold text-center mb-6">Review Your Booking Request</h2>
+                <h2 className="text-2xl font-semibold text-center mb-6 dark:text-neutral-100">Review Your Booking Request</h2>
 
                 {/* Listing Details */}
                 {listing ? (
@@ -106,7 +106,7 @@ export default function ConfirmReservation() {
                                     <span>{new Date(endDate!).toDateString()}</span>
                                 </div>
                             </div>
-                            <hr />
+                            <hr className="dark:border-neutral-700" />
                             <div className="flex flex-col gap-3">
                                 {/* Pricing Breakdown */}
                                 <div className="font-bold mb-2">Basic Pricing</div>
@@ -129,12 +129,12 @@ export default function ConfirmReservation() {
                                     </div>
                                 )}
                                 {returnCleaningFee && Number(returnCleaningFee) > 0 && (
-                                    <div className="text-sm text-neutral-600 mt-1">
+                                    <div className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
                                         Cleaning fee of AU$ {returnCleaningFee} will be charged upon return.
                                     </div>
                                 )}
                             </div>
-                            <hr />
+                            <hr className="dark:border-neutral-700" />
                             <div className="flex flex-col gap-3">
                                 {/* Insurance Details */}
                                 <div className="font-bold mb-2">Insurance Options</div>
@@ -149,7 +149,7 @@ export default function ConfirmReservation() {
                                     </div>
                                 )}
                             </div>
-                            <hr />
+                            <hr className="dark:border-neutral-700" />
 
                             {/* Total Price */}
                             <div className="flex justify-between text-xl font-bold">
@@ -163,7 +163,7 @@ export default function ConfirmReservation() {
                             <div className="w-full">
                                 <button
                                     onClick={router.back}
-                                    className="w-full py-3 text-md font-semibold rounded-lg bg-white text-red-600 border-[2px] border-red-600 transition-all duration-300"
+                                    className="w-full py-3 text-md font-semibold rounded-lg bg-white dark:bg-neutral-900 text-red-600 border-[2px] border-red-600 transition-all duration-300"
                                 >
                                     Cancel
                                 </button>
@@ -181,9 +181,9 @@ export default function ConfirmReservation() {
                     </>
                 ) : (
                     <div className="animate-pulse space-y-4">
-                        <div className="h-64 w-full bg-gray-200 rounded-lg" />
+                        <div className="h-64 w-full bg-gray-200 dark:bg-neutral-700 rounded-lg" />
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="h-4 bg-gray-200 rounded" />
+                            <div key={i} className="h-4 bg-gray-200 dark:bg-neutral-700 rounded" />
                         ))}
                     </div>
                 )}

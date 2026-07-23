@@ -11,10 +11,10 @@ interface ButtonProps {
     disabled?: boolean;
     outline?: boolean;
     small?: boolean;
-    icon?: IconType | React.ComponentType<any>;
+    icon?: IconType | React.ComponentType<{ size?: number; className?: string }>;
     type?: "button" | "submit" | "reset";
     className?: string;
-    [key: string]: any; // Allow additional props like data-tour
+    [key: string]: unknown; // Allow additional props like data-tour
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -46,9 +46,9 @@ const Button: React.FC<ButtonProps> = ({
             onClick={handleClick}
             disabled={disabled || loading}
             className={`relative flex items-center justify-center gap-2 my-4 disabled:opacity-70 disabled:cursor-not-allowed rounded-lg hover:opacity-80 transition w-full
-                ${outline ? 'bg-white' : 'bg-teal-500'}
-                ${outline ? 'border-black' : 'border-teal-500'}
-                ${outline ? 'text-black' : 'text-white'}
+                ${outline ? 'bg-white dark:bg-neutral-800' : 'bg-teal-500'}
+                ${outline ? 'border-black dark:border-neutral-400' : 'border-teal-500'}
+                ${outline ? 'text-black dark:text-neutral-100' : 'text-white'}
                 ${small ? 'py-1 text-sm font-light border-[1px]' : 'py-3 text-md font-semibold border-2'}`}
             {...props}
         >

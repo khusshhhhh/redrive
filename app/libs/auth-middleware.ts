@@ -50,9 +50,12 @@ export async function getCurrentUserEnhanced(
         const token = authHeader.substring(7);
 
         try {
+          if (!process.env.NEXTAUTH_SECRET) {
+            throw new Error("NEXTAUTH_SECRET is not configured");
+          }
           const decoded = jwt.verify(
             token,
-            process.env.NEXTAUTH_SECRET || "fallback-secret"
+            process.env.NEXTAUTH_SECRET
           ) as { userId: string; email: string; name: string };
 
           const user = await prisma.user.findUnique({

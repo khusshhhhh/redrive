@@ -51,6 +51,8 @@ const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onCh
 
     return (
         <div>
+            {/* TODO: dark mode styling for react-select — control/menu backgrounds are
+                react-select's default (white) since no `styles` overrides are set here. */}
             <Select
                 placeholder={loading ? "Loading suburbs..." : "Search a Suburb"}
                 isClearable

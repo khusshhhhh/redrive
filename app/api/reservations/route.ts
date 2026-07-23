@@ -102,13 +102,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating reservation:", error);
     return NextResponse.json(
-      { error: "Internal Server Error", details: error.message },
+      { error: "Internal Server Error", details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(req: Request) {
   try {
     const currentUser = await getCurrentUserEnhanced(req);

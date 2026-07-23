@@ -98,7 +98,7 @@ const EditUtilityPage = () => {
         if (!listingId) return;
 
         axios
-            .get(`/api/listings-dual/${listingId}`)
+            .get(`/api/listings/${listingId}`)
             .then((response) => {
                 const data: Listing = response.data;
                 setValue("title", data.title);
@@ -161,7 +161,7 @@ const EditUtilityPage = () => {
     const onSubmit = async (data: FieldValues) => {
         setLoading(true);
         try {
-            await axios.put(`/api/listings-dual/${listingId}`, {
+            await axios.put(`/api/listings/${listingId}`, {
                 ...data,
                 state: selectedState?.value,
                 suburb: selectedSuburb?.value,
@@ -186,8 +186,8 @@ const EditUtilityPage = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto p-6 bg-white">
-            <h2 className="text-2xl font-bold mb-6 text-center">Edit Your Utility</h2>
+        <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-neutral-900">
+            <h2 className="text-2xl font-bold mb-6 text-center dark:text-neutral-100">Edit Your Utility</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Title */}
                 <div className="mb-8">
@@ -201,7 +201,7 @@ const EditUtilityPage = () => {
 
                 {/* Category Selection */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4">Select Category</p>
+                    <p className="font-bold mb-4 dark:text-neutral-100">Select Category</p>
                     <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
                         {categories.map((categoryItem) => (
                             <CategoryInput
@@ -217,7 +217,7 @@ const EditUtilityPage = () => {
 
                 {/* Images Section */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4">Property Images</p>
+                    <p className="font-bold mb-4 dark:text-neutral-100">Property Images</p>
                     <div className="grid grid-cols-3 gap-3 mb-4">
                         {listingImages.map((image, index) => (
                             <div key={index} className="relative">
@@ -245,7 +245,7 @@ const EditUtilityPage = () => {
 
                 {/* Location */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4">Location</p>
+                    <p className="font-bold mb-4 dark:text-neutral-100">Location</p>
                     <div className="flex flex-col gap-6">
                         <StateSelector value={selectedState} onChange={setSelectedState} />
                         <SuburbSelector
@@ -259,7 +259,7 @@ const EditUtilityPage = () => {
 
                 {/* Utility Details Counters */}
                 <div className="mb-8 space-y-6">
-                    <p className="font-bold mb-4">Utility Details</p>
+                    <p className="font-bold mb-4 dark:text-neutral-100">Utility Details</p>
                     <Counter
                         title="Guest Count"
                         subtitle="Maximum guests allowed"
@@ -282,7 +282,7 @@ const EditUtilityPage = () => {
 
                 {/* Year Select */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4">Year</p>
+                    <p className="font-bold mb-4 dark:text-neutral-100">Year</p>
                     <YearSelect
                         id="year"
                         label="Manufacturing Year"
@@ -296,7 +296,7 @@ const EditUtilityPage = () => {
 
                 {/* Fuel Selector */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4">Fuel</p>
+                    <p className="font-bold mb-4 dark:text-neutral-100">Fuel</p>
                     <FuelSelector
                         id="fuelType"
                         label=""
@@ -309,13 +309,13 @@ const EditUtilityPage = () => {
 
                 {/* Additional Information */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4">Additional Information</p>
+                    <p className="font-bold mb-4 dark:text-neutral-100">Additional Information</p>
                     <TextArea id="information" label="" register={register} errors={errors} required />
                 </div>
 
                 {/* Amenities Selection */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4">Select Amenities</p>
+                    <p className="font-bold mb-4 dark:text-neutral-100">Select Amenities</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         {AMENITIES_LIST.map((amenity) => (
                             <button
@@ -324,7 +324,7 @@ const EditUtilityPage = () => {
                                 onClick={() => toggleAmenity(amenity.id)}
                                 className={`p-3 flex items-center gap-2 border-2 rounded-md transition ${selectedAmenities.includes(amenity.id)
                                     ? "bg-black text-white"
-                                    : "bg-gray-100 text-gray-700"
+                                    : "bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-300"
                                     }`}
                             >
                                 <i className={`${amenity.icon} text-lg`}></i>
@@ -336,7 +336,7 @@ const EditUtilityPage = () => {
 
                 {/* Registration Details */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4">Registration Details</p>
+                    <p className="font-bold mb-4 dark:text-neutral-100">Registration Details</p>
                     <Input
                         id="regoNumber"
                         label="Rego Number"
@@ -350,13 +350,13 @@ const EditUtilityPage = () => {
 
                 {/* Registration Image */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4">Registration Image</p>
+                    <p className="font-bold mb-4 dark:text-neutral-100">Registration Image</p>
                     <ImageUpload value={regoImage} onChange={(image) => setRegoImage(image)} />
                 </div>
 
                 {/* Pricing */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4">Pricing</p>
+                    <p className="font-bold mb-4 dark:text-neutral-100">Pricing</p>
                     <Input
                         id="price"
                         label=""
@@ -369,8 +369,8 @@ const EditUtilityPage = () => {
 
                 {/* Cleaning Fees */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4">Cleaning Fees</p>
-                    <div className="flex flex-col gap-2">
+                    <p className="font-bold mb-4 dark:text-neutral-100">Cleaning Fees</p>
+                    <div className="flex flex-col gap-2 dark:text-neutral-100">
                         <label className="flex items-center gap-2">
                             <input
                                 type="radio"
@@ -412,7 +412,7 @@ const EditUtilityPage = () => {
                     )}
                     {cleaningFeeOption === 'UPON_RETURNING' && (
                         <div className="mt-4 flex flex-col gap-2">
-                            <p className="text-sm text-neutral-600">
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400">
                                 User can add desired amount after the utility is returned.
                             </p>
                             <Input
@@ -439,7 +439,7 @@ const EditUtilityPage = () => {
                     </button>
                     <button
                         type="button"
-                        className="border-[3px] border-black hover:border-teal-500 hover:text-teal-500 w-full bg-white text-black font-semibold px-6 py-4 rounded-lg transition-all disabled:opacity-50"
+                        className="border-[3px] border-black dark:border-neutral-600 hover:border-teal-500 hover:text-teal-500 w-full bg-white dark:bg-neutral-900 text-black dark:text-neutral-100 font-semibold px-6 py-4 rounded-lg transition-all disabled:opacity-50"
                         onClick={() => router.back()}
                     >
                         Go Back

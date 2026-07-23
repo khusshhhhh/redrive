@@ -86,7 +86,9 @@ const Categories = () => {
           flex-row
           items-center
           justify-between
+          gap-4
           overflow-x-auto
+          scrollbar-hide
         "
             >
                 {categories.map((item) => (
