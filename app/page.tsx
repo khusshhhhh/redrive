@@ -8,8 +8,6 @@ import EmptyState from "./components/EmptyState";
 import ListingCard from "./components/listings/ListingCard";
 import SearchFilters from "./components/SearchFilters";
 import SavedSearches from "./components/SavedSearches";
-import QuickActions from "./components/QuickActions";
-import SmartRecommendations from "./components/SmartRecommendations";
 import RecentlyViewed from "./components/RecentlyViewed";
 // import FeatureTour, { useFeatureTour } from "./components/FeatureTour";
 import { headers } from "next/headers";
@@ -56,9 +54,6 @@ const Home = async ({ searchParams }: HomeProps) => {
     <ClientOnly>
       <Container>
         <div className="pt-24 space-y-6">
-          {/* Quick Actions - Always visible */}
-          <QuickActions currentUser={currentUser} />
-
           {/* Search Filters */}
           {/* Note: this panel's fields (rating/features/fuel/transmission/sort)
               aren't wired to real filtering yet — getListings only supports
@@ -68,15 +63,6 @@ const Home = async ({ searchParams }: HomeProps) => {
 
           {/* Saved Searches - Only for authenticated users */}
           {currentUser && <SavedSearches currentFilters={params} />}
-
-          {/* Smart Recommendations - Show when no active filters or few results */}
-          {(!hasFilters || listings.length < 3) && (
-            <SmartRecommendations
-              currentUser={currentUser}
-              viewedListings={[]} // This would come from user's browsing history
-              favoriteListings={[]} // This would come from user's favorites
-            />
-          )}
 
           {/* Recently Viewed - only for returning visitors with browsing history */}
           {!hasFilters && <RecentlyViewed currentUser={currentUser} />}
