@@ -6,7 +6,6 @@ import ClientOnly from "./components/ClientOnly";
 import Container from "./components/Container";
 import EmptyState from "./components/EmptyState";
 import ListingCard from "./components/listings/ListingCard";
-import SearchFilters from "./components/SearchFilters";
 import SavedSearches from "./components/SavedSearches";
 import RecentlyViewed from "./components/RecentlyViewed";
 // import FeatureTour, { useFeatureTour } from "./components/FeatureTour";
@@ -54,13 +53,6 @@ const Home = async ({ searchParams }: HomeProps) => {
     <ClientOnly>
       <Container>
         <div className="pt-24 space-y-6">
-          {/* Search Filters */}
-          {/* Note: this panel's fields (rating/features/fuel/transmission/sort)
-              aren't wired to real filtering yet — getListings only supports
-              category/state/price/dates/guestCount. Wiring it up is a
-              separate backend feature, not just a prop-plumbing fix. */}
-          <SearchFilters initialFilters={params} />
-
           {/* Saved Searches - Only for authenticated users */}
           {currentUser && <SavedSearches currentFilters={params} />}
 
