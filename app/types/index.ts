@@ -23,11 +23,22 @@ export type SafeReservation = Omit<
 
 export type SafeUser = Omit<
   User,
-  "createdAt" | "updatedAt" | "emailVerified"
+  "createdAt" | "updatedAt" | "emailVerified" | "lastActiveAt"
 > & {
   createdAt: string;
   updatedAt: string;
   emailVerified: string | null;
+  lastActiveAt: string | null;
+};
+
+// Minimal presence-bearing user info attached to a chat (avatar/name/online
+// status) — not the full SafeUser, since chat summaries only need this much.
+export type SafeChatUser = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+  lastActiveAt: string | null;
 };
 
 export type SafeMessage = {
@@ -38,15 +49,17 @@ export type SafeMessage = {
   imageUrl: string | null;
   readByIds: string[];
   createdAt: string;
-  sender: SafeUser;
 };
 
+// Inbox row: one per chat, last message + unread count only. Full message
+// history is fetched paginated per-chat (GET /api/chats/[chatId]/messages).
 export type SafeChat = {
   id: string;
-  participantIds: string[];
   createdAt: string;
-  messages: SafeMessage[];
-  otherUser: SafeUser | null;
+  updatedAt: string;
+  unreadCount: number;
+  otherUser: SafeChatUser | null;
+  lastMessage: SafeMessage | null;
 };
 
 export type SafeNotification = Omit<Notification, "createdAt" | "expiresAt"> & {

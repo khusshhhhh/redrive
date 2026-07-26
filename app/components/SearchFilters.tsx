@@ -6,7 +6,7 @@ import { categories } from './navbar/Categories';
 import Button from './Button';
 
 interface SearchFiltersProps {
-  onFiltersChange: (filters: FilterOptions) => void;
+  onFiltersChange?: (filters: FilterOptions) => void;
   initialFilters?: Partial<FilterOptions>;
 }
 
@@ -26,7 +26,7 @@ export interface FilterOptions {
 }
 
 const SearchFilters: React.FC<SearchFiltersProps> = ({
-  onFiltersChange,
+  onFiltersChange = () => {},
   initialFilters = {}
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);

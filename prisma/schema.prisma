@@ -17,6 +17,7 @@ model User {
   hashedPassword String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  lastActiveAt   DateTime?
   favoriteIds    String[]  @db.ObjectId
 
   streetAddress  String?
@@ -146,6 +147,13 @@ model Chat {
   participantIds String[] @db.ObjectId
   messages     Message[]
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Ephemeral typing-indicator state (1:1 chats, single active typer)
+  typingUserId String?   @db.ObjectId
+  typingAt     DateTime?
+
+  @@index([participantIds])
 }
 
 model Message {
@@ -159,6 +167,8 @@ model Message {
 
   chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
   sender User @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([chatId, createdAt])
 }
 
 model Notification {

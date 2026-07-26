@@ -171,7 +171,7 @@ export default function ConfirmReservation() {
                             <div className="w-full">
                                 <button
                                     onClick={handleConfirmBooking}
-                                    className="w-full py-3 text-md font-semibold rounded-lg bg-teal-500 text-white hover:bg-teal-600 transition-all duration-400"
+                                    className="w-full py-3 text-md font-semibold rounded-lg bg-limespark text-graphite hover:opacity-90 transition-all duration-400"
                                 >
                                     Request Booking
                                 </button>

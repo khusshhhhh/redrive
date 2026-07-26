@@ -129,8 +129,8 @@ const ReservationDetails = () => {
                         </div>
                         <div className="mt-4">
                             {reservation.user?.profileVerified === "Y" && (
-                                <div className="text-teal-500 flex items-center gap-2">
-                                    Verified User <FaCheck className="text-teal-500" size={18} />
+                                <div className="text-graphite dark:text-limespark flex items-center gap-2">
+                                    Verified User <FaCheck className="text-graphite dark:text-limespark" size={18} />
                                 </div>
                             )}
                         </div>
@@ -162,7 +162,7 @@ const ReservationDetails = () => {
                                 <div className="flex gap-3 mt-2">
                                     <button
                                         onClick={() => handleStatus('APPROVED')}
-                                        className="bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition"
+                                        className="bg-limespark text-graphite font-semibold px-4 py-2 rounded-md hover:opacity-90 transition"
                                     >
                                         Approve
                                     </button>
@@ -179,13 +179,13 @@ const ReservationDetails = () => {
                     <div className="items-center justify-center flex gap-4">
                         <button
                             onClick={startChat}
-                            className="bg-teal-500 text-white px-4 py-3 rounded-md hover:bg-teal-600 transition"
+                            className="bg-limespark text-graphite font-semibold px-4 py-3 rounded-md hover:opacity-90 transition"
                         >
                             Message
                         </button>
                         <button
                             onClick={() => router.push("/reservations")}
-                            className="bg-white dark:bg-neutral-900 text-teal-500 px-16 py-3 rounded-md hover:bg-teal-500 hover:text-white border-[2px] border-teal-500 transition"
+                            className="bg-white dark:bg-neutral-900 text-graphite dark:text-limespark px-16 py-3 rounded-md hover:bg-limespark hover:text-graphite border-[2px] border-limespark transition"
                         >
                             Go Back
                         </button>

@@ -72,7 +72,7 @@ const Search = () => {
           {/* Guest Count */}
           <div className="text-sm pl-6 pr-2 flex font-medium flex-row items-center gap-3">
             <div className="hidden sm:block">{guestLabel}</div>
-            <div className="p-2 bg-teal-500 rounded-full text-white">
+            <div className="p-2 bg-limespark rounded-full text-graphite">
               <BiSearch size={18} />
             </div>
           </div>
@@ -84,7 +84,7 @@ const Search = () => {
           <div className="text-center">
             <button
               onClick={handleClearFilters}
-              className="p-3 bg-white dark:bg-neutral-800 text-black dark:text-neutral-100 rounded-full hover:border-teal-600 border-[1px] border-gray-800 dark:border-neutral-500 hover:bg-teal-600 hover:text-white transition"
+              className="p-3 bg-white dark:bg-neutral-800 text-black dark:text-neutral-100 rounded-full hover:border-limespark border-[1px] border-gray-800 dark:border-neutral-500 hover:bg-limespark hover:text-graphite transition"
             >
               <IconX size={16} />
             </button>

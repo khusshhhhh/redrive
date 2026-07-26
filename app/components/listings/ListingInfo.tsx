@@ -225,7 +225,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                             <Avatar src={user?.image} size={150} />
                             <div className="absolute bottom-2 right-2">
                                 {user?.profileVerified === "Y" && (
-                                    <div className="bg-teal-500 text-white rounded-full p-2 flex items-center justify-center">
+                                    <div className="bg-limespark text-graphite rounded-full p-2 flex items-center justify-center">
                                         <IconShieldCheckFilled size={24} />
                                     </div>
                                 )}

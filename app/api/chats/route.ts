@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import { buildChatSummary } from "@/app/libs/chatSerializers";
 
-// ✅ GET all chats for the current user
+// GET: inbox summary for the current user — one row per chat, last message
+// preview + unread count only (not the full message history, which is
+// fetched paginated per-chat via /api/chats/[chatId]/messages).
 export async function GET() {
   try {
     const currentUser = await getCurrentUser();
@@ -11,58 +14,21 @@ export async function GET() {
     }
 
     const chats = await prisma.chat.findMany({
-      where: {
-        participantIds: {
-          has: currentUser.id,
-        },
-      },
+      where: { participantIds: { has: currentUser.id } },
+      orderBy: { updatedAt: "desc" },
       include: {
         messages: {
-          orderBy: { createdAt: "asc" },
-          include: { sender: true },
+          orderBy: { createdAt: "desc" },
+          take: 1,
         },
       },
-      orderBy: { createdAt: "desc" },
     });
 
-    const safeChats = await Promise.all(
-      chats.map(async (chat) => {
-        const otherId = chat.participantIds.find((id) => id !== currentUser.id);
-        const otherUser = otherId
-          ? await prisma.user.findUnique({ where: { id: otherId } })
-          : null;
-
-        return {
-          ...chat,
-          createdAt: chat.createdAt.toISOString(),
-          otherUser: otherUser
-            ? {
-                ...otherUser,
-                createdAt: otherUser.createdAt.toISOString(),
-                updatedAt: otherUser.updatedAt.toISOString(),
-                emailVerified: otherUser.emailVerified
-                  ? otherUser.emailVerified.toISOString()
-                  : null,
-              }
-            : null,
-          messages: chat.messages.map((m) => ({
-            ...m,
-            createdAt: m.createdAt.toISOString(),
-            readByIds: m.readByIds,
-            sender: {
-              ...m.sender,
-              createdAt: m.sender.createdAt.toISOString(),
-              updatedAt: m.sender.updatedAt.toISOString(),
-              emailVerified: m.sender.emailVerified
-                ? m.sender.emailVerified.toISOString()
-                : null,
-            },
-          })),
-        };
-      })
+    const summaries = await Promise.all(
+      chats.map((chat) => buildChatSummary(chat, currentUser.id))
     );
 
-    return NextResponse.json(safeChats);
+    return NextResponse.json(summaries);
   } catch (error) {
     console.error("Error fetching chats:", error);
     return NextResponse.json(
@@ -72,7 +38,7 @@ export async function GET() {
   }
 }
 
-// ✅ POST to create or return existing chat with a user
+// POST: create or return the existing 1:1 chat with a given user.
 export async function POST(request: Request) {
   try {
     const currentUser = await getCurrentUser();
@@ -85,7 +51,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing userId" }, { status: 400 });
     }
 
-    // Find existing chat with both users
     let chat = await prisma.chat.findFirst({
       where: {
         participantIds: {
@@ -94,7 +59,6 @@ export async function POST(request: Request) {
       },
     });
 
-    // Create new chat if none exists
     if (!chat) {
       chat = await prisma.chat.create({
         data: {

@@ -432,14 +432,14 @@ const EditUtilityPage = () => {
                 <div className="flex flex-row gap-4">
                     <button
                         type="submit"
-                        className="w-full bg-teal-500 text-white font-semibold px-6 py-4 rounded-lg hover:bg-teal-400 transition-all disabled:opacity-50"
+                        className="w-full bg-limespark text-graphite font-semibold px-6 py-4 rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
                         disabled={loading}
                     >
                         {loading ? "Updating..." : "Update Utility"}
                     </button>
                     <button
                         type="button"
-                        className="border-[3px] border-black dark:border-neutral-600 hover:border-teal-500 hover:text-teal-500 w-full bg-white dark:bg-neutral-900 text-black dark:text-neutral-100 font-semibold px-6 py-4 rounded-lg transition-all disabled:opacity-50"
+                        className="border-[3px] border-black dark:border-neutral-600 hover:border-limespark hover:text-graphite dark:hover:text-limespark w-full bg-white dark:bg-neutral-900 text-black dark:text-neutral-100 font-semibold px-6 py-4 rounded-lg transition-all disabled:opacity-50"
                         onClick={() => router.back()}
                     >
                         Go Back

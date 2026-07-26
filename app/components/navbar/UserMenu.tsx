@@ -62,7 +62,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
       <div className="flex flex-row items-center gap-3">
         <div
           onClick={onRent}
-          className="hidden md:block text-sm font-semibold py-3 px-4 bg-teal-500 rounded-full hover:bg-teal-400 text-white transition cursor-pointer"
+          className="hidden md:block text-sm font-semibold py-3 px-4 bg-limespark rounded-full hover:opacity-90 text-graphite transition cursor-pointer"
         >
           Add your items
         </div>

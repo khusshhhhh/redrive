@@ -28,6 +28,7 @@ export default async function getCurrentUser() {
       createdAt: currentUser.createdAt.toISOString(),
       updatedAt: currentUser.updatedAt.toISOString(),
       emailVerified: currentUser.emailVerified?.toISOString() || null,
+      lastActiveAt: currentUser.lastActiveAt?.toISOString() || null,
     };
   } catch (error) {
     console.error("Error fetching current user:", error);

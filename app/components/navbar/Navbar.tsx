@@ -27,8 +27,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
             <div className="shrink-0">
               <Logo />
             </div>
-            <div className="flex-1 min-w-0">
-              <Search /> {/* ✅ Conditionally render search bar */}
+            <div className="flex-1 min-w-0 flex md:justify-center">
+              <div className="w-full md:w-auto">
+                <Search /> {/* ✅ Conditionally render search bar */}
+              </div>
             </div>
             <div className="shrink-0">
               <UserMenu currentUser={currentUser} />

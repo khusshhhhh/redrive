@@ -60,18 +60,14 @@ const Home = async ({ searchParams }: HomeProps) => {
           <QuickActions currentUser={currentUser} />
 
           {/* Search Filters */}
-          <SearchFilters 
-            onFiltersChange={() => {}} // This would integrate with actual search functionality
-            initialFilters={params}
-          />
+          {/* Note: this panel's fields (rating/features/fuel/transmission/sort)
+              aren't wired to real filtering yet — getListings only supports
+              category/state/price/dates/guestCount. Wiring it up is a
+              separate backend feature, not just a prop-plumbing fix. */}
+          <SearchFilters initialFilters={params} />
 
           {/* Saved Searches - Only for authenticated users */}
-          {currentUser && (
-            <SavedSearches
-              currentFilters={params}
-              onApplySearch={() => {}} // This would integrate with actual search functionality
-            />
-          )}
+          {currentUser && <SavedSearches currentFilters={params} />}
 
           {/* Smart Recommendations - Show when no active filters or few results */}
           {(!hasFilters || listings.length < 3) && (
@@ -135,7 +131,7 @@ const Home = async ({ searchParams }: HomeProps) => {
               {/* Load More Button - if there are many results */}
               {listings.length >= 20 && (
                 <div className="mt-8 text-center">
-                  <button className="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-400 transition-colors">
+                  <button className="bg-limespark text-graphite font-semibold px-6 py-3 rounded-lg hover:opacity-90 transition-colors">
                     Load More Vehicles
                   </button>
                 </div>

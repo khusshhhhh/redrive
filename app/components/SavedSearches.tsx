@@ -17,12 +17,12 @@ interface SavedSearch {
 
 interface SavedSearchesProps {
   currentFilters: FilterOptions;
-  onApplySearch: (filters: FilterOptions) => void;
+  onApplySearch?: (filters: FilterOptions) => void;
 }
 
 const SavedSearches: React.FC<SavedSearchesProps> = ({
   currentFilters,
-  onApplySearch
+  onApplySearch = () => {}
 }) => {
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);

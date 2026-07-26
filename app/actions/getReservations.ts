@@ -50,6 +50,9 @@ export default async function getReservations(params: IParams) {
         emailVerified: reservation.user.emailVerified
           ? reservation.user.emailVerified.toISOString()
           : null,
+        lastActiveAt: reservation.user.lastActiveAt
+          ? reservation.user.lastActiveAt.toISOString()
+          : null,
       },
       listing: {
         ...reservation.listing,

@@ -30,6 +30,7 @@ export default async function getListingById(paramsPromise: IParams) {
         createdAt: listing.user.createdAt.toISOString(),
         updatedAt: listing.user.updatedAt.toISOString(),
         emailVerified: listing.user.emailVerified?.toISOString() || null,
+        lastActiveAt: listing.user.lastActiveAt?.toISOString() || null,
         listings: listing.user.listings.map((l) => ({
           ...l,
           createdAt: l.createdAt.toISOString(),

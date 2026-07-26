@@ -42,7 +42,7 @@ export default async function RootLayout({
       <body className={`${font.className} bg-white dark:bg-neutral-900 text-black dark:text-neutral-100 transition-colors`}>
         <ThemeProvider>
           <ClientOnly>
-            <DataPreloader />
+            <DataPreloader isAuthenticated={!!currentUser} />
             <ToasterProvider />
             <SearchModal />
             <RentModal />

@@ -1,8 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { notificationService } from "@/app/services/notificationService";
 
-export async function POST() {
+// Vercel Cron (and any manual trigger) must present this as
+// `Authorization: Bearer <CRON_SECRET>`. Vercel adds this header
+// automatically when a `CRON_SECRET` env var is set on the project.
+function isAuthorized(request: NextRequest): boolean {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+  const authHeader = request.headers.get("authorization");
+  return authHeader === `Bearer ${secret}`;
+}
+
+async function runNotificationCron() {
   try {
     console.log("🔄 Starting notification cron job...");
 
@@ -120,10 +130,18 @@ export async function POST() {
   }
 }
 
-// Also allow GET for testing
-export async function GET() {
-  return NextResponse.json({
-    message: "Notification cron job endpoint is available. Use POST to trigger.",
-    timestamp: new Date().toISOString(),
-  });
+// Vercel Cron sends a GET request to the scheduled path.
+export async function GET(request: NextRequest) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return runNotificationCron();
+}
+
+// Also allow POST for manual/external triggering with the same secret.
+export async function POST(request: NextRequest) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return runNotificationCron();
 }

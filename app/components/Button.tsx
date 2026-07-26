@@ -46,16 +46,16 @@ const Button: React.FC<ButtonProps> = ({
             onClick={handleClick}
             disabled={disabled || loading}
             className={`relative flex items-center justify-center gap-2 my-4 disabled:opacity-70 disabled:cursor-not-allowed rounded-lg hover:opacity-80 transition w-full
-                ${outline ? 'bg-white dark:bg-neutral-800' : 'bg-teal-500'}
-                ${outline ? 'border-black dark:border-neutral-400' : 'border-teal-500'}
-                ${outline ? 'text-black dark:text-neutral-100' : 'text-white'}
+                ${outline ? 'bg-white dark:bg-neutral-800' : 'bg-limespark'}
+                ${outline ? 'border-black dark:border-neutral-400' : 'border-limespark'}
+                ${outline ? 'text-black dark:text-neutral-100' : 'text-graphite font-semibold'}
                 ${small ? 'py-1 text-sm font-light border-[1px]' : 'py-3 text-md font-semibold border-2'}`}
             {...props}
         >
             {loading ? (
-                <DotLoader 
-                    size={small ? "sm" : "md"} 
-                    color={outline ? "#000000" : "#ffffff"} 
+                <DotLoader
+                    size={small ? "sm" : "md"}
+                    color={outline ? "#000000" : "#23262F"}
                 />
             ) : Icon ? (
                 <Icon size={24} className="absolute left-4 top-1/2 transform -translate-y-1/2" />

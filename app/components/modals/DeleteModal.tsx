@@ -26,7 +26,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, onDelete }) 
                     </button>
                     <button
                         onClick={onClose}
-                        className="bg-teal-500 text-white px-4 py-2 rounded-md w-[48%] hover:bg-teal-600 transition"
+                        className="bg-limespark text-graphite font-semibold px-4 py-2 rounded-md w-[48%] hover:opacity-90 transition"
                     >
                         Go Back
                     </button>

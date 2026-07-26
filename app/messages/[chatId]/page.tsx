@@ -1,61 +1,258 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
+import Image from "next/image";
 import Container from "@/app/components/Container";
-import Heading from "@/app/components/Heading";
-import { SafeChat, SafeMessage } from "@/app/types";
+import { SafeChatUser, SafeMessage } from "@/app/types";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { IconSend, IconArrowLeft } from "@tabler/icons-react";
-import { format } from "date-fns";
+import { IconSend, IconArrowLeft, IconPaperclip, IconX } from "@tabler/icons-react";
+import { format, isSameDay, isToday, isYesterday } from "date-fns";
+import { CldUploadWidget } from "next-cloudinary";
+import ChatBubble from "@/app/components/messages/ChatBubble";
+import TypingIndicator from "@/app/components/messages/TypingIndicator";
+import { useSSE } from "@/app/hooks/useSSE";
+import { isOnline } from "@/app/helpers/presence";
+
+const TYPING_SEND_THROTTLE_MS = 2000;
+const TYPING_STOP_DELAY_MS = 3000;
+const TYPING_INCOMING_EXPIRY_MS = 3500;
+const NEAR_BOTTOM_THRESHOLD_PX = 150;
+
+function dayLabel(date: Date): string {
+  if (isToday(date)) return "Today";
+  if (isYesterday(date)) return "Yesterday";
+  return format(date, "MMMM d, yyyy");
+}
 
 const ChatPage = () => {
-  const { chatId } = useParams();
+  const { chatId } = useParams<{ chatId: string }>();
   const router = useRouter();
-  const [chat, setChat] = useState<SafeChat | null>(null);
+
+  const [loading, setLoading] = useState(true);
+  const [otherUser, setOtherUser] = useState<SafeChatUser | null>(null);
+  const [messages, setMessages] = useState<SafeMessage[]>([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingOlder, setLoadingOlder] = useState(false);
   const [text, setText] = useState("");
+  const [pendingImageUrl, setPendingImageUrl] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [otherTyping, setOtherTyping] = useState(false);
+  const [streamSince, setStreamSince] = useState<string | null>(null);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const seenIdsRef = useRef<Set<string>>(new Set());
+  const typingStopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typingExpireTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTypingSentAtRef = useRef(0);
+  const isTypingRef = useRef(false);
+
+  // Initial load: current user id + first page of messages + otherUser.
   useEffect(() => {
     if (!chatId) return;
-    const fetchChat = () =>
-      axios
-        .get(`/api/chats/${chatId}`)
-        .then((res) => setChat(res.data))
-        .catch(() => toast.error("Failed to load chat"));
+    let cancelled = false;
 
-    fetchChat();
-    const interval = setInterval(fetchChat, 3000);
-    axios.get("/api/auth/user").then((res) => setCurrentUserId(res.data.id));
-    return () => clearInterval(interval);
+    axios.get("/api/auth/user").then((res) => {
+      if (!cancelled) setCurrentUserId(res.data.id);
+    }).catch(() => {});
+
+    axios
+      .get(`/api/chats/${chatId}/messages`)
+      .then((res) => {
+        if (cancelled) return;
+        const { messages: initial, hasMore: more, otherUser: other } = res.data;
+        initial.forEach((m: SafeMessage) => seenIdsRef.current.add(m.id));
+        setMessages(initial);
+        setHasMore(more);
+        setOtherUser(other);
+        setStreamSince(
+          initial.length > 0 ? initial[initial.length - 1].createdAt : new Date(0).toISOString()
+        );
+        setLoading(false);
+        requestAnimationFrame(() => {
+          scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+        });
+      })
+      .catch(() => {
+        if (!cancelled) {
+          toast.error("Failed to load conversation");
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [chatId]);
 
-  // Scroll to bottom whenever messages change
+  const markRead = useCallback(() => {
+    if (!chatId) return;
+    axios.post(`/api/chats/${chatId}/read`).catch(() => {});
+  }, [chatId]);
+
+  // Mark read once the initial history is in.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat?.messages.length]);
+    if (!loading) markRead();
+  }, [loading, markRead]);
+
+  const isNearBottom = () => {
+    const el = scrollRef.current;
+    if (!el) return true;
+    return el.scrollHeight - el.scrollTop - el.clientHeight < NEAR_BOTTOM_THRESHOLD_PX;
+  };
+
+  const handleIncomingMessage = useCallback(
+    (data: SafeMessage) => {
+      if (seenIdsRef.current.has(data.id)) return;
+      seenIdsRef.current.add(data.id);
+      const shouldStick = isNearBottom();
+      setMessages((prev) => [...prev, data]);
+      if (data.senderId !== currentUserId && document.visibilityState === "visible") {
+        markRead();
+      }
+      if (shouldStick) {
+        requestAnimationFrame(() => {
+          scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+        });
+      }
+    },
+    [currentUserId, markRead]
+  );
+
+  const handleTypingEvent = useCallback((data: { userId: string; isTyping: boolean }) => {
+    if (!data.isTyping) return;
+    setOtherTyping(true);
+    if (typingExpireTimerRef.current) clearTimeout(typingExpireTimerRef.current);
+    typingExpireTimerRef.current = setTimeout(() => setOtherTyping(false), TYPING_INCOMING_EXPIRY_MS);
+  }, []);
+
+  const handleReadEvent = useCallback((data: { messageIds: string[] }) => {
+    setMessages((prev) =>
+      prev.map((m) =>
+        data.messageIds.includes(m.id) && otherUser && !m.readByIds.includes(otherUser.id)
+          ? { ...m, readByIds: [...m.readByIds, otherUser.id] }
+          : m
+      )
+    );
+  }, [otherUser]);
+
+  const streamUrl = useMemo(() => {
+    if (!chatId || !streamSince) return null;
+    return `/api/chats/${chatId}/stream?since=${encodeURIComponent(streamSince)}`;
+    // Only recompute when the chat changes or the stream first becomes ready —
+    // reconnects after that are handled by the browser via Last-Event-ID.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatId, streamSince !== null]);
+
+  useSSE({
+    url: streamUrl,
+    handlers: {
+      message: (data) => handleIncomingMessage(data as SafeMessage),
+      typing: (data) => handleTypingEvent(data as { userId: string; isTyping: boolean }),
+      read: (data) => handleReadEvent(data as { messageIds: string[] }),
+    },
+  });
+
+  const sendTyping = useCallback(
+    (typing: boolean) => {
+      if (!chatId) return;
+      isTypingRef.current = typing;
+      axios.post(`/api/chats/${chatId}/typing`, { isTyping: typing }).catch(() => {});
+    },
+    [chatId]
+  );
+
+  const onTextChange = (value: string) => {
+    setText(value);
+    if (!value.trim()) {
+      if (isTypingRef.current) sendTyping(false);
+      return;
+    }
+    const now = Date.now();
+    if (now - lastTypingSentAtRef.current > TYPING_SEND_THROTTLE_MS) {
+      lastTypingSentAtRef.current = now;
+      sendTyping(true);
+    }
+    if (typingStopTimerRef.current) clearTimeout(typingStopTimerRef.current);
+    typingStopTimerRef.current = setTimeout(() => sendTyping(false), TYPING_STOP_DELAY_MS);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (typingStopTimerRef.current) clearTimeout(typingStopTimerRef.current);
+      if (typingExpireTimerRef.current) clearTimeout(typingExpireTimerRef.current);
+      if (isTypingRef.current && chatId) {
+        axios.post(`/api/chats/${chatId}/typing`, { isTyping: false }).catch(() => {});
+      }
+    };
+  }, [chatId]);
 
   const sendMessage = async () => {
-    if (!text.trim()) return;
+    const trimmed = text.trim();
+    if (!trimmed && !pendingImageUrl) return;
+    if (!currentUserId) return;
+
     setSending(true);
+    if (typingStopTimerRef.current) clearTimeout(typingStopTimerRef.current);
+    if (isTypingRef.current) sendTyping(false);
+
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const optimisticMessage: SafeMessage = {
+      id: tempId,
+      chatId: chatId as string,
+      senderId: currentUserId,
+      text: trimmed || null,
+      imageUrl: pendingImageUrl,
+      readByIds: [currentUserId],
+      createdAt: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimisticMessage]);
+    setText("");
+    setPendingImageUrl(null);
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    });
+
     try {
-      const res = await axios.post(`/api/chats/${chatId}`, { text });
-      setChat((prev) =>
-        prev
-          ? { ...prev, messages: [...prev.messages, res.data as SafeMessage] }
-          : prev
-      );
-      setText("");
+      const res = await axios.post(`/api/chats/${chatId}/messages`, {
+        text: trimmed || undefined,
+        imageUrl: optimisticMessage.imageUrl || undefined,
+      });
+      const confirmed: SafeMessage = res.data;
+      seenIdsRef.current.add(confirmed.id);
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? confirmed : m)));
     } catch {
       toast.error("Failed to send");
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
     }
     setSending(false);
   };
 
-  if (!chat) {
+  const loadOlder = async () => {
+    if (!hasMore || loadingOlder || messages.length === 0) return;
+    setLoadingOlder(true);
+    const el = scrollRef.current;
+    const prevScrollHeight = el?.scrollHeight ?? 0;
+    try {
+      const res = await axios.get(`/api/chats/${chatId}/messages`, {
+        params: { before: messages[0].id },
+      });
+      const { messages: older, hasMore: more } = res.data;
+      older.forEach((m: SafeMessage) => seenIdsRef.current.add(m.id));
+      setMessages((prev) => [...older, ...prev]);
+      setHasMore(more);
+      requestAnimationFrame(() => {
+        if (el) el.scrollTop = el.scrollHeight - prevScrollHeight;
+      });
+    } catch {
+      toast.error("Failed to load older messages");
+    }
+    setLoadingOlder(false);
+  };
+
+  if (loading) {
     return (
       <div className="pt-24 px-4 animate-pulse space-y-6">
         <div className="h-6 bg-gray-200 dark:bg-neutral-700 rounded w-1/3" />
@@ -64,57 +261,121 @@ const ChatPage = () => {
     );
   }
 
+  const online = isOnline(otherUser?.lastActiveAt);
+
   return (
     <Container>
       <div className="w-full sm:max-w-2xl mx-auto py-8 px-2">
-        <button
-          onClick={() => router.back()}
-          className="mb-4 flex items-center gap-1 text-sm text-teal-500 hover:underline"
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-1 text-sm text-graphite dark:text-limespark hover:underline shrink-0"
+          >
+            <IconArrowLeft size={16} /> Back
+          </button>
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold truncate dark:text-neutral-100">
+              {otherUser?.name || "Conversation"}
+            </div>
+            <div className="text-xs text-neutral-500 dark:text-neutral-400">
+              {otherTyping ? (
+                <span className="text-graphite dark:text-limespark font-medium">typing…</span>
+              ) : online ? (
+                "Online"
+              ) : otherUser?.lastActiveAt ? (
+                `Last seen ${format(new Date(otherUser.lastActiveAt), "p")}`
+              ) : (
+                ""
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div
+          ref={scrollRef}
+          className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border dark:border-neutral-700 p-2 sm:p-4 rounded-md bg-white dark:bg-neutral-800"
         >
-          <IconArrowLeft size={16} /> Back
-        </button>
-        <Heading title={chat.otherUser?.name || "Conversation"} subtitle="" />
-        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border dark:border-neutral-700 p-2 sm:p-4 rounded-md bg-white dark:bg-neutral-800">
-          {chat.messages.map((m) => {
-            const isCurrent = m.senderId === currentUserId;
+          {hasMore && (
+            <button
+              onClick={loadOlder}
+              disabled={loadingOlder}
+              className="text-xs text-graphite dark:text-limespark hover:underline self-center mb-2 disabled:opacity-50"
+            >
+              {loadingOlder ? "Loading…" : "Load older messages"}
+            </button>
+          )}
+
+          {messages.map((m, index) => {
+            const prev = messages[index - 1];
+            const showDivider = !prev || !isSameDay(new Date(prev.createdAt), new Date(m.createdAt));
             return (
-              <div
-                key={m.id}
-                className={`flex items-end gap-1 ${isCurrent ? "justify-end" : "justify-start"}`}
-              >
-                {!isCurrent && (
-                  <span className="text-xs text-gray-500 dark:text-neutral-400">
-                    {format(new Date(m.createdAt), "p")}
-                  </span>
+              <div key={m.id}>
+                {showDivider && (
+                  <div className="text-center text-xs text-neutral-400 dark:text-neutral-500 my-2">
+                    {dayLabel(new Date(m.createdAt))}
+                  </div>
                 )}
-                <div
-                  className={`px-3 py-2 rounded-lg max-w-[80%] sm:max-w-xs animate-pop ${
-                    isCurrent ? "bg-teal-500 text-white" : "bg-gray-100 dark:bg-neutral-700 dark:text-neutral-100"
-                  }`}
-                >
-                  {m.text}
-                </div>
-                {isCurrent && (
-                  <span className="text-xs text-gray-500 dark:text-neutral-400">
-                    {format(new Date(m.createdAt), "p")}
-                  </span>
-                )}
+                <ChatBubble
+                  message={m}
+                  isOwn={m.senderId === currentUserId}
+                  otherUserId={otherUser?.id}
+                  pending={m.id.startsWith("temp-")}
+                />
               </div>
             );
           })}
-          <div ref={messagesEndRef} />
+
+          {otherTyping && <TypingIndicator />}
         </div>
-        <div className="mt-4 flex gap-2 sm:gap-4">
+
+        {pendingImageUrl && (
+          <div className="mt-3 relative w-20 h-20">
+            <Image src={pendingImageUrl} alt="To send" fill className="object-cover rounded-lg" />
+            <button
+              onClick={() => setPendingImageUrl(null)}
+              className="absolute -top-2 -right-2 bg-black text-white rounded-full p-0.5"
+            >
+              <IconX size={14} />
+            </button>
+          </div>
+        )}
+
+        <div className="mt-4 flex gap-2 sm:gap-3 items-center">
+          <CldUploadWidget
+            uploadPreset="redrive"
+            options={{ maxFiles: 1, folder: "chat" }}
+            onSuccess={(result) => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const info = result.info as any;
+              if (info?.secure_url) setPendingImageUrl(info.secure_url);
+            }}
+          >
+            {({ open }) => (
+              <button
+                type="button"
+                onClick={() => open?.()}
+                className="shrink-0 p-2 sm:p-3 rounded-full border dark:border-neutral-600 text-neutral-600 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-700 transition"
+              >
+                <IconPaperclip size={20} />
+              </button>
+            )}
+          </CldUploadWidget>
           <input
             value={text}
-            onChange={e => setText(e.target.value)}
-            className="flex-1 border dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 p-2 sm:p-3 rounded"
+            onChange={(e) => onTextChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
+            className="flex-1 border dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 p-2 sm:p-3 rounded-full px-4"
             placeholder="Type a message"
           />
           <button
             onClick={sendMessage}
-            disabled={sending}
-            className="bg-teal-500 text-white px-4 sm:px-6 rounded flex items-center justify-center"
+            disabled={sending || (!text.trim() && !pendingImageUrl)}
+            className="bg-limespark text-graphite p-2 sm:p-3 rounded-full flex items-center justify-center disabled:opacity-50 shrink-0"
           >
             <IconSend size={20} />
           </button>

@@ -180,7 +180,7 @@ export default function Profile() {
                 <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-neutral-900 mt-10">
                     <h2 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2 dark:text-neutral-100">
                         Hey, {userName}
-                        {profileVerified === "Y" && <FaCheck className="text-teal-500" size={20} />}
+                        {profileVerified === "Y" && <FaCheck className="text-graphite dark:text-limespark" size={20} />}
                     </h2>
 
                     {/* ✅ Profile Image (Click to Change) */}
@@ -303,7 +303,7 @@ export default function Profile() {
                                     {/* Selected Cities */}
                                     <div className="mt-2 flex flex-wrap gap-2">
                                         {selectedCities.map((city, index) => (
-                                            <div key={index} className="bg-teal-100 px-3 py-1 rounded-full flex items-center">
+                                            <div key={index} className="bg-limespark/20 dark:bg-limespark/10 text-graphite dark:text-neutral-100 px-3 py-1 rounded-full flex items-center">
                                                 {city}
                                                 <button
                                                     onClick={() => removeCity(city)}
