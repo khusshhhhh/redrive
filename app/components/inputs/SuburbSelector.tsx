@@ -3,6 +3,7 @@
 import React, { useState, useEffect, memo } from "react";
 import Select from "react-select";
 import SuburbDataLoader from "@/app/libs/SuburbDataLoader";
+import { selectClassNames } from "./selectStyles";
 
 interface SuburbSelectorProps {
     state?: string;
@@ -51,9 +52,8 @@ const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onCh
 
     return (
         <div>
-            {/* TODO: dark mode styling for react-select — control/menu backgrounds are
-                react-select's default (white) since no `styles` overrides are set here. */}
             <Select
+                unstyled
                 placeholder={loading ? "Loading suburbs..." : "Search a Suburb"}
                 isClearable
                 options={suburbs}
@@ -63,20 +63,7 @@ const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onCh
                         onChange(selectedOption);
                     }
                 }}
-                classNames={{
-                    control: () => 'p-3 border-2',
-                    input: () => 'text-lg',
-                    option: () => 'text-lg',
-                }}
-                theme={(theme) => ({
-                    ...theme,
-                    borderRadius: 6,
-                    colors: {
-                        ...theme.colors,
-                        primary: 'black',
-                        primary25: '#e3fcf9',
-                    },
-                })}
+                classNames={selectClassNames}
                 isDisabled={!state || loading}
             />
 

@@ -6,7 +6,6 @@ import ClientOnly from "./components/ClientOnly";
 import Container from "./components/Container";
 import EmptyState from "./components/EmptyState";
 import ListingCard from "./components/listings/ListingCard";
-import SavedSearches from "./components/SavedSearches";
 import RecentlyViewed from "./components/RecentlyViewed";
 // import FeatureTour, { useFeatureTour } from "./components/FeatureTour";
 import { headers } from "next/headers";
@@ -53,9 +52,6 @@ const Home = async ({ searchParams }: HomeProps) => {
     <ClientOnly>
       <Container>
         <div className="pt-24 space-y-6">
-          {/* Saved Searches - Only for authenticated users */}
-          {currentUser && <SavedSearches currentFilters={params} />}
-
           {/* Recently Viewed - only for returning visitors with browsing history */}
           {!hasFilters && <RecentlyViewed currentUser={currentUser} />}
 

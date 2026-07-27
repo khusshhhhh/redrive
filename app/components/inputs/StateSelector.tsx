@@ -1,6 +1,7 @@
 'use client';
 
 import Select from "react-select";
+import { selectClassNames } from "./selectStyles";
 
 const states = [
     { value: "NSW", label: "New South Wales" },
@@ -22,9 +23,8 @@ interface StateSelectorProps {
 const StateSelector: React.FC<StateSelectorProps> = ({ value, onChange }) => {
     return (
         <div>
-            {/* TODO: dark mode styling for react-select — control/menu backgrounds are
-                react-select's default (white) since no `styles` overrides are set here. */}
             <Select
+                unstyled
                 placeholder="Select a State"
                 isClearable
                 options={states}
@@ -34,20 +34,7 @@ const StateSelector: React.FC<StateSelectorProps> = ({ value, onChange }) => {
                         onChange(selectedOption);
                     }
                 }}
-                classNames={{
-                    control: () => 'p-3 border-2',
-                    input: () => 'text-lg',
-                    option: () => 'text-lg',
-                }}
-                theme={(theme) => ({
-                    ...theme,
-                    borderRadius: 6,
-                    colors: {
-                        ...theme.colors,
-                        primary: 'black',
-                        primary25: '#e3fcf9',
-                    },
-                })}
+                classNames={selectClassNames}
             />
         </div>
     );

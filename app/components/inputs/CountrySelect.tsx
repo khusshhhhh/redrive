@@ -2,6 +2,7 @@
 
 import useCountries from "@/app/hooks/useCountries";
 import Select from "react-select";
+import { selectClassNames } from "./selectStyles";
 
 export type CountrySelectValue = {
     flag: string;
@@ -21,9 +22,8 @@ const CountrySelect: React.FC<CountrySelectProps> = ({ value, onChange }) => {
 
     return (
         <div>
-            {/* TODO: dark mode styling for react-select — control/menu backgrounds are
-                react-select's default (white) since no `styles` overrides are set here. */}
             <Select
+                unstyled
                 placeholder="Anywhere"
                 isClearable
                 options={getAll()}
@@ -41,21 +41,7 @@ const CountrySelect: React.FC<CountrySelectProps> = ({ value, onChange }) => {
                         </div>
                     </div>
                 )}
-                classNames={{
-                    control: () => 'p-3 border-2',
-                    input: () => 'text-lg',
-                    option: () => 'text-lg',
-                }}
-                theme={(theme) => ({
-                    ...theme,
-                    borderRadius: 6,
-                    colors: {
-                        ...theme.colors,
-                        primary: 'black',
-                        primary25: '#e3fcf9',
-                    },
-                })}
-
+                classNames={selectClassNames}
             />
         </div>
     );
