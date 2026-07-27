@@ -9,7 +9,7 @@ import useRentModal from "@/app/hooks/useRentModal";
 import { signOut } from "next-auth/react";
 import { SafeUser } from "@/app/types";
 import { useRouter } from "next/navigation";
-import { IconBrandDatabricks, IconCalendar, IconClipboardPlus, IconFilePlus, IconHearts, IconLocationCheck, IconLogin2, IconLogout2, IconMenu3, IconUserEdit, IconMessage } from "@tabler/icons-react";
+import { IconBrandDatabricks, IconCalendar, IconClipboardPlus, IconFilePlus, IconHearts, IconLocationCheck, IconLogin2, IconLogout2, IconMenu3, IconUserEdit, IconMessage, IconUserCircle } from "@tabler/icons-react";
 import NotificationBell from "@/app/components/notifications/NotificationBell";
 import ThemeToggle from "./ThemeToggle";
 
@@ -74,7 +74,11 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
         >
           <IconMenu3 />
           <div className="hidden md:block">
-            <Avatar src={currentUser?.image} />
+            {currentUser?.image ? (
+              <Avatar src={currentUser.image} />
+            ) : (
+              <IconUserCircle className="text-limespark" size={30} />
+            )}
           </div>
         </div>
       </div>
