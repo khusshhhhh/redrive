@@ -3,7 +3,7 @@
 import React, { useState, useEffect, memo } from "react";
 import Select from "react-select";
 import SuburbDataLoader from "@/app/libs/SuburbDataLoader";
-import { selectClassNames } from "./selectStyles";
+import { selectClassNames, selectStyles } from "./selectStyles";
 
 interface SuburbSelectorProps {
     state?: string;
@@ -64,6 +64,8 @@ const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onCh
                     }
                 }}
                 classNames={selectClassNames}
+                styles={selectStyles}
+                menuPortalTarget={typeof window !== "undefined" ? document.body : undefined}
                 isDisabled={!state || loading}
             />
 

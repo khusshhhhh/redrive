@@ -9,8 +9,7 @@ import { IconQuestionMark } from "@tabler/icons-react"; // ✅ Default fallback 
 const ICON_PROPS = {
     size: 24,      // Set icon size
     stroke: 2,     // Set stroke width
-    color: "black",
-    className: "transition-colors duration-300 group-hover:text-white" // Default color
+    className: "transition-colors duration-300 group-hover:text-white" // Follows parent's text color (currentColor)
 };
 
 interface AmenitiesSelectorProps {

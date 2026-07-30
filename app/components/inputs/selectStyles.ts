@@ -1,4 +1,4 @@
-import { ClassNamesConfig } from "react-select";
+import { ClassNamesConfig, StylesConfig } from "react-select";
 
 // Shared, dark-mode-aware styling for every react-select instance in the app.
 // `unstyled` must be passed alongside these classNames — otherwise react-select's
@@ -32,4 +32,15 @@ export const selectClassNames: ClassNamesConfig<any, boolean> = {
         }`,
     noOptionsMessage: () => "px-3 py-2 text-sm text-gray-400 dark:text-neutral-500",
     loadingMessage: () => "px-3 py-2 text-sm text-gray-400 dark:text-neutral-500",
+};
+
+// react-select's `unstyled` prop still injects its own emotion styles for
+// non-cosmetic properties (position, width, and a hardcoded `zIndex: 1` on
+// the menu). That inline emotion stylesheet can be inserted after Tailwind's,
+// so a plain `z-50` utility class isn't guaranteed to beat it. Overriding
+// `zIndex` here goes through the same emotion merge and always wins.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const selectStyles: StylesConfig<any, boolean> = {
+    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+    menu: (base) => ({ ...base, zIndex: 9999 }),
 };

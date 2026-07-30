@@ -2,7 +2,7 @@
 
 import useCountries from "@/app/hooks/useCountries";
 import Select from "react-select";
-import { selectClassNames } from "./selectStyles";
+import { selectClassNames, selectStyles } from "./selectStyles";
 
 export type CountrySelectValue = {
     flag: string;
@@ -42,6 +42,8 @@ const CountrySelect: React.FC<CountrySelectProps> = ({ value, onChange }) => {
                     </div>
                 )}
                 classNames={selectClassNames}
+                styles={selectStyles}
+                menuPortalTarget={typeof window !== "undefined" ? document.body : undefined}
             />
         </div>
     );

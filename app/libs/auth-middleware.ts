@@ -23,23 +23,21 @@ export async function getCurrentUserEnhanced(
 ): Promise<AuthUser | null> {
   try {
     // Method 1: Try NextAuth session first (standard app flow)
-    if (!request) {
-      const session = await getServerSession(authOptions);
-      if (session?.user?.email) {
-        const user = await prisma.user.findUnique({
-          where: { email: session.user.email },
-        });
+    const session = await getServerSession(authOptions);
+    if (session?.user?.email) {
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+      });
 
-        if (user) {
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name || "",
-            createdAt: user.createdAt.toISOString(),
-            updatedAt: user.updatedAt.toISOString(),
-            emailVerified: user.emailVerified?.toISOString() || null,
-          };
-        }
+      if (user) {
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name || "",
+          createdAt: user.createdAt.toISOString(),
+          updatedAt: user.updatedAt.toISOString(),
+          emailVerified: user.emailVerified?.toISOString() || null,
+        };
       }
     }
 

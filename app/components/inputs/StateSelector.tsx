@@ -1,7 +1,7 @@
 'use client';
 
 import Select from "react-select";
-import { selectClassNames } from "./selectStyles";
+import { selectClassNames, selectStyles } from "./selectStyles";
 
 const states = [
     { value: "NSW", label: "New South Wales" },
@@ -35,6 +35,8 @@ const StateSelector: React.FC<StateSelectorProps> = ({ value, onChange }) => {
                     }
                 }}
                 classNames={selectClassNames}
+                styles={selectStyles}
+                menuPortalTarget={typeof window !== "undefined" ? document.body : undefined}
             />
         </div>
     );
