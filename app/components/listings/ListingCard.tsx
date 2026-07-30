@@ -2,7 +2,7 @@
 
 import { SafeListing, SafeUser, SafeReservation } from "@/app/types";
 import { useRouter } from "next/navigation";
-import React, { useCallback, useMemo, memo } from "react";
+import React, { useCallback, useMemo, memo, useState } from "react";
 import { format } from 'date-fns';
 import Image from "next/image";
 import HeartButton from "../HeartButton";
@@ -30,6 +30,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
     showEditButton = false,
 }) => {
     const router = useRouter();
+    const [imageLoaded, setImageLoaded] = useState(false);
 
     const handleCancel = useCallback(
         (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -71,13 +72,15 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
         >
             <div className="flex flex-col gap-2 w-full">
                 <div className="aspect-square w-full relative overflow-hidden rounded-md shadow-none group-hover:shadow-card transition-shadow">
+                    {!imageLoaded && <div className="absolute inset-0 shimmer" />}
                     <Image
                         fill
                         priority
                         sizes="100%"
                         alt="Listing"
                         src={imageUrl}
-                        className="object-cover h-full w-full group-hover:scale-105 transition-transform"
+                        onLoad={() => setImageLoaded(true)}
+                        className={`object-cover h-full w-full group-hover:scale-105 transition-transform duration-500 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
                     />
                     {/* ✅ Show badge dynamically if it exists */}
                     {data.badgeValue && (

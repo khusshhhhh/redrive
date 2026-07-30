@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { SafeUser } from "@/app/types";
 import Image from "next/image";
-import HeartButton from "../HeartButton";
+import useFavorite from "@/app/hooks/useFavorites";
 import { IoClose } from "react-icons/io5";
 import Heading from "../Heading";
-import { useRouter } from "next/navigation";
-import { IconLayoutCollage, IconCaretLeftFilled } from "@tabler/icons-react";
+import toast from "react-hot-toast";
+import { IconLayoutGrid, IconShare2, IconHeart, IconHeartFilled } from "@tabler/icons-react";
 
 interface ListingHeadProps {
     title: string;
@@ -16,6 +16,35 @@ interface ListingHeadProps {
     currentUser?: SafeUser | null;
 }
 
+interface GridImageProps {
+    src: string;
+    alt: string;
+    sizes: string;
+    onClick: () => void;
+    priority?: boolean;
+}
+
+// A grid tile that shimmers while its image loads, then fades it in —
+// keeps the photo grid feeling alive instead of popping images in abruptly.
+const GridImage: React.FC<GridImageProps> = ({ src, alt, sizes, onClick, priority }) => {
+    const [loaded, setLoaded] = useState(false);
+
+    return (
+        <div className="relative w-full h-full overflow-hidden cursor-pointer" onClick={onClick}>
+            {!loaded && <div className="absolute inset-0 shimmer" />}
+            <Image
+                fill
+                priority={priority}
+                alt={alt}
+                src={src}
+                sizes={sizes}
+                onLoad={() => setLoaded(true)}
+                className={`object-cover transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+            />
+        </div>
+    );
+};
+
 const ListingHead: React.FC<ListingHeadProps> = ({
     imageSrcs = [],
     title,
@@ -23,7 +52,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
     currentUser
 }) => {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    const router = useRouter();
+    const { hasFavorited, toggleFavorite } = useFavorite({ listingId: id, currentUser });
 
     // Disable background scrolling when modal is open
     useEffect(() => {
@@ -36,115 +65,104 @@ const ListingHead: React.FC<ListingHeadProps> = ({
         return () => document.body.classList.remove("overflow-hidden");
     }, [selectedImage]);
 
+    const onShare = async () => {
+        const url = typeof window !== "undefined" ? window.location.href : "";
+        if (typeof navigator !== "undefined" && navigator.share) {
+            try {
+                await navigator.share({ title, url });
+            } catch {
+                // user cancelled the native share sheet - no-op
+            }
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(url);
+            toast.success("Link copied to clipboard");
+        } catch {
+            toast.error("Couldn't copy link");
+        }
+    };
+
     return (
         <>
-            {/* Title */}
-            <div className="font-semibold">
+            {/* Title row: title left, Share / Save actions right */}
+            <div className="flex items-center justify-between gap-4">
                 <Heading title={title} subtitle="" />
+                <div className="flex items-center gap-5 shrink-0">
+                    <button
+                        onClick={onShare}
+                        className="flex items-center gap-2 text-sm font-medium text-ink underline hover:text-muted transition"
+                    >
+                        <IconShare2 size={18} />
+                        <span className="hidden sm:inline">Share</span>
+                    </button>
+                    <div
+                        onClick={toggleFavorite}
+                        role="button"
+                        className="flex items-center gap-2 text-sm font-medium text-ink underline hover:text-muted transition cursor-pointer"
+                    >
+                        {hasFavorited ? (
+                            <IconHeartFilled size={18} className="text-primary" />
+                        ) : (
+                            <IconHeart size={18} />
+                        )}
+                        <span className="hidden sm:inline">Save</span>
+                    </div>
+                </div>
             </div>
 
             {/* Responsive Image Display */}
-            <div className="relative w-full">
+            <div className="relative w-full mt-4">
                 {/* Show Only One Image on Mobile */}
-                <div className="relative rounded-md overflow-hidden cursor-pointer md:hidden"
-                    onClick={() => setSelectedImage(imageSrcs[0])}
-                >
-                    <Image
-                        alt="Main Image"
+                <div className="relative rounded-xl overflow-hidden md:hidden h-[300px] sm:h-[400px]">
+                    <GridImage
                         src={imageSrcs[0]}
-                        width={800}
-                        height={500}
-                        className="object-cover w-full h-[300px] sm:h-[400px] rounded-md"
+                        alt="Main"
+                        sizes="100vw"
+                        priority
+                        onClick={() => setSelectedImage(imageSrcs[0])}
                     />
-
-                    <div className="absolute top-3 left-3">
-                        <button className="bg-white text-ink p-1 rounded-full shadow-card"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                router.back()
-                            }}>
-                            <IconCaretLeftFilled size={24} />
-                        </button>
-                    </div>
-                    <div>
-                        {/* Show All Images Button */}
+                    {imageSrcs.length > 1 && (
                         <button
-                            className="flex flex-row gap-1 items-center absolute bottom-3 left-3 bg-white text-ink font-semibold text-sm px-4 py-2 rounded-full shadow-card"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/listings/${id}/images`);
-                            }}
+                            className="flex flex-row gap-1 items-center absolute bottom-3 right-3 bg-white text-ink font-semibold text-sm px-4 py-2 rounded-full shadow-card"
+                            onClick={() => window.location.assign(`/listings/${id}/images`)}
                         >
-                            <IconLayoutCollage size={20} stroke={1.5} /><span>Show all</span>
+                            <IconLayoutGrid size={18} stroke={1.5} /><span>Show all photos</span>
                         </button>
-                    </div>
-
-                    {/* Heart Button */}
-                    <div className="absolute top-3 right-3">
-                        <HeartButton listingId={id} currentUser={currentUser} />
-                    </div>
+                    )}
                 </div>
 
-                {/* Image Grid (Only for Desktop) */}
-                <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-2 w-full">
-                    {/* Large Main Image */}
-                    <div
-                        className="relative col-span-2 row-span-2 rounded-md overflow-hidden cursor-pointer"
-                        onClick={() => setSelectedImage(imageSrcs[0])}
-                    >
-                        <Image
-                            alt="Main Image"
+                {/* Image Grid (Only for Desktop) — a single rounded rectangle clipping
+                    the whole grid, matching Airbnb's unified photo-grid card shape. */}
+                <div className="relative hidden md:grid grid-cols-4 grid-rows-2 gap-2 w-full h-[480px] rounded-xl overflow-hidden">
+                    <div className="col-span-2 row-span-2">
+                        <GridImage
                             src={imageSrcs[0]}
-                            width={800}
-                            height={500}
-                            className="object-cover w-full h-full rounded-md"
+                            alt="Main"
+                            sizes="50vw"
+                            priority
+                            onClick={() => setSelectedImage(imageSrcs[0])}
                         />
-
-                        <div className="absolute top-3 left-3">
-                            <button className="bg-white text-ink p-1 rounded-full shadow-card"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    router.back()
-                                }}>
-                                <IconCaretLeftFilled size={24} />
-                            </button>
-                        </div>
-
-                        {/* Show All Images Button */}
-                        <div>
-                            <button
-                                className="flex flex-row gap-1 items-center absolute bottom-3 left-3 bg-white text-ink font-semibold text-sm px-4 py-2 rounded-full shadow-card"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    router.push(`/listings/${id}/images`);
-                                }}
-                            >
-                                <IconLayoutCollage size={20} stroke={1.5} /><span>Show all</span>
-                            </button>
-                        </div>
-
-                        {/* Heart Button */}
-                        <div className="absolute top-3 right-3">
-                            <HeartButton listingId={id} currentUser={currentUser} />
-                        </div>
                     </div>
 
-                    {/* Smaller Images */}
                     {imageSrcs.slice(1, 5).map((src, index) => (
-                        <div
+                        <GridImage
                             key={index}
-                            className="relative rounded-md overflow-hidden cursor-pointer"
+                            src={src}
+                            alt={`Thumbnail ${index + 2}`}
+                            sizes="25vw"
                             onClick={() => setSelectedImage(src)}
-                        >
-                            <Image
-                                alt={`Thumbnail ${index + 2}`}
-                                src={src}
-                                width={250}
-                                height={200}
-                                className="object-cover w-full h-full rounded-md"
-                            />
-                        </div>
+                        />
                     ))}
+
+                    {imageSrcs.length > 1 && (
+                        <button
+                            className="flex flex-row gap-1 items-center absolute bottom-4 right-4 bg-white text-ink font-semibold text-sm px-4 py-2 rounded-full shadow-card hover:bg-surface-soft transition"
+                            onClick={() => window.location.assign(`/listings/${id}/images`)}
+                        >
+                            <IconLayoutGrid size={18} stroke={1.5} /><span>Show all photos</span>
+                        </button>
+                    )}
                 </div>
             </div>
 

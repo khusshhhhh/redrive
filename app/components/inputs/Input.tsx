@@ -34,6 +34,8 @@ const Input: React.FC<InputProps> = ({
     onChange, // ✅ ADDED onChange PROP
     maxLength, // ✅ Add maxLength to destructured properties
 }) => {
+    const { onChange: registerOnChange, ...registered } = register(id, { required, validate });
+
     return (
         <div className="w-full relative">
             {formatPrice && (
@@ -47,11 +49,17 @@ const Input: React.FC<InputProps> = ({
                 id={id}
                 disabled={disabled}
                 value={value}
-                {...register(id, { required, validate })}
+                {...registered}
                 placeholder=" "
                 type={type}
                 maxLength={maxLength} // ✅ Add maxLength support
-                onChange={onChange} // ✅ Now handles input changes
+                onChange={(e) => {
+                    // Always run react-hook-form's own onChange so its internal
+                    // state (watch/validation) stays in sync, then let callers
+                    // that need a side effect (e.g. mirroring into local state) run too.
+                    registerOnChange(e);
+                    onChange?.(e);
+                }}
                 className={`peer w-full p-4 pt-6 font-normal bg-white text-ink border rounded-sm outline-none transition disabled:opacity-70 disabled:cursor-not-allowed
                              ${formatPrice ? "pl-9" : "pl-4"}
                              ${errors[id] ? "border-error" : "border-hairline"}

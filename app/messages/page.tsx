@@ -48,10 +48,10 @@ const MessagesPage = () => {
 
   if (!chats) {
     return (
-      <div className="pt-24 px-4 animate-pulse space-y-6">
-        <div className="h-6 bg-surface-soft rounded w-1/3" />
-        <div className="h-20 bg-surface-soft rounded" />
-        <div className="h-20 bg-surface-soft rounded" />
+      <div className="pt-24 px-4 space-y-6">
+        <div className="h-6 shimmer rounded w-1/3" />
+        <div className="h-20 shimmer rounded" />
+        <div className="h-20 shimmer rounded" />
       </div>
     );
   }
@@ -83,7 +83,7 @@ const MessagesPage = () => {
               <div
                 key={chat.id}
                 onClick={() => router.push(`/messages/${chat.id}`)}
-                className="p-4 border border-hairline rounded-md cursor-pointer hover:bg-surface-soft flex gap-3 items-center"
+                className="p-4 border border-hairline rounded-md cursor-pointer hover:shimmer flex gap-3 items-center"
               >
                 <div className="relative shrink-0">
                   <Image

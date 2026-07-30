@@ -114,7 +114,7 @@ const ListingMap: React.FC<ListingMapProps> = ({ address, suburb, state }) => {
     return (
         <div className="relative h-[45vh] w-full rounded-md overflow-hidden border border-hairline-soft">
             {!mapLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-surface-soft animate-pulse" />
+                <div className="absolute inset-0 flex items-center justify-center shimmer" />
             )}
             <div ref={mapRef} className="h-full w-full" />
         </div>

@@ -180,10 +180,10 @@ export default function ConfirmReservation() {
 
                     </>
                 ) : (
-                    <div className="animate-pulse space-y-4">
-                        <div className="h-64 w-full bg-surface-soft rounded-md" />
+                    <div className="space-y-4">
+                        <div className="h-64 w-full shimmer rounded-md" />
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="h-4 bg-surface-soft rounded" />
+                            <div key={i} className="h-4 shimmer rounded" />
                         ))}
                     </div>
                 )}

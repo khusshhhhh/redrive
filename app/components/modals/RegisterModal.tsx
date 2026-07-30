@@ -10,13 +10,13 @@ import {
 } from 'react-hook-form';
 
 import useRegisterModal from "@/app/hooks/useRegisterModal";
-import Heading from '../Heading';
 import Input from '../inputs/Input';
 import { toast } from 'react-hot-toast';
 import Button from '../Button';
 import { signIn } from 'next-auth/react';
 import useLoginModal from '@/app/hooks/useLoginModal';
 import Modal from './Modal';
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 const RegisterModal = () => {
     const registerModal = useRegisterModal();
     const loginModal = useLoginModal();
@@ -117,8 +117,8 @@ const RegisterModal = () => {
     };
 
     const bodyContent = (
-        <div className="flex flex-col gap-4">
-            <Heading title="" subtitle="Create an Account with Redrive." />
+        <div className="flex flex-col gap-3">
+            <p className="text-body-sm text-muted mb-1">Create your Redrive account.</p>
 
             <Input
                 id="email"
@@ -160,32 +160,34 @@ const RegisterModal = () => {
                     onClick={togglePasswordVisibility}
                     className="absolute inset-y-0 right-4 flex items-center text-muted hover:text-ink"
                 >
-                    <span className="text-lg">{showPassword ? '🙈' : '👁️'}</span>
+                    {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
                 </button>
             </div>
 
-            {/* Live Password Validation Feedback */}
-            <div className="bg-surface-soft p-4 rounded-sm border border-hairline">
-                <div className="text-sm font-medium text-ink mb-3">Password Requirements:</div>
-                <div className="space-y-2">
-                    <ValidationRule 
-                        isValid={passwordValidation.minLength} 
-                        text="At least 8 characters" 
-                    />
-                    <ValidationRule 
-                        isValid={passwordValidation.hasUppercase} 
-                        text="One uppercase letter (A-Z)" 
-                    />
-                    <ValidationRule 
-                        isValid={passwordValidation.hasLowercase} 
-                        text="One lowercase letter (a-z)" 
-                    />
-                    <ValidationRule 
-                        isValid={passwordValidation.hasSpecialChar} 
-                        text="One special character (!@#$%^&*)" 
-                    />
+            {/* Live Password Validation Feedback — only surfaces once the user starts typing,
+                so the form doesn't open with a wall of requirements. */}
+            {password && password.length > 0 && (
+                <div className="bg-surface-soft p-4 rounded-sm">
+                    <div className="space-y-2">
+                        <ValidationRule
+                            isValid={passwordValidation.minLength}
+                            text="At least 8 characters"
+                        />
+                        <ValidationRule
+                            isValid={passwordValidation.hasUppercase}
+                            text="One uppercase letter (A-Z)"
+                        />
+                        <ValidationRule
+                            isValid={passwordValidation.hasLowercase}
+                            text="One lowercase letter (a-z)"
+                        />
+                        <ValidationRule
+                            isValid={passwordValidation.hasSpecialChar}
+                            text="One special character (!@#$%^&*)"
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
 
             {errors.password && <p className="text-error text-sm">{errors.password?.message as string}</p>}
 
@@ -208,7 +210,7 @@ const RegisterModal = () => {
                     onClick={togglePasswordVisibility}
                     className="absolute inset-y-0 right-4 flex items-center text-muted hover:text-ink"
                 >
-                    <span className="text-lg">{showPassword ? '🙈' : '👁️'}</span>
+                    {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
                 </button>
             </div>
 
@@ -217,8 +219,15 @@ const RegisterModal = () => {
     );
 
     const footerContent = (
-        <div className="flex flex-col gap-4 mt-3 mx-6">
-            <hr />
+        <div className="flex flex-col gap-4 mt-2 mx-6 mb-4">
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-hairline-soft" />
+                </div>
+                <div className="relative flex justify-center">
+                    <span className="bg-white px-3 text-xs text-muted-soft uppercase tracking-wide">or</span>
+                </div>
+            </div>
 
             {/* Google Sign-In Button */}
             <Button
@@ -228,13 +237,11 @@ const RegisterModal = () => {
                 onClick={handleGoogleSignIn}
             />
 
-            <div className="text-muted text-center mt-4 font-normal">
-                <div className="justify-center flex flex-row items-center gap-4 mb-6">
-                    <div>Already have an account?</div>
-                    <div onClick={toggle} className="text-ink font-semibold cursor-pointer hover:underline">
-                        Log in to account
-                    </div>
-                </div>
+            <div className="text-center mt-1">
+                <span className="text-muted text-sm">Already have an account? </span>
+                <span onClick={toggle} className="text-ink text-sm font-semibold cursor-pointer hover:underline">
+                    Log in
+                </span>
             </div>
         </div>
     );
@@ -243,7 +250,7 @@ const RegisterModal = () => {
         <Modal
             disabled={isLoading}
             isOpen={registerModal.isOpen}
-            title="Welcome to Redrive!"
+            title="Sign up"
             actionLabel="Continue"
             onClose={registerModal.onClose}
             onSubmit={handleSubmit(onSubmit)}

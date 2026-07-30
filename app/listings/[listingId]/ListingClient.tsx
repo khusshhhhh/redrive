@@ -157,7 +157,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
 
     return (
         <Container>
-            <div className="max-w-[1080px] px-4 mx-auto">
+            <div className="max-w-[1080px] px-4 mx-auto pt-8">
                 <div className="flex flex-col gap-6">
                     <ListingHead
                         title={listing.title}

@@ -1,5 +1,3 @@
-import Link from "next/link";
-import Image from "next/image";
 import getListings, { IListingsParams } from "./actions/getListings";
 import getCurrentUser from "./actions/getCurrentUser";
 import ClientOnly from "./components/ClientOnly";
@@ -8,20 +6,6 @@ import EmptyState from "./components/EmptyState";
 import ListingCard from "./components/listings/ListingCard";
 import RecentlyViewed from "./components/RecentlyViewed";
 import { headers } from "next/headers";
-
-const EXPLORE_CATEGORIES = [
-  { name: "Car" },
-  { name: "Motorhomes" },
-  { name: "Boats" },
-  { name: "Bikes" },
-  { name: "Utes" },
-];
-
-const POPULAR_DESTINATIONS = [
-  { city: "Sydney", state: "NSW", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400" },
-  { city: "Melbourne", state: "VIC", image: "https://images.unsplash.com/photo-1514395462725-fb4566210144?w=400" },
-  { city: "Brisbane", state: "QLD", image: "https://images.unsplash.com/photo-1583684646989-46b3a04fcd3d?w=400" },
-];
 
 interface HomeProps {
   searchParams?: IListingsParams;
@@ -100,59 +84,6 @@ const Home = async ({ searchParams }: HomeProps) => {
                   </button>
                 </div>
               )}
-            </div>
-          )}
-
-          {/* Additional sections for non-filtered homepage */}
-          {!hasFilters && listings.length > 0 && (
-            <div className="space-y-12">
-              {/* Featured Categories */}
-              <div>
-                <h3 className="text-display-sm font-semibold text-ink mb-4">
-                  Explore Categories
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {EXPLORE_CATEGORIES.map((category) => (
-                    <Link
-                      key={category.name}
-                      href={`/?category=${encodeURIComponent(category.name)}`}
-                      className="text-center p-6 bg-surface-soft hover:bg-surface-strong rounded-md cursor-pointer transition-colors"
-                    >
-                      <div className="font-semibold text-ink">{category.name}</div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Popular Locations */}
-              <div>
-                <h3 className="text-display-sm font-semibold text-ink mb-4">
-                  Popular Destinations
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {POPULAR_DESTINATIONS.map((location) => (
-                    <Link
-                      key={location.city}
-                      href={`/?state=${location.state}`}
-                      className="relative overflow-hidden rounded-md cursor-pointer group block"
-                      style={{ aspectRatio: '16/9' }}
-                    >
-                      <Image
-                        src={location.image}
-                        alt={location.city}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-30 flex items-end">
-                        <div className="p-4 text-white">
-                          <h4 className="text-title-md font-semibold">{location.city}</h4>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
             </div>
           )}
         </div>

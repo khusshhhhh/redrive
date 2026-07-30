@@ -289,12 +289,12 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
       <div className="bg-white rounded-md shadow-card border border-hairline-soft mb-6 p-6">
         <div className="animate-pulse">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-5 h-5 bg-surface-soft rounded"></div>
-            <div className="h-6 bg-surface-soft rounded w-48"></div>
+            <div className="w-5 h-5 shimmer rounded"></div>
+            <div className="h-6 shimmer rounded w-48"></div>
           </div>
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-surface-soft rounded-md"></div>
+              <div key={i} className="h-20 shimmer rounded-md"></div>
             ))}
           </div>
         </div>
@@ -342,7 +342,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted bg-surface-soft px-2 py-1 rounded">
+                  <span className="text-xs text-muted shimmer px-2 py-1 rounded">
                     {section.listings.length} vehicle{section.listings.length > 1 ? 's' : ''}
                   </span>
                   {!isFirst && (
@@ -355,7 +355,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
 
               {shouldShow && (
                 <div className="space-y-3">
-                  <div className="text-xs text-muted bg-surface-soft p-2 rounded-md">
+                  <div className="text-xs text-muted shimmer p-2 rounded-md">
                     <Sparkles className="inline w-3 h-3 mr-1" />
                     {section.reason}
                   </div>

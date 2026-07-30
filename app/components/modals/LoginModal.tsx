@@ -12,7 +12,6 @@ import {
 import useRegisterModal from "@/app/hooks/useRegisterModal";
 import useLoginModal from '@/app/hooks/useLoginModal';
 
-import Heading from '../Heading';
 import Input from '../inputs/Input';
 import { toast } from 'react-hot-toast'
 import Button from '../Button';
@@ -72,8 +71,8 @@ const LoginModal = () => {
     }
 
     const bodyContent = (
-        <div className="flex flex-col gap-4">
-            <Heading title="" subtitle="Log in to continue." />
+        <div className="flex flex-col gap-3">
+            <p className="text-body-sm text-muted mb-1">Log in to continue to Redrive.</p>
             <Input
                 id="email"
                 label="Email"
@@ -103,24 +102,26 @@ const LoginModal = () => {
     )
 
     const footerContent = (
-        <div className="flex flex-col gap-4 mt-3 mx-6">
-            <hr />
+        <div className="flex flex-col gap-4 mt-2 mx-6 mb-4">
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-hairline-soft" />
+                </div>
+                <div className="relative flex justify-center">
+                    <span className="bg-white px-3 text-xs text-muted-soft uppercase tracking-wide">or</span>
+                </div>
+            </div>
             <Button
                 outline
                 label="Continue with Google"
                 icon={FcGoogle}
                 onClick={async () => { await signIn('google'); }}
             />
-            <div className="text-muted text-center mt-4 font-normal">
-
-                <div className="justify-center flex flex-row items-center gap-4 mb-6">
-                    <div className='text-ink font-normal'>
-                        First time using Redrive?
-                    </div>
-                    <div onClick={toggle} className="text-ink font-semibold cursor-pointer hover:underline">
-                        Create an account
-                    </div>
-                </div>
+            <div className="text-center mt-1">
+                <span className="text-muted text-sm">First time using Redrive? </span>
+                <span onClick={toggle} className="text-ink text-sm font-semibold cursor-pointer hover:underline">
+                    Create an account
+                </span>
             </div>
         </div>
     );
@@ -130,7 +131,7 @@ const LoginModal = () => {
         <Modal
             disabled={isLoading}
             isOpen={loginModal.isOpen}
-            title="Welcome back to Redrive!"
+            title="Log in"
             actionLabel="Continue"
             onClose={loginModal.onClose}
             onSubmit={handleSubmit(onSubmit)}

@@ -43,11 +43,11 @@ const ReservationDetails = () => {
 
     if (loading) {
         return (
-            <div className="max-w-3xl mx-auto py-8 animate-pulse space-y-4">
-                <div className="h-6 bg-surface-soft rounded w-1/3" />
-                <div className="h-40 bg-surface-soft rounded" />
-                <div className="h-4 bg-surface-soft rounded" />
-                <div className="h-4 bg-surface-soft rounded" />
+            <div className="max-w-3xl mx-auto py-8 space-y-4">
+                <div className="h-6 shimmer rounded w-1/3" />
+                <div className="h-40 shimmer rounded" />
+                <div className="h-4 shimmer rounded" />
+                <div className="h-4 shimmer rounded" />
             </div>
         );
     }
