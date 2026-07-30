@@ -4,13 +4,14 @@
 import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Input from "@/app/components/inputs/Input";
+import AddressAutocomplete, { ParsedAddress } from "@/app/components/inputs/AddressAutocomplete";
 import Button from "@/app/components/Button";
 import axios from "axios";
 import ImageUpload from "../components/inputs/ImageUpload";
 import { toast, Toaster } from "react-hot-toast";
 import { FaCheck } from "react-icons/fa";
 import SuburbSelector from "../components/inputs/SuburbSelector";
-import StateSelector from "../components/inputs/StateSelector";
+import StateSelector, { states as AU_STATES } from "../components/inputs/StateSelector";
 
 interface ProfileFormData {
     name: string;
@@ -160,6 +161,27 @@ export default function Profile() {
         setSelectedCities(updatedCities);
         setValue("dreamDestinations", updatedCities.join(", ")); // Update form state
     };
+
+    // Auto-fills State/Suburb/Postcode from a Google Places selection alongside
+    // the street address itself, so picking one suggestion fills the whole block.
+    const onAddressSelect = (result: ParsedAddress) => {
+        if (result.state) {
+            const known = AU_STATES.find((s) => s.value === result.state);
+            const stateOption = known || { value: result.state, label: result.state };
+            setSelectedState(stateOption);
+            setValue("state", stateOption.value);
+        }
+        if (result.suburb) {
+            setSelectedSuburb({
+                value: result.suburb,
+                label: result.postcode ? `${result.suburb}, ${result.postcode}` : result.suburb,
+                postcode: result.postcode ? Number(result.postcode) : undefined,
+            });
+            setValue("suburb", result.suburb);
+            setValue("postcode", result.postcode || "");
+        }
+    };
+
     return (
         <>
             <Toaster />
@@ -227,7 +249,14 @@ export default function Profile() {
                             <div className="flex flex-col gap-6">
                                 <div>
                                     <label className="text-sm text-muted">Address Line</label>
-                                    <Input id="streetAddress" label="" register={register} errors={errors} />
+                                    <AddressAutocomplete
+                                        id="streetAddress"
+                                        label=""
+                                        register={register}
+                                        setValue={setValue}
+                                        errors={errors}
+                                        onSelect={onAddressSelect}
+                                    />
                                 </div>
 
                                 {/* ✅ State Selector */}

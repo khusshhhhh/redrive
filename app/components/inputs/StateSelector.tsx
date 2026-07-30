@@ -3,7 +3,7 @@
 import Select from "react-select";
 import { selectClassNames, selectStyles } from "./selectStyles";
 
-const states = [
+export const states = [
     { value: "NSW", label: "New South Wales" },
     { value: "VIC", label: "Victoria" },
     { value: "QLD", label: "Queensland" },

@@ -7,6 +7,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useForm, FieldValues } from "react-hook-form";
 import Input from "@/app/components/inputs/Input";
+import AddressAutocomplete, { ParsedAddress } from "@/app/components/inputs/AddressAutocomplete";
 import CategoryInput from "@/app/components/inputs/CategoryInput";
 import ImageUpload from "@/app/components/inputs/ImageUpload";
 import Counter from "@/app/components/inputs/Counter";
@@ -15,7 +16,7 @@ import FuelSelector from "@/app/components/inputs/FuelSelector";
 import { categories } from "@/app/components/navbar/Categories";
 import TextArea from "@/app/components/inputs/TextArea";
 import { AMENITIES_LIST } from "@/app/hooks/useAmenities";
-import StateSelector from "@/app/components/inputs/StateSelector";
+import StateSelector, { states as AU_STATES } from "@/app/components/inputs/StateSelector";
 import SuburbSelector from "@/app/components/inputs/SuburbSelector";
 import DateSelector from "@/app/components/inputs/DateSelector";
 
@@ -137,6 +138,21 @@ const EditUtilityPage = () => {
             .catch(() => toast.error("Failed to load listing."));
     }, [listingId, setValue]);
 
+    // Auto-fills State/Suburb from a Google Places selection alongside the
+    // street address itself, so picking one suggestion fills the whole block.
+    const onAddressSelect = (result: ParsedAddress) => {
+        if (result.state) {
+            const known = AU_STATES.find((s) => s.value === result.state);
+            setSelectedState(known || { value: result.state, label: result.state });
+        }
+        if (result.suburb) {
+            setSelectedSuburb({
+                value: result.suburb,
+                label: result.postcode ? `${result.suburb}, ${result.postcode}` : result.suburb,
+            });
+        }
+    };
+
     // Toggle an amenity
     const toggleAmenity = (id: string) => {
         setSelectedAmenities((prev) =>
@@ -253,7 +269,15 @@ const EditUtilityPage = () => {
                             value={selectedSuburb}
                             onChange={setSelectedSuburb}
                         />
-                        <Input id="address" label="Number & Street Address" register={register} errors={errors} required />
+                        <AddressAutocomplete
+                            id="address"
+                            label="Number & Street Address"
+                            register={register}
+                            setValue={setValue}
+                            errors={errors}
+                            required
+                            onSelect={onAddressSelect}
+                        />
                     </div>
                 </div>
 

@@ -80,6 +80,19 @@ Set to your production URL once you know it, e.g. `https://redrive.vercel.app` o
 
 Since `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` is bundled into client-side JS by design, the HTTP-referrer restriction above is what actually protects it from abuse — don't skip that step.
 
+### Address autocomplete — nothing extra to set up
+
+Every "Number & Street Address" field in the app (Add Listing's location step, Edit Listing, and Profile) is a live Google Places autocomplete: type 3+ characters (e.g. "3 Pen...") and it shows matching Australia-wide addresses as you type, restricted to `country:au`; picking one auto-fills the street address plus the State and Suburb/Postcode dropdowns next to it in one go.
+
+This runs entirely on the **same `GOOGLE_PLACES_API_KEY`** from step 2 above — if that key is set and the **Places API** is enabled on it, address autocomplete just works with no further configuration. It's powered by two server-only routes that keep the key off the client:
+
+- `GET /api/places?input=<text>&sessiontoken=<uuid>` — Places Autocomplete, returns up to 5 matches.
+- `GET /api/places/details?placeId=<id>&sessiontoken=<uuid>` — Place Details, called once a suggestion is picked; parses the result into street address / suburb / state / postcode / lat / lng.
+
+Both requests share a `sessiontoken` (a random UUID generated in the browser per autocomplete "session", reset after each selection) — this is Google's recommended pattern to bill an entire type-then-select flow as one cheaper Autocomplete session instead of one paid request per keystroke. Nothing to configure for this either; it's built into the frontend component (`app/components/inputs/AddressAutocomplete.tsx`).
+
+If you ever see suggestions fail silently, check the server logs for `Google Places autocomplete error` / `Google Places details error` — that's this same key surfacing a Google-side error (see troubleshooting table below).
+
 ---
 
 ## 4. Cloudinary (`NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`)
@@ -157,7 +170,7 @@ Run through this after every deploy that touches env vars or auth:
 - [ ] Click "Sign in with Google" and complete the flow (confirms `GOOGLE_CLIENT_ID`/`SECRET` and the redirect URI match).
 - [ ] Open a listing detail page and confirm the map renders (confirms `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` and its HTTP-referrer restriction allow your domain).
 - [ ] Start "Add your items" and upload an image (confirms `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` and the `redrive` unsigned preset exist).
-- [ ] Toggle dark/light mode in the navbar and confirm it persists across a reload.
+- [ ] In "Add your items" → Location step (or Profile → Address Line), type 3+ characters of a real AU street address (e.g. "3 Pen...") and confirm a suggestions dropdown appears; pick one and confirm the address, State, and Suburb/Postcode fields all auto-fill (confirms `GOOGLE_PLACES_API_KEY` and that "Places API" is enabled on it).
 - [ ] Check **Vercel → Project → Cron Jobs** shows the `/api/cron/notifications` job and that its most recent run returned `200` (confirms `CRON_SECRET` matches).
 
 ---
@@ -172,6 +185,8 @@ Run through this after every deploy that touches env vars or auth:
 | Image upload widget does nothing on click, or errors silently | The `redrive` unsigned upload preset doesn't exist yet, or is set to "Signed" instead of "Unsigned". |
 | Cron job shows `401` in Vercel's Cron Jobs log | `CRON_SECRET` isn't set (or doesn't match) in the deployed environment. |
 | Two users can register with the same email, or duplicate rego numbers get accepted | `npx prisma db push` was never run against this database — the unique indexes don't exist yet. |
+| Address autocomplete shows no dropdown, or server logs show `Google Places autocomplete error` | `GOOGLE_PLACES_API_KEY` is missing/invalid, "Places API" isn't enabled on that key's project, or billing isn't enabled on the Google Cloud project (Places API requires a billing account even within the free monthly credit). |
+| Picking an address suggestion fills the street address but not State/Suburb | Google's returned locality name doesn't match an entry in the app's static suburb list (`app/libs/SuburbDataLoader.ts`) closely enough — the State always fills since it's just the AU state code; re-pick the suburb manually from the dropdown in that case. |
 
 ---
 

@@ -6,6 +6,7 @@ import Modal from "./Modal";
 import CategoryInput from "../inputs/CategoryInput";
 // import CountrySelect from "../inputs/CountrySelect";
 import Input from "../inputs/Input";
+import AddressAutocomplete, { ParsedAddress } from "../inputs/AddressAutocomplete";
 import YearSelect from "../inputs/YearSelect";
 import FuelSelector from "../inputs/FuelSelector";
 import Counter from "../inputs/Counter";
@@ -13,7 +14,7 @@ import AmenitiesSelector from "../inputs/AmenitiesSelector";
 // import ImageUpload from "../inputs/ImageUpload";
 import Heading from "../Heading";
 import TextArea from "../inputs/TextArea";
-import StateSelector from "../inputs/StateSelector";
+import StateSelector, { states as AU_STATES } from "../inputs/StateSelector";
 import SuburbSelector from "../inputs/SuburbSelector";
 import DateSelector from "../inputs/DateSelector";
 import DriveChainSelector from "../inputs/DriveChainSelector";
@@ -210,6 +211,20 @@ const RentModal = () => {
         });
     };
 
+    // Auto-fills State/Suburb from a Google Places selection alongside the
+    // street address itself, so picking one suggestion fills the whole block.
+    const onAddressSelect = (result: ParsedAddress) => {
+        if (result.state) {
+            const known = AU_STATES.find((s) => s.value === result.state);
+            setSelectedState(known || { value: result.state, label: result.state });
+        }
+        if (result.suburb) {
+            setSelectedSuburb({
+                value: result.suburb,
+                label: result.postcode ? `${result.suburb}, ${result.postcode}` : result.suburb,
+            });
+        }
+    };
 
     const onBack = () => {
         setStep((value) => value - 1);
@@ -340,21 +355,22 @@ const RentModal = () => {
                         />
                     </div>
 
-                    {/* ✅ Google Places Autocomplete for Address */}
+                    {/* Google Places Autocomplete for Address */}
                     <div>
                         <label className="block text-ink text-sm font-semibold mb-2">
                             Number & Street Address
                         </label>
-                        <Input
+                        <AddressAutocomplete
                             id="address"
                             label="Street Address"
                             register={register}
+                            setValue={setValue}
                             errors={errors}
                             required
-                            validate={(value) => value.trim() !== "" || "Address is required"} // ✅ Ensure non-empty value
-                            onChange={(e) => setAddress(e.target.value)} // ✅ Keep Address in State
+                            validate={(value) => value.trim() !== "" || "Address is required"}
+                            onManualChange={setAddress}
+                            onSelect={onAddressSelect}
                         />
-
                     </div>
 
                     <Map suburb={selectedSuburb?.value} state={selectedState?.value} />
