@@ -28,17 +28,17 @@ const ListingCardButton: React.FC<ListingCardButtonProps> = ({ label, onClick, d
             <button
                 onClick={handleClick}
                 disabled={disabled || loading}
-                className={`w-full py-2 font-medium rounded-lg transition flex items-center justify-center gap-2
-                ${disabled || loading ? "bg-gray-400 dark:bg-neutral-600 cursor-not-allowed" :
+                className={`w-full py-2 font-medium rounded-sm transition flex items-center justify-center gap-2
+                ${disabled || loading ? "bg-surface-strong text-muted cursor-not-allowed" :
                         variant === "primary"
-                            ? "bg-white dark:bg-neutral-800 text-graphite dark:text-limespark border-[2px] border-limespark hover:bg-limespark hover:text-graphite"
-                            : "bg-white dark:bg-neutral-800 text-red-500 border-[2px] border-red-400 hover:bg-red-400 hover:text-white"}
+                            ? "bg-white text-ink border border-ink hover:bg-ink hover:text-white"
+                            : "bg-white text-error border border-error hover:bg-error hover:text-white"}
             `}
             >
                 {loading && (
-                    <DotLoader 
-                        size="sm" 
-                        color={variant === "primary" ? "#B6FF2E" : "#ef4444"} 
+                    <DotLoader
+                        size="sm"
+                        color={variant === "primary" ? "#222222" : "#c13515"}
                     />
                 )}
                 {loading ? "Loading..." : label}

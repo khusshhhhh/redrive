@@ -107,7 +107,7 @@ const SearchModal = () => {
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-1">
                             <div className="text-lg font-bold">Select a state <span className="text-base">(Optional)</span></div>
-                            <div className="text-base text-gray-500 dark:text-neutral-400 font-light">Choose your destination!</div>
+                            <div className="text-base text-muted font-light">Choose your destination!</div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <StateSelector
@@ -115,7 +115,7 @@ const SearchModal = () => {
                                 onChange={setSelectedState}
                                 allowAnywhere={true} // ✅ Ensure "Anywhere" is an option
                             />
-                            <div className="text-base text-gray-500 dark:text-neutral-400 font-light">
+                            <div className="text-base text-muted font-light">
                                 Selected Location:{" "}
                                 <span className="font-medium">{selectedState ? selectedState.label : "Anywhere"}</span>
                             </div>
@@ -125,7 +125,7 @@ const SearchModal = () => {
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-1">
                             <div className="text-lg font-bold">Booking Dates</div>
-                            <div className="text-base font-light text-gray-500 dark:text-neutral-400">When is the best time to go!</div>
+                            <div className="text-base font-light text-muted">When is the best time to go!</div>
                         </div>
                         <Calendar value={dateRange} onChange={(value) => setDateRange(value.selection)} />
 
@@ -134,7 +134,7 @@ const SearchModal = () => {
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-1">
                             <div className="text-lg font-bold">Number of people</div>
-                            <div className="text-base font-light text-gray-500 dark:text-neutral-400">Make sure they are free on those dates!</div>
+                            <div className="text-base font-light text-muted">Make sure they are free on those dates!</div>
                         </div>
                         <Counter title="People" subtitle="How many people are coming?" value={guestCount} onChange={setGuestCount} />
                         <Counter title="Sleep Spaces" subtitle="How many sleep spaces do you need?" value={sleepCount} onChange={setSleepCount} />
@@ -143,9 +143,9 @@ const SearchModal = () => {
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-1">
                             <div className="text-lg font-bold">Price per day</div>
-                            <div className="text-base font-light text-gray-500 dark:text-neutral-400">It is okay to set your budget!</div>
+                            <div className="text-base font-light text-muted">It is okay to set your budget!</div>
                         </div>
-                        <div className="pt-4 pb-3 px-4 bg-gray-100 dark:bg-neutral-700 rounded-md">
+                        <div className="pt-4 pb-3 px-4 bg-surface-soft rounded-sm">
                             <Slider
                                 value={priceRange}
                                 onChange={handlePriceChange}
@@ -154,15 +154,15 @@ const SearchModal = () => {
                                 max={10000}
                                 step={50}
                                 sx={{
-                                    color: "#000", // ✅ Change slider color
+                                    color: "#ff385c", // Rausch accent
                                     "& .MuiSlider-thumb": {
-                                        backgroundColor: "#000",
+                                        backgroundColor: "#ff385c",
                                     },
                                     "& .MuiSlider-track": {
-                                        backgroundColor: "#000",
+                                        backgroundColor: "#ff385c",
                                     },
                                     "& .MuiSlider-rail": {
-                                        backgroundColor: "#000",
+                                        backgroundColor: "#dddddd",
                                     },
                                 }}
                             />

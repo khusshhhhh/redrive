@@ -46,7 +46,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
             {/* Responsive Image Display */}
             <div className="relative w-full">
                 {/* Show Only One Image on Mobile */}
-                <div className="relative rounded-lg overflow-hidden cursor-pointer md:hidden"
+                <div className="relative rounded-md overflow-hidden cursor-pointer md:hidden"
                     onClick={() => setSelectedImage(imageSrcs[0])}
                 >
                     <Image
@@ -54,11 +54,11 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                         src={imageSrcs[0]}
                         width={800}
                         height={500}
-                        className="object-cover w-full h-[300px] sm:h-[400px] rounded-lg"
+                        className="object-cover w-full h-[300px] sm:h-[400px] rounded-md"
                     />
 
                     <div className="absolute top-3 left-3">
-                        <button className="bg-white text-black dark:bg-neutral-800 dark:text-neutral-100 p-1 rounded-full"
+                        <button className="bg-white text-ink p-1 rounded-full shadow-card"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 router.back()
@@ -69,7 +69,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                     <div>
                         {/* Show All Images Button */}
                         <button
-                            className="flex flex-row gap-1 items-center absolute bottom-3 left-3 bg-white text-black dark:bg-neutral-800 dark:text-neutral-100 font-semibold text-sm px-4 py-2 rounded-md"
+                            className="flex flex-row gap-1 items-center absolute bottom-3 left-3 bg-white text-ink font-semibold text-sm px-4 py-2 rounded-full shadow-card"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 router.push(`/listings/${id}/images`);
@@ -89,7 +89,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                 <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-2 w-full">
                     {/* Large Main Image */}
                     <div
-                        className="relative col-span-2 row-span-2 rounded-lg overflow-hidden cursor-pointer"
+                        className="relative col-span-2 row-span-2 rounded-md overflow-hidden cursor-pointer"
                         onClick={() => setSelectedImage(imageSrcs[0])}
                     >
                         <Image
@@ -97,11 +97,11 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                             src={imageSrcs[0]}
                             width={800}
                             height={500}
-                            className="object-cover w-full h-full rounded-lg"
+                            className="object-cover w-full h-full rounded-md"
                         />
 
                         <div className="absolute top-3 left-3">
-                            <button className="bg-white text-black dark:bg-neutral-800 dark:text-neutral-100 p-1 rounded-full"
+                            <button className="bg-white text-ink p-1 rounded-full shadow-card"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     router.back()
@@ -113,7 +113,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                         {/* Show All Images Button */}
                         <div>
                             <button
-                                className="flex flex-row gap-1 items-center absolute bottom-3 left-3 bg-white text-black dark:bg-neutral-800 dark:text-neutral-100 font-semibold text-sm px-4 py-2 rounded-md"
+                                className="flex flex-row gap-1 items-center absolute bottom-3 left-3 bg-white text-ink font-semibold text-sm px-4 py-2 rounded-full shadow-card"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     router.push(`/listings/${id}/images`);
@@ -133,7 +133,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                     {imageSrcs.slice(1, 5).map((src, index) => (
                         <div
                             key={index}
-                            className="relative rounded-lg overflow-hidden cursor-pointer"
+                            className="relative rounded-md overflow-hidden cursor-pointer"
                             onClick={() => setSelectedImage(src)}
                         >
                             <Image
@@ -141,7 +141,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                                 src={src}
                                 width={250}
                                 height={200}
-                                className="object-cover w-full h-full rounded-lg"
+                                className="object-cover w-full h-full rounded-md"
                             />
                         </div>
                     ))}
@@ -155,12 +155,12 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                     onClick={() => setSelectedImage(null)}
                 >
                     <div
-                        className="relative w-[90%] max-w-4xl rounded-lg overflow-hidden"
+                        className="relative w-[90%] max-w-4xl rounded-md overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Close Button */}
                         <button
-                            className="absolute top-6 right-6 bg-white text-black dark:bg-neutral-800 dark:text-neutral-100 rounded-full p-2 z-50 hover:bg-gray-300 dark:hover:bg-neutral-700 transition"
+                            className="absolute top-6 right-6 bg-white text-ink rounded-full p-2 z-50 hover:bg-surface-soft transition shadow-card"
                             onClick={() => setSelectedImage(null)}
                         >
                             <IoClose size={24} />
@@ -173,7 +173,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                                 src={selectedImage}
                                 width={800}
                                 height={600}
-                                className="object-cover w-full h-auto rounded-lg"
+                                className="object-cover w-full h-auto rounded-md"
                             />
                         </div>
                     </div>

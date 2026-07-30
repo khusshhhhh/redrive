@@ -31,16 +31,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value }) => {
             onSuccess={handleUpload}
             uploadPreset="redrive"
             options={{
-                maxFiles: 10  // Allow selecting up to 10 images at once
+                maxFiles: 10 // Allow selecting up to 10 images at once
             }}
         >
             {({ open }) => {
                 return (
                     <div onClick={() => open?.()}
-                        className="relative cursor-pointer hover:opacity-70 transition border-dashed border-2 p-20 border-neutral-300 dark:border-neutral-600 flex flex-col justify-center items-center gap-4 text-neutral-600 dark:text-neutral-400"
+                        className="relative cursor-pointer hover:border-ink transition border-dashed border-2 rounded-sm p-20 border-hairline flex flex-col justify-center items-center gap-4 text-muted"
                     >
                         <TbPhotoPlus />
-                        <div className="font-semibold text-lg">
+                        <div className="font-semibold text-lg text-ink">
                             Click To Upload
                         </div>
                         {value && (

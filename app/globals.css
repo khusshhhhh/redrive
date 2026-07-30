@@ -34,30 +34,36 @@ body,
   display: none;
 }
 
-/* Dark mode overrides for third-party widgets that don't respect Tailwind's
-   dark: classes (react-date-range calendar, leaflet controls). */
-:root[data-theme="dark"] .rdrCalendarWrapper,
-.dark .rdrCalendarWrapper {
-  background-color: #262626;
-  color: #e5e5e5;
+/* Airbnb-style date picker overrides for react-date-range (light mode only). */
+.rdrCalendarWrapper {
+  color: #222222;
 }
 
-:root[data-theme="dark"] .rdrDayNumber span,
-.dark .rdrDayNumber span {
-  color: #e5e5e5;
+.rdrDayNumber span {
+  color: #222222;
 }
 
-:root[data-theme="dark"] .rdrMonthAndYearPickers select,
-.dark .rdrMonthAndYearPickers select {
-  color: #171717;
+.rdrDay:not(.rdrDayPassive) .rdrInRange ~ .rdrDayNumber span,
+.rdrDay:not(.rdrDayPassive) .rdrStartEdge ~ .rdrDayNumber span,
+.rdrDay:not(.rdrDayPassive) .rdrEndEdge ~ .rdrDayNumber span,
+.rdrDay:not(.rdrDayPassive) .rdrSelected ~ .rdrDayNumber span {
+  color: #ffffff;
 }
 
-.dark .leaflet-tile {
-  filter: brightness(0.85) invert(1) contrast(0.9) hue-rotate(180deg) saturate(0.6);
+.rdrDayToday .rdrDayNumber span:after {
+  background: #ff385c;
 }
 
-.dark .leaflet-container {
-  background: #1f1f1f;
+.rdrInRange, .rdrStartEdge, .rdrEndEdge, .rdrSelected {
+  background: #222222 !important;
+}
+
+.rdrDayHovered:not(.rdrDayPassive) .rdrDayNumber {
+  border-color: #dddddd;
+}
+
+.rdrMonthAndYearPickers select {
+  color: #222222;
 }
 
 /* Dot loader animation */

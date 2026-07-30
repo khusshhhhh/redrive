@@ -67,7 +67,7 @@ const ReservationsClient: React.FC<ReservationsClientProps> = ({
                         />
                         <button
                             onClick={() => router.push(`/reservations/${reservation.id}`)}
-                            className="font-medium mt-2 bg-white dark:bg-neutral-800 text-graphite dark:text-limespark px-4 py-2 border-[2px] border-limespark rounded-md hover:text-graphite hover:bg-limespark transition"
+                            className="font-medium mt-2 bg-white text-ink px-4 py-2 border border-ink rounded-sm hover:bg-ink hover:text-white transition"
                         >
                             View reservation
                         </button>

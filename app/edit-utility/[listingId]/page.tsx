@@ -186,8 +186,8 @@ const EditUtilityPage = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-neutral-900">
-            <h2 className="text-2xl font-bold mb-6 text-center dark:text-neutral-100">Edit Your Utility</h2>
+        <div className="max-w-3xl mx-auto p-6 md:p-8 bg-white shadow-card rounded-md border border-hairline-soft my-10">
+            <h2 className="text-display-sm font-semibold mb-6 text-center text-ink">Edit Your Utility</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Title */}
                 <div className="mb-8">
@@ -201,7 +201,7 @@ const EditUtilityPage = () => {
 
                 {/* Category Selection */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4 dark:text-neutral-100">Select Category</p>
+                    <p className="font-semibold mb-4 text-ink">Select Category</p>
                     <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
                         {categories.map((categoryItem) => (
                             <CategoryInput
@@ -217,7 +217,7 @@ const EditUtilityPage = () => {
 
                 {/* Images Section */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4 dark:text-neutral-100">Property Images</p>
+                    <p className="font-semibold mb-4 text-ink">Property Images</p>
                     <div className="grid grid-cols-3 gap-3 mb-4">
                         {listingImages.map((image, index) => (
                             <div key={index} className="relative">
@@ -229,7 +229,7 @@ const EditUtilityPage = () => {
                                 <button
                                     type="button"
                                     onClick={() => handleImageDelete(image)}
-                                    className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
+                                    className="absolute top-0 right-0 bg-error text-white p-1 rounded-full"
                                 >
                                     ✕
                                 </button>
@@ -245,7 +245,7 @@ const EditUtilityPage = () => {
 
                 {/* Location */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4 dark:text-neutral-100">Location</p>
+                    <p className="font-semibold mb-4 text-ink">Location</p>
                     <div className="flex flex-col gap-6">
                         <StateSelector value={selectedState} onChange={setSelectedState} />
                         <SuburbSelector
@@ -259,7 +259,7 @@ const EditUtilityPage = () => {
 
                 {/* Utility Details Counters */}
                 <div className="mb-8 space-y-6">
-                    <p className="font-bold mb-4 dark:text-neutral-100">Utility Details</p>
+                    <p className="font-semibold mb-4 text-ink">Utility Details</p>
                     <Counter
                         title="Guest Count"
                         subtitle="Maximum guests allowed"
@@ -282,7 +282,7 @@ const EditUtilityPage = () => {
 
                 {/* Year Select */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4 dark:text-neutral-100">Year</p>
+                    <p className="font-semibold mb-4 text-ink">Year</p>
                     <YearSelect
                         id="year"
                         label="Manufacturing Year"
@@ -296,7 +296,7 @@ const EditUtilityPage = () => {
 
                 {/* Fuel Selector */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4 dark:text-neutral-100">Fuel</p>
+                    <p className="font-semibold mb-4 text-ink">Fuel</p>
                     <FuelSelector
                         id="fuelType"
                         label=""
@@ -309,22 +309,22 @@ const EditUtilityPage = () => {
 
                 {/* Additional Information */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4 dark:text-neutral-100">Additional Information</p>
+                    <p className="font-semibold mb-4 text-ink">Additional Information</p>
                     <TextArea id="information" label="" register={register} errors={errors} required />
                 </div>
 
                 {/* Amenities Selection */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4 dark:text-neutral-100">Select Amenities</p>
+                    <p className="font-semibold mb-4 text-ink">Select Amenities</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         {AMENITIES_LIST.map((amenity) => (
                             <button
                                 key={amenity.id}
                                 type="button"
                                 onClick={() => toggleAmenity(amenity.id)}
-                                className={`p-3 flex items-center gap-2 border-2 rounded-md transition ${selectedAmenities.includes(amenity.id)
-                                    ? "bg-black text-white"
-                                    : "bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-300"
+                                className={`p-3 flex items-center gap-2 border rounded-sm transition ${selectedAmenities.includes(amenity.id)
+                                    ? "border-ink bg-ink text-white"
+                                    : "border-hairline text-ink hover:border-ink"
                                     }`}
                             >
                                 <i className={`${amenity.icon} text-lg`}></i>
@@ -336,7 +336,7 @@ const EditUtilityPage = () => {
 
                 {/* Registration Details */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4 dark:text-neutral-100">Registration Details</p>
+                    <p className="font-semibold mb-4 text-ink">Registration Details</p>
                     <Input
                         id="regoNumber"
                         label="Rego Number"
@@ -350,13 +350,13 @@ const EditUtilityPage = () => {
 
                 {/* Registration Image */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4 dark:text-neutral-100">Registration Image</p>
+                    <p className="font-semibold mb-4 text-ink">Registration Image</p>
                     <ImageUpload value={regoImage} onChange={(image) => setRegoImage(image)} />
                 </div>
 
                 {/* Pricing */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4 dark:text-neutral-100">Pricing</p>
+                    <p className="font-semibold mb-4 text-ink">Pricing</p>
                     <Input
                         id="price"
                         label=""
@@ -369,11 +369,12 @@ const EditUtilityPage = () => {
 
                 {/* Cleaning Fees */}
                 <div className="mb-8">
-                    <p className="font-bold mb-4 dark:text-neutral-100">Cleaning Fees</p>
-                    <div className="flex flex-col gap-2 dark:text-neutral-100">
+                    <p className="font-semibold mb-4 text-ink">Cleaning Fees</p>
+                    <div className="flex flex-col gap-2 text-ink">
                         <label className="flex items-center gap-2">
                             <input
                                 type="radio"
+                                className="accent-ink"
                                 value="YES"
                                 checked={cleaningFeeOption === 'YES'}
                                 onChange={() => setCleaningFeeOption('YES')}
@@ -383,6 +384,7 @@ const EditUtilityPage = () => {
                         <label className="flex items-center gap-2">
                             <input
                                 type="radio"
+                                className="accent-ink"
                                 value="NO"
                                 checked={cleaningFeeOption === 'NO'}
                                 onChange={() => setCleaningFeeOption('NO')}
@@ -392,6 +394,7 @@ const EditUtilityPage = () => {
                         <label className="flex items-center gap-2">
                             <input
                                 type="radio"
+                                className="accent-ink"
                                 value="UPON_RETURNING"
                                 checked={cleaningFeeOption === 'UPON_RETURNING'}
                                 onChange={() => setCleaningFeeOption('UPON_RETURNING')}
@@ -412,7 +415,7 @@ const EditUtilityPage = () => {
                     )}
                     {cleaningFeeOption === 'UPON_RETURNING' && (
                         <div className="mt-4 flex flex-col gap-2">
-                            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                            <p className="text-sm text-muted">
                                 User can add desired amount after the utility is returned.
                             </p>
                             <Input
@@ -432,14 +435,14 @@ const EditUtilityPage = () => {
                 <div className="flex flex-row gap-4">
                     <button
                         type="submit"
-                        className="w-full bg-limespark text-graphite font-semibold px-6 py-4 rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
+                        className="w-full bg-primary text-white font-semibold px-6 py-4 rounded-sm hover:bg-primary-active transition-all disabled:opacity-50"
                         disabled={loading}
                     >
                         {loading ? "Updating..." : "Update Utility"}
                     </button>
                     <button
                         type="button"
-                        className="border-[3px] border-black dark:border-neutral-600 hover:border-limespark hover:text-graphite dark:hover:text-limespark w-full bg-white dark:bg-neutral-900 text-black dark:text-neutral-100 font-semibold px-6 py-4 rounded-lg transition-all disabled:opacity-50"
+                        className="border border-ink hover:bg-ink hover:text-white w-full bg-white text-ink font-semibold px-6 py-4 rounded-sm transition-all disabled:opacity-50"
                         onClick={() => router.back()}
                     >
                         Go Back

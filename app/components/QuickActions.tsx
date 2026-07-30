@@ -14,6 +14,8 @@ import {
 import { useRouter } from 'next/navigation';
 import { SafeUser } from '@/app/types';
 import useRentModal from '@/app/hooks/useRentModal';
+import useLoginModal from '@/app/hooks/useLoginModal';
+import useRegisterModal from '@/app/hooks/useRegisterModal';
 import Button from './Button';
 
 interface QuickActionsProps {
@@ -23,6 +25,8 @@ interface QuickActionsProps {
 const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
   const router = useRouter();
   const rentModal = useRentModal();
+  const loginModal = useLoginModal();
+  const registerModal = useRegisterModal();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const quickActions = [
@@ -31,7 +35,6 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
       label: 'List Your Vehicle',
       description: 'Start earning by listing your car, van, or boat',
       icon: Plus,
-      color: 'bg-green-500 hover:bg-green-600',
       action: () => rentModal.onOpen(),
       requiresAuth: true,
       featured: true
@@ -41,17 +44,14 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
       label: 'Messages',
       description: 'Check your conversations with other users',
       icon: MessageCircle,
-      color: 'bg-blue-500 hover:bg-blue-600',
       action: () => router.push('/messages'),
-      requiresAuth: true,
-      badge: '3' // This could be dynamic
+      requiresAuth: true
     },
     {
       id: 'my-trips',
       label: 'My Trips',
       description: 'View your upcoming and past bookings',
       icon: Calendar,
-      color: 'bg-purple-500 hover:bg-purple-600',
       action: () => router.push('/trips'),
       requiresAuth: true
     },
@@ -60,7 +60,6 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
       label: 'Favorites',
       description: 'See vehicles you have saved',
       icon: Heart,
-      color: 'bg-red-500 hover:bg-red-600',
       action: () => router.push('/favorites'),
       requiresAuth: true
     },
@@ -69,7 +68,6 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
       label: 'Reviews',
       description: 'Manage reviews and ratings',
       icon: Star,
-      color: 'bg-yellow-500 hover:bg-yellow-600',
       action: () => router.push('/review'),
       requiresAuth: true
     },
@@ -78,7 +76,6 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
       label: 'Nearby Vehicles',
       description: 'Find vehicles close to your location',
       icon: MapPin,
-      color: 'bg-indigo-500 hover:bg-indigo-600',
       action: () => {
         // Get user location and redirect with location filter
         if (navigator.geolocation) {
@@ -95,7 +92,6 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
       label: 'Trending',
       description: 'Popular vehicles this week',
       icon: TrendingUp,
-      color: 'bg-pink-500 hover:bg-pink-600',
       action: () => router.push('/?sortBy=trending'),
       requiresAuth: false
     },
@@ -104,7 +100,6 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
       label: 'Instant Book',
       description: 'Vehicles you can book immediately',
       icon: Zap,
-      color: 'bg-orange-500 hover:bg-orange-600',
       action: () => router.push('/?instantBook=true'),
       requiresAuth: false
     }
@@ -115,20 +110,17 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
 
   const handleActionClick = (action: typeof quickActions[0]) => {
     if (action.requiresAuth && !currentUser) {
-      router.push('/login');
+      loginModal.onOpen();
       return;
     }
     action.action();
   };
 
   return (
-    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700 mb-6">
-      <div className="p-4 border-b border-gray-200 dark:border-neutral-700">
+    <div className="bg-white rounded-md shadow-card mb-6">
+      <div className="p-4 border-b border-hairline-soft">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-blue-500" />
-            <h3 className="font-semibold text-gray-900 dark:text-neutral-100">Quick Actions</h3>
-          </div>
+          <h3 className="text-title-md font-semibold text-ink">Quick Actions</h3>
           {regularActions.length > 0 && (
             <Button
               onClick={() => setIsExpanded(!isExpanded)}
@@ -152,13 +144,13 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
                   <button
                     key={action.id}
                     onClick={() => handleActionClick(action)}
-                    className={`${action.color} text-white p-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg`}
+                    className="bg-primary hover:bg-primary-active text-white p-4 rounded-md transition-colors text-left"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="bg-white bg-opacity-20 p-2 rounded-lg">
+                      <div className="bg-white bg-opacity-20 p-2 rounded-md">
                         <Icon className="w-6 h-6" />
                       </div>
-                      <div className="text-left">
+                      <div>
                         <h4 className="font-semibold">{action.label}</h4>
                         <p className="text-sm opacity-90">{action.description}</p>
                       </div>
@@ -178,18 +170,13 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
               <button
                 key={action.id}
                 onClick={() => handleActionClick(action)}
-                className="relative p-3 text-center bg-gray-50 dark:bg-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-600 rounded-lg transition-colors group"
+                className="p-3 text-center bg-surface-soft hover:bg-surface-strong rounded-md transition-colors group"
               >
-                {action.badge && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {action.badge}
-                  </span>
-                )}
-                <div className={`${action.color} w-12 h-12 rounded-lg mx-auto mb-2 flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                  <Icon className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-md mx-auto mb-2 flex items-center justify-center bg-white border border-hairline group-hover:border-ink transition-colors">
+                  <Icon className="w-6 h-6 text-ink" />
                 </div>
-                <h4 className="font-medium text-sm text-gray-900 dark:text-neutral-100 mb-1">{action.label}</h4>
-                <p className="text-xs text-gray-600 dark:text-neutral-400 leading-tight">{action.description}</p>
+                <h4 className="font-medium text-sm text-ink mb-1">{action.label}</h4>
+                <p className="text-xs text-muted leading-tight">{action.description}</p>
               </button>
             );
           })}
@@ -208,43 +195,23 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
         )}
       </div>
 
-      {/* Quick Stats for authenticated users */}
-      {currentUser && (
-        <div className="border-t border-gray-200 dark:border-neutral-700 p-4">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-blue-600">12</div>
-              <div className="text-xs text-gray-600 dark:text-neutral-400">Total Trips</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-green-600">$1,240</div>
-              <div className="text-xs text-gray-600 dark:text-neutral-400">Earned</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-yellow-600">4.9</div>
-              <div className="text-xs text-gray-600 dark:text-neutral-400">Rating</div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Guest Call-to-Action */}
       {!currentUser && (
-        <div className="border-t border-gray-200 dark:border-neutral-700 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-neutral-800 dark:to-neutral-800">
+        <div className="border-t border-hairline-soft p-4">
           <div className="text-center">
-            <h4 className="font-semibold text-gray-900 dark:text-neutral-100 mb-2">Join REDRIVE Today</h4>
-            <p className="text-sm text-gray-600 dark:text-neutral-400 mb-3">
+            <h4 className="font-semibold text-ink mb-2">Join Redrive Today</h4>
+            <p className="text-sm text-muted mb-3">
               Access personalized features, save favorites, and start your adventure!
             </p>
             <div className="flex gap-2 justify-center">
               <Button
-                onClick={() => router.push('/register')}
+                onClick={() => registerModal.onOpen()}
                 small
               >
                 Sign Up
               </Button>
               <Button
-                onClick={() => router.push('/login')}
+                onClick={() => loginModal.onOpen()}
                 small
                 outline
               >

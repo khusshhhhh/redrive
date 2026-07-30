@@ -49,9 +49,9 @@ const MessagesPage = () => {
   if (!chats) {
     return (
       <div className="pt-24 px-4 animate-pulse space-y-6">
-        <div className="h-6 bg-gray-200 dark:bg-neutral-700 rounded w-1/3" />
-        <div className="h-20 bg-gray-200 dark:bg-neutral-700 rounded" />
-        <div className="h-20 bg-gray-200 dark:bg-neutral-700 rounded" />
+        <div className="h-6 bg-surface-soft rounded w-1/3" />
+        <div className="h-20 bg-surface-soft rounded" />
+        <div className="h-20 bg-surface-soft rounded" />
       </div>
     );
   }
@@ -72,7 +72,7 @@ const MessagesPage = () => {
         <Heading title="Messages" subtitle="Your conversations" />
         <div className="mt-6 flex flex-col gap-3">
           {chats.length === 0 && (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="text-sm text-muted">
               No conversations yet. Message a host from one of your bookings to get started.
             </p>
           )}
@@ -83,7 +83,7 @@ const MessagesPage = () => {
               <div
                 key={chat.id}
                 onClick={() => router.push(`/messages/${chat.id}`)}
-                className="p-4 border-[2px] dark:border-neutral-700 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-700 flex gap-3 items-center"
+                className="p-4 border border-hairline rounded-md cursor-pointer hover:bg-surface-soft flex gap-3 items-center"
               >
                 <div className="relative shrink-0">
                   <Image
@@ -94,20 +94,20 @@ const MessagesPage = () => {
                     className="rounded-full object-cover w-11 h-11"
                   />
                   {online && (
-                    <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white dark:border-neutral-900" />
+                    <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <div
-                      className={`truncate dark:text-neutral-100 ${
+                      className={`truncate text-ink ${
                         hasUnread ? "font-bold" : "font-semibold"
                       }`}
                     >
                       {chat.otherUser?.name || chat.otherUser?.email}
                     </div>
                     {chat.lastMessage && (
-                      <div className="text-xs text-neutral-400 dark:text-neutral-500 shrink-0">
+                      <div className="text-xs text-muted-soft shrink-0">
                         {formatDistanceToNowStrict(new Date(chat.lastMessage.createdAt), { addSuffix: true })}
                       </div>
                     )}
@@ -116,8 +116,8 @@ const MessagesPage = () => {
                     <div
                       className={`text-sm truncate ${
                         hasUnread
-                          ? "text-neutral-900 dark:text-neutral-100 font-semibold"
-                          : "text-gray-600 dark:text-neutral-400"
+                          ? "text-ink font-semibold"
+                          : "text-muted"
                       }`}
                     >
                       {chat.lastMessage
@@ -127,7 +127,7 @@ const MessagesPage = () => {
                         : "Say hello 👋"}
                     </div>
                     {hasUnread && (
-                      <span className="shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-limespark text-graphite font-semibold text-xs flex items-center justify-center">
+                      <span className="shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-primary text-white font-semibold text-xs flex items-center justify-center">
                         {chat.unreadCount > 9 ? "9+" : chat.unreadCount}
                       </span>
                     )}

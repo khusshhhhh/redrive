@@ -90,7 +90,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
             totalPrice,
             totalFees,
             insuranceType, // ✅ Now properly passed
-            insuranceFee,  // ✅ Now properly passed
+            insuranceFee, // ✅ Now properly passed
         })
             .then(() => {
                 toast.success('Listing reserved!');
@@ -108,8 +108,8 @@ const ListingClient: React.FC<ListingClientProps> = ({
     }, [
         totalPrice,
         totalFees,
-        insuranceType,  // ✅ Include insuranceType
-        insuranceFee,   // ✅ Include insuranceFee
+        insuranceType, // ✅ Include insuranceType
+        insuranceFee, // ✅ Include insuranceFee
         dateRange,
         listing?.id,
         router,
@@ -157,55 +157,60 @@ const ListingClient: React.FC<ListingClientProps> = ({
 
     return (
         <Container>
-            <div className="max-w-screen-2xl px-4 mx-auto md:mx-10">
+            <div className="max-w-[1080px] px-4 mx-auto">
                 <div className="flex flex-col gap-6">
                     <ListingHead
                         title={listing.title}
                         imageSrcs={listing.imageSrcs}
                         id={listing.id}
                         currentUser={currentUser}
-                    // address={`${listing.address}, ${listing.suburb}, ${listing.state}`}
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-7 md:gap-10 mt-6">
-                        <ListingInfo
-                            user={listing.user}
-                            category={category}
-                            description={listing.description}
-                            information={listing.information || ''}
-                            modal={listing.modal}
-                            company={listing.company}
-                            year={listing.year}
-                            doorCount={listing.doorCount}
-                            guestCount={listing.guestCount}
-                            sleepCount={listing.sleepCount}
-                            fuelEconomy={listing.fuelEconomy}
-                            driveChain={listing.driveChain}
-                            // ✅ Replace locationValue with formatted address
-                            address={`${listing.suburb}, ${listing.state}`}
-                            amenities={listing.amenities} state={""} suburb={""} />
-                        <div className="order-last mb-10 md:order-last md:col-span-3">
-                            <ListingReservation
-                                listing={listing}
-                                price={listing.price}
-                                serviceFee={calculateServiceFee(totalPrice)}
-                                totalPrice={totalPrice}
-                                totalFees={totalFees}
-                                onChangeDate={(value) => setDateRange(value)}
-                                dateRange={dateRange}
-                                onSubmit={onCreateReservation}
-                                disabled={isLoading || isOwner}
-                                disabledDates={disabledDates}
-                                insuranceType={insuranceType} // ✅ Add insurance state
-                                setInsuranceType={setInsuranceType} // ✅ Allow user to update it
-                                insuranceFee={insuranceFee} // ✅ Add insurance fee state
-                                setInsuranceFee={setInsuranceFee} // ✅ Allow updates
-                            />
+                    <div className="grid grid-cols-1 md:grid-cols-3 md:gap-10 mt-6">
+                        <div className="md:col-span-2">
+                            <ListingInfo
+                                listingId={listing.id}
+                                user={listing.user}
+                                currentUser={currentUser}
+                                category={category}
+                                description={listing.description}
+                                information={listing.information || ''}
+                                modal={listing.modal}
+                                company={listing.company}
+                                year={listing.year}
+                                doorCount={listing.doorCount}
+                                guestCount={listing.guestCount}
+                                sleepCount={listing.sleepCount}
+                                fuelEconomy={listing.fuelEconomy}
+                                driveChain={listing.driveChain}
+                                // ✅ Replace locationValue with formatted address
+                                address={`${listing.suburb}, ${listing.state}`}
+                                amenities={listing.amenities} state={""} suburb={""} />
+                        </div>
+                        <div className="order-last mb-10 md:order-last md:col-span-1">
+                            <div className="md:sticky md:top-28">
+                                <ListingReservation
+                                    listing={listing}
+                                    price={listing.price}
+                                    serviceFee={calculateServiceFee(totalPrice)}
+                                    totalPrice={totalPrice}
+                                    totalFees={totalFees}
+                                    onChangeDate={(value) => setDateRange(value)}
+                                    dateRange={dateRange}
+                                    onSubmit={onCreateReservation}
+                                    disabled={isLoading || isOwner}
+                                    disabledDates={disabledDates}
+                                    insuranceType={insuranceType} // ✅ Add insurance state
+                                    setInsuranceType={setInsuranceType} // ✅ Allow user to update it
+                                    insuranceFee={insuranceFee} // ✅ Add insurance fee state
+                                    setInsuranceFee={setInsuranceFee} // ✅ Allow updates
+                                />
+                            </div>
                         </div>
                     </div>
                     <div className="mt-2">
-                        <div className="flex flex-row gap-3 items-center text-black dark:text-neutral-100">
+                        <div className="flex flex-row gap-3 items-center text-ink">
                             <IconUserCheck size={18} />
-                            <div className="font-normal text-base">Reviews</div>
+                            <div className="text-display-sm font-semibold">Reviews</div>
                         </div>
                         <div className="mt-6">
                             <Reviews listingId={listing.id} />

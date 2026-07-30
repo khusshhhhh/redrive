@@ -72,18 +72,18 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
   }, [filters.features, updateFilter]);
 
   return (
-    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700 mb-6">
+    <div className="bg-white rounded-md shadow-card border border-hairline-soft mb-6">
       {/* Quick Search Bar */}
-      <div className="p-4 border-b border-gray-200 dark:border-neutral-700">
+      <div className="p-4 border-b border-hairline-soft">
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-neutral-500 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted w-5 h-5" />
             <input
               type="text"
               placeholder="Search by location, vehicle type, or features..."
               value={filters.location || ''}
               onChange={(e) => updateFilter('location', e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-hairline rounded-sm focus:border-ink focus:border-2 outline-none text-ink"
             />
           </div>
           <Button
@@ -104,13 +104,13 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Vehicle Type
               </label>
               <select
                 value={filters.category || ''}
                 onChange={(e) => updateFilter('category', e.target.value)}
-                className="w-full p-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-hairline rounded-sm focus:border-ink focus:border-2 outline-none text-ink"
               >
                 <option value="">All Types</option>
                 {categories.map((cat) => (
@@ -123,7 +123,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
 
             {/* Price Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 <DollarSign className="inline w-4 h-4 mr-1" />
                 Price Range (per day)
               </label>
@@ -133,21 +133,21 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
                   placeholder="Min"
                   value={filters.priceMin || ''}
                   onChange={(e) => updateFilter('priceMin', parseInt(e.target.value) || undefined)}
-                  className="w-full p-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-hairline rounded-sm focus:border-ink focus:border-2 outline-none text-ink"
                 />
                 <input
                   type="number"
                   placeholder="Max"
                   value={filters.priceMax || ''}
                   onChange={(e) => updateFilter('priceMax', parseInt(e.target.value) || undefined)}
-                  className="w-full p-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-hairline rounded-sm focus:border-ink focus:border-2 outline-none text-ink"
                 />
               </div>
             </div>
 
             {/* Dates */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 <Calendar className="inline w-4 h-4 mr-1" />
                 Dates
               </label>
@@ -156,27 +156,27 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
                   type="date"
                   value={filters.dateFrom || ''}
                   onChange={(e) => updateFilter('dateFrom', e.target.value)}
-                  className="w-full p-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-hairline rounded-sm focus:border-ink focus:border-2 outline-none text-ink"
                 />
                 <input
                   type="date"
                   value={filters.dateTo || ''}
                   onChange={(e) => updateFilter('dateTo', e.target.value)}
-                  className="w-full p-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-hairline rounded-sm focus:border-ink focus:border-2 outline-none text-ink"
                 />
               </div>
             </div>
 
             {/* Rating */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 <Star className="inline w-4 h-4 mr-1" />
                 Minimum Rating
               </label>
               <select
                 value={filters.minRating || ''}
                 onChange={(e) => updateFilter('minRating', parseFloat(e.target.value) || undefined)}
-                className="w-full p-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-hairline rounded-sm focus:border-ink focus:border-2 outline-none text-ink"
               >
                 <option value="">Any Rating</option>
                 <option value="4.5">4.5+ Stars</option>
@@ -190,14 +190,14 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
           {/* Vehicle Specs Row */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 <Fuel className="inline w-4 h-4 mr-1" />
                 Fuel Type
               </label>
               <select
                 value={filters.fuelType || ''}
                 onChange={(e) => updateFilter('fuelType', e.target.value)}
-                className="w-full p-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-hairline rounded-sm focus:border-ink focus:border-2 outline-none text-ink"
               >
                 <option value="">Any Fuel</option>
                 {fuelTypes.map((fuel) => (
@@ -207,14 +207,14 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 <Settings className="inline w-4 h-4 mr-1" />
                 Transmission
               </label>
               <select
                 value={filters.transmission || ''}
                 onChange={(e) => updateFilter('transmission', e.target.value)}
-                className="w-full p-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-hairline rounded-sm focus:border-ink focus:border-2 outline-none text-ink"
               >
                 <option value="">Any Type</option>
                 {transmissionTypes.map((trans) => (
@@ -224,14 +224,14 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 <Users className="inline w-4 h-4 mr-1" />
                 Passengers
               </label>
               <select
                 value={filters.passengers || ''}
                 onChange={(e) => updateFilter('passengers', parseInt(e.target.value) || undefined)}
-                className="w-full p-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-hairline rounded-sm focus:border-ink focus:border-2 outline-none text-ink"
               >
                 <option value="">Any Size</option>
                 <option value="2">2+ Passengers</option>
@@ -242,13 +242,13 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Sort By
               </label>
               <select
                 value={filters.sortBy || ''}
                 onChange={(e) => updateFilter('sortBy', e.target.value as FilterOptions['sortBy'])}
-                className="w-full p-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-hairline rounded-sm focus:border-ink focus:border-2 outline-none text-ink"
               >
                 <option value="">Default</option>
                 <option value="price">Price (Low to High)</option>
@@ -261,7 +261,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
 
           {/* Features */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-3">
+            <label className="block text-sm font-medium text-ink mb-3">
               Features & Amenities
             </label>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
@@ -273,8 +273,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
                     onClick={() => toggleFeature(feature)}
                     className={`p-2 text-xs rounded-lg border transition-colors ${
                       isSelected
-                        ? 'bg-blue-500 text-white border-blue-500'
-                        : 'bg-white dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 border-gray-300 dark:border-neutral-600 hover:border-blue-500'
+                        ? 'bg-ink text-white border-ink'
+                        : 'bg-white text-ink border-hairline hover:border-ink'
                     }`}
                   >
                     {feature}
@@ -285,14 +285,14 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-neutral-700">
+          <div className="flex justify-between items-center pt-4 border-t border-hairline-soft">
             <button
               onClick={clearAllFilters}
-              className="text-sm text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
+              className="text-sm text-muted hover:text-ink"
             >
               Clear All Filters
             </button>
-            <div className="text-sm text-gray-500 dark:text-neutral-400">
+            <div className="text-sm text-muted">
               {activeFiltersCount} filter{activeFiltersCount !== 1 ? 's' : ''} applied
             </div>
           </div>

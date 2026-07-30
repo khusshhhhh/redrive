@@ -36,10 +36,10 @@ const YearSelect: React.FC<YearSelectProps> = ({
                 {...register(id, { required })}
                 value={selectedYear}
                 onChange={(e) => setValue(id, e.target.value)}
-                className={`peer w-full p-4 pt-6 font-light bg-white dark:bg-neutral-800 dark:text-neutral-100 border-2 rounded-md outline-none transition disabled:opacity-70 disabled:cursor-not-allowed
+                className={`peer w-full p-4 pt-6 font-normal bg-white border rounded-sm outline-none transition disabled:opacity-70 disabled:cursor-not-allowed
                             pl-4 appearance-none
-                            ${errors[id] ? "border-red-300" : "border-neutral-300 dark:border-neutral-600"}
-                            ${errors[id] ? "focus:border-red-200" : "focus:border-black dark:focus:border-neutral-300"}
+                            ${errors[id] ? "border-error" : "border-hairline"}
+                            ${errors[id] ? "focus:border-error focus:border-2" : "focus:border-ink focus:border-2"}
                 `}
             >
                 <option value="" disabled hidden>Select Year</option>
@@ -54,8 +54,8 @@ const YearSelect: React.FC<YearSelectProps> = ({
                 className={`text-md duration-150 transform top-5 left-4 z-10 origin-[0]
                     peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0
                     peer-focus:scale-75 peer-focus:-translate-y-4
-                    ${selectedYear ? "hidden" : ""} 
-                    ${errors[id] ? "text-red-500" : "text-zinc-400"}
+                    ${selectedYear ? "hidden" : ""}
+                    ${errors[id] ? "text-error" : "text-muted"}
                     absolute
                 `}
             >
@@ -63,7 +63,7 @@ const YearSelect: React.FC<YearSelectProps> = ({
             </label>
 
             {errors[id] && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-error text-sm mt-1">
                     {label} is required
                 </p>
             )}

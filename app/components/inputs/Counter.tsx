@@ -25,10 +25,10 @@ const Counter: React.FC<CounterProps> = ({ title, subtitle, value, onChange }) =
     return (
         <div className="flex flex-row items-center justify-between">
             <div className="flex flex-col">
-                <div className="font-medium">
+                <div className="font-medium text-ink">
                     {title}
                 </div>
-                <div className="font-light text-gray-600 dark:text-neutral-400">
+                <div className="font-normal text-muted">
                     {subtitle}
                 </div>
             </div>
@@ -39,22 +39,20 @@ const Counter: React.FC<CounterProps> = ({ title, subtitle, value, onChange }) =
                     w-8
                     h-8
                     rounded-full
-                    border-[1px]
-                    border-neutral-400
-                    dark:border-neutral-600
+                    border
+                    border-hairline
                     flex
                     items-center
                     justify-center
-                    text-neutral-600
-                    dark:text-neutral-400
+                    text-ink
                     cursor-pointer
-                    hover:opacity-80
+                    hover:border-ink
                     transition
                 "
                 >
                     <AiOutlineMinus />
                 </div>
-                <div className="font-light text-xl text-neutral-600 dark:text-neutral-400">
+                <div className="font-normal text-xl text-ink">
                     {value}
                 </div>
                 <div
@@ -63,16 +61,14 @@ const Counter: React.FC<CounterProps> = ({ title, subtitle, value, onChange }) =
                     w-8
                     h-8
                     rounded-full
-                    border-[1px]
-                  border-neutral-400
-                    dark:border-neutral-600
+                    border
+                    border-hairline
                     flex
                     items-center
                     justify-center
-                  text-neutral-600
-                    dark:text-neutral-400
+                    text-ink
                     cursor-pointer
-                    hover:opacity-80
+                    hover:border-ink
                     transition
                     "
                 >

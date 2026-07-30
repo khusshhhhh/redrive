@@ -255,8 +255,8 @@ const ChatPage = () => {
   if (loading) {
     return (
       <div className="pt-24 px-4 animate-pulse space-y-6">
-        <div className="h-6 bg-gray-200 dark:bg-neutral-700 rounded w-1/3" />
-        <div className="h-20 bg-gray-200 dark:bg-neutral-700 rounded" />
+        <div className="h-6 bg-surface-soft rounded w-1/3" />
+        <div className="h-20 bg-surface-soft rounded" />
       </div>
     );
   }
@@ -269,17 +269,17 @@ const ChatPage = () => {
         <div className="flex items-center gap-3 mb-4">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-1 text-sm text-graphite dark:text-limespark hover:underline shrink-0"
+            className="flex items-center gap-1 text-sm text-ink hover:underline shrink-0"
           >
             <IconArrowLeft size={16} /> Back
           </button>
           <div className="flex-1 min-w-0">
-            <div className="font-semibold truncate dark:text-neutral-100">
+            <div className="font-semibold truncate text-ink">
               {otherUser?.name || "Conversation"}
             </div>
-            <div className="text-xs text-neutral-500 dark:text-neutral-400">
+            <div className="text-xs text-muted">
               {otherTyping ? (
-                <span className="text-graphite dark:text-limespark font-medium">typing…</span>
+                <span className="text-ink font-medium">typing…</span>
               ) : online ? (
                 "Online"
               ) : otherUser?.lastActiveAt ? (
@@ -293,13 +293,13 @@ const ChatPage = () => {
 
         <div
           ref={scrollRef}
-          className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border dark:border-neutral-700 p-2 sm:p-4 rounded-md bg-white dark:bg-neutral-800"
+          className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border border-hairline p-2 sm:p-4 rounded-md bg-white"
         >
           {hasMore && (
             <button
               onClick={loadOlder}
               disabled={loadingOlder}
-              className="text-xs text-graphite dark:text-limespark hover:underline self-center mb-2 disabled:opacity-50"
+              className="text-xs text-ink hover:underline self-center mb-2 disabled:opacity-50"
             >
               {loadingOlder ? "Loading…" : "Load older messages"}
             </button>
@@ -311,7 +311,7 @@ const ChatPage = () => {
             return (
               <div key={m.id}>
                 {showDivider && (
-                  <div className="text-center text-xs text-neutral-400 dark:text-neutral-500 my-2">
+                  <div className="text-center text-xs text-muted-soft my-2">
                     {dayLabel(new Date(m.createdAt))}
                   </div>
                 )}
@@ -330,10 +330,10 @@ const ChatPage = () => {
 
         {pendingImageUrl && (
           <div className="mt-3 relative w-20 h-20">
-            <Image src={pendingImageUrl} alt="To send" fill className="object-cover rounded-lg" />
+            <Image src={pendingImageUrl} alt="To send" fill className="object-cover rounded-md" />
             <button
               onClick={() => setPendingImageUrl(null)}
-              className="absolute -top-2 -right-2 bg-black text-white rounded-full p-0.5"
+              className="absolute -top-2 -right-2 bg-ink text-white rounded-full p-0.5"
             >
               <IconX size={14} />
             </button>
@@ -354,7 +354,7 @@ const ChatPage = () => {
               <button
                 type="button"
                 onClick={() => open?.()}
-                className="shrink-0 p-2 sm:p-3 rounded-full border dark:border-neutral-600 text-neutral-600 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-700 transition"
+                className="shrink-0 p-2 sm:p-3 rounded-full border border-hairline text-muted hover:bg-surface-soft transition"
               >
                 <IconPaperclip size={20} />
               </button>
@@ -369,13 +369,13 @@ const ChatPage = () => {
                 sendMessage();
               }
             }}
-            className="flex-1 border dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 p-2 sm:p-3 rounded-full px-4"
+            className="flex-1 border border-hairline focus:border-ink focus:border-2 outline-none p-2 sm:p-3 rounded-full px-4 text-ink"
             placeholder="Type a message"
           />
           <button
             onClick={sendMessage}
             disabled={sending || (!text.trim() && !pendingImageUrl)}
-            className="bg-limespark text-graphite p-2 sm:p-3 rounded-full flex items-center justify-center disabled:opacity-50 shrink-0"
+            className="bg-primary text-white p-2 sm:p-3 rounded-full flex items-center justify-center hover:bg-primary-active disabled:opacity-50 shrink-0"
           >
             <IconSend size={20} />
           </button>

@@ -7,9 +7,9 @@ import { IconQuestionMark } from "@tabler/icons-react"; // ✅ Default fallback 
 
 // ✅ Global icon properties for consistency
 const ICON_PROPS = {
-    size: 24,      // Set icon size
-    stroke: 2,     // Set stroke width
-    className: "transition-colors duration-300 group-hover:text-white" // Follows parent's text color (currentColor)
+    size: 24, // Set icon size
+    stroke: 2, // Set stroke width
+    className: "transition-colors duration-300" // Follows parent's text color (currentColor)
 };
 
 interface AmenitiesSelectorProps {
@@ -32,7 +32,7 @@ const AmenitiesSelector: React.FC<AmenitiesSelectorProps> = ({
 
     return (
         <div className="w-full">
-            <label className="text-md font-semibold text-gray-600 dark:text-neutral-400">Select Amenities</label>
+            <label className="text-body-md font-semibold text-ink">Select Amenities</label>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mt-4">
                 {AMENITIES_LIST.map((amenity) => {
                     const IconComponent = amenity.icon || IconQuestionMark; // ✅ Use Tabler Icon or fallback
@@ -41,10 +41,10 @@ const AmenitiesSelector: React.FC<AmenitiesSelectorProps> = ({
                             key={amenity.id}
                             type="button"
                             onClick={() => toggleAmenity(amenity.id)}
-                            className={`group p-4 flex items-center gap-3 border-2 rounded-md transition 
+                            className={`group p-4 flex items-center gap-3 border rounded-sm transition
         ${selectedAmenities.includes(amenity.id)
-                                    ? "bg-black text-white"
-                                    : "bg-gray-100 text-gray-700 dark:bg-neutral-700 dark:text-neutral-300 hover:bg-black hover:text-white"
+                                    ? "border-ink bg-ink text-white"
+                                    : "border-hairline text-ink hover:border-ink"
                                 }`}
                         >
                             <IconComponent {...ICON_PROPS} /> {/* ✅ Icon will change color on hover */}
@@ -59,7 +59,7 @@ const AmenitiesSelector: React.FC<AmenitiesSelectorProps> = ({
                 value={selectedAmenities.join(",")}
             />
             {errors.amenities && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-error text-sm mt-1">
                     Please select at least one amenity.
                 </p>
             )}

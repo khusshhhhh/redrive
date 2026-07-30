@@ -85,64 +85,64 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     const totalFees = totalPrice + redriveFee + serviceFee + insuranceFee + upfrontCleaningFee; // include cleaning fee if charged now
 
     return (
-        <div className="bg-white dark:bg-neutral-800 shadow-none md:shadow-lg shadow-gray-600/20 rounded-xl border-[1px] border-neutral-200 dark:border-neutral-700 overflow-hidden mt-10 md:mt-0">
+        <div className="bg-white shadow-card rounded-md border border-hairline-soft overflow-hidden mt-10 md:mt-0">
             <div className="flex flex-row items-center gap-1 p-4">
-                <div className="text-2xl font-semibold">$ {price}</div>
-                <div className="font-light text-neutral-600 dark:text-neutral-400">per day</div>
+                <div className="text-display-md font-semibold text-ink">$ {price}</div>
+                <div className="font-normal text-muted">per day</div>
             </div>
-            <hr />
+            <hr className="border-hairline-soft" />
             <Calendar value={dateRange} disabledDates={disabledDates} onChange={(value) => onChangeDate(value.selection)} />
-            <hr />
-            <div className="mt-2 p-4 flex flex-col">
-                <div className='font-bold mb-4'>Basic Pricing</div>
-                <div className="flex flex-row items-center justify-between font-normal text-base">
+            <hr className="border-hairline-soft" />
+            <div className="mt-2 p-4 flex flex-col text-ink">
+                <div className='font-semibold mb-4'>Basic Pricing</div>
+                <div className="flex flex-row items-center justify-between font-normal text-body-sm">
                     <div>Reservation Cost</div>
                     <div className="font-normal">AU$ {totalPrice}</div>
                 </div>
-                <div className="mt-2 flex flex-row items-center justify-between font-normal text-base">
+                <div className="mt-2 flex flex-row items-center justify-between font-normal text-body-sm">
                     <div>Service Fee</div>
                     <div className="font-normal">AU$ {serviceFee}</div>
                 </div>
-                <div className="mt-2 flex flex-row items-center justify-between font-normal text-base">
+                <div className="mt-2 flex flex-row items-center justify-between font-normal text-body-sm">
                     <div>Redrive Fees</div>
                     <div className="font-normal">AU$ {redriveFee}</div>
                 </div>
                 {upfrontCleaningFee > 0 && (
-                    <div className="mt-2 flex flex-row items-center justify-between font-normal text-base">
+                    <div className="mt-2 flex flex-row items-center justify-between font-normal text-body-sm">
                         <div>Cleaning Fee</div>
                         <div className="font-normal">AU$ {upfrontCleaningFee}</div>
                     </div>
                 )}
                 {returnCleaningFee > 0 && (
-                    <div className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                    <div className="mt-2 text-sm text-muted">
                         Cleaning fee of AU$ {returnCleaningFee} will be charged upon return.
                     </div>
                 )}
-                <hr className="mt-6" />
+                <hr className="mt-6 border-hairline-soft" />
 
                 {/* ✅ Styled Insurance Options */}
                 <div className="mt-6">
-                    <div className="font-bold mb-4">Insurance Options</div>
+                    <div className="font-semibold mb-4">Insurance Options</div>
                     <div className="flex flex-col space-y-3 relative">
                         {Object.keys(insuranceDetails).map((type) => (
-                            <label key={type} className="flex flex-row gap-3 items-center cursor-pointer transition-all duration-300 hover:border-black">
+                            <label key={type} className="flex flex-row gap-3 items-center cursor-pointer transition-all duration-300">
                                 <input type="radio" name="insurance" value={type} checked={insuranceType === type} onChange={() => handleInsuranceChange(type, type === "Risk Taker" ? 20 : type === "Happy Driver" ? 40 : 0)} className="hidden" />
-                                <div className={`mt-1 w-4 h-4 flex justify-center items-center border-2 rounded-full transition-all duration-300 ${insuranceType === type ? "border-black bg-black dark:border-neutral-200 dark:bg-neutral-200" : "border-gray-400 bg-white dark:border-neutral-600 dark:bg-neutral-800"}`}>{insuranceType === type && <div className="w-2 h-2 bg-white dark:bg-neutral-900 rounded-full"></div>}</div>
+                                <div className={`mt-1 w-4 h-4 flex justify-center items-center border-2 rounded-full transition-all duration-300 ${insuranceType === type ? "border-ink bg-ink" : "border-hairline bg-white"}`}>{insuranceType === type && <div className="w-2 h-2 bg-white rounded-full"></div>}</div>
                                 <div className="flex flex-row items-center gap-3">
-                                    <span className="text-base font-medium">{type}</span>
+                                    <span className="text-body-sm font-medium">{type}</span>
                                     <button type="button" onClick={() => setInfoPopup(infoPopup === type ? null : type)}>
-                                        <Info size={16} className="text-gray-500 hover:text-black dark:text-neutral-400 dark:hover:text-neutral-100" />
+                                        <Info size={16} className="text-muted hover:text-ink" />
                                     </button>
                                 </div>
                             </label>
                         ))}
                         {infoPopup && (
-                            <Card className="absolute left-2 p-4 w-72 max-w-[calc(100vw-2rem)] shadow-lg z-10 bg-white dark:bg-neutral-800 border dark:border-neutral-700 rounded-lg" onClose={() => setInfoPopup(null)}>
+                            <Card className="absolute left-2 p-4 w-72 max-w-[calc(100vw-2rem)] z-10" onClose={() => setInfoPopup(null)}>
                                 <CardContent>
-                                    <div className="font-medium text-lg mb-2">{infoPopup}</div>
-                                    <div className="text-sm text-gray-600 dark:text-neutral-400">{insuranceDetails[infoPopup].description}</div>
-                                    {insuranceDetails[infoPopup].excess && <div className="text-sm text-gray-600 dark:text-neutral-400 mt-1">{insuranceDetails[infoPopup].excess}</div>}
-                                    <div className="text-sm font-semibold mt-2">{insuranceDetails[infoPopup].price}</div>
+                                    <div className="font-medium text-lg mb-2 text-ink">{infoPopup}</div>
+                                    <div className="text-sm text-muted">{insuranceDetails[infoPopup].description}</div>
+                                    {insuranceDetails[infoPopup].excess && <div className="text-sm text-muted mt-1">{insuranceDetails[infoPopup].excess}</div>}
+                                    <div className="text-sm font-semibold mt-2 text-ink">{insuranceDetails[infoPopup].price}</div>
                                 </CardContent>
                             </Card>
                         )}
@@ -151,13 +151,13 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
 
 
 
-                <hr className="mt-6" />
-                <div className="mt-6 flex flex-row items-center justify-between font-bold text-base">
+                <hr className="mt-6 border-hairline-soft" />
+                <div className="mt-6 flex flex-row items-center justify-between font-semibold text-body-sm">
                     <div>Total</div>
                     <div>AU$ {totalFees}</div>
                 </div>
             </div>
-            <hr />
+            <hr className="border-hairline-soft" />
             <div className="p-4">
                 <Button
                     disabled={disabled}

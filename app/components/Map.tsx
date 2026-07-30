@@ -64,7 +64,7 @@ const Map: React.FC<MapProps> = memo(({ suburb, state, latitude, longitude }) =>
             {mapLocation ? (
                 <div ref={mapRef} className="h-[45vh] rounded-lg w-full" />
             ) : (
-                <p className="text-gray-500 dark:text-neutral-400 text-center">Map location is not available.</p>
+                <p className="text-muted text-center">Map location is not available.</p>
             )}
         </>
     );

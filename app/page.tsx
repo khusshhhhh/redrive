@@ -7,21 +7,20 @@ import Container from "./components/Container";
 import EmptyState from "./components/EmptyState";
 import ListingCard from "./components/listings/ListingCard";
 import RecentlyViewed from "./components/RecentlyViewed";
-// import FeatureTour, { useFeatureTour } from "./components/FeatureTour";
 import { headers } from "next/headers";
 
 const EXPLORE_CATEGORIES = [
-  { name: "Car", count: "1,200+", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300" },
-  { name: "Motorhomes", count: "850+", color: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300" },
-  { name: "Boats", count: "450+", color: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300" },
-  { name: "Bikes", count: "320+", color: "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300" },
-  { name: "Utes", count: "680+", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300" },
+  { name: "Car" },
+  { name: "Motorhomes" },
+  { name: "Boats" },
+  { name: "Bikes" },
+  { name: "Utes" },
 ];
 
 const POPULAR_DESTINATIONS = [
-  { city: "Sydney", state: "NSW", vehicles: "2,400+", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400" },
-  { city: "Melbourne", state: "VIC", vehicles: "1,800+", image: "https://images.unsplash.com/photo-1514395462725-fb4566210144?w=400" },
-  { city: "Brisbane", state: "QLD", vehicles: "1,200+", image: "https://images.unsplash.com/photo-1583684646989-46b3a04fcd3d?w=400" },
+  { city: "Sydney", state: "NSW", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400" },
+  { city: "Melbourne", state: "VIC", image: "https://images.unsplash.com/photo-1514395462725-fb4566210144?w=400" },
+  { city: "Brisbane", state: "QLD", image: "https://images.unsplash.com/photo-1583684646989-46b3a04fcd3d?w=400" },
 ];
 
 interface HomeProps {
@@ -47,34 +46,25 @@ const Home = async ({ searchParams }: HomeProps) => {
 
   // Check if any filters are applied
   const hasFilters = Object.values(params).some(value => value !== undefined && value !== '');
-  
+
   return (
     <ClientOnly>
       <Container>
-        <div className="pt-24 space-y-6">
+        <div className="pt-8 space-y-12">
           {/* Recently Viewed - only for returning visitors with browsing history */}
           {!hasFilters && <RecentlyViewed currentUser={currentUser} />}
 
           {/* Results Header */}
           {hasFilters && (
-            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-neutral-100">
-                    {listings.length === 0 ? 'No vehicles found' : `${listings.length} vehicle${listings.length !== 1 ? 's' : ''} found`}
-                  </h2>
-                  {listings.length > 0 && (
-                    <p className="text-sm text-gray-600 dark:text-neutral-400 mt-1">
-                      Showing results for your search criteria
-                    </p>
-                  )}
-                </div>
-                {listings.length > 0 && (
-                  <div className="text-sm text-gray-500 dark:text-neutral-400">
-                    Sorted by relevance
-                  </div>
-                )}
-              </div>
+            <div>
+              <h2 className="text-display-sm font-semibold text-ink">
+                {listings.length === 0 ? 'No vehicles found' : `${listings.length} vehicle${listings.length !== 1 ? 's' : ''} found`}
+              </h2>
+              {listings.length > 0 && (
+                <p className="text-sm text-muted mt-1">
+                  Showing results for your search criteria
+                </p>
+              )}
             </div>
           )}
 
@@ -82,7 +72,7 @@ const Home = async ({ searchParams }: HomeProps) => {
           {listings.length === 0 ? (
             <EmptyState showReset />
           ) : (
-            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
+            <div>
               <div className="
                 grid
                 grid-cols-1
@@ -91,7 +81,7 @@ const Home = async ({ searchParams }: HomeProps) => {
                 lg:grid-cols-4
                 xl:grid-cols-5
                 2xl:grid-cols-6
-                gap-6
+                gap-x-4 gap-y-8
               ">
                 {listings.map((listing) => (
                   <ListingCard
@@ -105,7 +95,7 @@ const Home = async ({ searchParams }: HomeProps) => {
               {/* Load More Button - if there are many results */}
               {listings.length >= 20 && (
                 <div className="mt-8 text-center">
-                  <button className="bg-limespark text-graphite font-semibold px-6 py-3 rounded-lg hover:opacity-90 transition-colors">
+                  <button className="bg-white border border-ink text-ink font-medium px-6 py-3 rounded-sm hover:bg-surface-soft transition-colors">
                     Load More Vehicles
                   </button>
                 </div>
@@ -115,10 +105,10 @@ const Home = async ({ searchParams }: HomeProps) => {
 
           {/* Additional sections for non-filtered homepage */}
           {!hasFilters && listings.length > 0 && (
-            <div className="space-y-6">
+            <div className="space-y-12">
               {/* Featured Categories */}
-              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-4">
+              <div>
+                <h3 className="text-display-sm font-semibold text-ink mb-4">
                   Explore Categories
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -126,20 +116,17 @@ const Home = async ({ searchParams }: HomeProps) => {
                     <Link
                       key={category.name}
                       href={`/?category=${encodeURIComponent(category.name)}`}
-                      className="text-center p-4 bg-gray-50 dark:bg-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-600 rounded-lg cursor-pointer transition-colors"
+                      className="text-center p-6 bg-surface-soft hover:bg-surface-strong rounded-md cursor-pointer transition-colors"
                     >
-                      <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${category.color} mb-2`}>
-                        {category.count}
-                      </div>
-                      <div className="font-medium text-gray-900 dark:text-neutral-100">{category.name}</div>
+                      <div className="font-semibold text-ink">{category.name}</div>
                     </Link>
                   ))}
                 </div>
               </div>
 
               {/* Popular Locations */}
-              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-4">
+              <div>
+                <h3 className="text-display-sm font-semibold text-ink mb-4">
                   Popular Destinations
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -147,7 +134,7 @@ const Home = async ({ searchParams }: HomeProps) => {
                     <Link
                       key={location.city}
                       href={`/?state=${location.state}`}
-                      className="relative overflow-hidden rounded-lg cursor-pointer group block"
+                      className="relative overflow-hidden rounded-md cursor-pointer group block"
                       style={{ aspectRatio: '16/9' }}
                     >
                       <Image
@@ -157,10 +144,9 @@ const Home = async ({ searchParams }: HomeProps) => {
                         sizes="(max-width: 768px) 100vw, 33vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end">
+                      <div className="absolute inset-0 bg-black bg-opacity-30 flex items-end">
                         <div className="p-4 text-white">
-                          <h4 className="text-xl font-semibold">{location.city}</h4>
-                          <p className="text-sm opacity-90">{location.vehicles} vehicles</p>
+                          <h4 className="text-title-md font-semibold">{location.city}</h4>
                         </div>
                       </div>
                     </Link>

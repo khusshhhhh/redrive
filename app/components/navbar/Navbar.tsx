@@ -20,7 +20,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
   const showSearchBar = !pathname.startsWith("/confirm-reservation");
 
   return (
-    <div className="fixed w-full bg-white dark:bg-neutral-900 dark:border-b dark:border-neutral-800 z-10 shadow-sm">
+    <div className="fixed w-full bg-white z-10 border-b border-hairline">
       <div className="py-3">
         <Container>
           <div className="flex flex-row items-center justify-between gap-3 md:gap-0">

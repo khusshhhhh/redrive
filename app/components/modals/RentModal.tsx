@@ -319,7 +319,7 @@ const RentModal = () => {
                 <div className="flex flex-col gap-8">
                     {/* ✅ State Selector */}
                     <div>
-                        <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2">
+                        <label className="block text-ink text-sm font-semibold mb-2">
                             State
                         </label>
                         <StateSelector
@@ -330,7 +330,7 @@ const RentModal = () => {
 
                     {/* ✅ Suburb Selector (Dynamically updates based on state) */}
                     <div>
-                        <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2">
+                        <label className="block text-ink text-sm font-semibold mb-2">
                             Suburb
                         </label>
                         <SuburbSelector
@@ -342,7 +342,7 @@ const RentModal = () => {
 
                     {/* ✅ Google Places Autocomplete for Address */}
                     <div>
-                        <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2">
+                        <label className="block text-ink text-sm font-semibold mb-2">
                             Number & Street Address
                         </label>
                         <Input
@@ -411,7 +411,7 @@ const RentModal = () => {
                 />
                 <label
                     htmlFor="listingImages"
-                    className="cursor-pointer p-4 border-2 border-dashed rounded-lg text-center text-gray-600 dark:text-neutral-400 dark:border-neutral-600"
+                    className="cursor-pointer p-4 border-2 border-dashed rounded-sm text-center text-muted hover:border-ink transition"
                 >
                     {uploading ? "Uploading..." : "Click to Upload Listing Images"}
                 </label>
@@ -419,7 +419,7 @@ const RentModal = () => {
                 {/* ✅ Show Uploading Spinner */}
                 {uploading && (
                     <div className="flex justify-center items-center">
-                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-600 dark:border-neutral-400"></div>
+                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-ink"></div>
                     </div>
                 )}
 
@@ -427,7 +427,7 @@ const RentModal = () => {
                 {imageSrcs.length > 0 && (
                     <div className="grid grid-cols-3 gap-2 overflow-hidden">
                         {imageSrcs.map((src, index) => (
-                            src ? (  // ✅ Only Render if src Exists
+                            src ? ( // ✅ Only Render if src Exists
                                 <div key={index} className="relative w-full aspect-square group">
                                     <Image
                                         alt={`Uploaded Image ${index + 1}`}
@@ -439,7 +439,7 @@ const RentModal = () => {
                                     {/* ✅ Delete Button Appears on Hover */}
                                     <button
                                         onClick={() => removeImage(index)}
-                                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
+                                        className="absolute top-2 right-2 bg-error text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
                                     >
                                         <IconX size={20} />
                                     </button>
@@ -535,7 +535,7 @@ const RentModal = () => {
                         disabled={isLoading}
                         register={register}
                         errors={errors}
-                        required={false}  // ✅ This field is optional
+                        required={false} // ✅ This field is optional
                     />
                 </div>
             </div>
@@ -596,7 +596,7 @@ const RentModal = () => {
 
                 {/* ✅ Registration Expiry Date */}
                 <div>
-                    <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2">Registration Expiry Date</label>
+                    <label className="block text-ink text-sm font-semibold mb-2">Registration Expiry Date</label>
                     <div className="mt-4">
                         <DateSelector
                             value={regoEndDate}
@@ -613,14 +613,14 @@ const RentModal = () => {
                     className="hidden"
                     id="regoDocument"
                 />
-                <label htmlFor="regoDocument" className="cursor-pointer p-4 border-2 border-dashed rounded-lg text-center text-gray-600 dark:text-neutral-400 dark:border-neutral-600">
+                <label htmlFor="regoDocument" className="cursor-pointer p-4 border-2 border-dashed rounded-sm text-center text-muted hover:border-ink transition">
                     {uploadingRego ? "Uploading..." : "Click to Upload Legal Document"}
                 </label>
 
                 {/* ✅ Show Uploading Spinner */}
                 {uploadingRego && (
                     <div className="flex justify-center items-center">
-                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-600 dark:border-neutral-400"></div>
+                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-ink"></div>
                     </div>
                 )}
 
@@ -631,7 +631,7 @@ const RentModal = () => {
                         {/* ✅ Delete Button */}
                         <button
                             onClick={removeRegoImage}
-                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-100 hover:opacity-80 transition"
+                            className="absolute top-2 right-2 bg-error text-white p-1 rounded-full opacity-100 hover:opacity-80 transition"
                         >
                             <IconX size={20} />
                         </button>
@@ -671,10 +671,11 @@ const RentModal = () => {
                     title="Cleaning Fees"
                     subtitle="Do you want charge the customer for cleaning fees?"
                 />
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 text-ink">
                     <label className="flex items-center gap-2">
                         <input
                             type="radio"
+                            className="accent-ink"
                             value="YES"
                             checked={cleaningFeeOption === 'YES'}
                             onChange={() => setCustomValue('cleaningFeeOption', 'YES')}
@@ -684,6 +685,7 @@ const RentModal = () => {
                     <label className="flex items-center gap-2">
                         <input
                             type="radio"
+                            className="accent-ink"
                             value="NO"
                             checked={cleaningFeeOption === 'NO'}
                             onChange={() => setCustomValue('cleaningFeeOption', 'NO')}
@@ -693,6 +695,7 @@ const RentModal = () => {
                     <label className="flex items-center gap-2">
                         <input
                             type="radio"
+                            className="accent-ink"
                             value="UPON_RETURNING"
                             checked={cleaningFeeOption === 'UPON_RETURNING'}
                             onChange={() => setCustomValue('cleaningFeeOption', 'UPON_RETURNING')}
@@ -713,7 +716,7 @@ const RentModal = () => {
                 )}
                 {cleaningFeeOption === 'UPON_RETURNING' && (
                     <div className="flex flex-col gap-2">
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                        <p className="text-sm text-muted">
                             User can add desired amount to charge when the utility is returned.
                         </p>
                         <Input

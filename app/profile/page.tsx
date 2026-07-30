@@ -165,29 +165,29 @@ export default function Profile() {
             <Toaster />
             {isLoading ? (
                 <div className="max-w-2xl mx-auto p-6 mt-10 animate-pulse space-y-6">
-                    <div className="h-8 bg-gray-200 dark:bg-neutral-700 rounded w-1/3 mx-auto" />
+                    <div className="h-8 bg-surface-soft rounded w-1/3 mx-auto" />
                     <div className="flex flex-col items-center gap-2">
-                        <div className="w-[100px] h-[100px] rounded-full bg-gray-200 dark:bg-neutral-700" />
-                        <div className="h-4 w-1/2 bg-gray-200 dark:bg-neutral-700 rounded" />
+                        <div className="w-[100px] h-[100px] rounded-full bg-surface-soft" />
+                        <div className="h-4 w-1/2 bg-surface-soft rounded" />
                     </div>
                     <div className="space-y-4">
                         {Array.from({ length: 8 }).map((_, i) => (
-                            <div key={i} className="h-4 bg-gray-200 dark:bg-neutral-700 rounded" />
+                            <div key={i} className="h-4 bg-surface-soft rounded" />
                         ))}
                     </div>
                 </div>
             ) : (
-                <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-neutral-900 mt-10">
-                    <h2 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2 dark:text-neutral-100">
+                <div className="max-w-2xl mx-auto p-6 md:p-8 bg-white shadow-card rounded-md border border-hairline-soft my-10">
+                    <h2 className="text-display-sm font-semibold mb-6 text-center text-ink flex items-center justify-center gap-2">
                         Hey, {userName}
-                        {profileVerified === "Y" && <FaCheck className="text-graphite dark:text-limespark" size={20} />}
+                        {profileVerified === "Y" && <FaCheck className="text-ink" size={20} />}
                     </h2>
 
                     {/* ✅ Profile Image (Click to Change) */}
                     <div className="mb-6 flex flex-col items-center">
-                        <h4 className="text-lg font-semibold mb-2 dark:text-neutral-100">Profile Picture</h4>
+                        <h4 className="text-title-sm font-semibold mb-2 text-ink">Profile Picture</h4>
                         <div
-                            className="w-[100px] h-[100px] rounded-full overflow-hidden border dark:border-neutral-700 cursor-pointer hover:opacity-80 transition"
+                            className="w-[100px] h-[100px] rounded-full overflow-hidden border border-hairline cursor-pointer hover:opacity-80 transition"
                             onClick={() => setTriggerUpload(true)}
                         >
                             <img src={image} alt="Profile" className="w-full h-full object-cover" />
@@ -202,19 +202,19 @@ export default function Profile() {
                         {/* ✅ Basic Information */}
                         <div className="flex flex-col mb-8 gap-6">
                             <div>
-                                <h4 className="text-xl font-semibold dark:text-neutral-100">Basic Information</h4>
+                                <h4 className="text-display-md font-semibold text-ink">Basic Information</h4>
                             </div>
                             <div className="flex flex-col gap-6">
                                 <div>
-                                    <label className="text-sm text-gray-600 dark:text-neutral-400">Name</label>
+                                    <label className="text-sm text-muted">Name</label>
                                     <Input id="name" label="" register={register} required errors={errors} />
                                 </div>
                                 <div>
-                                    <label className="text-sm text-gray-600 dark:text-neutral-400">Email</label>
+                                    <label className="text-sm text-muted">Email</label>
                                     <Input id="email" label="" register={register} disabled errors={errors} />
                                 </div>
                                 <div>
-                                    <label className="text-sm text-gray-600 dark:text-neutral-400">Phone Number</label>
+                                    <label className="text-sm text-muted">Phone Number</label>
                                     <Input id="number" label="" register={register} errors={errors} />
                                 </div>
                             </div>
@@ -222,17 +222,17 @@ export default function Profile() {
 
                         {/* ✅ Address Section with Select Inputs */}
                         <div className="flex flex-col mt-8">
-                            <h4 className="text-xl font-semibold dark:text-neutral-100">Address</h4>
+                            <h4 className="text-display-md font-semibold text-ink">Address</h4>
 
                             <div className="flex flex-col gap-6">
                                 <div>
-                                    <label className="text-sm text-gray-600 dark:text-neutral-400">Address Line</label>
+                                    <label className="text-sm text-muted">Address Line</label>
                                     <Input id="streetAddress" label="" register={register} errors={errors} />
                                 </div>
 
                                 {/* ✅ State Selector */}
                                 <div>
-                                    <label className="text-sm text-gray-600 dark:text-neutral-400">State</label>
+                                    <label className="text-sm text-muted">State</label>
                                     <StateSelector
                                         value={selectedState}
                                         onChange={(selected) => {
@@ -247,7 +247,7 @@ export default function Profile() {
 
                                 {/* ✅ Suburb Selector */}
                                 <div>
-                                    <label className="text-sm text-gray-600 dark:text-neutral-400">Suburb</label>
+                                    <label className="text-sm text-muted">Suburb</label>
                                     <SuburbSelector
                                         state={selectedState?.value}
                                         value={selectedSuburb}
@@ -260,7 +260,7 @@ export default function Profile() {
                                 </div>
 
                                 <div>
-                                    <label className="text-sm text-gray-600 dark:text-neutral-400">Postcode</label>
+                                    <label className="text-sm text-muted">Postcode</label>
                                     <Input id="postcode" label="" register={register} errors={errors} disabled />
                                 </div>
                             </div>
@@ -270,29 +270,29 @@ export default function Profile() {
 
                         <div className="flex flex-col mt-8">
                             <div>
-                                <h4 className="text-xl font-semibold dark:text-neutral-100">Tell us something!</h4>
+                                <h4 className="text-display-md font-semibold text-ink">Tell us something!</h4>
                             </div>
                             <div className="flex flex-col gap-6">
                                 <div>
-                                    <label className="text-sm text-gray-600 dark:text-neutral-400">Hobbies</label>
+                                    <label className="text-sm text-muted">Hobbies</label>
                                     <Input id="hobbies" label="" register={register} errors={errors} />
                                 </div>
                                 <div>
-                                    <label className="text-sm text-gray-600 dark:text-neutral-400">Dream Places to Visit</label>
+                                    <label className="text-sm text-muted">Dream Places to Visit</label>
                                     <input
                                         type="text"
                                         value={cityInput}
                                         onChange={(e) => setCityInput(e.target.value)}
                                         placeholder="Select cities..."
-                                        className="w-full mb-4 p-4 border-neutral-300 dark:border-neutral-600 border-[2px] rounded-md mt-1 dark:bg-neutral-800 dark:text-neutral-100"
+                                        className="w-full mb-4 p-4 border-hairline border rounded-sm mt-1 focus:border-ink focus:border-2 outline-none text-ink"
                                     />
                                     {/* Show Suggestions */}
                                     {suggestedCities.length > 0 && (
-                                        <ul className="border dark:border-neutral-700 mt-1 bg-white dark:bg-neutral-800 shadow-lg max-h-40 overflow-auto rounded-md">
+                                        <ul className="border border-hairline mt-1 bg-white shadow-card max-h-40 overflow-auto rounded-sm">
                                             {suggestedCities.map((city, index) => (
                                                 <li
                                                     key={index}
-                                                    className="p-2 hover:bg-gray-200 dark:hover:bg-neutral-700 dark:text-neutral-100 cursor-pointer"
+                                                    className="p-2 hover:bg-surface-soft cursor-pointer text-ink"
                                                     onClick={() => addCity(city)}
                                                 >
                                                     {city}
@@ -303,11 +303,11 @@ export default function Profile() {
                                     {/* Selected Cities */}
                                     <div className="mt-2 flex flex-wrap gap-2">
                                         {selectedCities.map((city, index) => (
-                                            <div key={index} className="bg-limespark/20 dark:bg-limespark/10 text-graphite dark:text-neutral-100 px-3 py-1 rounded-full flex items-center">
+                                            <div key={index} className="bg-surface-strong text-ink px-3 py-1 rounded-full flex items-center">
                                                 {city}
                                                 <button
                                                     onClick={() => removeCity(city)}
-                                                    className="ml-2 text-red-500"
+                                                    className="ml-2 text-error"
                                                 >
                                                     ✕
                                                 </button>
@@ -320,11 +320,11 @@ export default function Profile() {
 
                         {/* ✅ License Verification */}
                         <div className="mt-8">
-                            <h4 className="text-xl font-semibold dark:text-neutral-100">License Verification</h4>
+                            <h4 className="text-display-md font-semibold text-ink">License Verification</h4>
                             <select
                                 value={licenseType}
                                 onChange={(e) => setLicenseType(e.target.value)}
-                                className="w-full p-4 border dark:border-neutral-600 rounded-md mt-1 dark:bg-neutral-800 dark:text-neutral-100"
+                                className="w-full p-4 border border-hairline rounded-sm mt-1 text-ink focus:border-ink focus:border-2 outline-none"
                             >
                                 <option>Driver License</option>
                                 <option>Boat License</option>

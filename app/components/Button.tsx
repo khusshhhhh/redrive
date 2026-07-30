@@ -25,6 +25,7 @@ const Button: React.FC<ButtonProps> = ({
     outline,
     small,
     icon: Icon,
+    className,
     ...props
 }) => {
     const [loading, setLoading] = useState(false);
@@ -45,17 +46,16 @@ const Button: React.FC<ButtonProps> = ({
         <button
             onClick={handleClick}
             disabled={disabled || loading}
-            className={`relative flex items-center justify-center gap-2 my-4 disabled:opacity-70 disabled:cursor-not-allowed rounded-lg hover:opacity-80 transition w-full
-                ${outline ? 'bg-white dark:bg-neutral-800' : 'bg-limespark'}
-                ${outline ? 'border-black dark:border-neutral-400' : 'border-limespark'}
-                ${outline ? 'text-black dark:text-neutral-100' : 'text-graphite font-semibold'}
-                ${small ? 'py-1 text-sm font-light border-[1px]' : 'py-3 text-md font-semibold border-2'}`}
+            className={`relative flex items-center justify-center gap-2 my-2 disabled:opacity-70 disabled:cursor-not-allowed rounded-sm transition w-full font-medium
+                ${outline ? 'bg-white border border-ink text-ink hover:bg-surface-soft' : 'bg-primary border border-primary text-white hover:bg-primary-active'}
+                ${small ? 'py-2 text-button-sm h-10' : 'py-3 text-button-md h-12'}
+                ${className || ''}`}
             {...props}
         >
             {loading ? (
                 <DotLoader
                     size={small ? "sm" : "md"}
-                    color={outline ? "#000000" : "#23262F"}
+                    color={outline ? "#222222" : "#ffffff"}
                 />
             ) : Icon ? (
                 <Icon size={24} className="absolute left-4 top-1/2 transform -translate-y-1/2" />

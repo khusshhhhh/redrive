@@ -69,7 +69,7 @@ const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onCh
                 isDisabled={!state || loading}
             />
 
-            {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
+            {error && <p className="text-error mt-2 text-sm">{error}</p>}
         </div>
     );
 });

@@ -97,11 +97,11 @@ const RegisterModal = () => {
 
     // Validation rule component
     const ValidationRule = ({ isValid, text }: { isValid: boolean; text: string }) => (
-        <div className={`flex items-center gap-2 text-sm ${isValid ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-neutral-400'}`}>
-            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
+        <div className={`flex items-center gap-2 text-sm ${isValid ? 'text-ink' : 'text-muted'}`}>
+            <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-xs font-bold ${
                 isValid
-                    ? 'bg-green-100 border-green-500 text-green-600 dark:bg-green-900/40 dark:border-green-500 dark:text-green-400'
-                    : 'bg-gray-100 border-gray-300 text-gray-400 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-500'
+                    ? 'bg-ink border-ink text-white'
+                    : 'bg-surface-soft border-hairline text-muted-soft'
             }`}>
                 {isValid ? '✓' : '✕'}
             </span>
@@ -158,15 +158,15 @@ const RegisterModal = () => {
                 <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute inset-y-0 right-4 flex items-center text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-300"
+                    className="absolute inset-y-0 right-4 flex items-center text-muted hover:text-ink"
                 >
                     <span className="text-lg">{showPassword ? '🙈' : '👁️'}</span>
                 </button>
             </div>
 
             {/* Live Password Validation Feedback */}
-            <div className="bg-gray-50 p-4 rounded-lg border dark:bg-neutral-800 dark:border-neutral-700">
-                <div className="text-sm font-medium text-gray-700 mb-3 dark:text-neutral-300">Password Requirements:</div>
+            <div className="bg-surface-soft p-4 rounded-sm border border-hairline">
+                <div className="text-sm font-medium text-ink mb-3">Password Requirements:</div>
                 <div className="space-y-2">
                     <ValidationRule 
                         isValid={passwordValidation.minLength} 
@@ -187,7 +187,7 @@ const RegisterModal = () => {
                 </div>
             </div>
 
-            {errors.password && <p className="text-red-500 text-sm">{errors.password?.message as string}</p>}
+            {errors.password && <p className="text-error text-sm">{errors.password?.message as string}</p>}
 
             {/* Confirm Password Field */}
             <div className='relative'>
@@ -206,13 +206,13 @@ const RegisterModal = () => {
                 <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute inset-y-0 right-4 flex items-center text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-300"
+                    className="absolute inset-y-0 right-4 flex items-center text-muted hover:text-ink"
                 >
                     <span className="text-lg">{showPassword ? '🙈' : '👁️'}</span>
                 </button>
             </div>
 
-            {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword?.message as string}</p>}
+            {errors.confirmPassword && <p className="text-error text-sm">{errors.confirmPassword?.message as string}</p>}
         </div>
     );
 
@@ -228,10 +228,10 @@ const RegisterModal = () => {
                 onClick={handleGoogleSignIn}
             />
 
-            <div className="text-neutral-500 dark:text-neutral-400 text-center mt-4 font-light">
+            <div className="text-muted text-center mt-4 font-normal">
                 <div className="justify-center flex flex-row items-center gap-4 mb-6">
                     <div>Already have an account?</div>
-                    <div onClick={toggle} className="text-neutral-800 dark:text-neutral-300 cursor-pointer hover:underline">
+                    <div onClick={toggle} className="text-ink font-semibold cursor-pointer hover:underline">
                         Log in to account
                     </div>
                 </div>

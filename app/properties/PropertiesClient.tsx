@@ -55,7 +55,7 @@ const PropertiesClient: React.FC<PropertiesClientProps> = ({
                         />
                     ))
                 ) : (
-                    <p className="text-gray-500 dark:text-neutral-400 text-center col-span-full">No listings available.</p>
+                    <p className="text-muted text-center col-span-full">No listings available.</p>
                 )}
             </div>
         </Container>

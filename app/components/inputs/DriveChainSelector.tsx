@@ -38,7 +38,7 @@ const DriveChainSelector: React.FC<DriveChainSelectorProps> = ({
 
     return (
         <div className="w-full">
-            <label className="text-md text-neutral-500 dark:text-neutral-400 mb-2 block">{label}</label>
+            <label className="text-body-sm text-muted mb-2 block">{label}</label>
             <div className="grid grid-cols-2 gap-4">
                 {DRIVE_CHAIN_OPTIONS.map(({ label: driveChainLabel, icon }) => (
                     <button
@@ -46,9 +46,9 @@ const DriveChainSelector: React.FC<DriveChainSelectorProps> = ({
                         type="button"
                         disabled={disabled}
                         onClick={() => handleDriveChainSelection(driveChainLabel)}
-                        className={`flex items-center justify-center gap-2 py-3 px-4 text-center rounded-md transition
-                            ${selectedDriveChain === driveChainLabel ? "bg-black text-white" : "bg-gray-200 text-gray-700 dark:bg-neutral-700 dark:text-neutral-300"}
-                            ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-black hover:text-white"}
+                        className={`flex items-center justify-center gap-2 py-3 px-4 text-center rounded-sm border transition
+                            ${selectedDriveChain === driveChainLabel ? "border-ink bg-ink text-white" : "border-hairline text-ink"}
+                            ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-ink"}
                         `}
                     >
                         {icon} {driveChainLabel}
@@ -57,7 +57,7 @@ const DriveChainSelector: React.FC<DriveChainSelectorProps> = ({
             </div>
 
             {errors[id] && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-error text-sm mt-1">
                     {label} is required
                 </p>
             )}

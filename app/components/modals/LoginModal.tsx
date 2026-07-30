@@ -94,7 +94,7 @@ const LoginModal = () => {
                 <button
                     type="button"
                     onClick={togglePasswordVisibility} // Click to toggle visibility
-                    className="absolute inset-y-0 right-4 flex items-center text-gray-500 dark:text-neutral-400"
+                    className="absolute inset-y-0 right-4 flex items-center text-muted"
                 >
                     {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />} {/* Toggle icons */}
                 </button>
@@ -111,13 +111,13 @@ const LoginModal = () => {
                 icon={FcGoogle}
                 onClick={async () => { await signIn('google'); }}
             />
-            <div className="text-neutral-500 dark:text-neutral-400 text-center mt-4 font-light">
+            <div className="text-muted text-center mt-4 font-normal">
 
                 <div className="justify-center flex flex-row items-center gap-4 mb-6">
-                    <div className='text-neutral-800 dark:text-neutral-300 font-regular'>
+                    <div className='text-ink font-normal'>
                         First time using Redrive?
                     </div>
-                    <div onClick={toggle} className="text-neutral-800 dark:text-neutral-300 font-bold cursor-pointer hover:underline">
+                    <div onClick={toggle} className="text-ink font-semibold cursor-pointer hover:underline">
                         Create an account
                     </div>
                 </div>

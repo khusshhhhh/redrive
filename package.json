@@ -40,7 +40,6 @@
     "mongodb": "^6.21.0",
     "next-auth": "^4.24.11",
     "next-cloudinary": "^6.16.0",
-    "next-themes": "^0.4.4",
     "query-string": "^9.1.1",
     "react": "^19.0.0",
     "react-date-range": "^2.0.1",

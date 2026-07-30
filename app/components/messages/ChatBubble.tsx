@@ -21,19 +21,19 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, isOwn, otherUserId, pe
       <div
         className={`px-3 py-2 rounded-2xl max-w-[80%] sm:max-w-xs animate-pop ${
           isOwn
-            ? "bg-limespark text-graphite rounded-br-sm"
-            : "bg-gray-100 dark:bg-neutral-700 dark:text-neutral-100 rounded-bl-sm"
+            ? "bg-primary text-white rounded-br-sm"
+            : "bg-surface-soft text-ink rounded-bl-sm"
         } ${pending ? "opacity-60" : ""}`}
       >
         {message.imageUrl && (
-          <div className="relative w-48 h-48 mb-1 rounded-lg overflow-hidden">
+          <div className="relative w-48 h-48 mb-1 rounded-md overflow-hidden">
             <Image src={message.imageUrl} alt="Shared image" fill className="object-cover" />
           </div>
         )}
         {message.text && <div className="whitespace-pre-wrap break-words">{message.text}</div>}
         <div
           className={`flex items-center gap-1 mt-1 text-[10px] ${
-            isOwn ? "text-graphite/70 justify-end" : "text-gray-500 dark:text-neutral-400"
+            isOwn ? "text-white/70 justify-end" : "text-muted"
           }`}
         >
           <span>{format(new Date(message.createdAt), "p")}</span>

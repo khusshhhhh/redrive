@@ -65,15 +65,15 @@ export default function ConfirmReservation() {
     return (
         <Container>
             <Toaster />
-            <div className="max-w-3xl mx-auto sm:max-w-xl rounded-lg">
-                <h2 className="text-2xl font-semibold text-center mb-6 dark:text-neutral-100">Review Your Booking Request</h2>
+            <div className="max-w-3xl mx-auto sm:max-w-xl rounded-md">
+                <h2 className="text-display-sm font-semibold text-center text-ink mb-6">Review Your Booking Request</h2>
 
                 {/* Listing Details */}
                 {listing ? (
                     <>
                         <div className="flex flex-col gap-6">
                             {/* 🔹 Listing Image with Host Details */}
-                            <div className="relative w-full h-64 mb-6 rounded-lg overflow-hidden">
+                            <div className="relative w-full h-64 mb-6 rounded-md overflow-hidden">
                                 <img
                                     src={listing.imageSrcs?.[0] || "/images/placeholder.png"}
                                     alt="Listing"
@@ -106,7 +106,7 @@ export default function ConfirmReservation() {
                                     <span>{new Date(endDate!).toDateString()}</span>
                                 </div>
                             </div>
-                            <hr className="dark:border-neutral-700" />
+                            <hr className="border-hairline-soft" />
                             <div className="flex flex-col gap-3">
                                 {/* Pricing Breakdown */}
                                 <div className="font-bold mb-2">Basic Pricing</div>
@@ -129,12 +129,12 @@ export default function ConfirmReservation() {
                                     </div>
                                 )}
                                 {returnCleaningFee && Number(returnCleaningFee) > 0 && (
-                                    <div className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                                    <div className="text-sm text-muted mt-1">
                                         Cleaning fee of AU$ {returnCleaningFee} will be charged upon return.
                                     </div>
                                 )}
                             </div>
-                            <hr className="dark:border-neutral-700" />
+                            <hr className="border-hairline-soft" />
                             <div className="flex flex-col gap-3">
                                 {/* Insurance Details */}
                                 <div className="font-bold mb-2">Insurance Options</div>
@@ -149,7 +149,7 @@ export default function ConfirmReservation() {
                                     </div>
                                 )}
                             </div>
-                            <hr className="dark:border-neutral-700" />
+                            <hr className="border-hairline-soft" />
 
                             {/* Total Price */}
                             <div className="flex justify-between text-xl font-bold">
@@ -163,7 +163,7 @@ export default function ConfirmReservation() {
                             <div className="w-full">
                                 <button
                                     onClick={router.back}
-                                    className="w-full py-3 text-md font-semibold rounded-lg bg-white dark:bg-neutral-900 text-red-600 border-[2px] border-red-600 transition-all duration-300"
+                                    className="w-full py-3 text-md font-semibold rounded-sm bg-white text-error border border-error hover:bg-error hover:text-white transition-all duration-300"
                                 >
                                     Cancel
                                 </button>
@@ -171,7 +171,7 @@ export default function ConfirmReservation() {
                             <div className="w-full">
                                 <button
                                     onClick={handleConfirmBooking}
-                                    className="w-full py-3 text-md font-semibold rounded-lg bg-limespark text-graphite hover:opacity-90 transition-all duration-400"
+                                    className="w-full py-3 text-md font-semibold rounded-sm bg-primary text-white hover:bg-primary-active transition-all duration-300"
                                 >
                                     Request Booking
                                 </button>
@@ -181,9 +181,9 @@ export default function ConfirmReservation() {
                     </>
                 ) : (
                     <div className="animate-pulse space-y-4">
-                        <div className="h-64 w-full bg-gray-200 dark:bg-neutral-700 rounded-lg" />
+                        <div className="h-64 w-full bg-surface-soft rounded-md" />
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="h-4 bg-gray-200 dark:bg-neutral-700 rounded" />
+                            <div key={i} className="h-4 bg-surface-soft rounded" />
                         ))}
                     </div>
                 )}

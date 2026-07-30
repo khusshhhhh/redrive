@@ -48,20 +48,20 @@ const ListingImages = () => {
             {/* Back Button */}
             <button
                 onClick={() => router.back()}
-                className="mb-4 bg-white dark:bg-neutral-900 font-semibold text-black dark:text-neutral-100 border-[2px] border-black dark:border-neutral-600 hover:bg-black hover:text-white transition px-4 py-2 rounded-md"
+                className="mb-4 bg-white font-semibold text-ink border border-ink hover:bg-ink hover:text-white transition px-4 py-2 rounded-sm"
             >
                 Back
             </button>
 
             {/* Title */}
-            <h2 className="text-2xl font-semibold text-center mb-6 dark:text-neutral-100">Photo Gallery</h2>
+            <h2 className="text-display-sm font-semibold text-center text-ink mb-6">Photo Gallery</h2>
 
             {/* Responsive Masonry Grid for Images */}
             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8">
                 {imageSrcs.map((src, index) => (
                     <div
                         key={index}
-                        className={`relative rounded-lg overflow-hidden cursor-pointer 
+                        className={`relative rounded-md overflow-hidden cursor-pointer
                         ${index % 6 === 0 ? "md:col-span-2 md:row-span-2" : "md:col-span-1 md:row-span-1"}`}
                         onClick={() => openGallery(index)}
                     >
@@ -70,7 +70,7 @@ const ListingImages = () => {
                             src={src}
                             width={800}
                             height={600}
-                            className="object-cover w-full h-auto md:h-full rounded-lg"
+                            className="object-cover w-full h-auto md:h-full rounded-md"
                         />
                     </div>
                 ))}
@@ -82,7 +82,7 @@ const ListingImages = () => {
                     <div className="relative max-w-5xl w-full">
                         {/* Close Button */}
                         <button
-                            className="absolute top-4 right-4 bg-white text-black p-2 z-50 rounded-full"
+                            className="absolute top-4 right-4 bg-white text-ink p-2 z-50 rounded-full shadow-card"
                             onClick={() => setIsOpen(false)}
                         >
                             <IconX size={18} />
@@ -98,7 +98,7 @@ const ListingImages = () => {
                             onClick={() => setIsOpen(false)}
                             renderLeftNav={(onClick, disabled) => (
                                 <button
-                                    className="absolute invisible lg:visible z-50 top-1/2 transform -translate-y-1/2 bg-white text-black p-3 rounded-full shadow-md hover:bg-gray-300 transition"
+                                    className="absolute invisible lg:visible z-50 top-1/2 transform -translate-y-1/2 bg-white text-ink p-3 rounded-full shadow-card hover:bg-surface-soft transition"
                                     onClick={onClick}
                                     disabled={disabled}
                                 >
@@ -107,7 +107,7 @@ const ListingImages = () => {
                             )}
                             renderRightNav={(onClick, disabled) => (
                                 <button
-                                    className="absolute invisible lg:visible right-0 z-50 top-1/2 transform -translate-y-1/2 bg-white text-black p-3 rounded-full shadow-md hover:bg-gray-300 transition"
+                                    className="absolute invisible lg:visible right-0 z-50 top-1/2 transform -translate-y-1/2 bg-white text-ink p-3 rounded-full shadow-card hover:bg-surface-soft transition"
                                     onClick={onClick}
                                     disabled={disabled}
                                 >

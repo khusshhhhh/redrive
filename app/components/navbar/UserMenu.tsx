@@ -11,7 +11,6 @@ import { SafeUser } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { IconBrandDatabricks, IconCalendar, IconClipboardPlus, IconFilePlus, IconHearts, IconLocationCheck, IconLogin2, IconLogout2, IconMenu3, IconUserEdit, IconMessage, IconUserCircle } from "@tabler/icons-react";
 import NotificationBell from "@/app/components/notifications/NotificationBell";
-import ThemeToggle from "./ThemeToggle";
 
 interface UserMenuProps {
   currentUser?: SafeUser | null;
@@ -62,34 +61,33 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
       <div className="flex flex-row items-center gap-3">
         <div
           onClick={onRent}
-          className="hidden md:block text-sm font-semibold py-3 px-4 bg-limespark rounded-full hover:opacity-90 text-graphite transition cursor-pointer"
+          className="hidden md:block text-sm font-medium py-3 px-5 bg-primary rounded-full hover:bg-primary-active text-white transition cursor-pointer"
         >
-          Add your items
+          List your car
         </div>
-        <ThemeToggle />
         {currentUser && <NotificationBell />}
         <div
           onClick={toggleOpen}
-          className="py-2 px-3 border-[1px] border-neutral-300 dark:border-neutral-600 flex flex-row items-center gap-3 rounded-full cursor-pointer hover:shadow-md transition text-black dark:text-neutral-100"
+          className="py-2 px-3 border border-hairline flex flex-row items-center gap-3 rounded-full cursor-pointer hover:shadow-card transition text-ink"
         >
-          <IconMenu3 />
+          <IconMenu3 size={18} />
           <div className="hidden md:block">
             {currentUser?.image ? (
               <Avatar src={currentUser.image} />
             ) : (
-              <IconUserCircle className="text-limespark" size={30} />
+              <IconUserCircle className="text-muted" size={30} />
             )}
           </div>
         </div>
       </div>
 
       {isOpen && (
-        <div className="absolute rounded-xl shadow-md w-72 md:w-52 bg-white dark:bg-neutral-800 overflow-hidden right-0 top-12 text-sm">
+        <div className="absolute rounded-md shadow-card w-72 md:w-56 bg-white overflow-hidden right-0 top-12 text-sm border border-hairline-soft">
           <div className="flex flex-col cursor-pointer">
             {currentUser && (
               <div
                 onClick={() => { router.push("/profile"); closeMenu(); }}
-                className="flex flex-row gap-3 px-8 py-5 text-left text-sm font-bold text-black dark:text-neutral-100 hover:bg-gray-100 dark:hover:bg-neutral-700 transition cursor-pointer"
+                className="flex flex-row gap-3 px-6 py-4 text-left text-sm font-semibold text-ink hover:bg-surface-soft transition cursor-pointer"
               >
                 <div>
                   <IconUserEdit size={18} />
@@ -99,24 +97,23 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
                 </div>
               </div>
             )}
-            <hr className="border-neutral-200 dark:border-neutral-700" />
+            <hr className="border-hairline-soft" />
             {currentUser ? (
               <>
-                <MenuItem onClick={() => { rentModal.onOpen(); closeMenu(); }} label="Add your items" icon={<IconFilePlus size={18} className="text-black dark:text-neutral-100" />} />
-                <MenuItem onClick={() => { router.push("/trips"); closeMenu(); }} label="Bookings" icon={<IconLocationCheck size={18} className="text-black dark:text-neutral-100" />} />
-                <MenuItem onClick={() => { router.push("/reservations"); closeMenu(); }} label="Reservations" icon={<IconCalendar size={18} className="text-black dark:text-neutral-100" />} />
-                <MenuItem onClick={() => { router.push("/favorites"); closeMenu(); }} label="Favourites" icon={<IconHearts size={18} className="text-black dark:text-neutral-100" />} />
-                <MenuItem onClick={() => { router.push("/properties"); closeMenu(); }} label="My Utilities" icon={<IconBrandDatabricks size={18} className="text-black dark:text-neutral-100" />} />
-                <MenuItem onClick={() => { router.push("/messages"); closeMenu(); }} label="Messages" icon={<IconMessage size={18} className="text-black dark:text-neutral-100" />} />
-                {/* <MenuItem onClick={() => { router.push("/profile"); closeMenu(); }} label="Profile" /> */}
-                <hr className="border-neutral-200 dark:border-neutral-700" />
-                <MenuItem onClick={() => { signOut(); closeMenu(); }} label="Logout" icon={<IconLogout2 size={18} className="text-black dark:text-neutral-100" />} />
+                <MenuItem onClick={() => { rentModal.onOpen(); closeMenu(); }} label="List your car" icon={<IconFilePlus size={18} className="text-ink" />} />
+                <MenuItem onClick={() => { router.push("/trips"); closeMenu(); }} label="Bookings" icon={<IconLocationCheck size={18} className="text-ink" />} />
+                <MenuItem onClick={() => { router.push("/reservations"); closeMenu(); }} label="Reservations" icon={<IconCalendar size={18} className="text-ink" />} />
+                <MenuItem onClick={() => { router.push("/favorites"); closeMenu(); }} label="Favourites" icon={<IconHearts size={18} className="text-ink" />} />
+                <MenuItem onClick={() => { router.push("/properties"); closeMenu(); }} label="My Utilities" icon={<IconBrandDatabricks size={18} className="text-ink" />} />
+                <MenuItem onClick={() => { router.push("/messages"); closeMenu(); }} label="Messages" icon={<IconMessage size={18} className="text-ink" />} />
+                <hr className="border-hairline-soft" />
+                <MenuItem onClick={() => { signOut(); closeMenu(); }} label="Logout" icon={<IconLogout2 size={18} className="text-ink" />} />
               </>
             ) : (
               <>
-                <MenuItem onClick={() => { loginModal.onOpen(); closeMenu(); }} label="Login" icon={<IconLogin2 size={18} className="text-black dark:text-neutral-100" />} />
-                <hr className="border-neutral-200 dark:border-neutral-700" />
-                <MenuItem onClick={() => { registerModal.onOpen(); closeMenu(); }} label="Sign Up" icon={<IconClipboardPlus size={18} className="text-black dark:text-neutral-100" />} />
+                <MenuItem onClick={() => { loginModal.onOpen(); closeMenu(); }} label="Login" icon={<IconLogin2 size={18} className="text-ink" />} />
+                <hr className="border-hairline-soft" />
+                <MenuItem onClick={() => { registerModal.onOpen(); closeMenu(); }} label="Sign Up" icon={<IconClipboardPlus size={18} className="text-ink" />} />
               </>
             )}
           </div>

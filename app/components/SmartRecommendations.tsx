@@ -167,7 +167,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
           title: 'Similar to Recently Viewed',
           description: 'Based on vehicles you\'ve recently looked at',
           icon: Eye,
-          color: 'text-blue-500',
+          color: 'text-ink',
           listings: mockListings.slice(0, 2),
           reason: 'You viewed similar cars in Sydney',
           actionText: 'View All Similar',
@@ -182,7 +182,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
           title: 'More Like Your Favorites',
           description: 'Vehicles similar to ones you\'ve saved',
           icon: Heart,
-          color: 'text-red-500',
+          color: 'text-ink',
           listings: mockListings.slice(1, 3),
           reason: 'You favorited luxury SUVs',
           actionText: 'Browse Luxury Vehicles',
@@ -196,7 +196,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
         title: 'Perfect for Upcoming Occasions',
         description: 'Great vehicles for holidays and special events',
         icon: Calendar,
-        color: 'text-purple-500',
+        color: 'text-ink',
         listings: mockListings.slice(2, 3),
         reason: 'Easter holidays are coming up',
         actionText: 'Plan Your Trip',
@@ -211,7 +211,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
         title: 'Near You',
         description: 'Convenient pickups in your area',
         icon: MapPin,
-        color: 'text-green-500',
+        color: 'text-ink',
         listings: mockListings.slice(0, 3),
         reason: 'Within 5km of your location',
         actionText: 'See All Nearby',
@@ -225,7 +225,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
       title: 'Trending This Week',
       description: 'Popular choices among REDRIVE users',
       icon: TrendingUp,
-      color: 'text-orange-500',
+      color: 'text-ink',
       listings: mockListings.slice(1, 3),
       reason: 'Most booked vehicles this week',
       actionText: 'See What\'s Hot',
@@ -238,7 +238,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
       title: 'Great Value',
       description: 'Quality vehicles at competitive prices',
       icon: DollarSign,
-      color: 'text-emerald-500',
+      color: 'text-ink',
       listings: mockListings.filter(l => l.price < 100),
       reason: 'Under $100/day with excellent ratings',
       actionText: 'More Budget Options',
@@ -251,7 +251,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
       title: 'Available Now',
       description: 'Ready for immediate booking',
       icon: Clock,
-      color: 'text-amber-500',
+      color: 'text-ink',
       listings: mockListings.slice(0, 2),
       reason: 'Available for next 24 hours',
       actionText: 'Book Instantly',
@@ -286,15 +286,15 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700 mb-6 p-6">
+      <div className="bg-white rounded-md shadow-card border border-hairline-soft mb-6 p-6">
         <div className="animate-pulse">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-5 h-5 bg-gray-300 dark:bg-neutral-700 rounded"></div>
-            <div className="h-6 bg-gray-300 dark:bg-neutral-700 rounded w-48"></div>
+            <div className="w-5 h-5 bg-surface-soft rounded"></div>
+            <div className="h-6 bg-surface-soft rounded w-48"></div>
           </div>
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-gray-100 dark:bg-neutral-700 rounded-lg"></div>
+              <div key={i} className="h-20 bg-surface-soft rounded-md"></div>
             ))}
           </div>
         </div>
@@ -307,21 +307,21 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
   }
 
   return (
-    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700 mb-6">
-      <div className="p-4 border-b border-gray-200 dark:border-neutral-700">
+    <div className="bg-white rounded-md shadow-card border border-hairline-soft mb-6">
+      <div className="p-4 border-b border-hairline-soft">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-500" />
-          <h3 className="font-semibold text-gray-900 dark:text-neutral-100">Recommended for You</h3>
-          <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
+          <Sparkles className="w-5 h-5 text-ink" />
+          <h3 className="font-semibold text-ink">Recommended for You</h3>
+          <span className="bg-surface-strong text-ink text-xs px-2 py-1 rounded-full">
             Personalized
           </span>
         </div>
-        <p className="text-sm text-gray-600 dark:text-neutral-400 mt-1">
+        <p className="text-sm text-muted mt-1">
           Curated selections based on your preferences and activity
         </p>
       </div>
 
-      <div className="divide-y divide-gray-200 dark:divide-neutral-700">
+      <div className="divide-y divide-hairline-soft">
         {recommendations.map((section, index) => {
           const Icon = section.icon;
           const isExpanded = expandedSections.has(section.id);
@@ -337,17 +337,17 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
                 <div className="flex items-center gap-3">
                   <Icon className={`w-5 h-5 ${section.color}`} />
                   <div>
-                    <h4 className="font-medium text-gray-900 dark:text-neutral-100">{section.title}</h4>
-                    <p className="text-sm text-gray-600 dark:text-neutral-400">{section.description}</p>
+                    <h4 className="font-medium text-ink">{section.title}</h4>
+                    <p className="text-sm text-muted">{section.description}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500 dark:text-neutral-400 bg-gray-100 dark:bg-neutral-700 px-2 py-1 rounded">
+                  <span className="text-xs text-muted bg-surface-soft px-2 py-1 rounded">
                     {section.listings.length} vehicle{section.listings.length > 1 ? 's' : ''}
                   </span>
                   {!isFirst && (
                     <ChevronRight
-                      className={`w-4 h-4 text-gray-400 dark:text-neutral-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                      className={`w-4 h-4 text-muted transition-transform ${isExpanded ? 'rotate-90' : ''}`}
                     />
                   )}
                 </div>
@@ -355,7 +355,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
 
               {shouldShow && (
                 <div className="space-y-3">
-                  <div className="text-xs text-gray-500 dark:text-neutral-400 bg-blue-50 dark:bg-neutral-700 p-2 rounded-lg">
+                  <div className="text-xs text-muted bg-surface-soft p-2 rounded-md">
                     <Sparkles className="inline w-3 h-3 mr-1" />
                     {section.reason}
                   </div>
@@ -392,7 +392,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
       </div>
 
       {/* Refresh Recommendations */}
-      <div className="p-4 border-t border-gray-200 dark:border-neutral-700 text-center">
+      <div className="p-4 border-t border-hairline-soft text-center">
         <Button
           onClick={generateRecommendations}
           small

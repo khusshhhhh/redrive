@@ -55,7 +55,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({ value, onChange }) => {
     return (
         <div className="flex gap-2">
             {/* Day Dropdown */}
-            <select value={day} onChange={(e) => setDay(e.target.value)} className="border p-4 rounded-md w-[33%] dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-100">
+            <select value={day} onChange={(e) => setDay(e.target.value)} className="border border-hairline focus:border-ink focus:border-2 outline-none p-4 rounded-sm w-[33%] bg-white text-ink">
                 <option value="">Day</option>
                 {Array.from({ length: daysInMonth }, (_, i) => i + 1)
                     .filter(d => !(parseInt(year) === currentYear && months.indexOf(month) + 1 === currentMonth && d < today.getDate())) // Disable past days
@@ -65,7 +65,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({ value, onChange }) => {
             </select>
 
             {/* Month Dropdown */}
-            <select value={month} onChange={(e) => setMonth(e.target.value)} className="border p-4 rounded-md w-[33%] dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-100">
+            <select value={month} onChange={(e) => setMonth(e.target.value)} className="border border-hairline focus:border-ink focus:border-2 outline-none p-4 rounded-sm w-[33%] bg-white text-ink">
                 <option value="">Month</option>
                 {months.map((m, index) => (
                     <option
@@ -79,7 +79,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({ value, onChange }) => {
             </select>
 
             {/* Year Dropdown */}
-            <select value={year} onChange={(e) => setYear(e.target.value)} className="border p-4 rounded-md w-[33%] dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-100">
+            <select value={year} onChange={(e) => setYear(e.target.value)} className="border border-hairline focus:border-ink focus:border-2 outline-none p-4 rounded-sm w-[33%] bg-white text-ink">
                 <option value="">Year</option>
                 {years.map(y => (
                     <option key={y} value={y}>{y}</option>
