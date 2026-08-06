@@ -47,7 +47,7 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ currentUser }) => {
   }
 
   return (
-    <div className="bg-white rounded-md shadow-card border border-hairline-soft p-6">
+    <div className="bg-white rounded-md border border-hairline-soft p-6 mt-12">
       <Heading title="Recently Viewed" subtitle="Pick up where you left off" />
       <div className="mt-4 flex flex-row gap-6 overflow-x-auto scrollbar-hide pb-2">
         {listings.map((listing) => (
