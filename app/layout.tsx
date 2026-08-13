@@ -1,4 +1,3 @@
-import { Montserrat } from "next/font/google";
 import "../app/globals.css";
 import Navbar from "./components/navbar/Navbar";
 import ToasterProvider from "./providers/ToasterProvider";
@@ -18,14 +17,6 @@ export const metadata = {
 // Navigation and account controls are session-aware on every route.
 export const dynamic = "force-dynamic";
 
-// Optimize font loading with display swap and preload
-const font = Montserrat({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: 'swap',
-  preload: true,
-});
-
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -37,7 +28,7 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="//maps.googleapis.com" />
         <link rel="dns-prefetch" href="//res.cloudinary.com" />
       </head>
-      <body className={`${font.className} bg-white text-ink`}>
+      <body className="bg-white text-ink">
         <DataPreloader isAuthenticated={!!currentUser} />
         <ToasterProvider />
         <LazyModals />
