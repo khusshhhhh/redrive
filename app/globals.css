@@ -51,7 +51,7 @@ body,
 }
 
 .rdrDayToday .rdrDayNumber span:after {
-  background: #0098b7;
+  background: #ff385c;
 }
 
 .rdrInRange, .rdrStartEdge, .rdrEndEdge, .rdrSelected {
