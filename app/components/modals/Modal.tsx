@@ -4,6 +4,29 @@ import { useCallback, useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import Button from "../Button";
 
+// Multiple modal stores can briefly overlap when switching dialogs (for
+// example Login -> Sign up). A reference count prevents one unmount from
+// restoring scrolling while another dialog is still open, and guarantees the
+// original inline value is restored after the final dialog closes.
+let activeScrollLocks = 0;
+let previousBodyOverflow = "";
+
+const lockPageScroll = () => {
+    if (activeScrollLocks === 0) {
+        previousBodyOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+    }
+    activeScrollLocks += 1;
+};
+
+const unlockPageScroll = () => {
+    activeScrollLocks = Math.max(0, activeScrollLocks - 1);
+    if (activeScrollLocks === 0) {
+        document.body.style.overflow = previousBodyOverflow;
+        previousBodyOverflow = "";
+    }
+};
+
 interface ModalProps {
     isOpen?: boolean;
     onClose: () => void;
@@ -35,15 +58,21 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
     const [showModal, setShowModal] = useState(isOpen);
 
-    // Sync `showModal` state with `isOpen` prop
+    // Sync animation state. Scroll locking has its own effect so its cleanup
+    // always runs when a lazy-loaded modal is removed from the tree.
     useEffect(() => {
         if (isOpen) {
             setShowModal(true);
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
         } else {
-            setTimeout(() => setShowModal(false), 300); // Smooth transition
-            document.body.style.overflow = ''; // Re-enable background scrolling
+            const timer = window.setTimeout(() => setShowModal(false), 300);
+            return () => window.clearTimeout(timer);
         }
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        lockPageScroll();
+        return unlockPageScroll;
     }, [isOpen]);
 
     const handleClose = useCallback(() => {
