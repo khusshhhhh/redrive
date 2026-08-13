@@ -24,7 +24,7 @@ const DotLoader: React.FC<DotLoaderProps> = ({
   };
 
   return (
-    <div className={`flex items-center justify-center ${containerSizeClasses[size]}`}>
+    <span className={`flex items-center justify-center ${containerSizeClasses[size]}`} aria-hidden="true">
       <div 
         className={`${sizeClasses[size]} rounded-full`}
         style={{ 
@@ -49,7 +49,7 @@ const DotLoader: React.FC<DotLoaderProps> = ({
           animationDelay: '0.32s'
         }}
       />
-    </div>
+    </span>
   );
 };
 

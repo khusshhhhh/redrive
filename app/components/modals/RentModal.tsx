@@ -755,6 +755,7 @@ const RentModal = () => {
 
     return (
         <Modal
+            loading={isLoading}
             isOpen={rentModal.isOpen}
             onClose={rentModal.onClose}
             onSubmit={handleSubmit(onSubmit)}

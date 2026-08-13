@@ -366,7 +366,7 @@ export default function Profile() {
                         </div>
 
                         <div className="flex w-full justify-end mt-6">
-                            <Button type="submit" label={isSaving ? "Saving..." : "Save Changes"} disabled={isSaving} />
+                            <Button type="submit" label="Save Changes" loading={isSaving} loadingLabel="Saving changes" />
                         </div>
                     </form>
                 </div>

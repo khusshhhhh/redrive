@@ -13,6 +13,7 @@ interface ModalProps {
     footer?: React.ReactElement;
     actionLabel: string;
     disabled?: boolean;
+    loading?: boolean;
     secondaryAction?: () => void;
     secondaryActionLabel?: string;
 }
@@ -26,6 +27,7 @@ const Modal: React.FC<ModalProps> = ({
     footer,
     actionLabel,
     disabled = false,
+    loading = false,
     secondaryAction,
     secondaryActionLabel
 }) => {
@@ -97,7 +99,7 @@ const Modal: React.FC<ModalProps> = ({
                             {secondaryAction && secondaryActionLabel && (
                                 <Button outline disabled={disabled} label={secondaryActionLabel} onClick={handleSecondaryAction} />
                             )}
-                            <Button disabled={disabled} label={actionLabel} onClick={handleSubmit} />
+                            <Button disabled={disabled} loading={loading} label={actionLabel} onClick={handleSubmit} />
                         </div>
 
                         {/* Extra Footer (if provided) */}

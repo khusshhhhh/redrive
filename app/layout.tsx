@@ -14,8 +14,9 @@ import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata = {
-  title: "Redrive 1.0",
+  title: "Redrive",
   description: "Created & Developed by Khush Patel & Hiral Mahida",
+  icons: { icon: "/icon.svg" },
 };
 
 // Optimize font loading with display swap and preload

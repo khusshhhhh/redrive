@@ -130,6 +130,7 @@ const LoginModal = () => {
     return (
         <Modal
             disabled={isLoading}
+            loading={isLoading}
             isOpen={loginModal.isOpen}
             title="Log in"
             actionLabel="Continue"
