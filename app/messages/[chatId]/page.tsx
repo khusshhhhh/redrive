@@ -9,7 +9,6 @@ import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { IconSend, IconArrowLeft, IconPaperclip, IconX } from "@tabler/icons-react";
 import { format, isSameDay, isToday, isYesterday } from "date-fns";
-import { CldUploadWidget } from "next-cloudinary";
 import ChatBubble from "@/app/components/messages/ChatBubble";
 import TypingIndicator from "@/app/components/messages/TypingIndicator";
 import { useSSE } from "@/app/hooks/useSSE";
@@ -38,11 +37,13 @@ const ChatPage = () => {
   const [text, setText] = useState("");
   const [pendingImageUrl, setPendingImageUrl] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [otherTyping, setOtherTyping] = useState(false);
   const [streamSince, setStreamSince] = useState<string | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const attachmentInputRef = useRef<HTMLInputElement>(null);
   const seenIdsRef = useRef<Set<string>>(new Set());
   const typingStopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingExpireTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -230,6 +231,30 @@ const ChatPage = () => {
     setSending(false);
   };
 
+  const uploadAttachment = async (file?: File) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Choose an image smaller than 5 MB");
+      return;
+    }
+
+    setUploadingAttachment(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("folder", "chat");
+      const response = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await response.json() as { url?: string; error?: string };
+      if (!response.ok || !data.url) throw new Error(data.error || "Upload failed");
+      setPendingImageUrl(data.url);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Attachment upload failed");
+    } finally {
+      setUploadingAttachment(false);
+      if (attachmentInputRef.current) attachmentInputRef.current.value = "";
+    }
+  };
+
   const loadOlder = async () => {
     if (!hasMore || loadingOlder || messages.length === 0) return;
     setLoadingOlder(true);
@@ -341,25 +366,22 @@ const ChatPage = () => {
         )}
 
         <div className="mt-4 flex gap-2 sm:gap-3 items-center">
-          <CldUploadWidget
-            uploadPreset="redrive"
-            options={{ maxFiles: 1, folder: "chat" }}
-            onSuccess={(result) => {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const info = result.info as any;
-              if (info?.secure_url) setPendingImageUrl(info.secure_url);
-            }}
+          <input
+            ref={attachmentInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="sr-only"
+            onChange={(event) => void uploadAttachment(event.target.files?.[0])}
+          />
+          <button
+            type="button"
+            disabled={uploadingAttachment}
+            onClick={() => attachmentInputRef.current?.click()}
+            aria-label={uploadingAttachment ? "Uploading attachment" : "Attach an image"}
+            className="shrink-0 p-2 sm:p-3 rounded-full border border-hairline text-muted hover:shimmer transition disabled:cursor-wait disabled:opacity-50"
           >
-            {({ open }) => (
-              <button
-                type="button"
-                onClick={() => open?.()}
-                className="shrink-0 p-2 sm:p-3 rounded-full border border-hairline text-muted hover:shimmer transition"
-              >
-                <IconPaperclip size={20} />
-              </button>
-            )}
-          </CldUploadWidget>
+            <IconPaperclip size={20} />
+          </button>
           <input
             value={text}
             onChange={(e) => onTextChange(e.target.value)}

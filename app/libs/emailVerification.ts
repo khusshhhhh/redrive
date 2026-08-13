@@ -1,7 +1,37 @@
 import crypto from "crypto";
-import nodemailer from "nodemailer";
+import nodemailer from "nodemailer-v9";
 
 const CODE_TTL_MINUTES = 10;
+const EMAIL_PATTERN = /^[^\s@\r\n]+@[^\s@\r\n]+\.[^\s@\r\n]+$/;
+
+function assertSafeRecipient(email: string) {
+  if (email.length > 254 || !EMAIL_PATTERN.test(email)) {
+    throw new Error("Invalid email address");
+  }
+}
+
+function getEmailTransport() {
+  const host = process.env.SMTP_HOST;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) return null;
+  if (/[\r\n]/.test(host) || /[\r\n]/.test(user)) {
+    throw new Error("Invalid SMTP configuration");
+  }
+
+  return {
+    user,
+    transporter: nodemailer.createTransport({
+      host,
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: process.env.SMTP_SECURE === "true",
+      auth: { user, pass },
+      disableFileAccess: true,
+      disableUrlAccess: true,
+    }),
+  };
+}
 
 export function createVerificationCode() {
   return crypto.randomInt(100000, 1000000).toString();
@@ -22,11 +52,10 @@ export function verificationExpiry() {
 }
 
 export async function sendVerificationEmail(email: string, code: string) {
-  const host = process.env.SMTP_HOST;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+  assertSafeRecipient(email);
+  const transport = getEmailTransport();
 
-  if (!host || !user || !pass) {
+  if (!transport) {
     if (process.env.NODE_ENV !== "production") {
       console.info(`[Redrive] Verification code for ${email}: ${code}`);
       return { delivered: false, previewCode: code };
@@ -34,16 +63,11 @@ export async function sendVerificationEmail(email: string, code: string) {
     throw new Error("Email delivery is not configured");
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: process.env.SMTP_SECURE === "true",
-    auth: { user, pass },
-  });
-
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM || `Redrive <${user}>`,
+  await transport.transporter.sendMail({
+    from: process.env.EMAIL_FROM || `Redrive <${transport.user}>`,
     to: email,
+    disableFileAccess: true,
+    disableUrlAccess: true,
     subject: `${code} is your Redrive verification code`,
     text: `Your Redrive verification code is ${code}. It expires in ${CODE_TTL_MINUTES} minutes. If you did not create an account, you can ignore this email.`,
     html: `
@@ -60,11 +84,10 @@ export async function sendVerificationEmail(email: string, code: string) {
 }
 
 export async function sendLoginOtpEmail(email: string, code: string) {
-  const host = process.env.SMTP_HOST;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+  assertSafeRecipient(email);
+  const transport = getEmailTransport();
 
-  if (!host || !user || !pass) {
+  if (!transport) {
     if (process.env.NODE_ENV !== "production") {
       console.info(`[Redrive] Login code for ${email}: ${code}`);
       return { delivered: false, previewCode: code };
@@ -72,16 +95,11 @@ export async function sendLoginOtpEmail(email: string, code: string) {
     throw new Error("Email delivery is not configured");
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: process.env.SMTP_SECURE === "true",
-    auth: { user, pass },
-  });
-
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM || `Redrive <${user}>`,
+  await transport.transporter.sendMail({
+    from: process.env.EMAIL_FROM || `Redrive <${transport.user}>`,
     to: email,
+    disableFileAccess: true,
+    disableUrlAccess: true,
     subject: `${code} is your Redrive login code`,
     text: `Your Redrive login code is ${code}. It expires in ${CODE_TTL_MINUTES} minutes. If this was not you, change your password.`,
     html: `

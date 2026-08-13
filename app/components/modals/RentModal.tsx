@@ -77,6 +77,7 @@ const RentModal = () => {
     const uploadImageToCloudinary = async (file: File, folder: string) => {
         const formData = new FormData();
         formData.append("image", file);
+        formData.append("folder", folder);
 
         try {
             const response = await fetch("/api/upload", {
@@ -121,6 +122,7 @@ const RentModal = () => {
 
         const formData = new FormData();
         formData.append("image", file);
+        formData.append("folder", "licenses");
 
         try {
             const response = await fetch("/api/upload", {

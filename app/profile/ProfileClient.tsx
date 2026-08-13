@@ -257,7 +257,7 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
                 </div>
                 <button type="button" onClick={() => setTriggerUpload(true)} aria-label="Change profile photo" className="absolute bottom-0 right-0 flex h-10 w-10 items-center justify-center rounded-full border border-white bg-ink text-white shadow-card transition hover:scale-105"><Camera size={17} /></button>
               </div>
-              {triggerUpload && <ImageUpload onChange={(url) => { setImage(url); setTriggerUpload(false); }} value={image} triggerUpload />}
+              {triggerUpload && <ImageUpload folder="profiles" onChange={(url) => { setImage(url); setTriggerUpload(false); }} value={image} triggerUpload />}
               <h2 className="mt-5 truncate text-xl font-semibold text-ink">{name || "Your profile"}</h2>
               <p className="mt-1 truncate text-sm text-muted">{email}</p>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -327,7 +327,7 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
                   <select value={licenseType} onChange={(event) => setLicenseType(event.target.value)} className="h-14 w-full rounded-sm border border-hairline bg-white px-4 text-sm text-ink outline-none focus:border-ink focus:ring-1 focus:ring-ink">
                     <option>Driver License</option><option>Boat License</option><option>Other License</option>
                   </select>
-                  <ImageUpload onChange={setLicenseImage} value={licenseImage} />
+                  <ImageUpload folder="licenses" onChange={setLicenseImage} value={licenseImage} />
                   <p className="flex gap-2 text-xs leading-5 text-muted"><ShieldCheck size={15} className="mt-0.5 shrink-0" />Only upload a document you are authorised to provide. Avoid including unrelated personal documents.</p>
                 </div>
               </SectionCard>

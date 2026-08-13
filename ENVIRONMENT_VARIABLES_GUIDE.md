@@ -300,19 +300,13 @@ CLOUDINARY_API_SECRET="your-api-secret"
 - **API key** identifies API requests. Keep it out of casual public sharing even though it is not sufficient alone for signed operations.
 - **API secret** authorizes signed operations and must remain server-only.
 
-### Required upload preset
+### Upload authentication
 
-The browser image widget expects an upload preset named exactly `redrive`.
+No Cloudinary upload preset is required. Images are posted to the authenticated `/api/upload` route, and that server route signs the Cloudinary request with `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET`.
 
-1. In Cloudinary, open **Settings → Upload → Upload presets**.
-2. Create a preset named `redrive`.
-3. Set its signing mode to **Unsigned**.
-4. Limit allowed file formats, maximum file size and target folder as appropriate.
-5. Save it.
+The route accepts JPG, PNG, and WebP images up to 5 MB and stores them under `redrive/profiles`, `redrive/licenses`, `redrive/listings`, or `redrive/chat`. Keep the API secret server-only. If an old unsigned `redrive` preset exists in Cloudinary and nothing else uses it, disable or delete it to reduce public upload exposure.
 
-Unsigned presets can be invoked by a client that knows the preset and cloud name. Restrict the preset carefully, monitor uploads, and consider moving fully to the project's signed server upload route for stronger abuse protection in a mature production deployment.
-
-Official reference: [Cloudinary upload documentation](https://cloudinary.com/documentation/upload_images#unauthenticated_requests).
+Official reference: [Cloudinary authenticated uploads](https://cloudinary.com/documentation/upload_images#authenticated_requests).
 
 ## 8. Scheduled notification secret
 
@@ -459,7 +453,7 @@ For the current update, `db push` creates the email verification fields and inde
 3. Configure Google OAuth and set `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`.
 4. Configure Gmail app password or another SMTP provider.
 5. Enable Google Maps/Places, create two restricted keys, and optionally create a map ID.
-6. Configure Cloudinary and the `redrive` upload preset.
+6. Configure the three Cloudinary environment variables; no upload preset is needed.
 7. Run `npx prisma db push` against the intended database.
 8. Add all values to Vercel with correct environment scopes.
 9. Deploy or redeploy.
@@ -519,4 +513,3 @@ Suggested rotation impact:
 | `GOOGLE_PLACES_API_KEY` | Address search fails until updated. |
 | `CLOUDINARY_API_SECRET` | Signed/server uploads fail until updated. |
 | `CRON_SECRET` | Cron calls receive 401 until updated. |
-

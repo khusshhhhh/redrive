@@ -1,63 +1,87 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { CldUploadWidget } from "next-cloudinary";
+"use client";
+
 import Image from "next/image";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { TbPhotoPlus } from "react-icons/tb";
 
-declare global {
-    let cloudinary: any;
-}
+export type UploadFolder = "profiles" | "licenses" | "listings" | "chat";
 
 interface ImageUploadProps {
-    onChange: (value: string) => void;
-    value: string;
-    triggerUpload?: boolean;
+  onChange: (value: string) => void;
+  value: string;
+  triggerUpload?: boolean;
+  folder?: UploadFolder;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value }) => {
-    const handleUpload = useCallback((result: any) => {
-        // Check if multiple files were uploaded
-        if (Array.isArray(result.info)) {
-            result.info.forEach((file: any) => {
-                onChange(file.secure_url);
-            });
-        } else {
-            onChange(result.info.secure_url);
-        }
-    }, [onChange]);
+const ImageUpload: React.FC<ImageUploadProps> = ({
+  onChange,
+  value,
+  triggerUpload = false,
+  folder = "listings",
+}) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const openedAutomatically = useRef(false);
+  const [uploading, setUploading] = useState(false);
 
-    return (
-        <CldUploadWidget
-            onSuccess={handleUpload}
-            uploadPreset="redrive"
-            options={{
-                maxFiles: 10 // Allow selecting up to 10 images at once
-            }}
-        >
-            {({ open }) => {
-                return (
-                    <div onClick={() => open?.()}
-                        className="relative cursor-pointer hover:border-ink transition border-dashed border-2 rounded-sm p-20 border-hairline flex flex-col justify-center items-center gap-4 text-muted"
-                    >
-                        <TbPhotoPlus />
-                        <div className="font-semibold text-lg text-ink">
-                            Click To Upload
-                        </div>
-                        {value && (
-                            <div className="absolute inset-0 w-full h-full">
-                                <Image
-                                    alt="Upload"
-                                    fill
-                                    style={{ objectFit: 'cover' }}
-                                    src={value}
-                                />
-                            </div>
-                        )}
-                    </div>
-                );
-            }}
-        </CldUploadWidget>
-    );
+  useEffect(() => {
+    if (triggerUpload && !openedAutomatically.current) {
+      openedAutomatically.current = true;
+      inputRef.current?.click();
+    }
+  }, [triggerUpload]);
+
+  const upload = useCallback(async (file?: File) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Choose an image smaller than 5 MB");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("folder", folder);
+      const response = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await response.json() as { url?: string; error?: string };
+      if (!response.ok || !data.url) throw new Error(data.error || "Upload failed");
+      onChange(data.url);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Image upload failed");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }, [folder, onChange]);
+
+  return (
+    <div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="sr-only"
+        onChange={(event) => void upload(event.target.files?.[0])}
+      />
+      <button
+        type="button"
+        disabled={uploading}
+        onClick={() => inputRef.current?.click()}
+        className="relative flex min-h-44 w-full cursor-pointer flex-col items-center justify-center gap-3 overflow-hidden rounded-sm border-2 border-dashed border-hairline p-8 text-muted transition hover:border-ink disabled:cursor-wait disabled:opacity-70"
+      >
+        <TbPhotoPlus size={24} aria-hidden="true" />
+        <span className="font-semibold text-ink">{uploading ? "Uploading…" : value ? "Replace image" : "Choose an image"}</span>
+        <span className="text-xs">JPG, PNG or WebP · up to 5 MB</span>
+        {value && (
+          <span className="absolute inset-0">
+            <Image alt="Uploaded image" fill sizes="(max-width: 768px) 100vw, 520px" className="object-cover" src={value} />
+            <span className="absolute inset-x-0 bottom-0 bg-black/60 px-3 py-2 text-sm font-medium text-white">{uploading ? "Uploading…" : "Click to replace"}</span>
+          </span>
+        )}
+      </button>
+    </div>
+  );
 };
 
 export default ImageUpload;
