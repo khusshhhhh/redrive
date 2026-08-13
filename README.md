@@ -454,6 +454,16 @@ _"To transform how people access transportation by building trust, enabling conn
 
 ---
 
+## Email verification setup
+
+Password-based registrations use a six-digit email code delivered through Nodemailer and standard SMTP. This does not require a paid email SDK. For a small deployment, a Gmail account with two-step verification and an app password can be used:
+
+1. Copy the `SMTP_*` and `EMAIL_FROM` values from `.env.example` into `.env.local` or your deployment environment.
+2. Set `SMTP_USER` to the sending Gmail address and `SMTP_PASS` to its 16-character app password.
+3. Keep `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, and `SMTP_SECURE=false`.
+
+When SMTP is intentionally left blank in local development, the test code is logged by the server and displayed in the verification dialog. Production fails closed if email delivery is not configured.
+
 ## 📞 Connect & Contribute
 
 <div align="center">

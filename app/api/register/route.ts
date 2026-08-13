@@ -1,6 +1,12 @@
 import bcrypt from "bcryptjs";
 import prisma from "@/app/libs/prismadb";
 import { NextResponse } from "next/server";
+import {
+  createVerificationCode,
+  hashVerificationCode,
+  sendVerificationEmail,
+  verificationExpiry,
+} from "@/app/libs/emailVerification";
 
 export async function POST(request: Request) {
   try {
@@ -24,7 +30,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const { email, name, password } = body;
+    const email = body.email?.trim().toLowerCase();
+    const name = body.name?.trim();
+    const { password } = body;
 
     if (!email || !name || !password) {
       return NextResponse.json(
@@ -33,22 +41,45 @@ export async function POST(request: Request) {
       );
     }
 
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+
+    if (existingUser?.emailVerified) {
+      return NextResponse.json(
+        { error: "An account with this email already exists" },
+        { status: 409 }
+      );
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
+    const code = createVerificationCode();
+    const verificationData = {
+      name,
+      hashedPassword,
+      verificationCodeHash: hashVerificationCode(code),
+      verificationCodeExpires: verificationExpiry(),
+      verificationCodeSentAt: new Date(),
+      verificationAttempts: 0,
+      verificationRequired: true,
+    };
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        name,
-        hashedPassword,
+    const user = existingUser
+      ? await prisma.user.update({ where: { email }, data: verificationData })
+      : await prisma.user.create({ data: { email, ...verificationData } });
+
+    const delivery = await sendVerificationEmail(email, code);
+
+    return NextResponse.json(
+      {
+        email: user.email,
+        requiresVerification: true,
+        ...(delivery.previewCode ? { previewCode: delivery.previewCode } : {}),
       },
-    });
-
-
-    return NextResponse.json(user, { status: 201 });
+      { status: 201 }
+    );
   } catch (error) {
     console.error("❌ Error registering user:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: error instanceof Error ? error.message : "Unable to create account" },
       { status: 500 }
     );
   }

@@ -17,11 +17,18 @@ import { signIn } from 'next-auth/react';
 import useLoginModal from '@/app/hooks/useLoginModal';
 import Modal from './Modal';
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import { Check, Mail } from "lucide-react";
+
+type RegisterStage = "details" | "verify" | "success";
 const RegisterModal = () => {
     const registerModal = useRegisterModal();
     const loginModal = useLoginModal();
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [stage, setStage] = useState<RegisterStage>("details");
+    const [verificationCode, setVerificationCode] = useState("");
+    const [verificationEmail, setVerificationEmail] = useState("");
+    const [previewCode, setPreviewCode] = useState("");
 
     const {
         register,
@@ -68,14 +75,15 @@ const RegisterModal = () => {
                 "Content-Type": "application/json",
             },
         })
-            .then(() => {
-                toast.success("Success! Account created.");
-                registerModal.onClose();
-                loginModal.onOpen();
+            .then((response) => {
+                setVerificationEmail(formData.email.trim().toLowerCase());
+                setPreviewCode(response.data.previewCode || "");
+                setStage("verify");
+                toast.success("Verification code sent");
             })
             .catch((error) => {
                 console.error("Registration error:", error);
-                toast.error("Something went wrong!");
+                toast.error(error.response?.data?.error || "Unable to create account");
             })
             .finally(() => {
                 setIsLoading(false);
@@ -93,6 +101,54 @@ const RegisterModal = () => {
 
     const handleGoogleSignIn = async () => {
         await signIn('google', { callbackUrl: "/" });
+    };
+
+    const verifyEmail = async () => {
+        if (verificationCode.length !== 6) {
+            toast.error("Enter the six-digit code");
+            return;
+        }
+        setIsLoading(true);
+        try {
+            await axios.post("/api/auth/verify-email", { email: verificationEmail, code: verificationCode });
+            setStage("success");
+        } catch (error: any) {
+            toast.error(error.response?.data?.error || "Unable to verify email");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const resendCode = async () => {
+        setIsLoading(true);
+        try {
+            const response = await axios.post("/api/auth/resend-verification", { email: verificationEmail });
+            setPreviewCode(response.data.previewCode || "");
+            setVerificationCode("");
+            toast.success("A new code was sent");
+        } catch (error: any) {
+            toast.error(error.response?.data?.error || "Unable to resend code");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const continueAfterVerification = async () => {
+        setIsLoading(true);
+        const result = await signIn("credentials", {
+            email: verificationEmail,
+            password,
+            redirect: false,
+        });
+        setIsLoading(false);
+        if (result?.ok) {
+            toast.success("Welcome to Redrive");
+            registerModal.onClose();
+            window.location.reload();
+        } else {
+            registerModal.onClose();
+            loginModal.onOpen();
+        }
     };
 
     // Validation rule component
@@ -118,7 +174,7 @@ const RegisterModal = () => {
 
     const bodyContent = (
         <div className="flex flex-col gap-3">
-            <p className="text-body-sm text-muted mb-1">Create your Redrive account.</p>
+            <p className="text-center text-sm text-muted mb-2">Create an account to book trips, save favourites and list your vehicle.</p>
 
             <Input
                 id="email"
@@ -158,7 +214,8 @@ const RegisterModal = () => {
                 <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute inset-y-0 right-4 flex items-center text-muted hover:text-ink"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute inset-y-0 right-3 flex items-center rounded-full px-2 text-muted hover:text-ink"
                 >
                     {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
                 </button>
@@ -167,8 +224,8 @@ const RegisterModal = () => {
             {/* Live Password Validation Feedback — only surfaces once the user starts typing,
                 so the form doesn't open with a wall of requirements. */}
             {password && password.length > 0 && (
-                <div className="bg-surface-soft p-4 rounded-sm">
-                    <div className="space-y-2">
+                <div className="rounded-lg bg-surface-soft px-3 py-3">
+                    <div className="grid gap-2 sm:grid-cols-2">
                         <ValidationRule
                             isValid={passwordValidation.minLength}
                             text="At least 8 characters"
@@ -208,7 +265,8 @@ const RegisterModal = () => {
                 <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute inset-y-0 right-4 flex items-center text-muted hover:text-ink"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute inset-y-0 right-3 flex items-center rounded-full px-2 text-muted hover:text-ink"
                 >
                     {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
                 </button>
@@ -218,14 +276,44 @@ const RegisterModal = () => {
         </div>
     );
 
+    const verifyContent = (
+        <div className="flex flex-col items-center px-1 pb-3 text-center">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-surface-soft text-primary"><Mail size={23} /></div>
+            <p className="text-sm leading-6 text-muted">We sent a code to</p>
+            <p className="max-w-full truncate text-sm font-semibold text-ink">{verificationEmail}</p>
+            <input
+                autoFocus
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                aria-label="Six-digit verification code"
+                value={verificationCode}
+                onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                onKeyDown={(event) => { if (event.key === "Enter") verifyEmail(); }}
+                placeholder="000000"
+                className="mt-6 w-full rounded-xl border border-hairline bg-white px-4 py-4 text-center text-2xl font-semibold tracking-[0.45em] text-ink outline-none transition placeholder:text-hairline focus:border-ink focus:ring-1 focus:ring-ink"
+            />
+            {previewCode && <p className="mt-3 rounded-lg bg-surface-soft px-3 py-2 text-xs text-muted">Local preview code: <strong className="text-ink">{previewCode}</strong></p>}
+            <p className="mt-5 text-xs text-muted">Code expires in 10 minutes. Didn’t get it? <button type="button" disabled={isLoading} onClick={resendCode} className="font-semibold text-ink hover:underline disabled:opacity-50">Send a new code</button></p>
+            <button type="button" onClick={() => setStage("details")} className="mt-3 text-xs text-muted hover:text-ink hover:underline">Change email</button>
+        </div>
+    );
+
+    const successContent = (
+        <div className="flex flex-col items-center px-2 py-4 text-center">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><Check size={30} strokeWidth={2.5} /></div>
+            <h3 className="text-xl font-semibold text-ink">Email verified</h3>
+            <p className="mt-2 max-w-xs text-sm leading-6 text-muted">Your account is ready. Continue to start exploring Redrive.</p>
+        </div>
+    );
+
     const footerContent = (
-        <div className="flex flex-col gap-4 mt-2 mx-6 mb-4">
+        <div className="flex flex-col gap-3 mt-2 mx-5 sm:mx-7 mb-5">
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-hairline-soft" />
                 </div>
                 <div className="relative flex justify-center">
-                    <span className="bg-white px-3 text-xs text-muted-soft uppercase tracking-wide">or</span>
+                    <span className="bg-white px-3 text-[11px] text-muted-soft uppercase tracking-widest">or</span>
                 </div>
             </div>
 
@@ -251,12 +339,13 @@ const RegisterModal = () => {
             disabled={isLoading}
             loading={isLoading}
             isOpen={registerModal.isOpen}
-            title="Sign up"
-            actionLabel="Continue"
+            title={stage === "details" ? "Create your account" : stage === "verify" ? "Check your email" : "You’re all set"}
+            actionLabel={stage === "details" ? "Create account" : stage === "verify" ? "Verify email" : "Continue to Redrive"}
             onClose={registerModal.onClose}
-            onSubmit={handleSubmit(onSubmit)}
-            body={bodyContent}
-            footer={footerContent}
+            onSubmit={stage === "details" ? handleSubmit(onSubmit) : stage === "verify" ? verifyEmail : continueAfterVerification}
+            body={stage === "details" ? bodyContent : stage === "verify" ? verifyContent : successContent}
+            footer={stage === "details" ? footerContent : undefined}
+            compact
         />
     );
 }

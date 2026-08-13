@@ -42,6 +42,10 @@ export const authOptions: AuthOptions = {
           throw new Error("Invalid credentials");
         }
 
+        if (user.verificationRequired && !user.emailVerified) {
+          throw new Error("Please verify your email before logging in");
+        }
+
         return user;
       },
     }),

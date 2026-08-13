@@ -37,6 +37,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (user.verificationRequired && !user.emailVerified) {
+      return NextResponse.json(
+        { error: "Please verify your email before logging in" },
+        { status: 403 }
+      );
+    }
+
     if (!process.env.NEXTAUTH_SECRET) {
       return NextResponse.json(
         { error: "Server misconfiguration: NEXTAUTH_SECRET is not set" },

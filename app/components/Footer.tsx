@@ -27,9 +27,9 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
         <div>
           <h3 className="text-title-sm font-medium text-ink mb-4">Support</h3>
           <ul className="flex flex-col gap-3 text-sm text-body">
-            <li>Help Center</li>
-            <li>Safety information</li>
-            <li>Cancellation options</li>
+            <li><Link href="/help-centre" className="hover:underline hover:text-ink">Help Centre</Link></li>
+            <li><Link href="/safety" className="hover:underline hover:text-ink">Safety information</Link></li>
+            <li><Link href="/cancellation-options" className="hover:underline hover:text-ink">Cancellation options</Link></li>
           </ul>
         </div>
 
@@ -44,17 +44,17 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
                 List your car
               </button>
             </li>
-            <li>Vehicle protection</li>
-            <li>Hosting resources</li>
+            <li><Link href="/vehicle-protection" className="hover:underline hover:text-ink">Vehicle protection</Link></li>
+            <li><Link href="/hosting-resources" className="hover:underline hover:text-ink">Hosting resources</Link></li>
           </ul>
         </div>
 
         <div>
           <h3 className="text-title-sm font-medium text-ink mb-4">Redrive</h3>
           <ul className="flex flex-col gap-3 text-sm text-body">
-            <li>About</li>
-            <li>Careers</li>
-            <li>Newsroom</li>
+            <li><Link href="/about" className="hover:underline hover:text-ink">About</Link></li>
+            <li><Link href="/careers" className="hover:underline hover:text-ink">Careers</Link></li>
+            <li><Link href="/newsroom" className="hover:underline hover:text-ink">Newsroom</Link></li>
           </ul>
         </div>
       </div>

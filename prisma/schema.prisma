@@ -12,6 +12,11 @@ model User {
   name           String?
   email          String?   @unique
   emailVerified  DateTime?
+  verificationCodeHash String?
+  verificationCodeExpires DateTime?
+  verificationCodeSentAt DateTime?
+  verificationAttempts Int @default(0)
+  verificationRequired Boolean?
   number         String?
   image          String?
   hashedPassword String?

@@ -72,7 +72,7 @@ const LoginModal = () => {
 
     const bodyContent = (
         <div className="flex flex-col gap-3">
-            <p className="text-body-sm text-muted mb-1">Log in to continue to Redrive.</p>
+            <p className="text-center text-sm text-muted mb-2">Welcome back. Log in to manage your trips and vehicles.</p>
             <Input
                 id="email"
                 label="Email"
@@ -93,7 +93,8 @@ const LoginModal = () => {
                 <button
                     type="button"
                     onClick={togglePasswordVisibility} // Click to toggle visibility
-                    className="absolute inset-y-0 right-4 flex items-center text-muted"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute inset-y-0 right-3 flex items-center rounded-full px-2 text-muted hover:text-ink"
                 >
                     {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />} {/* Toggle icons */}
                 </button>
@@ -102,13 +103,13 @@ const LoginModal = () => {
     )
 
     const footerContent = (
-        <div className="flex flex-col gap-4 mt-2 mx-6 mb-4">
+        <div className="flex flex-col gap-3 mt-2 mx-5 sm:mx-7 mb-5">
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-hairline-soft" />
                 </div>
                 <div className="relative flex justify-center">
-                    <span className="bg-white px-3 text-xs text-muted-soft uppercase tracking-wide">or</span>
+                    <span className="bg-white px-3 text-[11px] text-muted-soft uppercase tracking-widest">or</span>
                 </div>
             </div>
             <Button
@@ -138,6 +139,7 @@ const LoginModal = () => {
             onSubmit={handleSubmit(onSubmit)}
             body={bodyContent}
             footer={footerContent}
+            compact
         />
     );
 
