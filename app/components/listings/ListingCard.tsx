@@ -17,6 +17,7 @@ interface ListingCardProps {
     actionId?: string;
     currentUser?: SafeUser | null;
     showEditButton?: boolean;
+    priority?: boolean;
 }
 
 const ListingCard: React.FC<ListingCardProps> = memo(({
@@ -28,6 +29,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
     actionId = "",
     currentUser,
     showEditButton = false,
+    priority = false,
 }) => {
     const router = useRouter();
     const [imageLoaded, setImageLoaded] = useState(false);
@@ -62,7 +64,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
         if (Array.isArray(data.imageSrcs) && data.imageSrcs.length > 0) {
             return data.imageSrcs[0];
         }
-        return "/placeholder.png"; // Change to your placeholder image path
+        return "/images/placeholder.png";
     }, [data.imageSrcs]);
 
     return (
@@ -75,8 +77,8 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                     {!imageLoaded && <div className="absolute inset-0 shimmer" />}
                     <Image
                         fill
-                        priority
-                        sizes="100%"
+                        priority={priority}
+                        sizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 17vw"
                         alt="Listing"
                         src={imageUrl}
                         onLoad={() => setImageLoaded(true)}

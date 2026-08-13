@@ -22,7 +22,22 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      ...currentUser,
+      id: currentUser.id,
+      name: currentUser.name,
+      email: currentUser.email,
+      number: currentUser.number,
+      image: currentUser.image,
+      streetAddress: currentUser.streetAddress,
+      suburb: currentUser.suburb,
+      state: currentUser.state,
+      postcode: currentUser.postcode,
+      hobbies: currentUser.hobbies,
+      dreamDestinations: currentUser.dreamDestinations,
+      licenseImage: currentUser.licenseImage,
+      licenseType: currentUser.licenseType,
+      profileVerified: currentUser.profileVerified,
+      loginOtpEnabled: currentUser.loginOtpEnabled,
+      hasPassword: Boolean(currentUser.hashedPassword),
       createdAt: currentUser.createdAt.toISOString(),
       updatedAt: currentUser.updatedAt.toISOString(),
       emailVerified: currentUser.emailVerified?.toISOString() || null,

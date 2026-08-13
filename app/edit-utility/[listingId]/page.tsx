@@ -263,12 +263,6 @@ const EditUtilityPage = () => {
                 <div className="mb-8">
                     <p className="font-semibold mb-4 text-ink">Location</p>
                     <div className="flex flex-col gap-6">
-                        <StateSelector value={selectedState} onChange={setSelectedState} />
-                        <SuburbSelector
-                            state={selectedState?.value}
-                            value={selectedSuburb}
-                            onChange={setSelectedSuburb}
-                        />
                         <AddressAutocomplete
                             id="address"
                             label="Number & Street Address"
@@ -278,6 +272,19 @@ const EditUtilityPage = () => {
                             required
                             onSelect={onAddressSelect}
                         />
+                        <SuburbSelector
+                            state={selectedState?.value}
+                            value={selectedSuburb}
+                            allowAllStates
+                            onChange={(selected) => {
+                                setSelectedSuburb(selected);
+                                if (selected.state) {
+                                    const state = AU_STATES.find((item) => item.value === selected.state);
+                                    if (state) setSelectedState(state);
+                                }
+                            }}
+                        />
+                        <StateSelector value={selectedState} onChange={setSelectedState} />
                     </div>
                 </div>
 

@@ -7,6 +7,8 @@ import Logo from "./Logo";
 import Search from "./Search";
 import UserMenu from "./UserMenu";
 import { SafeUser } from "@/app/types";
+import { Suspense } from "react";
+import { BiSearch } from "react-icons/bi";
 
 interface NavbarProps {
   currentUser?: SafeUser | null;
@@ -29,7 +31,9 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
             </div>
             <div className="flex-1 min-w-0 flex md:justify-center">
               <div className="w-full md:w-auto">
-                <Search /> {/* ✅ Conditionally render search bar */}
+                <Suspense fallback={<SearchFallback />}>
+                  <Search />
+                </Suspense>
               </div>
             </div>
             <div className="shrink-0">
@@ -38,9 +42,23 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
           </div>
         </Container>
       </div>
-      <Categories />
+      {pathname === "/" && (
+        <Suspense fallback={<div className="h-[58px] border-t border-transparent" aria-hidden="true" />}>
+          <Categories />
+        </Suspense>
+      )}
     </div>
   );
 };
 
 export default Navbar;
+
+function SearchFallback() {
+  return (
+    <div className="flex h-[46px] w-full items-center justify-between rounded-full border border-hairline bg-white py-2 shadow-card md:w-[460px]" aria-hidden="true">
+      <span className="px-6 text-sm font-medium text-ink">Anywhere</span>
+      <span className="hidden flex-1 border-x border-hairline px-10 text-center text-sm font-medium text-ink sm:block">Any Week</span>
+      <span className="mr-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white"><BiSearch size={18} /></span>
+    </div>
+  );
+}

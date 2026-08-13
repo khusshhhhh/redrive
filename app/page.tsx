@@ -1,11 +1,9 @@
 import getListings, { IListingsParams } from "./actions/getListings";
 import getCurrentUser from "./actions/getCurrentUser";
-import ClientOnly from "./components/ClientOnly";
 import Container from "./components/Container";
 import EmptyState from "./components/EmptyState";
 import ListingCard from "./components/listings/ListingCard";
 import RecentlyViewed from "./components/RecentlyViewed";
-import { headers } from "next/headers";
 
 interface HomeProps {
   searchParams?: IListingsParams;
@@ -16,28 +14,17 @@ const Home = async ({ searchParams }: HomeProps) => {
   const resolvedSearchParams = await Promise.resolve(searchParams);
   const params: IListingsParams = resolvedSearchParams ? { ...resolvedSearchParams } : {};
 
-  // Fallback: if no searchParams, attempt to extract from referer headers.
-  if (!resolvedSearchParams) {
-    const referer = (await headers()).get("referer") || "";
-    const urlParams = new URLSearchParams(referer);
-    urlParams.forEach((value, key) => {
-      params[key] = value;
-    });
-  }
-
-  const listings = await getListings(params);
-  const currentUser = await getCurrentUser();
+  const [listings, currentUser] = await Promise.all([
+    getListings(params),
+    getCurrentUser(),
+  ]);
 
   // Check if any filters are applied
   const hasFilters = Object.values(params).some(value => value !== undefined && value !== '');
 
   return (
-    <ClientOnly>
       <Container>
         <div className="pt-8 space-y-12">
-          {/* Recently Viewed - only for returning visitors with browsing history */}
-          {!hasFilters && <RecentlyViewed currentUser={currentUser} />}
-
           {/* Results Header */}
           {hasFilters && (
             <div>
@@ -67,11 +54,12 @@ const Home = async ({ searchParams }: HomeProps) => {
                 2xl:grid-cols-6
                 gap-x-4 gap-y-8
               ">
-                {listings.map((listing) => (
+                {listings.map((listing, index) => (
                   <ListingCard
                     currentUser={currentUser}
                     key={listing.id}
                     data={listing}
+                    priority={index < 2}
                   />
                 ))}
               </div>
@@ -86,9 +74,12 @@ const Home = async ({ searchParams }: HomeProps) => {
               )}
             </div>
           )}
+
+          {/* Loaded below the stable results grid so browser-only history cannot
+              push the primary content down and create layout shift. */}
+          {!hasFilters && <RecentlyViewed currentUser={currentUser} />}
         </div>
       </Container>
-    </ClientOnly>
   );
 };
 

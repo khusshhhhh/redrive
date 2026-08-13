@@ -386,9 +386,11 @@ redrive/
 
 ### **Environment Setup**
 
-Copy `.env.example` to `.env` and fill in the values (see the comments in
-that file for where to get each one — MongoDB connection string, NextAuth
-secret, Google OAuth/Maps/Places keys, and Cloudinary credentials).
+Copy `.env.example` to `.env.local` and fill in the values. See
+[`ENVIRONMENT_VARIABLES_GUIDE.md`](ENVIRONMENT_VARIABLES_GUIDE.md) for the
+complete local and Vercel walkthrough, including MongoDB, authentication,
+email verification, Google Maps/Places, Cloudinary, cron jobs and secret
+rotation.
 
 ---
 

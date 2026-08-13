@@ -50,6 +50,18 @@ export async function POST(request: Request) {
       );
     }
 
+    const passwordIsStrong = password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /[0-9]/.test(password) &&
+      /[^A-Za-z0-9]/.test(password);
+    if (!passwordIsStrong) {
+      return NextResponse.json(
+        { error: "Password must include uppercase, lowercase, number and symbol" },
+        { status: 400 }
+      );
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
     const code = createVerificationCode();
     const verificationData = {

@@ -1,10 +1,9 @@
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import prisma from "@/app/libs/prismadb";
 import { getServerSession } from "next-auth";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { headers } from "next/headers";
+import { cache } from "react";
 
-export default async function getCurrentUser() {
+const getCurrentUser = cache(async () => {
   try {
     // Fetch session with correct request context
     const session = await getServerSession(authOptions);
@@ -24,14 +23,32 @@ export default async function getCurrentUser() {
     }
 
     return {
-      ...currentUser,
+      id: currentUser.id,
+      name: currentUser.name,
+      email: currentUser.email,
+      number: currentUser.number,
+      image: currentUser.image,
       createdAt: currentUser.createdAt.toISOString(),
       updatedAt: currentUser.updatedAt.toISOString(),
       emailVerified: currentUser.emailVerified?.toISOString() || null,
       lastActiveAt: currentUser.lastActiveAt?.toISOString() || null,
+      favoriteIds: currentUser.favoriteIds,
+      streetAddress: currentUser.streetAddress,
+      suburb: currentUser.suburb,
+      state: currentUser.state,
+      postcode: currentUser.postcode,
+      hobbies: currentUser.hobbies,
+      dreamDestinations: currentUser.dreamDestinations,
+      licenseImage: currentUser.licenseImage,
+      licenseType: currentUser.licenseType,
+      profileVerified: currentUser.profileVerified,
+      loginOtpEnabled: currentUser.loginOtpEnabled,
+      hasPassword: Boolean(currentUser.hashedPassword),
     };
   } catch (error) {
     console.error("Error fetching current user:", error);
     return null;
   }
-}
+});
+
+export default getCurrentUser;

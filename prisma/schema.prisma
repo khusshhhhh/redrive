@@ -17,6 +17,11 @@ model User {
   verificationCodeSentAt DateTime?
   verificationAttempts Int @default(0)
   verificationRequired Boolean?
+  loginOtpEnabled Boolean @default(false)
+  loginOtpCodeHash String?
+  loginOtpCodeExpires DateTime?
+  loginOtpCodeSentAt DateTime?
+  loginOtpAttempts Int @default(0)
   number         String?
   image          String?
   hashedPassword String?

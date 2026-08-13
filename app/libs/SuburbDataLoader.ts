@@ -65,6 +65,18 @@ class SuburbDataLoader {
       .sort((a, b) => a.label.localeCompare(b.label));
   }
 
+  getAllSuburbs(): { value: string; label: string; postcode?: number; state?: string }[] {
+    if (!this.data) return [];
+    return this.data
+      .map((suburb) => ({
+        value: suburb.suburb,
+        label: `${suburb.suburb}, ${suburb.postcode} · ${suburb.state}`,
+        postcode: suburb.postcode,
+        state: suburb.state,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }
+
   findSuburbCoordinates(suburb: string, state: string): { lat: number; lng: number } | null {
     if (!this.data) {
       return null;

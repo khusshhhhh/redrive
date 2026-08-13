@@ -332,30 +332,7 @@ const RentModal = () => {
                     subtitle="Help redrivers find you!"
                 />
                 <div className="flex flex-col gap-8">
-                    {/* ✅ State Selector */}
-                    <div>
-                        <label className="block text-ink text-sm font-semibold mb-2">
-                            State
-                        </label>
-                        <StateSelector
-                            value={selectedState}
-                            onChange={setSelectedState}
-                        />
-                    </div>
-
-                    {/* ✅ Suburb Selector (Dynamically updates based on state) */}
-                    <div>
-                        <label className="block text-ink text-sm font-semibold mb-2">
-                            Suburb
-                        </label>
-                        <SuburbSelector
-                            state={selectedState?.value}
-                            value={selectedSuburb}
-                            onChange={setSelectedSuburb}
-                        />
-                    </div>
-
-                    {/* Google Places Autocomplete for Address */}
+                    {/* Address first: selecting a Google result fills suburb and state. */}
                     <div>
                         <label className="block text-ink text-sm font-semibold mb-2">
                             Number & Street Address
@@ -370,6 +347,34 @@ const RentModal = () => {
                             validate={(value) => value.trim() !== "" || "Address is required"}
                             onManualChange={setAddress}
                             onSelect={onAddressSelect}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-ink text-sm font-semibold mb-2">
+                            Suburb
+                        </label>
+                        <SuburbSelector
+                            state={selectedState?.value}
+                            value={selectedSuburb}
+                            allowAllStates
+                            onChange={(selected) => {
+                                setSelectedSuburb(selected);
+                                if (selected.state) {
+                                    const state = AU_STATES.find((item) => item.value === selected.state);
+                                    if (state) setSelectedState(state);
+                                }
+                            }}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-ink text-sm font-semibold mb-2">
+                            State
+                        </label>
+                        <StateSelector
+                            value={selectedState}
+                            onChange={setSelectedState}
                         />
                     </div>
 

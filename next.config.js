@@ -27,28 +27,6 @@ const nextConfig = {
       'lucide-react'
     ],
   },
-  webpack: (config, { dev, isServer }) => {
-    if (!dev && !isServer) {
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          icons: {
-            name: 'icons',
-            test: /[\\/]node_modules[\\/](@tabler\/icons-react|react-icons|lucide-react)[\\/]/,
-            chunks: 'all',
-            priority: 10,
-          },
-          vendor: {
-            name: 'vendor',
-            test: /[\\/]node_modules[\\/]/,
-            chunks: 'all',
-            priority: 1,
-          },
-        },
-      };
-    }
-    return config;
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },

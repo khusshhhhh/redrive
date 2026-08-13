@@ -44,6 +44,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (user.loginOtpEnabled) {
+      return NextResponse.json(
+        { error: "Email login verification is enabled. Use the Redrive sign-in window to continue." },
+        { status: 403 }
+      );
+    }
+
     if (!process.env.NEXTAUTH_SECRET) {
       return NextResponse.json(
         { error: "Server misconfiguration: NEXTAUTH_SECRET is not set" },

@@ -21,14 +21,18 @@ export type SafeReservation = Omit<
   status: string;
 };
 
-export type SafeUser = Omit<
+export type SafeUser = Pick<
   User,
-  "createdAt" | "updatedAt" | "emailVerified" | "lastActiveAt"
+  | "id" | "name" | "email" | "number" | "image" | "favoriteIds"
+  | "streetAddress" | "suburb" | "state" | "postcode" | "hobbies"
+  | "dreamDestinations" | "licenseImage" | "licenseType"
+  | "profileVerified" | "loginOtpEnabled"
 > & {
   createdAt: string;
   updatedAt: string;
   emailVerified: string | null;
   lastActiveAt: string | null;
+  hasPassword?: boolean;
 };
 
 // Minimal presence-bearing user info attached to a chat (avatar/name/online

@@ -5,19 +5,27 @@ import Select from "react-select";
 import SuburbDataLoader from "@/app/libs/SuburbDataLoader";
 import { selectClassNames, selectStyles } from "./selectStyles";
 
-interface SuburbSelectorProps {
+export interface SuburbOption {
+    value: string;
+    label: string;
+    postcode?: number;
     state?: string;
-    value?: { value: string; label: string; postcode?: number };
-    onChange: (value: { value: string; label: string; postcode?: number }) => void;
 }
 
-const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onChange }) => {
-    const [suburbs, setSuburbs] = useState<{ value: string; label: string; postcode?: number }[]>([]);
+interface SuburbSelectorProps {
+    state?: string;
+    value?: SuburbOption;
+    onChange: (value: SuburbOption) => void;
+    allowAllStates?: boolean;
+}
+
+const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onChange, allowAllStates = false }) => {
+    const [suburbs, setSuburbs] = useState<SuburbOption[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!state) {
+        if (!state && !allowAllStates) {
             setSuburbs([]);
             setError(null);
             return;
@@ -30,7 +38,9 @@ const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onCh
             try {
                 const dataLoader = SuburbDataLoader.getInstance();
                 await dataLoader.loadData();
-                const filteredSuburbs = dataLoader.getSuburbsByState(state);
+                const filteredSuburbs = allowAllStates
+                    ? dataLoader.getAllSuburbs()
+                    : dataLoader.getSuburbsByState(state!);
                 
                 if (filteredSuburbs.length === 0) {
                     setError("No suburbs found for this state.");
@@ -48,13 +58,13 @@ const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onCh
         };
 
         loadSuburbs();
-    }, [state]);
+    }, [state, allowAllStates]);
 
     return (
         <div>
             <Select
                 unstyled
-                placeholder={loading ? "Loading suburbs..." : "Search a Suburb"}
+                placeholder={loading ? "Loading suburbs..." : "Search suburb or postcode"}
                 isClearable
                 options={suburbs}
                 value={value}
@@ -66,7 +76,7 @@ const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onCh
                 classNames={selectClassNames}
                 styles={selectStyles}
                 menuPortalTarget={typeof window !== "undefined" ? document.body : undefined}
-                isDisabled={!state || loading}
+                isDisabled={(!state && !allowAllStates) || loading}
             />
 
             {error && <p className="text-error mt-2 text-sm">{error}</p>}

@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import SuburbDataLoader from '@/app/libs/SuburbDataLoader';
+import React from 'react';
 import usePresence from '@/app/hooks/usePresence';
 
 interface DataPreloaderProps {
@@ -9,12 +8,6 @@ interface DataPreloaderProps {
 }
 
 const DataPreloader: React.FC<DataPreloaderProps> = ({ isAuthenticated = false }) => {
-  useEffect(() => {
-    // Preload suburb data in the background
-    const dataLoader = SuburbDataLoader.getInstance();
-    dataLoader.preload();
-  }, []);
-
   usePresence(isAuthenticated);
 
   return null; // This component doesn't render anything
