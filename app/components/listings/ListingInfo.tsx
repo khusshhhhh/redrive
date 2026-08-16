@@ -227,7 +227,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                 </div>
                 <div className="ml-7 text-body-md text-ink">{address}</div>
                 <div className="ml-7 mt-2">
-                    <ListingMap address="" suburb={suburb} state={state} />
+                    <ListingMap suburb={suburb} state={state} />
                 </div>
             </div>
             <hr className="border-hairline-soft" />

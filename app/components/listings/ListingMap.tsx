@@ -1,124 +1,107 @@
-'use client';
+"use client";
 
 import { useEffect, useRef, useState } from "react";
+import { IconMapPin } from "@tabler/icons-react";
 import { loadGoogleMaps } from "@/app/libs/GoogleMapLoader";
 
 interface ListingMapProps {
-    address: string;
-    suburb: string;
-    state: string;
+  suburb: string;
+  state: string;
 }
 
-const ListingMap: React.FC<ListingMapProps> = ({ address, suburb, state }) => {
-    const mapRef = useRef<HTMLDivElement>(null);
-    const [mapLoaded, setMapLoaded] = useState(false);
+const ListingMap: React.FC<ListingMapProps> = ({ suburb, state }) => {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
 
-    useEffect(() => {
-        loadGoogleMaps().then((google) => {
-            if (!mapRef.current) return;
+  useEffect(() => {
+    if (!suburb || !state) {
+      setStatus("error");
+      return;
+    }
+
+    let cancelled = false;
+    setStatus("loading");
+
+    loadGoogleMaps()
+      .then((google) => {
+        if (cancelled || !mapRef.current) return;
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode(
+          {
+            address: `${suburb}, ${state}, Australia`,
+            componentRestrictions: { country: "AU" },
+          },
+          (results, geocodeStatus) => {
+            if (cancelled || !mapRef.current) return;
+            const result = results?.[0];
+            if (geocodeStatus !== "OK" || !result?.geometry?.location) {
+              setStatus("error");
+              return;
+            }
 
             const map = new google.maps.Map(mapRef.current, {
-                zoom: 12,
-                center: { lat: -34.82, lng: 138.56 }, // Default center (change dynamically)
-                styles: [
-                    {
-                        elementType: "geometry",
-                        stylers: [{ color: "#f5f5f5" }]
-                    },
-                    {
-                        elementType: "labels.icon",
-                        stylers: [{ visibility: "off" }]
-                    },
-                    {
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#616161" }]
-                    },
-                    {
-                        elementType: "labels.text.stroke",
-                        stylers: [{ color: "#f5f5f5" }]
-                    },
-                    {
-                        featureType: "administrative.land_parcel",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#bdbdbd" }]
-                    },
-                    {
-                        featureType: "poi",
-                        elementType: "geometry",
-                        stylers: [{ color: "#eeeeee" }]
-                    },
-                    {
-                        featureType: "poi",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#757575" }]
-                    },
-                    {
-                        featureType: "road",
-                        elementType: "geometry",
-                        stylers: [{ color: "#ffffff" }]
-                    },
-                    {
-                        featureType: "road.arterial",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#757575" }]
-                    },
-                    {
-                        featureType: "road.highway",
-                        elementType: "geometry",
-                        stylers: [{ color: "#dadada" }]
-                    },
-                    {
-                        featureType: "road.highway",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#616161" }]
-                    },
-                    {
-                        featureType: "transit",
-                        elementType: "geometry",
-                        stylers: [{ color: "#e5e5e5" }]
-                    },
-                    {
-                        featureType: "water",
-                        elementType: "geometry",
-                        stylers: [{ color: "#c9c9c9" }]
-                    },
-                    {
-                        featureType: "water",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#9e9e9e" }]
-                    }
-                ]
+              center: result.geometry.location,
+              zoom: 14,
+              disableDefaultUI: true,
+              gestureHandling: "none",
+              keyboardShortcuts: false,
+              clickableIcons: false,
+              mapTypeId: google.maps.MapTypeId.ROADMAP,
+              mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || undefined,
             });
 
-            const geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ address: `${address}, ${suburb}, ${state}` }, (results, status) => {
-                if (status === "OK" && results[0].geometry.location) {
-                    new google.maps.Marker({
-                        position: results[0].geometry.location,
-                        map: map,
-                        title: address,
-                        icon: {
-                            url: "/marker.svg", // ✅ Use SVG from public folder
-                            scaledSize: new google.maps.Size(80, 80), // ✅ Resize if needed
-                            anchor: new google.maps.Point(20, 40), // ✅ Adjust anchor if necessary
-                        }
-                    });
-                    map.setCenter(results[0].geometry.location);
-                }
+            if (result.geometry.viewport) {
+              map.fitBounds(result.geometry.viewport, 28);
+              google.maps.event.addListenerOnce(map, "idle", () => {
+                if ((map.getZoom() || 0) < 13) map.setZoom(13);
+                if ((map.getZoom() || 0) > 15) map.setZoom(15);
+              });
+            }
+
+            // Show an approximate suburb area without revealing the owner's address.
+            new google.maps.Circle({
+              map,
+              center: result.geometry.location,
+              radius: 550,
+              clickable: false,
+              strokeColor: "#087E8B",
+              strokeOpacity: 0.9,
+              strokeWeight: 2,
+              fillColor: "#087E8B",
+              fillOpacity: 0.12,
             });
+            setStatus("ready");
+          }
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("error");
+      });
 
-            setMapLoaded(true);
-        });
-    }, [address, suburb, state]);
+    return () => {
+      cancelled = true;
+    };
+  }, [suburb, state]);
 
-    return (
-        <div className="relative h-[45vh] w-full rounded-md overflow-hidden border border-hairline-soft">
-            {!mapLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center shimmer" />
-            )}
-            <div ref={mapRef} className="h-full w-full" />
+  return (
+    <div className="relative aspect-[4/3] min-h-64 w-full overflow-hidden rounded-md border border-hairline-soft bg-surface-soft sm:aspect-[16/9] sm:min-h-80" aria-label={`Map showing ${suburb}, ${state}`}>
+      <div ref={mapRef} className="h-full w-full" />
+      {status === "loading" && <div className="skeleton-wave absolute inset-0" role="status" aria-label="Loading suburb map" />}
+      {status === "error" && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface-soft px-6 text-center">
+          <IconMapPin size={28} className="text-primary" />
+          <p className="font-semibold text-ink">{suburb}, {state}</p>
+          <p className="text-sm text-muted">The suburb map is temporarily unavailable.</p>
         </div>
-    );
+      )}
+      {status === "ready" && (
+        <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2 rounded-full bg-white/95 px-3 py-2 text-sm font-semibold text-ink shadow-card backdrop-blur-sm">
+          <IconMapPin size={17} className="text-primary" />
+          Near {suburb}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default ListingMap;

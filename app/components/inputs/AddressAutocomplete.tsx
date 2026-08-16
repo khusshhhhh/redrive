@@ -191,7 +191,7 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
 
             {loading && (
                 <div className="absolute right-4 top-6">
-                    <DotLoader size="sm" color="#705C52" />
+                    <DotLoader size="sm" color="#506B72" />
                 </div>
             )}
 

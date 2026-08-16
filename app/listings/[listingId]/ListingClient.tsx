@@ -184,7 +184,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                                 driveChain={listing.driveChain}
                                 // ✅ Replace locationValue with formatted address
                                 address={`${listing.suburb}, ${listing.state}`}
-                                amenities={listing.amenities} state={""} suburb={""} />
+                                amenities={listing.amenities} state={listing.state} suburb={listing.suburb} />
                         </div>
                         <div className="order-last mb-10 md:order-last md:col-span-1">
                             <div className="md:sticky md:top-28">

@@ -226,18 +226,18 @@ If a message doesn't arrive live but appears after a manual page refresh, check 
 
 ## 11. Candidate application colour schemes
 
-Outback Ember is the active application palette. The remaining schemes are retained as future alternatives. Each palette keeps a light marketplace interface and provides a primary action colour, hover colour, dark text, soft surface and subtle border.
+Coastal Drive is the active application palette. The remaining schemes are retained as future alternatives. Each palette keeps a light marketplace interface and provides a primary action colour, hover colour, dark text, soft surface and subtle border.
 
 | Option | Direction | Primary | Primary hover | Ink | Soft surface | Border |
 |---|---|---:|---:|---:|---:|---:|
-| Coastal Drive | Calm, trustworthy and distinctly Australian | `#087E8B` | `#066A75` | `#16323A` | `#F1F8F8` | `#D7E7E8` |
-| **Outback Ember (active)** | Warm, adventurous and memorable | `#D65A31` | `#B94824` | `#2B211D` | `#FFF6F1` | `#F0DDD3` |
+| **Coastal Drive (active)** | Calm, trustworthy and distinctly Australian | `#087E8B` | `#066A75` | `#16323A` | `#F1F8F8` | `#D7E7E8` |
+| Outback Ember | Warm, adventurous and memorable | `#D65A31` | `#B94824` | `#2B211D` | `#FFF6F1` | `#F0DDD3` |
 | Eucalyptus | Natural, practical and sustainability-led | `#2F7D65` | `#256650` | `#20332D` | `#F2F7F4` | `#D9E6DF` |
 | Electric Indigo | Modern, energetic and technology-forward | `#4F46E5` | `#4338CA` | `#20213A` | `#F4F4FF` | `#DEDEFA` |
 | Sunset Coral | Friendly and travel-focused while retaining the current warmth | `#E34F67` | `#C93D54` | `#2D2326` | `#FFF4F6` | `#F1DCE1` |
 
 ### Current selection
 
-**Outback Ember** is applied across the app’s actions, navigation accents, typography, borders, surfaces, loading states, date controls, logo and transactional emails. The palette gives Redrive a warmer, more adventurous identity while retaining a clear marketplace hierarchy.
+**Coastal Drive** is applied across the app’s actions, navigation accents, typography, borders, surfaces, loading states, date controls, logo, map accents and transactional emails. The palette gives Redrive a calm, trustworthy coastal identity while retaining a clear marketplace hierarchy.
 
 Before adopting a palette, test normal text, muted text, buttons, focus rings and error states against WCAG AA contrast targets. Keep semantic colours such as success, warning and error separate from the brand primary colour.

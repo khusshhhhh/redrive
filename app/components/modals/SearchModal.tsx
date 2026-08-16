@@ -154,15 +154,15 @@ const SearchModal = () => {
                                 max={10000}
                                 step={50}
                                 sx={{
-                                    color: "#D65A31", // Outback Ember accent
+                                    color: "#087E8B", // Coastal Drive accent
                                     "& .MuiSlider-thumb": {
-                                        backgroundColor: "#D65A31",
+                                        backgroundColor: "#087E8B",
                                     },
                                     "& .MuiSlider-track": {
-                                        backgroundColor: "#D65A31",
+                                        backgroundColor: "#087E8B",
                                     },
                                     "& .MuiSlider-rail": {
-                                        backgroundColor: "#F0DDD3",
+                                        backgroundColor: "#D7E7E8",
                                     },
                                 }}
                             />

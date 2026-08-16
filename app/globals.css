@@ -66,13 +66,13 @@ body {
   display: none;
 }
 
-/* Outback Ember date picker overrides for react-date-range (light mode only). */
+/* Coastal Drive date picker overrides for react-date-range (light mode only). */
 .rdrCalendarWrapper {
-  color: #2b211d;
+  color: #16323a;
 }
 
 .rdrDayNumber span {
-  color: #2b211d;
+  color: #16323a;
 }
 
 .rdrDay:not(.rdrDayPassive) .rdrInRange ~ .rdrDayNumber span,
@@ -83,19 +83,19 @@ body {
 }
 
 .rdrDayToday .rdrDayNumber span:after {
-  background: #d65a31;
+  background: #087e8b;
 }
 
 .rdrInRange, .rdrStartEdge, .rdrEndEdge, .rdrSelected {
-  background: #d65a31 !important;
+  background: #087e8b !important;
 }
 
 .rdrDayHovered:not(.rdrDayPassive) .rdrDayNumber {
-  border-color: #f0ddd3;
+  border-color: #d7e7e8;
 }
 
 .rdrMonthAndYearPickers select {
-  color: #2b211d;
+  color: #16323a;
 }
 
 /* Loading motion: quiet, brand-consistent and stable in layout. */
