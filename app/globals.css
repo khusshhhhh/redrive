@@ -111,6 +111,7 @@ body {
   }
 }
 
+<<<<<<< ours
 /* A soft travelling highlight used by every route skeleton. Keeping the
    contrast low avoids the flashing feel of animate-pulse on large screens. */
 .shimmer,
@@ -128,6 +129,45 @@ body {
   transform: translateX(-110%);
   background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / 72%) 48%, transparent 76%);
   animation: shimmerSweep 1.65s cubic-bezier(.4, 0, .2, 1) infinite;
+=======
+/* A quiet highlight that gives pending buttons a sense of motion without
+   changing their dimensions or competing with their label. */
+.button-loading-sheen {
+  position: absolute;
+  inset: 0;
+  transform: translateX(-110%);
+  background: linear-gradient(105deg, transparent 25%, rgb(255 255 255 / 18%) 48%, transparent 72%);
+  animation: buttonSheen 1.5s ease-in-out infinite;
+}
+
+@keyframes buttonSheen {
+  to { transform: translateX(110%); }
+}
+
+@keyframes loadingFadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-loadingFadeIn {
+  animation: loadingFadeIn 180ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-loading-sheen,
+  .animate-loadingFadeIn {
+    animation: none;
+  }
+}
+
+/* Shimmer skeleton — a moving highlight sweep, used in place of a flat
+   animate-pulse block so loading states read as "in progress" rather than
+   just dim placeholders. */
+.shimmer {
+  background: linear-gradient(90deg, #f2f2f2 25%, #ebebeb 37%, #f2f2f2 63%);
+  background-size: 400% 100%;
+  animation: shimmerSweep 1.4s ease-in-out infinite;
+>>>>>>> theirs
 }
 
 @keyframes shimmerSweep {
