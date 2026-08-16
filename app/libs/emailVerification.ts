@@ -71,12 +71,12 @@ export async function sendVerificationEmail(email: string, code: string) {
     subject: `${code} is your Redrive verification code`,
     text: `Your Redrive verification code is ${code}. It expires in ${CODE_TTL_MINUTES} minutes. If you did not create an account, you can ignore this email.`,
     html: `
-      <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:32px;color:#222">
-        <div style="font-size:22px;font-weight:700;margin-bottom:28px">Redrive</div>
+      <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:32px;color:#2B211D">
+        <div style="font-size:22px;font-weight:700;margin-bottom:28px;color:#D65A31">Redrive</div>
         <h1 style="font-size:24px;margin:0 0 12px">Verify your email</h1>
-        <p style="color:#666;line-height:1.6">Enter this code to finish creating your account. It expires in ${CODE_TTL_MINUTES} minutes.</p>
-        <div style="font-size:34px;font-weight:700;letter-spacing:10px;background:#f7f7f7;border-radius:12px;padding:20px;text-align:center;margin:24px 0">${code}</div>
-        <p style="font-size:13px;color:#888">If you did not create a Redrive account, you can safely ignore this email.</p>
+        <p style="color:#705C52;line-height:1.6">Enter this code to finish creating your account. It expires in ${CODE_TTL_MINUTES} minutes.</p>
+        <div style="font-size:34px;font-weight:700;letter-spacing:10px;background:#FFF6F1;border:1px solid #F0DDD3;border-radius:12px;padding:20px;text-align:center;margin:24px 0">${code}</div>
+        <p style="font-size:13px;color:#967E72">If you did not create a Redrive account, you can safely ignore this email.</p>
       </div>`,
   });
 
@@ -103,12 +103,12 @@ export async function sendLoginOtpEmail(email: string, code: string) {
     subject: `${code} is your Redrive login code`,
     text: `Your Redrive login code is ${code}. It expires in ${CODE_TTL_MINUTES} minutes. If this was not you, change your password.`,
     html: `
-      <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:32px;color:#222">
-        <div style="font-size:22px;font-weight:700;margin-bottom:28px">Redrive</div>
+      <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:32px;color:#2B211D">
+        <div style="font-size:22px;font-weight:700;margin-bottom:28px;color:#D65A31">Redrive</div>
         <h1 style="font-size:24px;margin:0 0 12px">Confirm it’s you</h1>
-        <p style="color:#666;line-height:1.6">Enter this code to complete your login. It expires in ${CODE_TTL_MINUTES} minutes.</p>
-        <div style="font-size:34px;font-weight:700;letter-spacing:10px;background:#f7f7f7;border-radius:12px;padding:20px;text-align:center;margin:24px 0">${code}</div>
-        <p style="font-size:13px;color:#888">If you did not try to log in, change your password and review your account.</p>
+        <p style="color:#705C52;line-height:1.6">Enter this code to complete your login. It expires in ${CODE_TTL_MINUTES} minutes.</p>
+        <div style="font-size:34px;font-weight:700;letter-spacing:10px;background:#FFF6F1;border:1px solid #F0DDD3;border-radius:12px;padding:20px;text-align:center;margin:24px 0">${code}</div>
+        <p style="font-size:13px;color:#967E72">If you did not try to log in, change your password and review your account.</p>
       </div>`,
   });
 

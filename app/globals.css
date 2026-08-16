@@ -8,6 +8,18 @@ body,
   height: 100%;
 }
 
+/* Keep the document scrollable while removing the browser chrome around it. */
+html,
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   /* Network-independent Airbnb-style fallback stack. This keeps Vercel builds
      deterministic and avoids late web-font swaps that can contribute to CLS. */
@@ -43,13 +55,13 @@ body {
   display: none;
 }
 
-/* Airbnb-style date picker overrides for react-date-range (light mode only). */
+/* Outback Ember date picker overrides for react-date-range (light mode only). */
 .rdrCalendarWrapper {
-  color: #222222;
+  color: #2b211d;
 }
 
 .rdrDayNumber span {
-  color: #222222;
+  color: #2b211d;
 }
 
 .rdrDay:not(.rdrDayPassive) .rdrInRange ~ .rdrDayNumber span,
@@ -60,19 +72,19 @@ body {
 }
 
 .rdrDayToday .rdrDayNumber span:after {
-  background: #ff385c;
+  background: #d65a31;
 }
 
 .rdrInRange, .rdrStartEdge, .rdrEndEdge, .rdrSelected {
-  background: #222222 !important;
+  background: #d65a31 !important;
 }
 
 .rdrDayHovered:not(.rdrDayPassive) .rdrDayNumber {
-  border-color: #dddddd;
+  border-color: #f0ddd3;
 }
 
 .rdrMonthAndYearPickers select {
-  color: #222222;
+  color: #2b211d;
 }
 
 /* Loading motion: quiet, brand-consistent and stable in layout. */
@@ -117,7 +129,7 @@ body {
 .skeleton-wave {
   position: relative;
   overflow: hidden;
-  background: #f2f2f2;
+  background: #fbe9df;
 }
 
 .shimmer::after,
@@ -126,7 +138,7 @@ body {
   position: absolute;
   inset: 0;
   transform: translateX(-110%);
-  background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / 72%) 48%, transparent 76%);
+  background: linear-gradient(100deg, transparent 20%, rgb(255 246 241 / 88%) 48%, transparent 76%);
   animation: shimmerSweep 1.65s cubic-bezier(.4, 0, .2, 1) infinite;
 }
 

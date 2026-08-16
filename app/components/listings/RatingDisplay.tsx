@@ -10,10 +10,10 @@ const Laurel: React.FC<LaurelProps> = ({ flip }) => (
         height="64"
         viewBox="0 0 40 64"
         fill="none"
-        className={flip ? "scale-x-[-1]" : ""}
+        className={`text-ink ${flip ? "scale-x-[-1]" : ""}`}
         aria-hidden="true"
     >
-        <path d="M32 4 Q12 26 14 58" stroke="#222222" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+        <path d="M32 4 Q12 26 14 58" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" />
         {[
             { cx: 30, cy: 10, rot: 25 },
             { cx: 23, cy: 20, rot: 45 },
@@ -27,7 +27,7 @@ const Laurel: React.FC<LaurelProps> = ({ flip }) => (
                 cy={leaf.cy}
                 rx="5.5"
                 ry="2.6"
-                stroke="#222222"
+                stroke="currentColor"
                 strokeWidth="1.1"
                 fill="none"
                 transform={`rotate(${leaf.rot} ${leaf.cx} ${leaf.cy})`}

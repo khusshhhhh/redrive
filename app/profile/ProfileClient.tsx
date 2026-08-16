@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
   Camera,
@@ -66,6 +67,7 @@ const SectionCard = ({ id, icon, title, description, children }: {
 );
 
 export default function ProfileClient({ initialUser }: { initialUser: SafeUser & { hasPassword: boolean } }) {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -195,6 +197,7 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
         dreamDestinations: destinations,
       });
       toast.success("Profile saved");
+      router.refresh();
     } catch {
       toast.error("We couldn’t save your changes");
     } finally {
@@ -242,9 +245,12 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
             <h1 className="text-3xl font-semibold tracking-tight text-ink">Your profile</h1>
             <p className="mt-2 text-sm leading-6 text-muted">Keep your details current so every handover feels straightforward.</p>
           </div>
-          <div className="flex items-center gap-3 rounded-full border border-hairline bg-white px-4 py-2.5">
-            <div className="h-2 w-24 overflow-hidden rounded-full bg-surface-strong"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${completion}%` }} /></div>
-            <span className="text-xs font-semibold text-ink">{completion}% complete</span>
+          <div className="flex flex-col gap-3 sm:items-end">
+            <div className="flex items-center gap-3 rounded-full border border-hairline bg-white px-4 py-2.5">
+              <div className="h-2 w-24 overflow-hidden rounded-full bg-surface-strong"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${completion}%` }} /></div>
+              <span className="text-xs font-semibold text-ink">{completion}% complete</span>
+            </div>
+            <div className="w-full sm:w-44"><Button form="profile-form" type="submit" label="Save profile" loading={isSaving} loadingLabel="Saving" /></div>
           </div>
         </header>
 
@@ -273,7 +279,7 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
           </aside>
 
           <div className="space-y-6">
-            <form onSubmit={handleSubmit(saveProfile)} className="space-y-6">
+            <form id="profile-form" onSubmit={handleSubmit(saveProfile)} className="space-y-6">
               <SectionCard id="personal" icon={<UserRound size={19} />} title="Personal details" description="The information hosts and guests use to recognise and contact you.">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Input id="name" label="Full name" register={register} required errors={errors} />
@@ -332,9 +338,6 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
                 </div>
               </SectionCard>
 
-              <div className="sticky bottom-4 z-10 flex justify-end rounded-md border border-hairline-soft bg-white/95 p-3 shadow-card backdrop-blur sm:p-4">
-                <div className="w-full sm:w-48"><Button type="submit" label="Save profile" loading={isSaving} loadingLabel="Saving" /></div>
-              </div>
             </form>
 
             <SectionCard id="security" icon={<LockKeyhole size={19} />} title="Login & security" description="Control how your account is protected when you sign in.">

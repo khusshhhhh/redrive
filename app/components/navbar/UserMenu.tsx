@@ -11,6 +11,7 @@ import { SafeUser } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { IconBrandDatabricks, IconCalendar, IconClipboardPlus, IconFilePlus, IconHearts, IconLocationCheck, IconLogin2, IconLogout2, IconMenu3, IconUserEdit, IconMessage, IconUserCircle } from "@tabler/icons-react";
 import NotificationBell from "@/app/components/notifications/NotificationBell";
+import Modal from "@/app/components/modals/Modal";
 
 interface UserMenuProps {
   currentUser?: SafeUser | null;
@@ -22,6 +23,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
   const loginModal = useLoginModal();
   const rentModal = useRentModal();
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Toggle menu open/close
@@ -56,6 +59,21 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
     closeMenu();
   }, [currentUser, loginModal, rentModal]);
 
+  const requestLogout = () => {
+    closeMenu();
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await signOut({ callbackUrl: "/" });
+    } finally {
+      setIsLoggingOut(false);
+      setShowLogoutConfirm(false);
+    }
+  };
+
   return (
     <div className="relative" ref={menuRef}>
       <div className="flex flex-row items-center gap-3">
@@ -71,7 +89,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
           className="py-2 px-3 border border-hairline flex flex-row items-center gap-3 rounded-full cursor-pointer hover:shadow-card transition text-ink"
         >
           <IconMenu3 size={18} />
-          <div className="hidden md:block">
+          <div>
             {currentUser?.image ? (
               <Avatar src={currentUser.image} />
             ) : (
@@ -107,7 +125,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
                 <MenuItem onClick={() => { router.push("/properties"); closeMenu(); }} label="My Utilities" icon={<IconBrandDatabricks size={18} className="text-ink" />} />
                 <MenuItem onClick={() => { router.push("/messages"); closeMenu(); }} label="Messages" icon={<IconMessage size={18} className="text-ink" />} />
                 <hr className="border-hairline-soft" />
-                <MenuItem onClick={() => { signOut(); closeMenu(); }} label="Logout" icon={<IconLogout2 size={18} className="text-ink" />} />
+                <MenuItem onClick={requestLogout} label="Logout" icon={<IconLogout2 size={18} className="text-ink" />} />
               </>
             ) : (
               <>
@@ -119,6 +137,19 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
           </div>
         </div>
       )}
+      <Modal
+        compact
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onSubmit={() => void confirmLogout()}
+        secondaryAction={() => setShowLogoutConfirm(false)}
+        secondaryActionLabel="Stay logged in"
+        actionLabel="Log out"
+        title="Log out of Redrive?"
+        disabled={isLoggingOut}
+        loading={isLoggingOut}
+        body={<p className="pb-4 text-center text-sm leading-6 text-muted">You’ll need to sign in again to manage your trips, listings and messages.</p>}
+      />
     </div>
   );
 };

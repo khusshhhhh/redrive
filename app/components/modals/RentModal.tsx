@@ -65,6 +65,7 @@ const RentModal = () => {
     const [imageSrcs, setImageSrcs] = useState<string[]>([]);
     const [regoImage, setRegoImage] = useState<string>("");
     const [uploading, setUploading] = useState(false); // ✅ Uploading State
+    const [uploadProgress, setUploadProgress] = useState({ completed: 0, total: 0 });
     const [uploadingRego, setUploadingRego] = useState(false);
 
     // ✅ Remove an Image from State
@@ -97,21 +98,34 @@ const RentModal = () => {
     // ✅ Handle Listing Image Upload (Max 10)
     const handleListingImages = async (files: FileList) => {
         if (!files.length) return;
-
-        setUploading(true); // ✅ Show Loading
-
-        const urls = await Promise.all(
-            [...files].slice(0, 10).map(async (file) => {
-                const url = await uploadImageToCloudinary(file, "listings");
-                return url;
-            })
-        );
-
-        if (urls.length) {
-            setImageSrcs((prev) => [...prev, ...urls].slice(0, 10));
+        const remainingSlots = Math.max(0, 10 - imageSrcs.length);
+        const selectedFiles = [...files].slice(0, remainingSlots);
+        if (!selectedFiles.length) {
+            toast.error("You can upload up to 10 listing photos");
+            return;
         }
 
-        setUploading(false); // ✅ Hide Loading
+        setUploading(true);
+        setUploadProgress({ completed: 0, total: selectedFiles.length });
+
+        try {
+            const urls = await Promise.all(
+                selectedFiles.map(async (file) => {
+                    const url = await uploadImageToCloudinary(file, "listings");
+                    setUploadProgress((current) => ({ ...current, completed: current.completed + 1 }));
+                    return url;
+                })
+            );
+            const uploadedUrls = urls.filter((url): url is string => Boolean(url));
+            if (uploadedUrls.length) {
+                setImageSrcs((prev) => [...prev, ...uploadedUrls].slice(0, 10));
+            }
+            if (uploadedUrls.length !== selectedFiles.length) {
+                toast.error(`${selectedFiles.length - uploadedUrls.length} photo${selectedFiles.length - uploadedUrls.length === 1 ? "" : "s"} could not be uploaded`);
+            }
+        } finally {
+            setUploading(false);
+        }
     };
 
     // ✅ Function to Upload Rego Image to Cloudinary
@@ -428,23 +442,37 @@ const RentModal = () => {
                     type="file"
                     multiple
                     accept="image/*"
-                    onChange={(e) => handleListingImages(e.target.files!)}
+                    disabled={uploading || imageSrcs.length >= 10}
+                    onChange={(e) => {
+                        if (e.target.files) void handleListingImages(e.target.files);
+                        e.target.value = "";
+                    }}
                     className="hidden"
                     id="listingImages"
                 />
                 <label
                     htmlFor="listingImages"
-                    className="cursor-pointer p-4 border-2 border-dashed rounded-sm text-center text-muted hover:border-ink transition"
+                    aria-disabled={uploading || imageSrcs.length >= 10}
+                    className={`relative flex min-h-40 flex-col items-center justify-center overflow-hidden rounded-md border-2 border-dashed p-5 text-center transition ${uploading || imageSrcs.length >= 10 ? "cursor-wait border-hairline bg-surface-soft" : "cursor-pointer border-hairline text-muted hover:border-ink hover:bg-surface-soft/50"}`}
                 >
-                    {uploading ? "Uploading..." : "Click to Upload Listing Images"}
+                    {uploading ? (
+                        <div className="flex w-full max-w-xs flex-col items-center" role="status" aria-live="polite">
+                            <div className="relative mb-4 flex h-14 w-14 items-center justify-center">
+                                <span className="loader-orbit absolute inset-0 rounded-full border-2 border-hairline border-t-primary" aria-hidden="true" />
+                                <span className="loader-core flex h-9 w-9 items-center justify-center rounded-full bg-white text-xs font-bold text-ink">{Math.round((uploadProgress.completed / Math.max(uploadProgress.total, 1)) * 100)}%</span>
+                            </div>
+                            <span className="font-semibold text-ink">Uploading your photos</span>
+                            <span className="mt-1 text-xs text-muted">{uploadProgress.completed} of {uploadProgress.total} complete</span>
+                            <span className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-hairline-soft">
+                                <span className="block h-full rounded-full bg-primary transition-[width] duration-300" style={{ width: `${(uploadProgress.completed / Math.max(uploadProgress.total, 1)) * 100}%` }} />
+                            </span>
+                        </div>
+                    ) : imageSrcs.length >= 10 ? (
+                        <><span className="font-semibold text-ink">Photo limit reached</span><span className="mt-1 text-xs">Remove a photo to add another.</span></>
+                    ) : (
+                        <><span className="font-semibold text-ink">Add listing photos</span><span className="mt-1 text-xs">Choose up to {10 - imageSrcs.length} more images · JPG, PNG or WebP</span></>
+                    )}
                 </label>
-
-                {/* ✅ Show Uploading Spinner */}
-                {uploading && (
-                    <div className="flex justify-center items-center">
-                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-ink"></div>
-                    </div>
-                )}
 
                 {/* ✅ Display Uploaded Images with Delete Option */}
                 {imageSrcs.length > 0 && (
@@ -457,7 +485,7 @@ const RentModal = () => {
                                         src={src}
                                         width={160}
                                         height={160}
-                                        className="object-cover rounded-lg"
+                                        className="h-full w-full object-cover rounded-lg"
                                     />
                                     {/* ✅ Delete Button Appears on Hover */}
                                     <button
@@ -763,6 +791,7 @@ const RentModal = () => {
     return (
         <Modal
             loading={isLoading}
+            disabled={isLoading || uploading || uploadingRego}
             isOpen={rentModal.isOpen}
             onClose={rentModal.onClose}
             onSubmit={handleSubmit(onSubmit)}
