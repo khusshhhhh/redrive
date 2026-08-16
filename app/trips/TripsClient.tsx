@@ -41,8 +41,9 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
 
     return (
         <Container>
+          <div className="py-6 sm:py-10">
             <Heading title="Bookings" subtitle="Your booked trips and history!" />
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div className="mt-8 grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {reservations.map((reservation) => {
                     const today = new Date();
                     const reservationStartDate = new Date(reservation.startDate);
@@ -77,6 +78,7 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
                     );
                 })}
             </div>
+          </div>
         </Container>
     );
 };

@@ -295,7 +295,7 @@ const ChatPage = () => {
 
   if (loading) {
     return (
-      <div className="pt-24 px-4 space-y-6">
+      <div className="space-y-6 px-4 py-6">
         <div className="h-6 shimmer rounded w-1/3" />
         <div className="h-20 shimmer rounded" />
       </div>
@@ -306,8 +306,8 @@ const ChatPage = () => {
 
   return (
     <Container>
-      <div className="py-6 sm:py-8">
-        <div className="mx-auto flex h-[calc(100dvh-10rem)] min-h-[560px] max-w-[1280px] overflow-hidden rounded-md border border-hairline-soft bg-white shadow-card">
+      <div className="py-3 sm:py-8">
+        <div className="-mx-4 flex h-[calc(100dvh-6.75rem)] min-h-[420px] max-w-[1280px] overflow-hidden border-y border-hairline-soft bg-white sm:mx-auto sm:h-[calc(100dvh-8rem)] sm:rounded-md sm:border sm:shadow-card md:min-h-[560px]">
           <ChatSidebar activeChatId={chatId} className="hidden w-[340px] md:flex" />
           <section className="flex min-w-0 flex-1 flex-col bg-surface-soft/30">
             <header className="flex h-[76px] shrink-0 items-center gap-3 border-b border-hairline-soft bg-white px-4 sm:px-6">
@@ -337,7 +337,7 @@ const ChatPage = () => {
               {otherTyping && <TypingIndicator />}
             </div>
 
-            <footer className="shrink-0 border-t border-hairline-soft bg-white p-3 sm:p-4">
+            <footer className="safe-bottom shrink-0 border-t border-hairline-soft bg-white px-3 pt-3 sm:p-4">
               {pendingImageUrl && <div className="relative mb-3 h-20 w-20"><Image src={pendingImageUrl} alt="Attachment ready to send" fill className="rounded-md object-cover" /><button onClick={() => setPendingImageUrl(null)} className="absolute -right-2 -top-2 rounded-full bg-ink p-0.5 text-white"><IconX size={14} /></button></div>}
               <div className="flex items-center gap-2 sm:gap-3">
                 <input ref={attachmentInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => void uploadAttachment(event.target.files?.[0])} />

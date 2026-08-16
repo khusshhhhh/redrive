@@ -7,8 +7,8 @@ import { MessageCircle } from "lucide-react";
 export default function MessagesPage() {
   return (
     <Container>
-      <div className="py-6 sm:py-8">
-        <div className="mx-auto flex h-[calc(100dvh-10rem)] min-h-[560px] max-w-[1280px] overflow-hidden rounded-md border border-hairline-soft bg-white shadow-card">
+      <div className="py-3 sm:py-8">
+        <div className="-mx-4 flex h-[calc(100dvh-6.75rem)] min-h-[420px] max-w-[1280px] overflow-hidden border-y border-hairline-soft bg-white sm:mx-auto sm:h-[calc(100dvh-8rem)] sm:rounded-md sm:border sm:shadow-card md:min-h-[560px]">
           <ChatSidebar className="flex w-full md:w-[340px]" />
           <section className="hidden min-w-0 flex-1 flex-col items-center justify-center bg-surface-soft/40 px-8 text-center md:flex">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-strong text-primary"><MessageCircle size={28} /></div>

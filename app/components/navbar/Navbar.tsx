@@ -22,10 +22,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
   const showSearchBar = !pathname.startsWith("/confirm-reservation");
 
   return (
-    <div className="fixed w-full bg-white z-10 border-b border-hairline">
-      <div className="py-3">
+    <div className="sticky top-0 z-30 w-full border-b border-hairline bg-white">
+      <div className="py-2.5 sm:py-3">
         <Container>
-          <div className="flex flex-row items-center justify-between gap-3 md:gap-0">
+          <div className="flex flex-row items-center justify-between gap-2 md:gap-0">
             <div className="shrink-0">
               <Logo />
             </div>

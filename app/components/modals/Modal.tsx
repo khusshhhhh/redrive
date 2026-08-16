@@ -118,7 +118,7 @@ const Modal: React.FC<ModalProps> = ({
             <div
                 className={compact
                     ? "relative w-full sm:max-w-[480px] sm:px-4 sm:py-8"
-                    : "relative w-full sm:w-11/12 md:w-4/6 lg:w-3/6 xl:w-2/5 my-6 mx-auto h-[95%] px-4"}
+                    : "relative mx-auto h-[100dvh] w-full p-2 sm:my-6 sm:h-[95%] sm:w-11/12 sm:px-4 md:w-4/6 lg:w-3/6 xl:w-2/5"}
                 onClick={(e) => e.stopPropagation()} // Prevent modal from closing when clicking inside
             >
                 {/* Modal Content */}
@@ -126,10 +126,10 @@ const Modal: React.FC<ModalProps> = ({
                     className={`transition-transform duration-300 h-full 
           ${showModal ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}
                 >
-                    <div className={`relative flex w-full flex-col bg-white outline-none overflow-hidden ${compact ? "max-h-[94dvh] rounded-t-[28px] shadow-2xl sm:max-h-[calc(100dvh-64px)] sm:rounded-lg" : "h-full border-0 rounded-md shadow-card lg:h-auto md:h-auto"}`}>
+                    <div className={`relative flex w-full flex-col bg-white outline-none overflow-hidden ${compact ? "max-h-[94dvh] rounded-t-[28px] shadow-2xl sm:max-h-[calc(100dvh-64px)] sm:rounded-lg" : "h-full rounded-md border-0 shadow-card md:h-auto"}`}>
 
                         {/* Modal Header */}
-                        <div className={`relative flex items-center justify-center bg-white top-0 z-10 ${compact ? "px-8 pb-4 pt-8 sm:pt-10" : "p-6 border-b border-hairline-soft"}`}>
+                        <div className={`relative top-0 z-10 flex items-center justify-center bg-white ${compact ? "px-8 pb-4 pt-8 sm:pt-10" : "border-b border-hairline-soft px-4 py-5 sm:p-6"}`}>
                             <button onClick={handleClose} aria-label="Close dialog" className={`absolute z-20 rounded-full border-0 transition text-muted hover:bg-surface-soft hover:text-ink ${compact ? "right-4 top-4 p-2" : "left-4 p-1"}`}>
                                 <IoMdClose size={compact ? 20 : 18} />
                             </button>
@@ -137,10 +137,10 @@ const Modal: React.FC<ModalProps> = ({
                         </div>
 
                         {/* Modal Body */}
-                        <div className={`relative flex-auto overflow-y-auto text-ink ${compact ? "px-6 pb-3 pt-4 sm:px-10" : "p-6 max-h-[70vh]"}`}>{body}</div>
+                        <div className={`relative flex-auto overflow-y-auto overscroll-contain text-ink ${compact ? "px-5 pb-3 pt-4 sm:px-10" : "max-h-[calc(100dvh-154px)] p-4 sm:max-h-[70vh] sm:p-6"}`}>{body}</div>
 
                         {/* Modal Footer */}
-                        <div className={`flex flex-row items-center gap-4 w-full bg-white sticky bottom-0 z-10 ${compact ? "px-6 pb-5 pt-3 sm:px-10" : "border-t border-hairline-soft px-6 pb-5 pt-3"}`}>
+                        <div className={`safe-bottom sticky bottom-0 z-10 flex w-full flex-col items-center gap-1 bg-white sm:flex-row sm:gap-4 ${compact ? "px-5 pt-2 sm:px-10 sm:pt-3" : "border-t border-hairline-soft px-4 pt-2 sm:px-6 sm:pt-3"}`}>
                             {secondaryAction && secondaryActionLabel && (
                                 <Button outline disabled={disabled} label={secondaryActionLabel} onClick={handleSecondaryAction} />
                             )}

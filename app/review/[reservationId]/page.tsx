@@ -14,7 +14,7 @@ const ReviewPage = () => {
     interface Listing {
         id: string;
         title: string;
-        imageSrc: string;
+        imageSrcs: string[];
     }
 
     const [listing, setListing] = useState<Listing | null>(null);
@@ -63,7 +63,7 @@ const ReviewPage = () => {
 
     if (!listing) {
         return (
-            <div className="max-w-lg mx-auto p-6 space-y-4">
+            <div className="mx-auto max-w-lg space-y-4 px-4 py-8">
                 <div className="h-6 shimmer rounded w-1/2" />
                 <div className="h-40 shimmer rounded" />
                 <div className="h-4 shimmer rounded w-1/3" />
@@ -74,36 +74,39 @@ const ReviewPage = () => {
     }
 
     return (
-        <div className="max-w-lg mx-auto p-6 bg-white shadow-card rounded-md">
-            <h2 className="text-xl font-bold text-ink">{listing.title}</h2>
-            <Image width={500} height={50} src={listing.imageSrc} alt={listing.title} className="object-cover mt-2 rounded-md" />
-            <h3 className="text-lg mt-4 text-ink">Rate your experience</h3>
-            <div className="flex gap-2">
+        <main className="bg-surface-soft/35 px-4 py-6 sm:py-10">
+        <div className="mx-auto max-w-lg rounded-md border border-hairline-soft bg-white p-4 shadow-card sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Your experience</p>
+            <h1 className="mt-2 text-2xl font-semibold text-ink">Review {listing.title}</h1>
+            <div className="relative mt-5 aspect-[16/10] overflow-hidden rounded-md"><Image fill sizes="(max-width: 640px) 100vw, 512px" src={listing.imageSrcs?.[0] || "/images/placeholder.png"} alt={listing.title} className="object-cover" /></div>
+            <h2 className="mt-6 text-lg font-semibold text-ink">Rate your experience</h2>
+            <div className="mt-2 flex justify-between gap-1 sm:justify-start sm:gap-2" role="group" aria-label="Rating out of five">
                 {[1, 2, 3, 4, 5].map(star => (
-                    <span
+                    <button
+                        type="button"
                         key={star}
-                        className={`cursor-pointer text-4xl ${rating >= star ? "text-ink" : "text-hairline"}`}
+                        aria-label={`${star} star${star === 1 ? "" : "s"}`}
+                        className={`flex h-12 w-12 items-center justify-center text-4xl ${rating >= star ? "text-primary" : "text-hairline"}`}
                         onClick={() => setRating(star)}
                     >
                         ★
-                    </span>
+                    </button>
                 ))}
             </div>
             <textarea
-                className="w-full p-2 border border-hairline rounded-sm mt-2 text-ink focus:border-ink focus:border-2 outline-none"
-                rows={3}
+                className="mt-4 min-h-32 w-full resize-y rounded-sm border border-hairline p-3 text-base text-ink outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                 placeholder="Write your review (max 100 words)..."
                 value={text}
                 onChange={(e) => setText(e.target.value)}
             />
-            <h3 className="text-lg mt-4 mb-4 text-ink">Would you recommend this?</h3>
-            <div className="flex gap-4">
-                <button className={`p-2 rounded-sm border ${thumbs === "up" ? "bg-ink text-white border-ink" : "bg-white text-ink border-hairline"}`} onClick={() => setThumbs("up")}>👍 Thumbs Up</button>
-                <button className={`p-2 rounded-sm border ${thumbs === "down" ? "bg-ink text-white border-ink" : "bg-white text-ink border-hairline"}`} onClick={() => setThumbs("down")}>👎 Thumbs Down</button>
+            <h2 className="mb-3 mt-5 text-lg font-semibold text-ink">Would you recommend it?</h2>
+            <div className="grid grid-cols-2 gap-3">
+                <button className={`min-h-12 rounded-sm border px-3 font-semibold ${thumbs === "up" ? "border-primary bg-primary text-white" : "border-hairline bg-white text-ink"}`} onClick={() => setThumbs("up")}>👍 Yes</button>
+                <button className={`min-h-12 rounded-sm border px-3 font-semibold ${thumbs === "down" ? "border-primary bg-primary text-white" : "border-hairline bg-white text-ink"}`} onClick={() => setThumbs("down")}>👎 No</button>
             </div>
             <div className="">
                 <button
-                    className="mt-3 bg-primary text-white font-semibold px-4 py-2 rounded-sm hover:bg-primary-active disabled:opacity-50 transition"
+                    className="mt-6 min-h-12 w-full rounded-sm bg-primary px-4 py-3 font-semibold text-white transition hover:bg-primary-active disabled:opacity-50"
                     disabled={loading}
                     onClick={handleSubmit}
                 >
@@ -111,6 +114,7 @@ const ReviewPage = () => {
                 </button>
             </div>
         </div>
+        </main>
     );
 };
 

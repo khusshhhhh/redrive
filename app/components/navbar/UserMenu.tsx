@@ -86,7 +86,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
         {currentUser && <NotificationBell />}
         <div
           onClick={toggleOpen}
-          className="py-2 px-3 border border-hairline flex flex-row items-center gap-3 rounded-full cursor-pointer hover:shadow-card transition text-ink"
+          className="flex min-h-11 min-w-11 cursor-pointer flex-row items-center justify-center gap-2 rounded-full border border-hairline px-2 py-1.5 text-ink transition hover:shadow-card sm:px-3 sm:py-2"
         >
           <IconMenu3 size={18} />
           <div>
@@ -100,7 +100,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
       </div>
 
       {isOpen && (
-        <div className="absolute rounded-md shadow-card w-72 md:w-56 bg-white overflow-hidden right-0 top-12 text-sm border border-hairline-soft">
+        <div className="absolute right-0 top-12 w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-hairline-soft bg-white text-sm shadow-card md:w-56">
           <div className="flex flex-col cursor-pointer">
             {currentUser && (
               <div

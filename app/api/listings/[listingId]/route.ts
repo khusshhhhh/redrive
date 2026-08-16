@@ -111,13 +111,21 @@ export async function PUT(
       );
     }
 
-    // Validate that no more than 10 images are uploaded
-    if (imageSrcs.length > 10) {
+    const formattedImageSrcs = Array.isArray(imageSrcs)
+      ? [...new Set(imageSrcs.filter((src): src is string => typeof src === "string" && src.trim().length > 0))]
+      : [];
+
+    // Index zero is the main/cover photo. The rest are the nine secondaries.
+    if (formattedImageSrcs.length < 1 || formattedImageSrcs.length > 10) {
       return NextResponse.json(
-        { error: "Maximum 10 images allowed" },
+        { error: "Add one main photo and no more than nine secondary photos" },
         { status: 400 }
       );
     }
+
+    const existingListing = await prisma.listing.findUnique({ where: { id: listingId }, select: { userId: true } });
+    if (!existingListing) return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+    if (existingListing.userId !== currentUser.id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const updatedListing = await prisma.listing.update({
       where: { id: listingId },
@@ -126,7 +134,7 @@ export async function PUT(
         description,
         information,
         category,
-        imageSrcs, // Store array of images
+        imageSrcs: formattedImageSrcs,
         guestCount,
         doorCount,
         sleepCount,

@@ -15,6 +15,17 @@ body {
   scrollbar-width: none;
 }
 
+/* Keep fixed mobile actions above home indicators without adding desktop space. */
+.safe-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+button,
+[role="button"],
+label[for] {
+  -webkit-tap-highlight-color: transparent;
+}
+
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
   display: none;

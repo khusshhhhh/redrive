@@ -54,8 +54,9 @@ const MyUtilitiesClient: React.FC<MyUtilitiesClientProps> = ({
 
     return (
         <Container>
+          <div className="py-6 sm:py-10">
             <Heading title="My Utilities" subtitle="Manage and update your listed utilities" />
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-6 2xl:grid-cols-7 gap-8">
+            <div className="mt-8 grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                 {listings.map((listing) => (
                     <ListingCard
                         key={listing.id}
@@ -75,6 +76,7 @@ const MyUtilitiesClient: React.FC<MyUtilitiesClientProps> = ({
                 onClose={handleCloseModal} // ✅ Now resets deletingId
                 onDelete={onDelete}
             />
+          </div>
         </Container>
     );
 };

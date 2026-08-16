@@ -10,6 +10,7 @@ import Input from "@/app/components/inputs/Input";
 import AddressAutocomplete, { ParsedAddress } from "@/app/components/inputs/AddressAutocomplete";
 import CategoryInput from "@/app/components/inputs/CategoryInput";
 import ImageUpload from "@/app/components/inputs/ImageUpload";
+import ListingPhotoManager from "@/app/components/inputs/ListingPhotoManager";
 import Counter from "@/app/components/inputs/Counter";
 import YearSelect from "@/app/components/inputs/YearSelect";
 import FuelSelector from "@/app/components/inputs/FuelSelector";
@@ -160,21 +161,11 @@ const EditUtilityPage = () => {
         );
     };
 
-    // Delete an image from the listing
-    const handleImageDelete = (imageToDelete: string) => {
-        setListingImages((prev) => prev.filter((img) => img !== imageToDelete));
-    };
-
-    // Add a new image if below the 10-image limit
-    const handleAddImage = (imageUrl: string) => {
-        if (listingImages.length >= 10) {
-            toast.error("You can only upload up to 10 images.");
+    const onSubmit = async (data: FieldValues) => {
+        if (!listingImages.length) {
+            toast.error("Add a main photo before updating your listing");
             return;
         }
-        setListingImages((prev) => [...prev, imageUrl]);
-    };
-
-    const onSubmit = async (data: FieldValues) => {
         setLoading(true);
         try {
             await axios.put(`/api/listings/${listingId}`, {
@@ -202,8 +193,13 @@ const EditUtilityPage = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto p-6 md:p-8 bg-white shadow-card rounded-md border border-hairline-soft my-10">
-            <h2 className="text-display-sm font-semibold mb-6 text-center text-ink">Edit Your Utility</h2>
+        <main className="bg-surface-soft/35 px-4 py-6 sm:py-10">
+        <div className="mx-auto max-w-3xl rounded-md border border-hairline-soft bg-white p-4 shadow-card sm:p-6 md:p-8">
+            <div className="mb-8 border-b border-hairline-soft pb-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Hosting</p>
+                <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Edit your utility</h1>
+                <p className="mt-2 text-sm leading-6 text-muted">Keep your photos and vehicle details clear and current for guests.</p>
+            </div>
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Title */}
                 <div className="mb-8">
@@ -233,30 +229,9 @@ const EditUtilityPage = () => {
 
                 {/* Images Section */}
                 <div className="mb-8">
-                    <p className="font-semibold mb-4 text-ink">Property Images</p>
-                    <div className="grid grid-cols-3 gap-3 mb-4">
-                        {listingImages.map((image, index) => (
-                            <div key={index} className="relative">
-                                <img
-                                    src={image}
-                                    alt={`Image ${index + 1}`}
-                                    className="w-full h-auto rounded-md"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => handleImageDelete(image)}
-                                    className="absolute top-0 right-0 bg-error text-white p-1 rounded-full"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                    {listingImages.length < 10 && (
-                        <div className="mb-4">
-                            <ImageUpload value="" onChange={handleAddImage} />
-                        </div>
-                    )}
+                    <p className="mb-1 font-semibold text-ink">Listing photos</p>
+                    <p className="mb-5 text-sm leading-5 text-muted">The main photo appears first everywhere. Add up to nine supporting photos.</p>
+                    <ListingPhotoManager images={listingImages} onChange={setListingImages} disabled={loading} />
                 </div>
 
                 {/* Location */}
@@ -463,7 +438,7 @@ const EditUtilityPage = () => {
                 </div>
 
                 {/* Submit and Go Back Buttons */}
-                <div className="flex flex-row gap-4">
+                <div className="flex flex-col gap-3 border-t border-hairline-soft pt-6 sm:flex-row">
                     <button
                         type="submit"
                         className="w-full bg-primary text-white font-semibold px-6 py-4 rounded-sm hover:bg-primary-active transition-all disabled:opacity-50"
@@ -481,6 +456,7 @@ const EditUtilityPage = () => {
                 </div>
             </form>
         </div>
+        </main>
     );
 };
 

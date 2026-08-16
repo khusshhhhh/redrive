@@ -24,7 +24,7 @@ const Home = async ({ searchParams }: HomeProps) => {
 
   return (
       <Container>
-        <div className="pt-12 space-y-12">
+        <div className="pt-16 space-y-12">
           {/* Results Header */}
           {hasFilters && (
             <div>

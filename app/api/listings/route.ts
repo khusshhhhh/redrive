@@ -91,8 +91,17 @@ export async function POST(request: NextRequest) {
     // ✅ Ensure amenities is an array
     const formattedAmenities = Array.isArray(amenities) ? amenities : [];
 
-    // ✅ Ensure imageSrcs is an array
-    const formattedImageSrcs = Array.isArray(imageSrcs) ? imageSrcs : [];
+    // The first URL is always the main/cover photo; the remaining entries are
+    // secondary photos. Keep this contract small, predictable and duplicate-free.
+    const formattedImageSrcs = Array.isArray(imageSrcs)
+      ? [...new Set(imageSrcs.filter((src): src is string => typeof src === "string" && src.trim().length > 0))]
+      : [];
+    if (formattedImageSrcs.length < 1 || formattedImageSrcs.length > 10) {
+      return NextResponse.json(
+        { error: "Add one main photo and no more than nine secondary photos" },
+        { status: 400 }
+      );
+    }
 
     // ✅ Ensure regoImage is either a valid URL or null
     const formattedRegoImage = regoImage ? regoImage : null;

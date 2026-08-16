@@ -40,8 +40,9 @@ const PropertiesClient: React.FC<PropertiesClientProps> = ({
 
     return (
         <Container>
+          <div className="py-6 sm:py-10">
             <Heading title="Utility" subtitle="List of your utilities!!" />
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div className="mt-8 grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {listings.length > 0 ? (
                     listings.map((listing) => (
                         <ListingCard
@@ -58,6 +59,7 @@ const PropertiesClient: React.FC<PropertiesClientProps> = ({
                     <p className="text-muted text-center col-span-full">No listings available.</p>
                 )}
             </div>
+          </div>
         </Container>
     );
 };

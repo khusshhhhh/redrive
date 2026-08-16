@@ -114,7 +114,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
             {/* Responsive Image Display */}
             <div className="relative w-full mt-4">
                 {/* Show Only One Image on Mobile */}
-                <div className="relative rounded-xl overflow-hidden md:hidden h-[300px] sm:h-[400px]">
+                <div className="relative aspect-[4/3] max-h-[420px] overflow-hidden rounded-md md:hidden">
                     <GridImage
                         src={imageSrcs[0]}
                         alt="Main"
@@ -124,7 +124,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                     />
                     {imageSrcs.length > 1 && (
                         <button
-                            className="flex flex-row gap-1 items-center absolute bottom-3 right-3 bg-white text-ink font-semibold text-sm px-4 py-2 rounded-full shadow-card"
+                            className="absolute bottom-3 right-3 flex min-h-11 flex-row items-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink shadow-card"
                             onClick={() => window.location.assign(`/listings/${id}/images`)}
                         >
                             <IconLayoutGrid size={18} stroke={1.5} /><span>Show all photos</span>
@@ -169,16 +169,16 @@ const ListingHead: React.FC<ListingHeadProps> = ({
             {/* Single Image Modal */}
             {selectedImage && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-2 sm:p-6"
                     onClick={() => setSelectedImage(null)}
                 >
                     <div
-                        className="relative w-[90%] max-w-4xl rounded-md overflow-hidden"
+                        className="relative max-h-[95dvh] w-full max-w-4xl overflow-auto rounded-md"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Close Button */}
                         <button
-                            className="absolute top-6 right-6 bg-white text-ink rounded-full p-2 z-50 hover:bg-surface-soft transition shadow-card"
+                            className="absolute right-3 top-3 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink shadow-card transition hover:bg-surface-soft sm:right-6 sm:top-6"
                             onClick={() => setSelectedImage(null)}
                         >
                             <IoClose size={24} />

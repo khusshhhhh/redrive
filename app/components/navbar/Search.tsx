@@ -55,22 +55,22 @@ const Search = () => {
   };
 
   return (
-    <div className="flex flex-row items-center gap-4">
+    <div className="flex min-w-0 flex-row items-center gap-2 sm:gap-4">
       <div
         onClick={searchModal.onOpen}
-        className="border border-hairline w-full md:w-auto py-2 rounded-full shadow-card hover:shadow-md transition cursor-pointer bg-white text-ink"
+        className="min-w-0 flex-1 cursor-pointer rounded-full border border-hairline bg-white py-1.5 text-ink shadow-card transition hover:shadow-md sm:py-2 md:w-auto md:flex-none"
       >
-        <div className="flex flex-row gap-10 items-center justify-between">
+        <div className="flex min-w-0 flex-row items-center justify-between sm:gap-4 md:gap-10">
           {/* Selected Location */}
-          <div className="text-caption font-medium px-6">{locationLabel}</div>
+          <div className="truncate px-3 text-caption font-medium sm:px-5 md:px-6">{locationLabel}</div>
 
           {/* Date Range */}
-          <div className="hidden sm:block text-caption font-medium px-16 border-x border-hairline flex-1 text-center">
+          <div className="hidden flex-1 border-x border-hairline px-6 text-center text-caption font-medium sm:block md:px-10 lg:px-16">
             {durationLabel}
           </div>
 
           {/* Guest Count */}
-          <div className="text-caption pl-6 pr-2 flex font-medium flex-row items-center gap-3">
+          <div className="flex flex-row items-center gap-2 pr-1.5 text-caption font-medium sm:pl-3 sm:pr-2 md:pl-6">
             <div className="hidden sm:block">{guestLabel}</div>
             <div className="p-2 bg-primary rounded-full text-white">
               <BiSearch size={18} />

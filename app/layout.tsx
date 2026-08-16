@@ -33,7 +33,7 @@ export default async function RootLayout({
         <ToasterProvider />
         <LazyModals />
         <Navbar currentUser={currentUser} />
-        <div className="pb-0 pt-28 min-h-screen">{children}</div>
+        <div className="min-h-screen pb-0">{children}</div>
         <Footer currentUser={currentUser} />
         <Analytics />
         <SpeedInsights />
