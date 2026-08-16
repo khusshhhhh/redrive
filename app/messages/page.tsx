@@ -1,145 +1,22 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
 import Container from "@/app/components/Container";
-import Heading from "@/app/components/Heading";
-import { SafeChat } from "@/app/types";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import useLoginModal from "@/app/hooks/useLoginModal";
-import Button from "@/app/components/Button";
-import { useSSE } from "@/app/hooks/useSSE";
-import { isOnline } from "@/app/helpers/presence";
-import { formatDistanceToNowStrict } from "date-fns";
+import ChatSidebar from "@/app/components/messages/ChatSidebar";
+import { MessageCircle } from "lucide-react";
 
-const MessagesPage = () => {
-  const [chats, setChats] = useState<SafeChat[] | null>(null);
-  const [unauthorized, setUnauthorized] = useState(false);
-  const router = useRouter();
-  const loginModal = useLoginModal();
-
-  useEffect(() => {
-    axios
-      .get("/api/chats")
-      .then((res) => setChats(res.data))
-      .catch((err) => {
-        setChats([]);
-        if (err.response?.status === 401) setUnauthorized(true);
-      });
-  }, []);
-
-  const upsertChat = useCallback((incoming: SafeChat) => {
-    setChats((prev) => {
-      const list = prev ?? [];
-      const withoutIncoming = list.filter((c) => c.id !== incoming.id);
-      return [incoming, ...withoutIncoming].sort(
-        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      );
-    });
-  }, []);
-
-  useSSE({
-    url: chats && !unauthorized ? "/api/chats/stream" : null,
-    handlers: {
-      "chat-update": (data) => upsertChat(data as SafeChat),
-    },
-  });
-
-  if (!chats) {
-    return (
-      <div className="pt-24 px-4 space-y-6">
-        <div className="h-6 shimmer rounded w-1/3" />
-        <div className="h-20 shimmer rounded" />
-        <div className="h-20 shimmer rounded" />
-      </div>
-    );
-  }
-
-  if (unauthorized) {
-    return (
-      <Container>
-        <div className="max-w-xs mx-auto py-40 flex justify-center">
-          <Button label="Login to view messages" onClick={loginModal.onOpen} />
-        </div>
-      </Container>
-    );
-  }
-
+export default function MessagesPage() {
   return (
     <Container>
-      <div className="max-w-2xl mx-auto py-8">
-        <Heading title="Messages" subtitle="Your conversations" />
-        <div className="mt-6 flex flex-col gap-3">
-          {chats.length === 0 && (
-            <p className="text-sm text-muted">
-              No conversations yet. Message a host from one of your bookings to get started.
-            </p>
-          )}
-          {chats.map((chat) => {
-            const online = isOnline(chat.otherUser?.lastActiveAt);
-            const hasUnread = chat.unreadCount > 0;
-            return (
-              <div
-                key={chat.id}
-                onClick={() => router.push(`/messages/${chat.id}`)}
-                className="p-4 border border-hairline rounded-md cursor-pointer hover:shimmer flex gap-3 items-center"
-              >
-                <div className="relative shrink-0">
-                  <Image
-                    src={chat.otherUser?.image || "/images/placeholder.png"}
-                    alt={chat.otherUser?.name || "User"}
-                    width={44}
-                    height={44}
-                    className="rounded-full object-cover w-11 h-11"
-                  />
-                  {online && (
-                    <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <div
-                      className={`truncate text-ink ${
-                        hasUnread ? "font-bold" : "font-semibold"
-                      }`}
-                    >
-                      {chat.otherUser?.name || chat.otherUser?.email}
-                    </div>
-                    {chat.lastMessage && (
-                      <div className="text-xs text-muted-soft shrink-0">
-                        {formatDistanceToNowStrict(new Date(chat.lastMessage.createdAt), { addSuffix: true })}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between gap-2 mt-0.5">
-                    <div
-                      className={`text-sm truncate ${
-                        hasUnread
-                          ? "text-ink font-semibold"
-                          : "text-muted"
-                      }`}
-                    >
-                      {chat.lastMessage
-                        ? chat.lastMessage.imageUrl && !chat.lastMessage.text
-                          ? "📷 Photo"
-                          : chat.lastMessage.text
-                        : "Say hello 👋"}
-                    </div>
-                    {hasUnread && (
-                      <span className="shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-primary text-white font-semibold text-xs flex items-center justify-center">
-                        {chat.unreadCount > 9 ? "9+" : chat.unreadCount}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+      <div className="py-6 sm:py-8">
+        <div className="mx-auto flex h-[calc(100dvh-10rem)] min-h-[560px] max-w-[1280px] overflow-hidden rounded-md border border-hairline-soft bg-white shadow-card">
+          <ChatSidebar className="flex w-full md:w-[340px]" />
+          <section className="hidden min-w-0 flex-1 flex-col items-center justify-center bg-surface-soft/40 px-8 text-center md:flex">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-strong text-primary"><MessageCircle size={28} /></div>
+            <h2 className="mt-5 text-xl font-semibold text-ink">Choose a conversation</h2>
+            <p className="mt-2 max-w-sm text-sm leading-6 text-muted">Select someone from the left to read your messages and continue the conversation.</p>
+          </section>
         </div>
       </div>
     </Container>
   );
-};
-
-export default MessagesPage;
+}

@@ -1,18 +1,13 @@
 import React from "react";
-import SkeletonCard from "../components/SkeletonCard";
-
 const Loading = () => (
-  <div className="pt-8 px-20 space-y-6">
-    <div>
-      <div className="h-8 shimmer rounded w-40" />
-      <div className="h-4 shimmer rounded w-64 mt-2" />
-    </div>
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-6 2xl:grid-cols-6 gap-8">
-      {Array.from({ length: 12 }).map((_, i) => (
-        <SkeletonCard key={i} />
+  <main className="bg-surface-soft/40 px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-[1120px] space-y-6">
+      <div><div className="skeleton-wave h-9 w-48 rounded" /><div className="skeleton-wave mt-3 h-4 w-80 max-w-full rounded" /></div>
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="grid overflow-hidden rounded-md border border-hairline-soft bg-white md:grid-cols-[220px_1fr_auto]"><div className="skeleton-wave h-48 md:h-52" /><div className="space-y-4 p-6"><div className="skeleton-wave h-5 w-28 rounded-full" /><div className="skeleton-wave h-6 w-2/3 rounded" /><div className="skeleton-wave h-4 w-1/2 rounded" /></div><div className="hidden w-44 border-l border-hairline-soft p-5 md:block"><div className="skeleton-wave h-11 rounded" /></div></div>
       ))}
     </div>
-  </div>
+  </main>
 );
 
 export default Loading;

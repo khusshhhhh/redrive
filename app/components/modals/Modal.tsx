@@ -140,7 +140,7 @@ const Modal: React.FC<ModalProps> = ({
                         <div className={`relative flex-auto overflow-y-auto text-ink ${compact ? "px-6 pb-3 pt-4 sm:px-10" : "p-6 max-h-[70vh]"}`}>{body}</div>
 
                         {/* Modal Footer */}
-                        <div className={`flex flex-row items-center gap-4 w-full bg-white sticky bottom-0 z-10 ${compact ? "px-6 pb-3 pt-3 sm:px-10" : "px-6 border-t border-hairline-soft"}`}>
+                        <div className={`flex flex-row items-center gap-4 w-full bg-white sticky bottom-0 z-10 ${compact ? "px-6 pb-5 pt-3 sm:px-10" : "border-t border-hairline-soft px-6 pb-5 pt-3"}`}>
                             {secondaryAction && secondaryActionLabel && (
                                 <Button outline disabled={disabled} label={secondaryActionLabel} onClick={handleSecondaryAction} />
                             )}

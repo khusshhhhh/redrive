@@ -67,7 +67,8 @@ export async function POST(request: NextRequest) {
 
     const redriveFee = Math.round(totalPrice * 0.08);
     const serviceFee = calculateServiceFee(totalPrice);
-    const totalFees = totalPrice + redriveFee + serviceFee + finalInsuranceFee;
+    const upfrontCleaningFee = listing.cleaningFeeOption === "YES" ? (listing.cleaningFeeAmount || 0) : 0;
+    const totalFees = totalPrice + redriveFee + serviceFee + finalInsuranceFee + upfrontCleaningFee;
 
     const reservation = await prisma.reservation.create({
       data: {

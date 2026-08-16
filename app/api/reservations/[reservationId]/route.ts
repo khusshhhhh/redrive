@@ -37,6 +37,10 @@ export async function GET(
       );
     }
 
+    if (reservation.userId !== currentUser.id && reservation.listing.userId !== currentUser.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     // ✅ Ensure response matches SafeReservation format
     const safeReservation = {
       ...reservation,
@@ -44,11 +48,19 @@ export async function GET(
       startDate: reservation.startDate.toISOString(),
       endDate: reservation.endDate.toISOString(),
       user: {
-        ...reservation.user,
+        id: reservation.user.id,
+        name: reservation.user.name,
+        email: reservation.user.email,
+        number: reservation.user.number,
+        image: reservation.user.image,
+        profileVerified: reservation.user.profileVerified,
         createdAt: reservation.user.createdAt.toISOString(),
         updatedAt: reservation.user.updatedAt.toISOString(),
         emailVerified: reservation.user.emailVerified
           ? reservation.user.emailVerified.toISOString()
+          : null,
+        lastActiveAt: reservation.user.lastActiveAt
+          ? reservation.user.lastActiveAt.toISOString()
           : null,
       },
       listing: {

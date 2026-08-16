@@ -79,6 +79,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             <span className="absolute inset-x-0 bottom-0 bg-black/60 px-3 py-2 text-sm font-medium text-white">{uploading ? "Uploading…" : "Click to replace"}</span>
           </span>
         )}
+        {uploading && (
+          <span className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm" role="status" aria-live="polite">
+            <span className="relative flex h-14 w-14 items-center justify-center">
+              <span className="loader-orbit absolute inset-0 rounded-full border-2 border-hairline border-t-primary" aria-hidden="true" />
+              <TbPhotoPlus size={21} className="text-primary" aria-hidden="true" />
+            </span>
+            <span className="mt-4 font-semibold text-ink">Uploading image</span>
+            <span className="mt-1 text-xs text-muted">Please keep this window open</span>
+          </span>
+        )}
       </button>
     </div>
   );

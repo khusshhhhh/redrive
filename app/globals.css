@@ -129,7 +129,7 @@ body {
 .skeleton-wave {
   position: relative;
   overflow: hidden;
-  background: #fbe9df;
+  background: #edf0f2;
 }
 
 .shimmer::after,
@@ -138,7 +138,7 @@ body {
   position: absolute;
   inset: 0;
   transform: translateX(-110%);
-  background: linear-gradient(100deg, transparent 20%, rgb(255 246 241 / 88%) 48%, transparent 76%);
+  background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / 88%) 48%, transparent 76%);
   animation: shimmerSweep 1.65s cubic-bezier(.4, 0, .2, 1) infinite;
 }
 

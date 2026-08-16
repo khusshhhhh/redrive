@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import { IconSend, IconArrowLeft, IconPaperclip, IconX } from "@tabler/icons-react";
 import { format, isSameDay, isToday, isYesterday } from "date-fns";
 import ChatBubble from "@/app/components/messages/ChatBubble";
+import ChatSidebar from "@/app/components/messages/ChatSidebar";
 import TypingIndicator from "@/app/components/messages/TypingIndicator";
 import { useSSE } from "@/app/hooks/useSSE";
 import { isOnline } from "@/app/helpers/presence";
@@ -49,11 +50,17 @@ const ChatPage = () => {
   const typingExpireTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTypingSentAtRef = useRef(0);
   const isTypingRef = useRef(false);
+  const sendInFlightRef = useRef(false);
 
   // Initial load: current user id + first page of messages + otherUser.
   useEffect(() => {
     if (!chatId) return;
     let cancelled = false;
+    setLoading(true);
+    setMessages([]);
+    setOtherUser(null);
+    setStreamSince(null);
+    seenIdsRef.current = new Set();
 
     axios.get("/api/auth/user").then((res) => {
       if (!cancelled) setCurrentUserId(res.data.id);
@@ -191,10 +198,12 @@ const ChatPage = () => {
   }, [chatId]);
 
   const sendMessage = async () => {
+    if (sendInFlightRef.current) return;
     const trimmed = text.trim();
     if (!trimmed && !pendingImageUrl) return;
     if (!currentUserId) return;
 
+    sendInFlightRef.current = true;
     setSending(true);
     if (typingStopTimerRef.current) clearTimeout(typingStopTimerRef.current);
     if (isTypingRef.current) sendTyping(false);
@@ -223,12 +232,19 @@ const ChatPage = () => {
       });
       const confirmed: SafeMessage = res.data;
       seenIdsRef.current.add(confirmed.id);
-      setMessages((prev) => prev.map((m) => (m.id === tempId ? confirmed : m)));
+      setMessages((prev) => {
+        const tempIndex = prev.findIndex((message) => message.id === tempId);
+        const withoutDuplicates = prev.filter((message) => message.id !== tempId && message.id !== confirmed.id);
+        const insertAt = tempIndex < 0 ? withoutDuplicates.length : Math.min(tempIndex, withoutDuplicates.length);
+        return [...withoutDuplicates.slice(0, insertAt), confirmed, ...withoutDuplicates.slice(insertAt)];
+      });
     } catch {
       toast.error("Failed to send");
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
+    } finally {
+      setSending(false);
+      sendInFlightRef.current = false;
     }
-    setSending(false);
   };
 
   const uploadAttachment = async (file?: File) => {
@@ -290,117 +306,49 @@ const ChatPage = () => {
 
   return (
     <Container>
-      <div className="w-full sm:max-w-2xl mx-auto py-8 px-2">
-        <div className="flex items-center gap-3 mb-4">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-1 text-sm text-ink hover:underline shrink-0"
-          >
-            <IconArrowLeft size={16} /> Back
-          </button>
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold truncate text-ink">
-              {otherUser?.name || "Conversation"}
-            </div>
-            <div className="text-xs text-muted">
-              {otherTyping ? (
-                <span className="text-ink font-medium">typing…</span>
-              ) : online ? (
-                "Online"
-              ) : otherUser?.lastActiveAt ? (
-                `Last seen ${format(new Date(otherUser.lastActiveAt), "p")}`
-              ) : (
-                ""
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div
-          ref={scrollRef}
-          className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto border border-hairline p-2 sm:p-4 rounded-md bg-white"
-        >
-          {hasMore && (
-            <button
-              onClick={loadOlder}
-              disabled={loadingOlder}
-              className="text-xs text-ink hover:underline self-center mb-2 disabled:opacity-50"
-            >
-              {loadingOlder ? "Loading…" : "Load older messages"}
-            </button>
-          )}
-
-          {messages.map((m, index) => {
-            const prev = messages[index - 1];
-            const showDivider = !prev || !isSameDay(new Date(prev.createdAt), new Date(m.createdAt));
-            return (
-              <div key={m.id}>
-                {showDivider && (
-                  <div className="text-center text-xs text-muted-soft my-2">
-                    {dayLabel(new Date(m.createdAt))}
-                  </div>
-                )}
-                <ChatBubble
-                  message={m}
-                  isOwn={m.senderId === currentUserId}
-                  otherUserId={otherUser?.id}
-                  pending={m.id.startsWith("temp-")}
-                />
+      <div className="py-6 sm:py-8">
+        <div className="mx-auto flex h-[calc(100dvh-10rem)] min-h-[560px] max-w-[1280px] overflow-hidden rounded-md border border-hairline-soft bg-white shadow-card">
+          <ChatSidebar activeChatId={chatId} className="hidden w-[340px] md:flex" />
+          <section className="flex min-w-0 flex-1 flex-col bg-surface-soft/30">
+            <header className="flex h-[76px] shrink-0 items-center gap-3 border-b border-hairline-soft bg-white px-4 sm:px-6">
+              <button onClick={() => router.push("/messages")} className="rounded-full p-2 text-ink hover:bg-surface-soft md:hidden" aria-label="Back to conversations"><IconArrowLeft size={20} /></button>
+              <div className="relative shrink-0">
+                <Image src={otherUser?.image || "/images/placeholder.png"} alt="" width={44} height={44} className="h-11 w-11 rounded-full object-cover" />
+                {online && <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500" />}
               </div>
-            );
-          })}
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-semibold text-ink">{otherUser?.name || "Conversation"}</div>
+                <div className="text-xs text-muted">{otherTyping ? <span className="font-medium text-primary">typing…</span> : online ? "Online" : otherUser?.lastActiveAt ? `Last seen ${format(new Date(otherUser.lastActiveAt), "p")}` : ""}</div>
+              </div>
+            </header>
 
-          {otherTyping && <TypingIndicator />}
-        </div>
+            <div ref={scrollRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3 sm:p-6">
+              {hasMore && <button onClick={loadOlder} disabled={loadingOlder} className="mx-auto block rounded-full bg-white px-4 py-2 text-xs font-medium text-ink shadow-sm disabled:opacity-50">{loadingOlder ? "Loading…" : "Load older messages"}</button>}
+              {messages.map((message, index) => {
+                const previous = messages[index - 1];
+                const showDivider = !previous || !isSameDay(new Date(previous.createdAt), new Date(message.createdAt));
+                return (
+                  <div key={message.id}>
+                    {showDivider && <div className="my-4 text-center"><span className="rounded-full bg-white px-3 py-1 text-[11px] font-medium text-muted shadow-sm">{dayLabel(new Date(message.createdAt))}</span></div>}
+                    <ChatBubble message={message} isOwn={message.senderId === currentUserId} otherUserId={otherUser?.id} pending={message.id.startsWith("temp-")} />
+                  </div>
+                );
+              })}
+              {otherTyping && <TypingIndicator />}
+            </div>
 
-        {pendingImageUrl && (
-          <div className="mt-3 relative w-20 h-20">
-            <Image src={pendingImageUrl} alt="To send" fill className="object-cover rounded-md" />
-            <button
-              onClick={() => setPendingImageUrl(null)}
-              className="absolute -top-2 -right-2 bg-ink text-white rounded-full p-0.5"
-            >
-              <IconX size={14} />
-            </button>
-          </div>
-        )}
-
-        <div className="mt-4 flex gap-2 sm:gap-3 items-center">
-          <input
-            ref={attachmentInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="sr-only"
-            onChange={(event) => void uploadAttachment(event.target.files?.[0])}
-          />
-          <button
-            type="button"
-            disabled={uploadingAttachment}
-            onClick={() => attachmentInputRef.current?.click()}
-            aria-label={uploadingAttachment ? "Uploading attachment" : "Attach an image"}
-            className="shrink-0 p-2 sm:p-3 rounded-full border border-hairline text-muted hover:shimmer transition disabled:cursor-wait disabled:opacity-50"
-          >
-            <IconPaperclip size={20} />
-          </button>
-          <input
-            value={text}
-            onChange={(e) => onTextChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-              }
-            }}
-            className="flex-1 border border-hairline focus:border-ink focus:border-2 outline-none p-2 sm:p-3 rounded-full px-4 text-ink"
-            placeholder="Type a message"
-          />
-          <button
-            onClick={sendMessage}
-            disabled={sending || (!text.trim() && !pendingImageUrl)}
-            className="bg-primary text-white p-2 sm:p-3 rounded-full flex items-center justify-center hover:bg-primary-active disabled:opacity-50 shrink-0"
-          >
-            <IconSend size={20} />
-          </button>
+            <footer className="shrink-0 border-t border-hairline-soft bg-white p-3 sm:p-4">
+              {pendingImageUrl && <div className="relative mb-3 h-20 w-20"><Image src={pendingImageUrl} alt="Attachment ready to send" fill className="rounded-md object-cover" /><button onClick={() => setPendingImageUrl(null)} className="absolute -right-2 -top-2 rounded-full bg-ink p-0.5 text-white"><IconX size={14} /></button></div>}
+              <div className="flex items-center gap-2 sm:gap-3">
+                <input ref={attachmentInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => void uploadAttachment(event.target.files?.[0])} />
+                <button type="button" disabled={uploadingAttachment} onClick={() => attachmentInputRef.current?.click()} aria-label={uploadingAttachment ? "Uploading attachment" : "Attach an image"} className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-hairline text-muted transition hover:bg-surface-soft disabled:cursor-wait">
+                  {uploadingAttachment ? <span className="loader-orbit h-5 w-5 rounded-full border-2 border-hairline border-t-primary" /> : <IconPaperclip size={20} />}
+                </button>
+                <input value={text} onChange={(event) => onTextChange(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendMessage(); } }} className="h-11 min-w-0 flex-1 rounded-full border border-hairline bg-white px-4 text-sm text-ink outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Type a message" />
+                <button onClick={() => void sendMessage()} disabled={sending || uploadingAttachment || (!text.trim() && !pendingImageUrl)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary-active disabled:opacity-50" aria-label="Send message">{sending ? <span className="loader-orbit h-5 w-5 rounded-full border-2 border-white/40 border-t-white" /> : <IconSend size={20} />}</button>
+              </div>
+            </footer>
+          </section>
         </div>
       </div>
     </Container>
