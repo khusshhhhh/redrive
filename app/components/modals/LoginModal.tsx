@@ -81,7 +81,6 @@ const LoginModal = () => {
     } else {
       toast.error(result?.error || "Unable to send another code");
     }
-<<<<<<< ours
   };
 
   const toggle = useCallback(() => {
@@ -150,80 +149,5 @@ const LoginModal = () => {
     />
   );
 };
-=======
-
-    const bodyContent = (
-        <div className="flex flex-col gap-3">
-            <p className="text-body-sm text-muted mb-1">Log in to continue to Redrive.</p>
-            <Input
-                id="email"
-                label="Email"
-                disabled={isLoading}
-                register={register}
-                errors={errors}
-                required />
-            <div className="relative"> {/* Wrapped input inside a div for proper positioning */}
-                <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"} // Toggle input type based on state
-                    label="Password"
-                    disabled={isLoading}
-                    register={register}
-                    errors={errors}
-                    required
-                />
-                <button
-                    type="button"
-                    onClick={togglePasswordVisibility} // Click to toggle visibility
-                    className="absolute inset-y-0 right-4 flex items-center text-muted"
-                >
-                    {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />} {/* Toggle icons */}
-                </button>
-            </div>
-        </div>
-    )
-
-    const footerContent = (
-        <div className="flex flex-col gap-4 mt-2 mx-6 mb-4">
-            <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-hairline-soft" />
-                </div>
-                <div className="relative flex justify-center">
-                    <span className="bg-white px-3 text-xs text-muted-soft uppercase tracking-wide">or</span>
-                </div>
-            </div>
-            <Button
-                outline
-                label="Continue with Google"
-                icon={FcGoogle}
-                onClick={async () => { await signIn('google'); }}
-            />
-            <div className="text-center mt-1">
-                <span className="text-muted text-sm">First time using Redrive? </span>
-                <span onClick={toggle} className="text-ink text-sm font-semibold cursor-pointer hover:underline">
-                    Create an account
-                </span>
-            </div>
-        </div>
-    );
-
-
-    return (
-        <Modal
-            disabled={isLoading}
-            loading={isLoading}
-            isOpen={loginModal.isOpen}
-            title="Log in"
-            actionLabel="Continue"
-            onClose={loginModal.onClose}
-            onSubmit={handleSubmit(onSubmit)}
-            body={bodyContent}
-            footer={footerContent}
-        />
-    );
-
-}
->>>>>>> theirs
 
 export default LoginModal;
