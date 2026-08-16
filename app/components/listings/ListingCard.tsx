@@ -86,7 +86,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                     />
                     {/* ✅ Show badge dynamically if it exists */}
                     {data.badgeValue && (
-                        <div className="absolute top-3 left-3 bg-white text-ink font-semibold text-badge px-2.5 py-1 rounded-full shadow-card">
+                        <div className="absolute left-3 top-3 rounded-full border border-accent/40 bg-accent-soft px-2.5 py-1 text-badge font-semibold text-ink shadow-card">
                             {data.badgeValue}
                         </div>
                     )}

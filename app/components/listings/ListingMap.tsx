@@ -64,10 +64,10 @@ const ListingMap: React.FC<ListingMapProps> = ({ suburb, state }) => {
               center: result.geometry.location,
               radius: 550,
               clickable: false,
-              strokeColor: "#087E8B",
+              strokeColor: "#39715A",
               strokeOpacity: 0.9,
               strokeWeight: 2,
-              fillColor: "#087E8B",
+              fillColor: "#39715A",
               fillOpacity: 0.12,
             });
             setStatus("ready");

@@ -53,8 +53,8 @@ const CategoryBox: React.FC<CategoryBoxProps> = ({
             className={`
           flex flex-col items-center justify-center
           min-w-[72px] min-h-14 gap-1.5 px-3 py-2 border-b-2 hover:text-ink transition cursor-pointer shrink-0
-          ${selected ? "border-b-ink" : "border-transparent"}
-          ${selected ? "text-ink" : "text-muted"}
+          ${selected ? "border-b-secondary" : "border-transparent"}
+          ${selected ? "text-secondary-active" : "text-muted"}
         `}
         >
             <Icon size={26} />

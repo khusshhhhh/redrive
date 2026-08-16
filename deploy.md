@@ -226,18 +226,87 @@ If a message doesn't arrive live but appears after a manual page refresh, check 
 
 ## 11. Candidate application colour schemes
 
-Coastal Drive is the active application palette. The remaining schemes are retained as future alternatives. Each palette keeps a light marketplace interface and provides a primary action colour, hover colour, dark text, soft surface and subtle border.
+Coast and Country is the active application palette. The remaining schemes are retained as future alternatives. Each palette keeps a light marketplace interface and provides a primary action colour, hover colour, dark text, soft surface and subtle border.
 
 | Option | Direction | Primary | Primary hover | Ink | Soft surface | Border |
 |---|---|---:|---:|---:|---:|---:|
-| **Coastal Drive (active)** | Calm, trustworthy and distinctly Australian | `#087E8B` | `#066A75` | `#16323A` | `#F1F8F8` | `#D7E7E8` |
+| Coastal Drive | Calm, trustworthy and distinctly Australian | `#087E8B` | `#066A75` | `#16323A` | `#F1F8F8` | `#D7E7E8` |
 | Outback Ember | Warm, adventurous and memorable | `#D65A31` | `#B94824` | `#2B211D` | `#FFF6F1` | `#F0DDD3` |
 | Eucalyptus | Natural, practical and sustainability-led | `#2F7D65` | `#256650` | `#20332D` | `#F2F7F4` | `#D9E6DF` |
 | Electric Indigo | Modern, energetic and technology-forward | `#4F46E5` | `#4338CA` | `#20213A` | `#F4F4FF` | `#DEDEFA` |
 | Sunset Coral | Friendly and travel-focused while retaining the current warmth | `#E34F67` | `#C93D54` | `#2D2326` | `#FFF4F6` | `#F1DCE1` |
+| Harbour Navy | Established, secure and premium without feeling corporate | `#24527A` | `#1B4162` | `#182A3A` | `#F3F7FA` | `#D9E4EC` |
+| Tasman Blue | Fresh, open and inspired by clear southern water | `#256A8A` | `#1D5671` | `#183440` | `#F2F8FA` | `#D6E7EC` |
+| Jacaranda Road | Distinctive, creative and slightly more premium | `#6B4FA3` | `#563E86` | `#302A3D` | `#F7F4FB` | `#E5DDF0` |
+| Banksia Gold | Grounded, confident and recognisably Australian | `#946018` | `#754B12` | `#382E20` | `#FBF7EF` | `#EDE1CC` |
+| Dusty Rose | Welcoming, lifestyle-led and softer than a conventional rental brand | `#A3445A` | `#843548` | `#38282C` | `#FCF5F7` | `#ECDCE1` |
+| Alpine Slate | Quiet, professional and suited to a broad vehicle marketplace | `#47657A` | `#374F60` | `#202F38` | `#F4F7F9` | `#DCE5EA` |
+| Rainforest | Strong, dependable and outdoors-focused | `#28664D` | `#1E503C` | `#21342C` | `#F2F7F4` | `#D7E5DD` |
+| Pacific Cyan | Bright, modern and energetic while remaining trustworthy | `#087A9A` | `#06627C` | `#15333C` | `#F0F8FA` | `#D3E7EC` |
+| Highway Plum | Bold and memorable with a refined urban character | `#70405F` | `#59334C` | `#352A32` | `#FAF5F8` | `#E9DCE4` |
+| Limestone | Warm-neutral and minimal, with a restrained premium accent | `#796247` | `#604D38` | `#332E28` | `#F8F6F2` | `#E6E0D7` |
+
+### Bright alternatives
+
+These options use stronger, more energetic accents and lightly tinted surfaces. Their primary colours remain dark enough to support readable white labels on buttons and active controls.
+
+| Option | Direction | Primary | Primary hover | Ink | Soft surface | Border |
+|---|---|---:|---:|---:|---:|---:|
+| Sunlit Azure | Crisp, optimistic and highly visible across mobile screens | `#006EE6` | `#0057B8` | `#142E48` | `#F0F7FF` | `#CCE3FA` |
+| Tropical Turquoise | Bright, fresh and suited to coastal adventures | `#007F73` | `#00665C` | `#123B38` | `#EEFBF9` | `#C8ECE7` |
+| Roadtrip Orange | Energetic, adventurous and action-oriented | `#C94B00` | `#A63E00` | `#3D271B` | `#FFF5EC` | `#F4D9C4` |
+| Festival Magenta | Expressive, social and memorable without feeling childish | `#C0266D` | `#9F1E5A` | `#402333` | `#FFF1F7` | `#F3D1E1` |
+| Ultraviolet | Bold, digital-first and distinctive in a crowded marketplace | `#6D3CEB` | `#5730C0` | `#2D2542` | `#F6F2FF` | `#E1D7FA` |
+| Surf Blue | Clear, active and strongly associated with travel and water | `#0077B6` | `#005F91` | `#173543` | `#EFF9FE` | `#CDE8F5` |
+| Adventure Green | Lively, outdoors-focused and more energetic than Eucalyptus | `#318239` | `#28692F` | `#203624` | `#F1FAF2` | `#D1E9D4` |
+| Signal Cherry | Confident, friendly and designed for strong calls to action | `#C9344A` | `#A9293D` | `#40252A` | `#FFF2F4` | `#F2D3D8` |
+
+### Australian-inspired alternatives
+
+These palettes draw from Australian coastlines, native flora and familiar road-trip landscapes. The names are thematic references only; the colours are tuned for accessible digital interfaces rather than literal landscape reproductions.
+
+| Option | Direction | Primary | Primary hover | Ink | Soft surface | Border |
+|---|---|---:|---:|---:|---:|---:|
+| Great Barrier Reef | Clear tropical water, coral detail and bright Queensland travel | `#007C91` | `#006274` | `#14373D` | `#EFFAFA` | `#C9E9E9` |
+| Uluru Sunset | Deep desert orange balanced by warm stone neutrals | `#B94E1F` | `#963E18` | `#3B2921` | `#FFF4ED` | `#EFD5C6` |
+| Wattle and Gum | Golden native bloom paired with calm eucalyptus undertones | `#806000` | `#664D00` | `#343125` | `#FFF9E8` | `#EBE0BB` |
+| Bondi Daybreak | Clean ocean blue with a bright, relaxed coastal surface | `#0878A4` | `#066184` | `#183743` | `#EFF9FD` | `#CBE6F0` |
+| Kakadu Wetlands | Rich wetland green with soft mineral-grey supporting tones | `#356B4F` | `#29543E` | `#26372F` | `#F1F7F3` | `#D5E5DA` |
+| Blue Mountains | Atmospheric blue-grey with a quiet premium character | `#4B607C` | `#3B4C63` | `#252F3D` | `#F3F6FA` | `#D9E1EB` |
+| Nullarbor Sky | Expansive cobalt sky against pale limestone surfaces | `#285EAD` | `#204B8A` | `#202F45` | `#F2F6FC` | `#D5E1F1` |
+| Sydney Harbour | Confident harbour blue for a polished urban marketplace | `#176B87` | `#12566D` | `#18323C` | `#F0F8FA` | `#D0E5EB` |
+| Flinders Ranges | Rugged ochre and muted earth tones for an adventurous identity | `#985122` | `#793F1A` | `#392D25` | `#FAF4EF` | `#E8D8CC` |
+| Daintree Canopy | Dense rainforest green with fresh, cool supporting surfaces | `#246348` | `#1B4E38` | `#20342B` | `#F0F7F3` | `#D1E3D8` |
+| Southern Cross | Deep night-sky indigo with crisp pale-blue surfaces | `#3E4E9A` | `#313E7B` | `#252B46` | `#F3F5FC` | `#D9DEF1` |
+| Pink Lake | Distinctive rose inspired by Australia’s salt lakes | `#A33F68` | `#823253` | `#3B2932` | `#FCF3F7` | `#EBD6DF` |
+
+### Mixed Australian palettes
+
+These palettes deliberately mix several recognisable Australian colour families. Use **Primary** for main buttons and links, **Secondary** for selected filters, badges and supporting controls, and **Accent** sparingly for highlights, illustrations, status chips or promotional elements. Keeping one colour responsible for primary actions prevents a multi-colour interface from becoming visually confusing.
+
+| Option | Inspiration | Primary | Secondary | Accent | Ink | Soft surface | Border |
+|---|---|---:|---:|---:|---:|---:|---:|
+| **Coast and Country (active)** | Ocean teal, eucalyptus bushland and golden wattle | `#087985` | `#39715A` | `#D39A12` | `#18363A` | `#F1F8F5` | `#D2E6E0` |
+| Reef and Coral | Tropical water, coral formations and warm island sand | `#007D91` | `#C95043` | `#D9A83A` | `#17363D` | `#F0FAFA` | `#CBE8E7` |
+| Desert Bloom | Red earth, pink wildflowers and clear inland sky | `#A94A25` | `#A43C68` | `#28789C` | `#3C2928` | `#FCF4F1` | `#E9D5CF` |
+| Bush and Wattle | Gum leaves, wattle flowers and terracotta tracks | `#326C54` | `#936B00` | `#B85532` | `#29352E` | `#F4F8F3` | `#D8E4D8` |
+| Harbour Lights | Deep harbour blue, bright water and city gold | `#175F7C` | `#1687A4` | `#C58917` | `#1B323C` | `#F1F8FA` | `#D2E6EC` |
+| Rainforest and Reef | Daintree green, tropical turquoise and sunlight | `#286348` | `#007F89` | `#C4920E` | `#21372E` | `#F0F8F4` | `#D0E4D8` |
+| Outback Night | Southern sky, red ranges and campfire gold | `#47518F` | `#A34827` | `#BD8118` | `#2D2D42` | `#F6F4F7` | `#DFDAE6` |
+| Salt Lake Coast | Pink salt lakes, coastal blue and pale mineral tones | `#9C4168` | `#176B88` | `#C57A42` | `#382C35` | `#FBF3F7` | `#E8D6DF` |
+| Surf and Sand | Pacific blue, sea-glass green and warm beach coral | `#08749B` | `#218173` | `#C95A43` | `#19363E` | `#F3F9F7` | `#D3E7E2` |
+| Wattle Sunrise | Morning-sky blue, rich wattle and soft sunrise orange | `#286A9A` | `#8A6500` | `#C86435` | `#26343D` | `#F7F8F2` | `#E3E4D2` |
+
+#### Suggested mixed-palette usage
+
+- Keep approximately 70% of the interface neutral using the ink, white and soft-surface colours.
+- Use the primary colour for all main calls to action so users always know where to proceed.
+- Use the secondary colour for navigation selection, category filters and informational badges.
+- Reserve the accent colour for small moments of emphasis; avoid using it for long text or every card.
+- Keep success, warning and error colours semantic rather than replacing them with palette accents.
 
 ### Current selection
 
-**Coastal Drive** is applied across the app’s actions, navigation accents, typography, borders, surfaces, loading states, date controls, logo, map accents and transactional emails. The palette gives Redrive a calm, trustworthy coastal identity while retaining a clear marketplace hierarchy.
+**Coast and Country** is applied across the app’s actions, navigation accents, typography, borders, surfaces, loading states, date controls, logo, favicon, map accents and transactional emails. Ocean teal anchors primary actions, eucalyptus green supports selections and location details, and wattle gold is reserved for small highlights. This keeps the interface consistent while giving Redrive a recognisably Australian identity.
 
 Before adopting a palette, test normal text, muted text, buttons, focus rings and error states against WCAG AA contrast targets. Keep semantic colours such as success, warning and error separate from the brand primary colour.

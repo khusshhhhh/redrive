@@ -154,15 +154,15 @@ const SearchModal = () => {
                                 max={10000}
                                 step={50}
                                 sx={{
-                                    color: "#087E8B", // Coastal Drive accent
+                                    color: "#087985", // Coast and Country primary
                                     "& .MuiSlider-thumb": {
-                                        backgroundColor: "#087E8B",
+                                        backgroundColor: "#087985",
                                     },
                                     "& .MuiSlider-track": {
-                                        backgroundColor: "#087E8B",
+                                        backgroundColor: "#087985",
                                     },
                                     "& .MuiSlider-rail": {
-                                        backgroundColor: "#D7E7E8",
+                                        backgroundColor: "#D2E6E0",
                                     },
                                 }}
                             />

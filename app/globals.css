@@ -66,13 +66,13 @@ body {
   display: none;
 }
 
-/* Coastal Drive date picker overrides for react-date-range (light mode only). */
+/* Coast and Country date picker overrides for react-date-range (light mode only). */
 .rdrCalendarWrapper {
-  color: #16323a;
+  color: #18363a;
 }
 
 .rdrDayNumber span {
-  color: #16323a;
+  color: #18363a;
 }
 
 .rdrDay:not(.rdrDayPassive) .rdrInRange ~ .rdrDayNumber span,
@@ -83,19 +83,19 @@ body {
 }
 
 .rdrDayToday .rdrDayNumber span:after {
-  background: #087e8b;
+  background: #087985;
 }
 
 .rdrInRange, .rdrStartEdge, .rdrEndEdge, .rdrSelected {
-  background: #087e8b !important;
+  background: #087985 !important;
 }
 
 .rdrDayHovered:not(.rdrDayPassive) .rdrDayNumber {
-  border-color: #d7e7e8;
+  border-color: #d2e6e0;
 }
 
 .rdrMonthAndYearPickers select {
-  color: #16323a;
+  color: #18363a;
 }
 
 /* Loading motion: quiet, brand-consistent and stable in layout. */

@@ -64,7 +64,7 @@ const Button: React.FC<ButtonProps> = ({
                 <span className="relative z-10 flex items-center gap-2 animate-loadingFadeIn">
                     <DotLoader
                         size={small ? "sm" : "md"}
-                        color={outline ? "#16323A" : "#ffffff"}
+                        color={outline ? "#18363A" : "#ffffff"}
                     />
                     <span>{loadingLabel || "Please wait"}</span>
                 </span>
