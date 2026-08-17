@@ -139,6 +139,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
       )}
       <Modal
         compact
+        centered
         isOpen={showLogoutConfirm}
         onClose={() => setShowLogoutConfirm(false)}
         onSubmit={() => void confirmLogout()}
