@@ -56,15 +56,17 @@ const Modal: React.FC<ModalProps> = ({
     secondaryActionLabel,
     compact = false,
 }) => {
-    const [showModal, setShowModal] = useState(isOpen);
+    const [showModal, setShowModal] = useState(false);
 
     // Sync animation state. Scroll locking has its own effect so its cleanup
     // always runs when a lazy-loaded modal is removed from the tree.
     useEffect(() => {
         if (isOpen) {
-            setShowModal(true);
+            const frame = window.requestAnimationFrame(() => setShowModal(true));
+            return () => window.cancelAnimationFrame(frame);
         } else {
-            const timer = window.setTimeout(() => setShowModal(false), 300);
+            setShowModal(false);
+            const timer = window.setTimeout(() => setShowModal(false), 380);
             return () => window.clearTimeout(timer);
         }
     }, [isOpen]);
@@ -79,7 +81,7 @@ const Modal: React.FC<ModalProps> = ({
         if (disabled) return;
 
         setShowModal(false);
-        setTimeout(onClose, 300);
+        setTimeout(onClose, 380);
     }, [disabled, onClose]);
 
     useEffect(() => {
@@ -109,7 +111,7 @@ const Modal: React.FC<ModalProps> = ({
 
     return (
         <div
-            className={`fixed inset-0 z-50 flex items-end justify-center overflow-x-hidden bg-black/40 backdrop-blur-[2px] outline-none sm:items-center ${compact ? "" : "overflow-y-auto"}`}
+            className={`fixed inset-0 z-50 flex items-end justify-center overflow-x-hidden bg-black/40 backdrop-blur-[2px] outline-none transition-opacity duration-300 motion-reduce:transition-none sm:items-center ${showModal ? "opacity-100" : "opacity-0"} ${compact ? "" : "overflow-y-auto"}`}
             onClick={handleClose} // Close when clicking outside
             role="dialog"
             aria-modal="true"
@@ -123,10 +125,11 @@ const Modal: React.FC<ModalProps> = ({
             >
                 {/* Modal Content */}
                 <div
-                    className={`transition-transform duration-300 h-full 
-          ${showModal ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}
+                    className={`h-full transition-[transform,opacity] duration-[360ms] ease-[cubic-bezier(.22,1,.36,1)] motion-reduce:transition-none
+          ${showModal ? 'translate-y-0 opacity-100' : 'translate-y-[110%] opacity-0'}`}
                 >
                     <div className={`relative flex w-full flex-col bg-white outline-none overflow-hidden ${compact ? "max-h-[94dvh] rounded-t-[28px] shadow-2xl sm:max-h-[calc(100dvh-64px)] sm:rounded-lg" : "h-full rounded-md border-0 shadow-card md:h-auto"}`}>
+                        <div className="absolute left-1/2 top-2 z-20 h-1 w-10 -translate-x-1/2 rounded-full bg-hairline sm:hidden" aria-hidden="true" />
 
                         {/* Modal Header */}
                         <div className={`relative top-0 z-10 flex items-center justify-center bg-white ${compact ? "px-8 pb-4 pt-8 sm:pt-10" : "border-b border-hairline-soft px-4 py-5 sm:p-6"}`}>

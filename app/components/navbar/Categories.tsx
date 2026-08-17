@@ -12,52 +12,52 @@ import { Van } from "@phosphor-icons/react";
 export const categories = [
     {
         label: 'Car',
-        icon: () => <IconCar size={28} stroke={1.5} />,
+        icon: () => <IconCar size={24} stroke={1.5} />,
         description: 'These are the amazing caravans!'
     },
     {
         label: 'Utes',
-        icon: () => <IconTir size={28} stroke={1.5} />,
+        icon: () => <IconTir size={24} stroke={1.5} />,
         description: 'These are the Utes!'
     },
     {
         label: 'Bikes',
-        icon: () => <IconMotorbike size={28} stroke={1.5} />,
+        icon: () => <IconMotorbike size={24} stroke={1.5} />,
         description: 'These are the speedy bikes!'
     },
     {
         label: 'Caravans',
-        icon: () => <IconCaravan size={28} stroke={1.5} />,
+        icon: () => <IconCaravan size={24} stroke={1.5} />,
         description: 'These are the amazing caravans!'
     },
     {
         label: 'Motorhomes',
-        icon: () => <IconCamper size={28} stroke={1.5} />,
+        icon: () => <IconCamper size={24} stroke={1.5} />,
         description: 'These are the amazing Motorhomes!'
     },
     {
         label: 'Boats',
-        icon: () => <IconSailboat size={28} stroke={1.5} />,
+        icon: () => <IconSailboat size={24} stroke={1.5} />,
         description: 'These are the wavey boats!'
     },
     {
         label: 'JetSkies',
-        icon: () => <IconSwimming size={28} stroke={1.5} />,
+        icon: () => <IconSwimming size={24} stroke={1.5} />,
         description: 'These are the fast jetskies!'
     },
     {
         label: 'Yachts',
-        icon: () => <IconSpeedboat size={28} stroke={1.5} />,
+        icon: () => <IconSpeedboat size={24} stroke={1.5} />,
         description: 'These are the fast jetskies!'
     },
     {
         label: 'Vans',
-        icon: () => <Van size={28} />,
+        icon: () => <Van size={24} />,
         description: 'These are very durable vans!'
     },
     {
         label: 'Trucks',
-        icon: () => <IconTruck size={28} stroke={1.5} />,
+        icon: () => <IconTruck size={24} stroke={1.5} />,
         description: 'Heavy-duty trucks for transport and hauling!'
     },
     // {
@@ -81,19 +81,14 @@ const Categories = () => {
         <Container>
             <div
                 className="
-          pt-1
-          pb-1
-          flex
-          flex-row
+          grid
+          w-full
+          grid-cols-10
           items-center
-          justify-start
-          gap-1
-          md:justify-between
+          gap-0
+          py-1
+          sm:gap-1
           md:gap-2
-          overflow-x-auto
-          overscroll-x-contain
-          snap-x
-          scrollbar-hide
         "
             >
                 {categories.map((item) => (
