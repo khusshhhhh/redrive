@@ -51,14 +51,14 @@ const CategoryBox: React.FC<CategoryBoxProps> = ({
         <div
             onClick={handleClick}
             className={`
-          flex flex-col items-center justify-center
-          min-w-[72px] min-h-14 gap-1.5 px-3 py-2 border-b-2 hover:text-ink transition cursor-pointer shrink-0
+          flex flex-col items-center justify-center snap-start
+          min-w-[64px] min-h-14 gap-1 px-2 py-1.5 border-b-2 hover:text-ink transition cursor-pointer shrink-0 sm:min-w-[72px] sm:gap-1.5 sm:px-3 sm:py-2
           ${selected ? "border-b-secondary" : "border-transparent"}
           ${selected ? "text-secondary-active" : "text-muted"}
         `}
         >
-            <Icon size={26} />
-            <div className="text-sm font-medium">{label}</div>
+            <Icon size={24} />
+            <div className="text-xs font-medium sm:text-sm">{label}</div>
         </div>
     );
 };

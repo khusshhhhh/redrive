@@ -62,11 +62,18 @@ const Search = () => {
     <div className="flex min-w-0 flex-row items-center gap-2 sm:gap-4">
       <div
         onClick={searchModal.onOpen}
-        className="min-w-0 flex-1 cursor-pointer rounded-full border border-hairline bg-white py-1.5 text-ink shadow-card transition hover:shadow-md sm:py-2 md:w-auto md:flex-none"
+        role="button"
+        tabIndex={0}
+        onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); searchModal.onOpen(); } }}
+        aria-label={`Search vehicles. ${locationLabel}, ${durationLabel}, ${guestLabel}`}
+        className="min-w-0 flex-1 cursor-pointer rounded-full border border-hairline bg-white py-1 text-ink shadow-card outline-none transition hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:py-2 md:w-auto md:flex-none"
       >
         <div className="flex min-w-0 flex-row items-center justify-between sm:gap-4 md:gap-10">
           {/* Selected Location */}
-          <div className="truncate px-3 text-caption font-medium sm:px-5 md:px-6">{locationLabel}</div>
+          <div className="min-w-0 flex-1 px-4 sm:flex-none sm:px-5 md:px-6">
+            <div className="truncate text-[13px] font-semibold sm:text-caption sm:font-medium">{locationLabel}</div>
+            <div className="mt-0.5 truncate text-[11px] text-muted sm:hidden">{durationLabel} · {guestLabel}</div>
+          </div>
 
           {/* Date Range */}
           <div className="hidden flex-1 border-x border-hairline px-6 text-center text-caption font-medium sm:block md:px-10 lg:px-16">
@@ -88,7 +95,8 @@ const Search = () => {
           <div className="text-center">
             <button
               onClick={handleClearFilters}
-              className="p-3 bg-white text-ink rounded-full border border-hairline hover:border-ink transition"
+              aria-label="Clear all search filters"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-hairline bg-white text-ink transition hover:border-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <IconX size={16} />
             </button>

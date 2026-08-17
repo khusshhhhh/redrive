@@ -27,7 +27,7 @@ const Home = async ({ searchParams }: HomeProps) => {
 
   return (
       <Container>
-        <div className="pt-16 space-y-12">
+        <div className="space-y-10 pb-8 pt-6 sm:pt-10 lg:space-y-12 lg:pt-12">
           {/* Results Header */}
           {hasFilters && (
             <div>
@@ -55,7 +55,7 @@ const Home = async ({ searchParams }: HomeProps) => {
                 lg:grid-cols-4
                 xl:grid-cols-5
                 2xl:grid-cols-6
-                gap-x-4 gap-y-8
+                gap-x-4 gap-y-7 sm:gap-y-8
               ">
                 {listings.map((listing, index) => (
                   <ListingCard

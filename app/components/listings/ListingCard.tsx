@@ -72,10 +72,19 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
     return (
         <div
             onClick={() => router.push(`/listings/${data.id}`)}
-            className="col-span-1 cursor-pointer group"
+            onKeyDown={(event) => {
+                if (event.currentTarget === event.target && (event.key === "Enter" || event.key === " ")) {
+                    event.preventDefault();
+                    router.push(`/listings/${data.id}`);
+                }
+            }}
+            role="link"
+            tabIndex={0}
+            aria-label={`View ${data.title} in ${data.suburb}, ${data.state}`}
+            className="group col-span-1 cursor-pointer rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
         >
-            <div className="flex flex-col gap-2 w-full">
-                <div className={`${compact ? "aspect-[4/3]" : "aspect-square"} w-full relative overflow-hidden rounded-md shadow-none group-hover:shadow-card transition-shadow`}>
+            <div className="flex w-full flex-col gap-2">
+                <div className={`${compact ? "aspect-[4/3]" : "aspect-[3/2] md:aspect-square"} relative w-full overflow-hidden rounded-md shadow-none transition-shadow group-hover:shadow-card`}>
                     {!imageLoaded && <div className="absolute inset-0 shimmer" />}
                     <Image
                         fill
@@ -96,12 +105,12 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                         <HeartButton listingId={data.id} currentUser={currentUser} />
                     </div>
                 </div>
-                <div className={`${compact ? "line-clamp-2 text-sm leading-5" : "text-title-md"} font-semibold text-ink`}>{data.title}</div>
-                <div className="font-normal text-muted text-body-sm">
-                    {reservationDate || data.category} | {data.suburb}, {data.state}
+                <div className={`${compact ? "line-clamp-2 text-sm" : "line-clamp-2 text-[15px] sm:text-title-md"} font-semibold leading-5 text-ink`}>{data.title}</div>
+                <div className="truncate text-[13px] font-normal text-muted sm:text-body-sm">
+                    {reservationDate || data.category} <span aria-hidden="true">·</span> {data.suburb}, {data.state}
                 </div>
-                <div className="flex flex-row items-center gap-1 text-body-sm text-ink">
-                    <div className="font-semibold">AUD {price}</div>
+                <div className="flex flex-row items-center gap-1 text-[13px] text-ink sm:text-body-sm">
+                    <div className="font-semibold">AU${price}</div>
                     {!reservation && <div className="font-normal text-muted">per day</div>}
                 </div>
                 {reservation && (

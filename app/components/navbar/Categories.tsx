@@ -81,13 +81,16 @@ const Categories = () => {
         <Container>
             <div
                 className="
-          pt-2
+          pt-1
+          pb-1
           flex
           flex-row
           items-center
-          justify-between
-          gap-4
+          justify-start
+          gap-1
           overflow-x-auto
+          overscroll-x-contain
+          snap-x
           scrollbar-hide
         "
             >

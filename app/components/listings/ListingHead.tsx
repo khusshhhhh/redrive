@@ -86,12 +86,13 @@ const ListingHead: React.FC<ListingHeadProps> = ({
     return (
         <>
             {/* Title row: title left, Share / Save actions right */}
-            <div className="flex items-center justify-between gap-4">
-                <Heading title={title} subtitle="" />
-                <div className="flex items-center gap-5 shrink-0">
+            <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1"><Heading title={title} subtitle="" /></div>
+                <div className="flex shrink-0 items-center gap-1 sm:gap-5">
                     <button
                         onClick={onShare}
-                        className="flex items-center gap-2 text-sm font-medium text-ink underline hover:text-muted transition"
+                        aria-label="Share this listing"
+                        className="flex h-11 w-11 items-center justify-center gap-2 rounded-full text-sm font-medium text-ink transition hover:bg-surface-soft hover:text-muted sm:h-auto sm:w-auto sm:rounded-none sm:underline"
                     >
                         <IconShare2 size={18} />
                         <span className="hidden sm:inline">Share</span>
@@ -99,7 +100,15 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                     <div
                         onClick={toggleFavorite}
                         role="button"
-                        className="flex items-center gap-2 text-sm font-medium text-ink underline hover:text-muted transition cursor-pointer"
+                        tabIndex={0}
+                        aria-label={hasFavorited ? "Remove listing from favourites" : "Save listing to favourites"}
+                        onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                toggleFavorite(event);
+                            }
+                        }}
+                        className="flex h-11 w-11 cursor-pointer items-center justify-center gap-2 rounded-full text-sm font-medium text-ink transition hover:bg-surface-soft hover:text-muted sm:h-auto sm:w-auto sm:rounded-none sm:underline"
                     >
                         {hasFavorited ? (
                             <IconHeartFilled size={18} className="text-favorite" />
@@ -114,13 +123,13 @@ const ListingHead: React.FC<ListingHeadProps> = ({
             {/* Responsive Image Display */}
             <div className="relative w-full mt-4">
                 {/* Show Only One Image on Mobile */}
-                <div className="relative aspect-[4/3] max-h-[420px] overflow-hidden rounded-md md:hidden">
+                <div className="relative aspect-[3/2] max-h-[420px] overflow-hidden rounded-md md:hidden">
                     <GridImage
-                        src={imageSrcs[0]}
+                        src={imageSrcs[0] || "/images/placeholder.png"}
                         alt="Main"
                         sizes="100vw"
                         priority
-                        onClick={() => setSelectedImage(imageSrcs[0])}
+                        onClick={() => setSelectedImage(imageSrcs[0] || "/images/placeholder.png")}
                     />
                     {imageSrcs.length > 1 && (
                         <button
@@ -137,11 +146,11 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                 <div className="relative hidden md:grid grid-cols-4 grid-rows-2 gap-2 w-full h-[480px] rounded-xl overflow-hidden">
                     <div className="col-span-2 row-span-2">
                         <GridImage
-                            src={imageSrcs[0]}
+                            src={imageSrcs[0] || "/images/placeholder.png"}
                             alt="Main"
                             sizes="50vw"
                             priority
-                            onClick={() => setSelectedImage(imageSrcs[0])}
+                            onClick={() => setSelectedImage(imageSrcs[0] || "/images/placeholder.png")}
                         />
                     </div>
 
