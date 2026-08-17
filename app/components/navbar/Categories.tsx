@@ -88,6 +88,8 @@ const Categories = () => {
           items-center
           justify-start
           gap-1
+          md:justify-between
+          md:gap-2
           overflow-x-auto
           overscroll-x-contain
           snap-x

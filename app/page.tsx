@@ -47,6 +47,18 @@ const Home = async ({ searchParams }: HomeProps) => {
             <EmptyState showReset />
           ) : (
             <div>
+              {!hasFilters && (
+                <div className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">Ready for the road</p>
+                    <h1 className="text-display-lg font-semibold text-ink sm:text-display-xl">Explore vehicles across Australia</h1>
+                    <p className="mt-1 text-sm text-muted">Local vehicles for daily drives, work and weekends away.</p>
+                  </div>
+                  <div className="hidden shrink-0 rounded-full border border-hairline bg-surface-soft px-3 py-1.5 text-xs font-semibold text-ink sm:block">
+                    {listings.length} available
+                  </div>
+                </div>
+              )}
               <div className="
                 grid
                 grid-cols-1

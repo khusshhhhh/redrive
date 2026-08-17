@@ -22,7 +22,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
   };
 
   return (
-    <footer className="bg-white border-t border-hairline mt-16">
+    <footer className="mb-20 bg-white border-t border-hairline mt-16 md:mb-0">
       <div className="max-w-[1280px] mx-auto grid grid-cols-1 gap-9 px-4 py-12 sm:grid-cols-2 md:px-10 lg:grid-cols-4">
         <div>
           <h3 className="text-title-sm font-medium text-ink mb-4">Support</h3>

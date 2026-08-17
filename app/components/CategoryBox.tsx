@@ -48,18 +48,21 @@ const CategoryBox: React.FC<CategoryBoxProps> = ({
 
 
     return (
-        <div
+        <button
+            type="button"
             onClick={handleClick}
+            aria-pressed={selected}
+            aria-label={`${selected ? "Remove" : "Show"} ${label} filter`}
             className={`
           flex flex-col items-center justify-center snap-start
-          min-w-[64px] min-h-14 gap-1 px-2 py-1.5 border-b-2 hover:text-ink transition cursor-pointer shrink-0 sm:min-w-[72px] sm:gap-1.5 sm:px-3 sm:py-2
+          min-w-[64px] min-h-14 gap-1 px-2 py-1.5 border-b-2 hover:text-ink transition cursor-pointer shrink-0 outline-none focus-visible:bg-surface-soft focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:min-w-[72px] sm:gap-1.5 sm:px-3 sm:py-2 md:min-w-0 md:flex-1
           ${selected ? "border-b-secondary" : "border-transparent"}
           ${selected ? "text-secondary-active" : "text-muted"}
         `}
         >
             <Icon size={24} />
             <div className="text-xs font-medium sm:text-sm">{label}</div>
-        </div>
+        </button>
     );
 };
 

@@ -1,29 +1,22 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const Logo = () => {
-  const router = useRouter();
-
   return (
-    <div
-      onClick={() => router.push('/')}
-      role="button"
+    <Link
+      href="/"
       aria-label="Redrive home"
-      className="flex items-center gap-2 cursor-pointer select-none"
+      className="group flex items-center gap-2.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
     >
-      {/* A road-shaped R with a wattle-gold sun: movement, return journeys and
-          the Australian Coast and Country palette in one minimal mark. */}
-      <svg viewBox="0 0 64 64" className="h-9 w-9 shrink-0 md:h-11 md:w-11" aria-hidden="true">
-        <rect width="64" height="64" rx="17" className="fill-primary" />
-        <path d="M19 49V22c0-5.5 4.5-10 10-10h6c8.3 0 15 5.8 15 13s-6.7 13-15 13H20" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="m34 38 14 13" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" />
-        <circle cx="49" cy="13" r="4.5" className="fill-accent" />
+      {/* A single road-like R and wattle point: compact, Australian and legible. */}
+      <svg viewBox="0 0 48 48" className="h-9 w-9 shrink-0 transition-transform duration-300 group-hover:-rotate-2 group-hover:scale-[1.03] md:h-10 md:w-10" aria-hidden="true">
+        <path d="M10 39V16c0-5 4-9 9-9h7c7.2 0 12 4.2 12 10.5S33.2 28 26 28H11" fill="none" className="stroke-primary" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="m26 28 12 11" fill="none" className="stroke-primary" strokeWidth="4.5" strokeLinecap="round" />
+        <circle cx="39" cy="8" r="3.4" className="fill-accent" />
       </svg>
-      <span className="hidden text-xl font-bold tracking-[-0.04em] text-ink sm:block md:text-2xl">
+      <span className="hidden text-xl font-semibold tracking-[-0.045em] text-ink sm:block md:text-[23px]">
         redrive
       </span>
-    </div>
+    </Link>
   );
 };
 

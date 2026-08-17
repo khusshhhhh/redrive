@@ -7,7 +7,7 @@ import Logo from "./Logo";
 import Search from "./Search";
 import UserMenu from "./UserMenu";
 import { SafeUser } from "@/app/types";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { BiSearch } from "react-icons/bi";
 
 interface NavbarProps {
@@ -16,14 +16,22 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
   const pathname = usePathname(); // ✅ Now inside Client Component
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const updateHeader = () => setIsScrolled(window.scrollY > 18);
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+    return () => window.removeEventListener("scroll", updateHeader);
+  }, []);
 
   // ✅ Hide search bar on listing pages
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const showSearchBar = !pathname.startsWith("/confirm-reservation");
 
   return (
-    <div className="sticky top-0 z-30 w-full border-b border-hairline bg-white">
-      <div className="py-2.5 sm:py-3">
+    <header className={`sticky top-0 z-30 w-full border-b bg-white/95 backdrop-blur-md transition-[box-shadow,border-color] duration-300 ${isScrolled ? "border-hairline shadow-[0_8px_24px_rgba(24,54,58,0.08)]" : "border-hairline-soft shadow-none"}`}>
+      <div className={`transition-[padding] duration-300 ${isScrolled ? "py-2" : "py-2.5 sm:py-3"}`}>
         <Container>
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2.5 md:gap-y-0">
             <div className="shrink-0">
@@ -47,7 +55,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
           <Categories />
         </Suspense>
       )}
-    </div>
+    </header>
   );
 };
 

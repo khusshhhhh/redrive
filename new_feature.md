@@ -2,6 +2,40 @@
 
 Updated: 17 August 2026
 
+## Airbnb-inspired discovery and UI opportunities — 17 August 2026
+
+Airbnb's current product direction separates discovery into clear modes, keeps search prominent, uses strong visual collections, makes saved items easy to return to and provides persistent mobile navigation. Redrive should borrow those interaction principles while remaining a vehicle marketplace with its own Coast and Country visual identity.
+
+### Shipped in this UI pass
+
+- **Persistent mobile navigation:** Explore, Favourites, Trips, Inbox and Profile are now one tap away. Signed-out users receive the existing sign-in flow for private areas instead of reaching a dead end.
+- **Stronger discovery hierarchy:** the home grid now has a clear editorial heading, useful availability count and calmer spacing.
+- **Faster booking recognition:** eligible cards show a restrained Instant Book signal without covering the vehicle photo.
+- **Mobile-safe continuity:** the page and footer reserve space for the bottom navigation, including phone safe areas.
+
+### New product proposals
+
+| Priority | Feature | Redrive adaptation | Main measure |
+|---|---|---|---|
+| P0 | Total-price-first cards | Show the estimated trip total after dates are selected, with daily price secondary | Listing-to-booking conversion |
+| P0 | Search results map/list switch | Let users alternate between the vehicle grid and privacy-safe suburb circles | Search refinement rate |
+| P1 | Redrive Favourites quality badge | Award an explainable badge using verified host, complete listing, reviews and response reliability | Booking confidence |
+| P1 | Flexible road-trip dates | Add weekend, month and plus-or-minus-one-day discovery modes | Zero-result recovery |
+| P1 | Curated journey collections | Editorial rows such as “Weekend campers near Adelaide” and “Work-ready utes” using real inventory | Collection engagement |
+| P1 | Collaborative trip boards | Let a group save vehicles, vote and add short notes before choosing | Shared-board conversion |
+| P1 | Booking journey timeline | Combine request, verification, payment, pickup and return into one visible trip status timeline | Support contacts per trip |
+| P2 | Road-trip services marketplace | Optional host-provided delivery, setup, cleaning or equipment add-ons with clear pricing and eligibility | Add-on attachment rate |
+| P2 | Personalised discovery controls | Explain recommendations and let users tune vehicle type, distance and trip purpose | Recommendation saves |
+
+### UI direction
+
+1. Keep search and core navigation persistent, but reduce competing header actions on small screens.
+2. Use large vehicle imagery, short titles, total-price clarity and one primary action per surface.
+3. Prefer horizontally scrollable curated collections only when each row has a distinct user purpose; keep ordinary search results in a predictable grid.
+4. Use motion for state changes and feedback, never continuous decoration; respect reduced-motion preferences.
+5. Keep the Redrive teal, eucalyptus and wattle palette. Airbnb is a usability reference, not a branding template.
+6. Preserve suburb-level public location privacy when a future map/list switch is introduced.
+
 ## Implementation update — 17 August 2026
 
 This roadmap now distinguishes shipped repository work from foundations and work that requires an external provider, production credentials or a product/legal decision. “Implemented” means code is present and the production build passes; database indexes and new collections still require the deployment command in the implementation report.

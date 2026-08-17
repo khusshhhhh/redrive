@@ -5,6 +5,7 @@ import getCurrentUser from "./actions/getCurrentUser";
 import DataPreloader from "./providers/DataPreloader";
 import LazyModals from "./providers/LazyModals";
 import Footer from "./components/Footer";
+import MobileBottomNav from "./components/navbar/MobileBottomNav";
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Manrope } from "next/font/google";
@@ -54,8 +55,9 @@ export default async function RootLayout({
         <ToasterProvider />
         <LazyModals />
         <Navbar currentUser={currentUser} />
-        <div className="min-h-screen pb-0">{children}</div>
+        <main className="app-content min-h-screen pb-20 md:pb-0">{children}</main>
         <Footer currentUser={currentUser} />
+        <MobileBottomNav currentUser={currentUser} />
         <Analytics />
         <SpeedInsights />
       </body>

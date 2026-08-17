@@ -71,6 +71,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
 
     return (
         <div
+            data-scroll-reveal
             onClick={() => router.push(`/listings/${data.id}`)}
             onKeyDown={(event) => {
                 if (event.currentTarget === event.target && (event.key === "Enter" || event.key === " ")) {
@@ -113,6 +114,12 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                     <div className="font-semibold">AU${price}</div>
                     {!reservation && <div className="font-normal text-muted">per day</div>}
                 </div>
+                {!reservation && data.instantBook && (
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-secondary">
+                        <span className="h-1.5 w-1.5 rounded-full bg-secondary" aria-hidden="true" />
+                        Instant Book
+                    </div>
+                )}
                 {reservation && (
                     <div className="text-xs font-semibold text-ink">Status: {reservation.status}</div>
                 )}
