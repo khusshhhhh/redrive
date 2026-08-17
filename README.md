@@ -1,501 +1,329 @@
-# 🚗 REDRIVE - Revolutionary Vehicle Sharing Platform
+# Redrive
 
 <div align="center">
 
-![REDRIVE Banner](https://img.shields.io/badge/REDRIVE-1.1.0-blue?style=for-the-badge&logo=car&logoColor=white)
+![Redrive version](https://img.shields.io/badge/Redrive-1.1.0-087985?style=for-the-badge)
+![Next.js](https://img.shields.io/badge/Next.js-15.5-111111?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React-19-087EA4?style=flat-square&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)
+![MongoDB](https://img.shields.io/badge/MongoDB-Prisma-39715A?style=flat-square&logo=mongodb)
 
-**🏆 A Solo Developer's Journey: 100+ Days | 650+ Hours | Infinite Passion**
-
-_From Concept to Production-Ready Platform_
-
-[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-6.0-green?style=flat-square&logo=mongodb)](https://www.mongodb.com/)
-[![Prisma](https://img.shields.io/badge/Prisma-6.11-2D3748?style=flat-square&logo=prisma)](https://www.prisma.io/)
+**An Australian peer-to-peer marketplace for cars, utes, caravans, motorhomes, boats and other adventure vehicles.**
 
 </div>
 
----
+Redrive helps guests discover and request vehicles while giving owners the tools to list, manage and review bookings. The product combines an Australian state/suburb search experience with secure account onboarding, licence readiness, private listing locations, messaging, notifications and marketplace administration.
 
-## 🌟 What is REDRIVE?
+> The current application supports booking requests and price records. Real payment collection and host payouts are not yet connected to a payment provider.
 
-**REDRIVE** is a uniquely Australian platform designed with a passion for adventure and innovation. Think Airbnb, but for adventure seekers. Redrive makes it simple and seamless to rent out a wide range of adventurous utilities—from **utes, caravans, and campervans to yachts, jetskis, and more.**
+## Contents
 
-Whether you're planning a rugged outback road trip, a coastal cruise, or a weekend of watersports, Redrive connects Australians with the tools they need to make it unforgettable. The platform is crafted with a modern, smooth, and intuitive user experience, allowing both renters and owners to interact effortlessly.
+- [Product capabilities](#product-capabilities)
+- [Architecture](#architecture)
+- [Technology](#technology)
+- [Repository statistics](#repository-statistics)
+- [Getting started](#getting-started)
+- [Environment variables](#environment-variables)
+- [Database and security operations](#database-and-security-operations)
+- [Project structure](#project-structure)
+- [Scripts](#scripts)
+- [Deployment](#deployment)
+- [Current limitations and roadmap](#current-limitations-and-roadmap)
 
-### 🎯 The Vision
+## Product capabilities
 
-_"To empower every Aussie to unlock adventure by seamlessly sharing and accessing utility vehicles through a modern, trusted platform."_
+### Discovery and listings
 
-### 🚀 Key Highlights
+- Ten active vehicle categories: cars, utes, bikes, caravans, motorhomes, boats, jet skis, yachts, vans and trucks.
+- 59 selectable vehicle and adventure amenities.
+- State, optional suburb, category, capacity, date and price search filters.
+- Up to ten signed Cloudinary image uploads per listing.
+- Favourites and locally tracked recently viewed listings.
+- Responsive listing grids and image galleries.
+- Google Places-assisted addresses and minimalist suburb-level maps.
+- Public listing responses conceal exact addresses, coordinates and registration documents.
 
-- Rent and list a wide variety of utility vehicles and equipment
+### Accounts and trust
 
-- Tailored for Aussie adventurers and their love for the outdoors
+- NextAuth credentials and Google OAuth sign-in.
+- Multi-step signup with Australian mobile, date-of-birth and address validation.
+- Six-digit SMTP email verification with a responsive Redrive email template.
+- Optional email code after password sign-in.
+- Single-use, hashed password-reset tokens and recovery pages.
+- Driving-licence upload, pending/reviewed/expired lifecycle and booking-readiness checks.
+- Private authenticated Cloudinary licence delivery using short-lived signed URLs.
+- Account/IP rate limiting for authentication and sensitive actions.
+- Administrator roles, protected admin routes and security audit events.
 
-- Built with a sleek, user-friendly interface for a frictionless booking experience
+### Booking and trip operations
 
-- Secure, verified listings and user profiles
+- Server-authoritative date and price calculation.
+- Versioned booking quote snapshots with platform, service, protection and cleaning fees.
+- Reservation and owner-block conflict detection.
+- Host approval/decline state transitions.
+- Retained cancellation records, cancellation reasons and refund estimates.
+- Guest trips, host reservations and reservation-detail pages.
+- Backend foundations for guided pickup/return reports and incident cases.
+- Exact pickup location released only to the owner or after booking approval.
 
-- Reviews, ratings, and personalized recommendations
+### Communication and administration
 
-- 10+ Vehicle Categories: Cars, Utes, Bikes, Caravans, Motorhomes, Boats, Yachts, Trucks
-- 100+ Amenities: From basic air conditioning to advanced camping setups
-- Real-time Everything: Notifications, booking updates, chat messaging
-- Light & Dark Mode: full theme support across the entire app
-- Mobile-First Design: Perfect experience on every device
+- Participant-only chat with paginated messages, unread state and typing presence.
+- In-app notifications for bookings, messages, favourites, reviews and security events.
+- Scheduled booking/review reminders and expired-notification cleanup.
+- Protected admin dashboard with user, listing, booking and marketplace metrics.
+- Protected licence-review and audit APIs.
+- Help Centre, editorial articles, newsroom, policy and SEO routes.
 
----
-
-## 🏗️ System Architecture
+## Architecture
 
 ```mermaid
-graph TB
-    A[👤 Users] --> B[🌐 Next.js Frontend]
-    B --> C[🔐 NextAuth.js]
-    B --> D[📡 API Layer]
-
-    D --> E[💾 MongoDB Primary]
-    D --> G[☁️ Cloudinary CDN]
-    D --> H[🗺️ Google Maps API]
-
-    J[📊 Analytics] --> K[📈 Vercel Analytics]
-    L[🚀 Deployment] --> M[⚡ Vercel Edge]
-
-    style A fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
-    style B fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
-    style C fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
-    style D fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
-    style E fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
-    style F fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
-    style G fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
-    style H fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
-    style I fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
-    style J fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
-    style K fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
-    style L fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
-    style M fill:#000,stroke:#fff,color:#ffffff,font-weight:bold
+flowchart LR
+    Browser[Responsive web client] --> Next[Next.js App Router]
+    Next --> Auth[NextAuth]
+    Next --> API[Route handlers and server actions]
+    Auth --> Mongo[(MongoDB)]
+    API --> Prisma[Prisma Client]
+    Prisma --> Mongo
+    API --> Cloudinary[Cloudinary images]
+    API --> Maps[Google Maps and Places]
+    API --> SMTP[SMTP email]
+    Cron[Vercel Cron] --> API
 ```
 
----
+The application deliberately uses one authentication and persistence stack: NextAuth 4, Prisma and MongoDB. Shared business logic lives under `app/libs` and `app/services`; route handlers authorize access before database operations.
 
-### **Advanced Features**
+## Technology
 
-#### 🔐 **Multi-Provider Authentication**
+| Layer | Current implementation |
+|---|---|
+| Framework | Next.js 15.5 with App Router and React 19 |
+| Language | TypeScript 5 |
+| Styling | Tailwind CSS 3.4 and project design tokens |
+| Authentication | NextAuth 4, Prisma adapter, Google OAuth, credentials and email OTP |
+| Database | MongoDB through Prisma 6.12 |
+| Images | Authenticated server-side Cloudinary uploads |
+| Maps | Google Maps JavaScript API, Places API and privacy-safe suburb geocoding |
+| Email | Nodemailer-compatible SMTP |
+| Client state | Zustand, React Hook Form and focused custom hooks |
+| Monitoring | Vercel Analytics and Speed Insights |
+| Deployment | Vercel with protected scheduled jobs |
 
-- **Google OAuth 2.0** - Seamless social login
-- **Email/Password** - Traditional authentication with security
-- **JWT Sessions** - Stateless, secure token management
-- **Profile Verification** - License upload and verification system
+## Repository statistics
 
-```typescript
-// NextAuth.js Configuration
-const authProviders = [
-  GoogleProvider({ clientId, clientSecret }),
-  CredentialsProvider({
-    async authorize(credentials) {
-      // Custom bcrypt validation
-      return await validateUser(credentials);
-    },
-  }),
-];
+Measured on **17 August 2026** from the current working tree. Line counts cover `.ts`, `.tsx`, `.js`, `.jsx`, `.css`, `.prisma` and `.ps1` files under `app`, `pages`, `prisma` and `scripts`; dependencies and generated build output are excluded.
+
+### Code size
+
+| Extension | Files | Physical lines |
+|---|---:|---:|
+| TypeScript (`.ts`) | 80 | 6,135 |
+| React TypeScript (`.tsx`) | 120 | 10,809 |
+| JavaScript (`.js`) | 2 | 276 |
+| CSS (`.css`) | 1 | 228 |
+| Prisma (`.prisma`) | 1 | 451 |
+| PowerShell (`.ps1`) | 2 | 35 |
+| **Total** | **206** | **17,934** |
+
+There are **15,948 non-blank lines** in the same measured source set. Physical and non-blank lines are descriptive repository measurements, not claims about complexity or developer productivity.
+
+### Application inventory
+
+| Item | Count |
+|---|---:|
+| App Router page files | 25 |
+| API route files | 41 |
+| Exported HTTP handlers | 59 |
+| Components under `app/components` | 65 |
+| Custom hooks | 11 |
+| Server actions | 6 |
+| Prisma models | 22 |
+| Prisma enums | 1 |
+| Active vehicle categories | 10 |
+| Selectable amenities | 59 |
+| Public assets | 10 |
+
+The latest local production build generated **53 App Router routes** plus the NextAuth Pages Router API route. These figures will naturally change as features are added.
+
+## Getting started
+
+### Prerequisites
+
+- Node.js 20 LTS or a compatible newer release.
+- npm.
+- MongoDB Atlas or another MongoDB deployment compatible with Prisma. A replica-set deployment is recommended because booking creation uses transactions.
+- Cloudinary credentials for uploads.
+- Google OAuth and Google Maps/Places credentials for the corresponding features.
+- An SMTP account for production email verification and recovery.
+
+### Install and run
+
+```powershell
+npm install
+Copy-Item .env.example .env.local
+npx prisma generate
+npm run dev
 ```
 
-#### 🏠 **Smart Listing Management**
+Open [http://localhost:3000](http://localhost:3000).
 
-- **Dynamic Categories** - Cars, Motorhomes, Boats, Bikes, and more
-- **Multi-Image Upload** - Up to 10 high-quality images per listing
-- **Geolocation** - Australian state/suburb integration
-- **Rich Amenities** - 100+ predefined amenity options
-- **Smart Pricing** - Dynamic fee calculation system
+Before applying the schema to an existing database, take a backup and confirm which environment `DATABASE_URL` targets:
 
-#### 📅 **Intelligent Booking System**
-
-```typescript
-interface BookingFlow {
-  availability: "Real-time conflict detection";
-  pricing: {
-    base: "Per-day rates";
-    service: "Tiered service fees";
-    redrive: "8% platform fee";
-    insurance: ["Risk Taker: $20/day", "Happy Driver: $40/day"];
-    cleaning: "Optional upfront or return fees";
-  };
-  workflow: [
-    "Date Selection",
-    "Insurance Choice",
-    "Payment Calculation",
-    "Host Approval",
-    "Trip Confirmation"
-  ];
-}
+```powershell
+npx prisma validate
+npx prisma db push
 ```
 
-#### 🔔 **Real-time Notification Engine**
+Run `prisma db push` against staging first. MongoDB projects do not use Prisma SQL migration files; `db push` creates the collections/indexes represented by [`prisma/schema.prisma`](prisma/schema.prisma).
 
-- **16 Notification Types** - Bookings, reviews, payments, system updates
-- **Multi-Channel Delivery** - In-app, browser push, email ready
-- **Smart Scheduling** - Automated reminders and follow-ups
-- **Bulk Operations** - Mark all read, selective deletion
+## Environment variables
 
-```typescript
-enum NotificationType {
-  BOOKING_REQUEST,
-  BOOKING_APPROVED,
-  BOOKING_DECLINED,
-  REVIEW_RECEIVED,
-  LISTING_FAVORITED,
-  PAYMENT_RECEIVED,
-  SYSTEM_UPDATE,
-  SECURITY_ALERT, // + 8 more
-}
+Copy [`.env.example`](.env.example) and supply real values locally and in the deployment environment.
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `DATABASE_URL` | Yes | MongoDB connection string |
+| `NEXTAUTH_SECRET` | Yes | Signs NextAuth session tokens |
+| `NEXTAUTH_URL` | Production | Canonical URL used by authentication and email links/assets |
+| `RATE_LIMIT_SECRET` | Yes | HMAC key for privacy-preserving rate-limit identifiers |
+| `ADMIN_EMAILS` | Recommended | Comma-separated administrator allow-list |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | For Google login | Google OAuth application |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE` | Production email | SMTP transport configuration |
+| `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM` | Production email | SMTP credentials and sender identity |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Maps | Browser Maps API key |
+| `GOOGLE_PLACES_API_KEY` | Address search | Server-side Places key |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Uploads | Cloudinary cloud identifier |
+| `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Uploads | Server-only signed-upload credentials |
+| `CRON_SECRET` | Production jobs | Protects scheduled notification and security tasks |
+| `RESTORE_TEST_DATABASE_URL` | Restore drills only | Explicit disposable restore target |
+| `ENABLE_LEGACY_API_AUTH` | No | Compatibility endpoint; keep `false` unless documented |
+
+Never commit `.env`, `.env.local`, database URLs, SMTP passwords or Cloudinary secrets. The complete walkthrough is in [`ENVIRONMENT_VARIABLES_GUIDE.md`](ENVIRONMENT_VARIABLES_GUIDE.md).
+
+### Email verification behavior
+
+Password registrations receive a personalised six-digit code through SMTP. Codes and login OTPs expire after ten minutes and are stored only as hashes. Password-reset links are single-use and short-lived.
+
+When SMTP is intentionally blank during local development, the code is logged by the server and returned to the development verification UI. Production fails closed when delivery is not configured. The email hero and application links use `NEXTAUTH_URL`, so it must be a publicly reachable deployment URL in production.
+
+## Database and security operations
+
+### Main data groups
+
+- Identity: `User`, `Account`, `UserSession`, `WebAuthnCredential`, `PasswordResetToken`.
+- Marketplace: `Listing`, `Reservation`, `BookingQuote`, `AvailabilityBlock`.
+- Trip safety: `HandoverReport`, `HandoverMedia`, `IncidentCase`, `MaintenanceRecord`.
+- Communication: `Chat`, `Message`, `Notification`, `Review`.
+- Operations: `AuditEvent`, `RateLimitBucket`, `FeatureFlag`, `SavedSearch`, `Badge`.
+
+### Security controls
+
+- Authentication and ownership checks on protected data-changing routes.
+- Account and IP rate-limit buckets with hashed identifiers.
+- Signed uploads with MIME, file-size and file-signature validation.
+- Authenticated licence assets and short-lived delivery URLs.
+- Server-calculated booking totals and controlled status transitions.
+- Security headers including CSP, HSTS, frame denial and MIME-sniffing prevention.
+- Audit events for sensitive account, booking and administrator activity.
+- Daily cleanup of expired security records and licence-expiry processing.
+
+See [`SECURITY_FEATURE_IMPLEMENTATION_REPORT.md`](SECURITY_FEATURE_IMPLEMENTATION_REPORT.md) for implementation details and production caveats.
+
+### Backup and restore drill
+
+The repository includes guarded PowerShell operations scripts:
+
+```powershell
+./scripts/backup-mongodb.ps1
+./scripts/restore-drill-mongodb.ps1 -Archive ./backups/redrive-YYYYMMDD-HHMMSS.archive.gz
 ```
 
-#### ⭐ **Advanced Review System**
+The backup script produces a compressed archive and SHA-256 checksum. The restore script refuses targets unless `RESTORE_TEST_DATABASE_URL` clearly identifies a restore, drill, staging or test database. Do not point restore drills at production.
 
-- **Post-Trip Reviews** - Only after completed bookings
-- **5-Star Rating** - With detailed text feedback
-- **Owner Responses** - Two-way communication
-- **Mobile Optimized** - Swipe navigation on mobile
+## Project structure
 
----
-
-## 🎨 User Experience Design
-
-### **Mobile-First Philosophy**
-
-Every component designed for touch-first interaction:
-
-- **Responsive Grid Layouts** - Adapts from mobile to 4K displays
-- **Swipeable Components** - Natural mobile gestures
-- **Touch-Optimized** - 44px minimum touch targets
-- **Progressive Loading** - Skeleton screens and lazy loading
-
-### **Accessibility & Performance**
-
-- **WCAG 2.1 AA Compliant** - Screen reader optimized
-- **99+ Lighthouse Score** - Optimized for Core Web Vitals
-- **Offline Support** - Service worker implementation
-- **Image Optimization** - WebP/AVIF with Cloudinary CDN
-
----
-
-## 🗄️ Database Architecture
-
-### **Database (MongoDB via Prisma)**
-
-```javascript
-// Collections
-Users: {
-  auth, profile, preferences;
-}
-Listings: {
-  details, images, amenities, location;
-}
-Reservations: {
-  booking, pricing, insurance, status;
-}
-Reviews: {
-  ratings, text, timestamps;
-}
-Notifications: {
-  type, message, actions, expiry;
-}
-```
-
----
-
-## 🚀 Feature Showcase
-
-### **🏠 Comprehensive Listing System**
-
-<details>
-<summary><strong>📸 Multi-Image Gallery</strong></summary>
-
-- Upload up to 10 high-resolution images
-- Cloudinary optimization with automatic WebP conversion
-- Drag-and-drop reordering
-- Mobile-optimized image gallery with swipe navigation
-
-</details>
-
-<details>
-<summary><strong>🏷️ Dynamic Categories & Amenities</strong></summary>
-
-**Vehicle Categories:**
-
-- 🚗 Cars (Economy to Luxury)
-- 🚛 Utes & Trucks (Work & Adventure)
-- 🏍️ Motorcycles & Bikes
-- 🏠 Motorhomes & RVs
-- 🚐 Caravans & Trailers
-- ⛵ Boats & Yachts
-- 🛵 Scooters & E-bikes
-
-**100+ Amenities:**
-
-```typescript
-const amenities = [
-  // Comfort: Air Conditioning, Heater, WiFi, TV
-  // Kitchen: Microwave, Fridge, BBQ, Coffee Machine
-  // Adventure: Bike Rack, Roof Rack, Solar Panel
-  // Safety: Reverse Camera, Parking Sensors, First Aid
-  // Luxury: Premium Audio, Navigation, Cruise Control
-];
-```
-
-</details>
-
-### **📋 Smart Reservation Management**
-
-<details>
-<summary><strong>💳 Dynamic Pricing Engine</strong></summary>
-
-```typescript
-interface PricingCalculation {
-  basePrice: number; // Owner's daily rate
-  serviceFee: number; // Tiered: $10-$100 based on total
-  redriveFee: number; // 8% platform fee
-  insuranceFee: number; // $0-$40/day based on coverage
-  cleaningFee?: number; // Optional upfront or return
-  total: number; // All-inclusive pricing
-}
-```
-
-</details>
-
-<details>
-<summary><strong>🛡️ Insurance Options</strong></summary>
-
-| Plan             | Daily Cost | Coverage         | Excess |
-| ---------------- | ---------- | ---------------- | ------ |
-| **No Insurance** | $0         | User responsible | N/A    |
-| **Risk Taker**   | $20        | Basic coverage   | $4,000 |
-| **Happy Driver** | $40        | Full coverage    | $500   |
-
-</details>
-
-### **🔔 Real-time Communication Hub**
-
-<details>
-<summary><strong>📱 Notification Categories</strong></summary>
-
-| Category     | Types                                | Auto-Triggers |
-| ------------ | ------------------------------------ | ------------- |
-| **Bookings** | Request, Approval, Decline, Reminder | ✅            |
-| **Reviews**  | Received, Reminder                   | ✅            |
-| **Payments** | Received, Required                   | ✅            |
-| **System**   | Updates, Security Alerts             | Manual        |
-| **Social**   | Favorites, Messages                  | ✅            |
-
-</details>
-
----
-
-## 🎯 Development Journey
-
-### **💪 Solo Developer Achievement**
-
-This entire platform was conceived, designed, and built by a single developer through:
-
-- **100+ Days** of continuous development
-- **650+ Hours** of coding, debugging, and optimization
-- **200+ Commits** across the development cycle
-- **Zero External Development** - every line of code is original
-
-### **🧠 Technical Challenges Conquered**
-
-1. **Complex State Management**
-
-   - Real-time synchronization across dual databases
-   - Optimistic UI updates with conflict resolution
-   - Custom React hooks for complex business logic
-
-2. **Performance Optimization**
-
-   - Image optimization pipeline with Cloudinary
-   - Database query optimization with Prisma
-   - Code splitting and lazy loading implementation
-
-3. **User Experience Excellence**
-
-   - Mobile-first responsive design system
-   - Accessibility compliance (WCAG 2.1 AA)
-   - Progressive Web App capabilities
-
-4. **Security Implementation**
-   - JWT-based authentication with refresh tokens
-   - Input validation and sanitization
-   - Rate limiting and CSRF protection
-
----
-
-## 🔮 Future Roadmap
-
-### **🚀 Phase 1: Enhanced Experience (Q2 2025)**
-
-<table>
-<tr><th>Feature</th><th>Status</th><th>Priority</th><th>Description</th></tr>
-<tr><td>💳 Payment Integration</td><td>In Development</td><td>🔴 High</td><td>Stripe integration for seamless transactions</td></tr>
-<tr><td>💬 Real-time Chat</td><td>Designing</td><td>🔴 High</td><td>WebSocket-based messaging system</td></tr>
-<tr><td>📊 Analytics Dashboard</td><td>Planning</td><td>🟡 Medium</td><td>Owner insights and performance metrics</td></tr>
-<tr><td>📱 Progressive Web App</td><td>Planning</td><td>🟡 Medium</td><td>Native app experience in browser</td></tr>
-</table>
-
-### **🤖 Phase 2: AI-Powered Features (Q3 2025)**
-
-- **Smart Recommendations** - ML-based vehicle suggestions
-- **Dynamic Pricing** - AI-optimized pricing recommendations
-- **Fraud Detection** - Pattern recognition for security
-- **Chatbot Support** - 24/7 automated customer service
-
-### **🌍 Phase 3: Platform Expansion (Q4 2025)**
-
-- **Multi-Region Support** - Expand beyond Australia
-- **Fleet Management** - Tools for commercial operators
-- **Loyalty Program** - Rewards for frequent users
-- **API Marketplace** - Third-party integrations
-
-### **🚁 Phase 4: Innovation Labs (2026)**
-
-- **IoT Integration** - Smart vehicle connectivity
-- **Blockchain Verification** - Decentralized identity system
-- **AR Vehicle Tours** - Virtual vehicle inspections
-- **Carbon Tracking** - Environmental impact monitoring
-
----
-
-### **Project Structure**
-
-```
+```text
 redrive/
-├── app/                    # Next.js App Router
-│   ├── actions/           # Server Actions
-│   ├── api/               # API Routes
-│   ├── components/        # React Components
-│   │   ├── inputs/        # Form Components
-│   │   ├── listings/      # Listing Components
-│   │   ├── modals/        # Modal Components
-│   │   └── navbar/        # Navigation Components
-│   ├── hooks/             # Custom React Hooks
-│   ├── libs/              # Utility Libraries
-│   └── services/          # Business Logic
-├── prisma/                # Database Schema
-└── public/                # Static Assets
+├── app/
+│   ├── actions/                 # Server-side data queries
+│   ├── admin/                   # Protected administration UI
+│   ├── api/                     # App Router route handlers
+│   ├── components/              # Shared UI components
+│   ├── content/                 # Editorial, Help Centre and newsroom content
+│   ├── hooks/                   # Client hooks and state coordination
+│   ├── libs/                    # Auth, validation, pricing and security helpers
+│   ├── services/                # Notification and business services
+│   └── */page.tsx               # Product routes
+├── pages/api/auth/              # NextAuth handler
+├── prisma/schema.prisma         # MongoDB data model and indexes
+├── public/                      # Static images and email artwork
+├── scripts/                     # Analysis, backup and restore tooling
+├── middleware.ts                # Protected-route middleware
+├── next.config.js               # Images, performance and security headers
+├── vercel.json                  # Scheduled production jobs
+└── .env.example                 # Environment contract
 ```
 
-### **Environment Setup**
+## Scripts
 
-Copy `.env.example` to `.env.local` and fill in the values. See
-[`ENVIRONMENT_VARIABLES_GUIDE.md`](ENVIRONMENT_VARIABLES_GUIDE.md) for the
-complete local and Vercel walkthrough, including MongoDB, authentication,
-email verification, Google Maps/Places, Cloudinary, cron jobs and secret
-rotation.
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start the local Next.js development server |
+| `npm run build` | Generate Prisma Client and create a production build |
+| `npm run start` | Serve the completed production build |
+| `npm run lint` | Run the configured Next.js lint command |
+| `npm run analyze` | Build with bundle analysis enabled |
+| `npm run analyze-performance` | Run the local bundle analysis helper |
+| `npx prisma validate` | Validate the Prisma schema |
+| `npx prisma generate` | Regenerate Prisma Client |
+
+The standard pre-deployment checks are:
+
+```powershell
+npm audit --audit-level=low
+npx prisma validate
+npm run build
+git diff --check
+```
+
+## Deployment
+
+Redrive is configured for Vercel:
+
+1. Import the repository into Vercel.
+2. Add every required value from `.env.example` to the correct environment.
+3. Set `NEXTAUTH_URL` to the production origin.
+4. Apply the Prisma schema to staging and then production intentionally.
+5. Confirm Google OAuth redirect URLs and API restrictions.
+6. Confirm Cloudinary signed uploads and SMTP delivery.
+7. Set `CRON_SECRET`; Vercel invokes the notification job daily at 09:00 UTC and security maintenance at 02:15 UTC.
+8. Run the production build and smoke-test with separate guest, host and administrator accounts.
+
+## Current limitations and roadmap
+
+The following items should not be described as production-complete:
+
+- Marketplace payment collection, deposits, refunds and host payouts require a provider such as Stripe Connect plus Australian business/legal decisions.
+- Passkey and trusted-device database foundations exist, but complete browser ceremonies and session-management UI remain future work.
+- Guided handover and incident data APIs exist; their complete guest/host visual workflows are still being developed.
+- Smart recommendations currently include demonstration data and should be connected entirely to database records before production promotion.
+- The app has accessibility-conscious components, but it has not received a complete independent WCAG 2.2 certification.
+- Offline PWA support, route/range planning, fleet tools and advanced pricing suggestions remain roadmap items.
+
+See [`new_feature.md`](new_feature.md) for prioritised product opportunities and their implementation status.
+
+## Business model direction
+
+Potential revenue sources include booking platform fees, optional protection partnerships, promoted listings and verification services. These are product directions, not a statement that each revenue stream is currently live.
+
+## License
+
+This repository is licensed under the terms in [`LICENSE.md`](LICENSE.md).
 
 ---
 
-## 📊 Platform Statistics
-
 <div align="center">
 
-### **Development Metrics**
-
-| Metric             | Value   |
-| ------------------ | ------- |
-| Lines of Code      | 15,000+ |
-| Components Created | 50+     |
-| API Endpoints      | 30+     |
-| Database Models    | 12      |
-| Custom Hooks       | 15+     |
-
-### **Performance Benchmarks**
-
-| Metric                   | Score  |
-| ------------------------ | ------ |
-| Lighthouse Performance   | 98/100 |
-| First Contentful Paint   | < 1.2s |
-| Largest Contentful Paint | < 2.5s |
-| Time to Interactive      | < 3.8s |
-| Cumulative Layout Shift  | < 0.1  |
+**Built with TypeScript, Next.js and a focus on trusted Australian adventures.**
 
 </div>
-
----
-
-## 🙏 Acknowledgments
-
-### **💝 Special Thanks**
-
-**To Hiral** - My partner, motivator, and biggest supporter. Your unwavering belief and endless encouragement made this dream a reality. Every late night, every breakthrough, every milestone was made possible by your love and support. ❤️
-
-### **🌟 Inspiration**
-
-This platform was built with the vision of democratizing transportation access while creating sustainable income opportunities for vehicle owners. Every feature was designed with real users in mind, solving genuine pain points in the sharing economy.
-
-### **🎯 Mission Statement**
-
-_"To transform how people access transportation by building trust, enabling connections, and fostering sustainable mobility solutions for communities worldwide."_
-
----
-
-## 📈 Business Model
-
-### **💰 Revenue Streams**
-
-- **Platform Fees** - 8% commission on all bookings
-- **Insurance Partnerships** - Revenue share with insurance providers
-- **Premium Listings** - Enhanced visibility options
-- **Verification Services** - Background checks and vehicle inspections
-
-### **🎯 Market Opportunity**
-
-- **$2.8B** Australian car rental market
-- **15M+** registered vehicles (potential supply)
-- **25M+** Australian population (potential demand)
-- **Growing Trend** - Shift towards sharing economy
-
----
-
-## Email verification setup
-
-Password-based registrations use a six-digit email code delivered through Nodemailer and standard SMTP. This does not require a paid email SDK. For a small deployment, a Gmail account with two-step verification and an app password can be used:
-
-1. Copy the `SMTP_*` and `EMAIL_FROM` values from `.env.example` into `.env.local` or your deployment environment.
-2. Set `SMTP_USER` to the sending Gmail address and `SMTP_PASS` to its 16-character app password.
-3. Keep `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, and `SMTP_SECURE=false`.
-
-When SMTP is intentionally left blank in local development, the test code is logged by the server and displayed in the verification dialog. Production fails closed if email delivery is not configured.
-
-## 📞 Connect & Contribute
-
-<div align="center">
-
-### **🤝 Get Involved**
-
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-black?style=for-the-badge&logo=github)](https://github.com/yourusername)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/yourprofile)
-[![Twitter](https://img.shields.io/badge/Twitter-Follow-1DA1F2?style=for-the-badge&logo=twitter)](https://twitter.com/yourhandle)
-
-### **Contact**
-
-📧 **Email**: workforkhush8@gmail.com
-
-</div>
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
----
-
-<div align="center">
-
-### **🚀 From Idea to Impact**
-
-_"This platform represents more than code—it's proof that with determination, creativity, and countless hours of work, one person can build something that changes how people connect and share resources."_
-
-**Built with 💻 TypeScript, ⚡ Next.js, and ❤️ Passion**
-
-_Every commit tells a story. Every feature solves a problem. Every user interaction validates the vision._

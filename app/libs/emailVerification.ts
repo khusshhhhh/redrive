@@ -51,7 +51,141 @@ export function verificationExpiry() {
   return new Date(Date.now() + CODE_TTL_MINUTES * 60 * 1000);
 }
 
-export async function sendVerificationEmail(email: string, code: string) {
+function getPublicAppUrl() {
+  try {
+    const configuredUrl = process.env.NEXTAUTH_URL;
+    if (!configuredUrl) return null;
+    const url = new URL(configuredUrl);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.origin : null;
+  } catch {
+    return null;
+  }
+}
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[character] || character);
+}
+
+function buildCodeEmail({
+  code,
+  eyebrow,
+  title,
+  introduction,
+  securityMessage,
+  recipientName,
+}: {
+  code: string;
+  eyebrow: string;
+  title: string;
+  introduction: string;
+  securityMessage: string;
+  recipientName?: string | null;
+}) {
+  const appUrl = getPublicAppUrl();
+  const heroUrl = appUrl ? `${appUrl}/images/email-verification-road-trip.jpg` : null;
+  const helpUrl = appUrl ? `${appUrl}/help-centre` : null;
+  const greeting = recipientName?.trim()
+    ? `Hi ${escapeHtml(recipientName.trim().slice(0, 80))},`
+    : "Hi there,";
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+    <title>${title}</title>
+    <style>
+      @media only screen and (max-width: 620px) {
+        .email-shell { width: 100% !important; }
+        .content-pad { padding-left: 24px !important; padding-right: 24px !important; }
+        .hero-pad { padding-left: 16px !important; padding-right: 16px !important; }
+        .email-title { font-size: 30px !important; line-height: 36px !important; }
+        .code { font-size: 34px !important; letter-spacing: 8px !important; }
+        .hide-mobile { display: none !important; }
+      }
+    </style>
+  </head>
+  <body style="margin:0;padding:0;background:#edf3f1;color:#18363a;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-text-size-adjust:100%;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${code} is your Redrive code. It expires in ${CODE_TTL_MINUTES} minutes.</div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#edf3f1;">
+      <tr>
+        <td align="center" style="padding:28px 12px;">
+          <table role="presentation" class="email-shell" width="600" cellspacing="0" cellpadding="0" border="0" style="width:600px;max-width:600px;background:#ffffff;border:1px solid #d7e5e1;border-radius:22px;overflow:hidden;box-shadow:0 10px 30px rgba(24,54,58,.08);">
+            <tr>
+              <td class="content-pad" style="padding:24px 36px;background:#ffffff;border-bottom:1px solid #e2ece9;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td>
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                          <td width="42" height="42" align="center" valign="middle" style="width:42px;height:42px;border-radius:13px;background:#087985;color:#ffffff;font-size:24px;font-weight:700;line-height:42px;">R</td>
+                          <td style="padding-left:12px;font-size:25px;font-weight:700;letter-spacing:-1px;color:#18363a;">redrive<span style="color:#d39a12;">.</span></td>
+                        </tr>
+                      </table>
+                    </td>
+                    ${helpUrl ? `<td class="hide-mobile" align="right"><a href="${helpUrl}" style="font-size:13px;font-weight:700;color:#526d68;text-decoration:none;">Help centre</a></td>` : ""}
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            ${heroUrl ? `<tr><td class="hero-pad" style="padding:24px 24px 0;"><img src="${heroUrl}" width="552" alt="A Redrive journey along the South Australian coast" style="display:block;width:100%;max-width:552px;height:auto;border:0;border-radius:16px;"></td></tr>` : ""}
+            <tr>
+              <td class="content-pad" style="padding:34px 44px 12px;">
+                <div style="font-size:12px;line-height:18px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#087985;">${eyebrow}</div>
+                <h1 class="email-title" style="margin:10px 0 0;font-size:38px;line-height:44px;letter-spacing:-1.4px;color:#18363a;">${title}</h1>
+                <p style="margin:20px 0 0;font-size:16px;line-height:26px;font-weight:700;color:#18363a;">${greeting}</p>
+                <p style="margin:8px 0 0;font-size:16px;line-height:26px;color:#526d68;">${introduction}</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="content-pad" style="padding:20px 44px 8px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f1f8f5;border:1px solid #cfe3dc;border-top:4px solid #d39a12;border-radius:14px;">
+                  <tr><td align="center" style="padding:18px 12px 4px;font-size:11px;line-height:16px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:#526d68;">Your verification code</td></tr>
+                  <tr><td class="code" align="center" style="padding:4px 8px 18px;font-size:42px;line-height:52px;font-weight:800;letter-spacing:11px;color:#087985;font-family:'Courier New',monospace;">${code}</td></tr>
+                </table>
+                <p style="margin:14px 0 0;text-align:center;font-size:13px;line-height:20px;color:#526d68;">Enter this code in Redrive. It expires in <strong style="color:#18363a;">${CODE_TTL_MINUTES} minutes</strong>.</p>
+              </td>
+            </tr>
+            ${appUrl ? `<tr><td align="center" class="content-pad" style="padding:22px 44px 8px;"><a href="${appUrl}" style="display:inline-block;min-width:178px;padding:14px 24px;border-radius:999px;background:#087985;color:#ffffff;font-size:14px;line-height:20px;font-weight:700;text-align:center;text-decoration:none;">Open Redrive</a></td></tr>` : ""}
+            <tr>
+              <td class="content-pad" style="padding:26px 44px 34px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top:1px solid #e2ece9;">
+                  <tr>
+                    <td style="padding-top:22px;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                          <td width="34" height="34" align="center" valign="middle" style="width:34px;height:34px;border-radius:50%;background:#f1f8f5;color:#087985;font-size:17px;line-height:34px;">&#128737;</td>
+                          <td style="padding-left:12px;font-size:13px;line-height:20px;color:#526d68;">${securityMessage}<br><strong style="color:#18363a;">Never share this code with anyone.</strong></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:22px 28px;background:#18363a;color:#c8d8d4;font-size:12px;line-height:19px;">
+                Sent securely by Redrive<br><span style="color:#8eaaa4;">Explore Australia with confidence.</span>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:18px 0 0;font-size:11px;line-height:18px;color:#718b85;">This is an automated security email. Please do not reply.</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+export async function sendVerificationEmail(email: string, code: string, recipientName?: string | null) {
   assertSafeRecipient(email);
   const transport = getEmailTransport();
 
@@ -70,20 +204,20 @@ export async function sendVerificationEmail(email: string, code: string) {
     disableUrlAccess: true,
     subject: `${code} is your Redrive verification code`,
     text: `Your Redrive verification code is ${code}. It expires in ${CODE_TTL_MINUTES} minutes. If you did not create an account, you can ignore this email.`,
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:32px;color:#18363A">
-        <div style="font-size:22px;font-weight:700;margin-bottom:28px;color:#087985">Redrive</div>
-        <h1 style="font-size:24px;margin:0 0 12px">Verify your email</h1>
-        <p style="color:#526D68;line-height:1.6">Enter this code to finish creating your account. It expires in ${CODE_TTL_MINUTES} minutes.</p>
-        <div style="font-size:34px;font-weight:700;letter-spacing:10px;background:#F1F8F5;border:1px solid #D2E6E0;border-top:4px solid #D39A12;border-radius:12px;padding:20px;text-align:center;margin:24px 0">${code}</div>
-        <p style="font-size:13px;color:#967E72">If you did not create a Redrive account, you can safely ignore this email.</p>
-      </div>`,
+    html: buildCodeEmail({
+      code,
+      eyebrow: "One quick step before the road",
+      title: "Verify your email",
+      introduction: "Use the code below to finish creating your Redrive account and get ready to explore.",
+      securityMessage: "If you did not create a Redrive account, you can safely ignore this email.",
+      recipientName,
+    }),
   });
 
   return { delivered: true };
 }
 
-export async function sendLoginOtpEmail(email: string, code: string) {
+export async function sendLoginOtpEmail(email: string, code: string, recipientName?: string | null) {
   assertSafeRecipient(email);
   const transport = getEmailTransport();
 
@@ -102,14 +236,14 @@ export async function sendLoginOtpEmail(email: string, code: string) {
     disableUrlAccess: true,
     subject: `${code} is your Redrive login code`,
     text: `Your Redrive login code is ${code}. It expires in ${CODE_TTL_MINUTES} minutes. If this was not you, change your password.`,
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:32px;color:#18363A">
-        <div style="font-size:22px;font-weight:700;margin-bottom:28px;color:#087985">Redrive</div>
-        <h1 style="font-size:24px;margin:0 0 12px">Confirm it’s you</h1>
-        <p style="color:#526D68;line-height:1.6">Enter this code to complete your login. It expires in ${CODE_TTL_MINUTES} minutes.</p>
-        <div style="font-size:34px;font-weight:700;letter-spacing:10px;background:#F1F8F5;border:1px solid #D2E6E0;border-top:4px solid #D39A12;border-radius:12px;padding:20px;text-align:center;margin:24px 0">${code}</div>
-        <p style="font-size:13px;color:#967E72">If you did not try to log in, change your password and review your account.</p>
-      </div>`,
+    html: buildCodeEmail({
+      code,
+      eyebrow: "Secure sign-in",
+      title: "Confirm it’s you",
+      introduction: "Enter this one-time code to complete your sign-in and continue to your Redrive account.",
+      securityMessage: "If you did not try to sign in, change your password and review your account security.",
+      recipientName,
+    }),
   });
 
   return { delivered: true };

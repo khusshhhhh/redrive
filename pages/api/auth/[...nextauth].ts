@@ -87,7 +87,7 @@ export const authOptions: AuthOptions = {
                   loginOtpAttempts: 0,
                 },
               });
-              const delivery = await sendLoginOtpEmail(user.email!, code);
+              const delivery = await sendLoginOtpEmail(user.email!, code, user.name);
               previewCode = delivery.previewCode || "";
             }
             throw new Error(previewCode ? `LOGIN_OTP_REQUIRED:${previewCode}` : "LOGIN_OTP_REQUIRED");

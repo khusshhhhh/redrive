@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       verificationAttempts: 0,
     },
   });
-  const delivery = await sendVerificationEmail(email, code);
+  const delivery = await sendVerificationEmail(email, code, user.name);
 
   return NextResponse.json({ sent: true, ...(delivery.previewCode ? { previewCode: delivery.previewCode } : {}) });
 }

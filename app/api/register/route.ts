@@ -142,7 +142,7 @@ export async function POST(request: Request) {
 
     await writeAuditEvent({ request, actorUserId: user.id, action: "ACCOUNT_CREATED", targetType: "User", targetId: user.id });
 
-    const delivery = await sendVerificationEmail(email, code);
+    const delivery = await sendVerificationEmail(email, code, name);
 
     return NextResponse.json(
       {
