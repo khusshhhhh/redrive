@@ -114,3 +114,26 @@ export async function sendLoginOtpEmail(email: string, code: string) {
 
   return { delivered: true };
 }
+
+export async function sendPasswordResetEmail(email: string, resetUrl: string) {
+  assertSafeRecipient(email);
+  const transport = getEmailTransport();
+  if (!transport) {
+    if (process.env.NODE_ENV !== "production") {
+      console.info(`[Redrive] Password reset link for ${email}: ${resetUrl}`);
+      return { delivered: false, previewUrl: resetUrl };
+    }
+    throw new Error("Email delivery is not configured");
+  }
+
+  await transport.transporter.sendMail({
+    from: process.env.EMAIL_FROM || `Redrive <${transport.user}>`,
+    to: email,
+    disableFileAccess: true,
+    disableUrlAccess: true,
+    subject: "Reset your Redrive password",
+    text: `Use this secure link within 30 minutes to reset your Redrive password: ${resetUrl}. If you did not request this, ignore this email.`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:32px;color:#18363A"><div style="font-size:22px;font-weight:700;margin-bottom:28px;color:#087985">Redrive</div><h1 style="font-size:24px;margin:0 0 12px">Reset your password</h1><p style="color:#526D68;line-height:1.6">This secure link expires in 30 minutes and can only be used once.</p><p style="margin:28px 0"><a href="${resetUrl}" style="display:inline-block;background:#087985;color:white;text-decoration:none;padding:14px 22px;border-radius:8px;font-weight:700">Choose a new password</a></p><p style="font-size:13px;color:#967E72">If you did not request this, ignore this email. Your password has not changed.</p></div>`,
+  });
+  return { delivered: true };
+}

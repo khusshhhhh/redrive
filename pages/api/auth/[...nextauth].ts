@@ -3,6 +3,7 @@ import NextAuth, { AuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { consumeRateLimits, writeAuditEvent } from "@/app/libs/security";
 
 import prisma from "@/app/libs/prismadb";
 import {
@@ -27,14 +28,23 @@ export const authOptions: AuthOptions = {
         password: { label: "password", type: "password" },
         otp: { label: "otp", type: "text" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Invalid credentials");
         }
 
+        const email = credentials.email.trim().toLowerCase();
+        const forwardedFor = request.headers?.["x-forwarded-for"];
+        const ip = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor?.split(",")[0]?.trim() || "unknown";
+        const rateLimit = await consumeRateLimits([
+          { scope: "signin-ip", identifier: ip, limit: 15, windowMs: 15 * 60_000 },
+          { scope: "signin-account", identifier: email, limit: 7, windowMs: 15 * 60_000 },
+        ]);
+        if (!rateLimit.allowed) throw new Error("Too many sign-in attempts. Please wait and try again.");
+
         const user = await prisma.user.findUnique({
           where: {
-            email: credentials.email,
+            email,
           },
         });
 
@@ -47,6 +57,7 @@ export const authOptions: AuthOptions = {
         );
 
         if (!isCorrectPassword) {
+          await writeAuditEvent({ action: "LOGIN_FAILED", targetType: "User", targetId: user.id, actorUserId: user.id, reason: "INVALID_PASSWORD" });
           throw new Error("Invalid credentials");
         }
 
@@ -107,6 +118,8 @@ export const authOptions: AuthOptions = {
             },
           });
         }
+
+        await writeAuditEvent({ action: "LOGIN_SUCCEEDED", targetType: "User", targetId: user.id, actorUserId: user.id });
 
         return user;
       },

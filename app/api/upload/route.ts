@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const ALLOWED_FOLDERS = new Set(["profiles", "licenses", "listings", "chat"]);
+const ALLOWED_FOLDERS = new Set(["profiles", "licenses", "registrations", "listings", "chat"]);
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -32,6 +32,7 @@ function uploadImage(buffer: Buffer, folder: string) {
       {
         folder: `redrive/${folder}`,
         resource_type: "image",
+        type: folder === "licenses" ? "authenticated" : "upload",
         allowed_formats: ["jpg", "jpeg", "png", "webp"],
         transformation: folder === "profiles"
           ? [{ width: 800, height: 800, crop: "limit", quality: "auto" }]
@@ -86,7 +87,10 @@ export async function POST(request: Request) {
     }
 
     const result = await uploadImage(buffer, folder);
-    return NextResponse.json({ url: result.secure_url }, { status: 201 });
+    const url = folder === "licenses"
+      ? `/api/files/license?asset=${encodeURIComponent(result.public_id)}`
+      : result.secure_url;
+    return NextResponse.json({ url, publicId: result.public_id }, { status: 201 });
   } catch (error) {
     console.error("Cloudinary upload failed", error);
     return NextResponse.json({ error: "Image upload failed. Please try again." }, { status: 500 });

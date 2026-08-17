@@ -2,12 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/app/libs/prismadb";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 
 // POST: Login endpoint for API testing compatibility
 export async function POST(request: NextRequest) {
   try {
+    if (process.env.ENABLE_LEGACY_API_AUTH !== "true") {
+      return NextResponse.json({ error: "Use the standard Redrive sign-in flow" }, { status: 404 });
+    }
     const body = await request.json();
-    const { email, password } = body;
+    const email = body.email?.trim().toLowerCase();
+    const { password } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -36,6 +42,12 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const rateLimit = await consumeRateLimits([
+      { scope: "legacy-login-ip", identifier: getClientIp(request), limit: 10, windowMs: 15 * 60_000 },
+      { scope: "legacy-login-account", identifier: email, limit: 5, windowMs: 15 * 60_000 },
+    ]);
+    if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
 
     if (user.verificationRequired && !user.emailVerified) {
       return NextResponse.json(
@@ -66,8 +78,10 @@ export async function POST(request: NextRequest) {
         name: user.name,
       },
       process.env.NEXTAUTH_SECRET,
-      { expiresIn: "24h" }
+      { expiresIn: "15m", issuer: "redrive", audience: "redrive-api", jwtid: crypto.randomUUID() }
     );
+
+    await writeAuditEvent({ request, actorUserId: user.id, action: "LEGACY_API_LOGIN", targetType: "User", targetId: user.id });
 
     // Return user data with token (compatible with test expectations)
     return NextResponse.json({
@@ -96,12 +110,5 @@ export async function POST(request: NextRequest) {
 
 // GET: Check login endpoint availability
 export async function GET() {
-  return NextResponse.json({
-    message: "Login endpoint is available",
-    endpoints: {
-      login: "POST /api/auth/login",
-      session: "GET /api/auth/session",
-      user: "GET /api/auth/user",
-    },
-  });
+  return NextResponse.json({ enabled: process.env.ENABLE_LEGACY_API_AUTH === "true" });
 }

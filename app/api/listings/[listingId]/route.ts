@@ -21,16 +21,25 @@ export async function GET(
       );
     }
 
-    const listing = await prisma.listing.findUnique({
+    const [listing, currentUser] = await Promise.all([prisma.listing.findUnique({
       where: { id: listingId },
-      include: { user: true }, // Fetch owner details if needed
-    });
+      include: { user: { select: { id: true, name: true, image: true, profileVerified: true, createdAt: true } } },
+    }), getCurrentUserEnhanced(request)]);
 
     if (!listing) {
       return NextResponse.json({ error: "Listing not found" }, { status: 404 });
     }
 
-    return NextResponse.json(listing, { status: 200 });
+    const isOwner = currentUser?.id === listing.userId;
+    return NextResponse.json({
+      ...listing,
+      address: isOwner ? listing.address : `${listing.suburb}, ${listing.state}`,
+      latitude: isOwner ? listing.latitude : null,
+      longitude: isOwner ? listing.longitude : null,
+      regoNumber: isOwner ? listing.regoNumber : null,
+      regoEndDate: isOwner ? listing.regoEndDate : null,
+      regoImage: isOwner ? listing.regoImage : null,
+    }, { status: 200, headers: { "Cache-Control": isOwner ? "private, no-store" : "public, max-age=60" } });
   } catch (error) {
     return NextResponse.json(
       {

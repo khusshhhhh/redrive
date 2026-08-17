@@ -1,6 +1,6 @@
 'use client';
 
-import { SafeListing, SafeUser, SafeReservation } from "@/app/types";
+import { PublicHost, SafeListing, SafeUser, SafeReservation } from "@/app/types";
 import { categories } from "@/app/components/navbar/Categories";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Container from "@/app/components/Container";
@@ -26,7 +26,7 @@ const initialDateRange = {
 interface ListingClientProps {
     reservations?: SafeReservation[];
     listing: SafeListing & {
-        user: SafeUser;
+        user: PublicHost;
         amenities?: string[];
         state: string;
         suburb: string;

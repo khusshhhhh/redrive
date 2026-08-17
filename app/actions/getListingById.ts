@@ -13,7 +13,16 @@ export default async function getListingById(paramsPromise: IParams) {
       where: { id: listingId },
       include: {
         user: {
-          include: { listings: true }, // Include the user's listings
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            profileVerified: true,
+            suburb: true,
+            state: true,
+            createdAt: true,
+            listings: { select: { createdAt: true } },
+          },
         },
       },
     });
@@ -24,13 +33,16 @@ export default async function getListingById(paramsPromise: IParams) {
 
     return {
       ...listing,
+      address: `${listing.suburb}, ${listing.state}`,
+      latitude: null,
+      longitude: null,
+      regoNumber: null,
+      regoEndDate: null,
+      regoImage: "",
       createdAt: listing.createdAt.toISOString(),
       user: {
         ...listing.user,
         createdAt: listing.user.createdAt.toISOString(),
-        updatedAt: listing.user.updatedAt.toISOString(),
-        emailVerified: listing.user.emailVerified?.toISOString() || null,
-        lastActiveAt: listing.user.lastActiveAt?.toISOString() || null,
         listings: listing.user.listings.map((l) => ({
           ...l,
           createdAt: l.createdAt.toISOString(),

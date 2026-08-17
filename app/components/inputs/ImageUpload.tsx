@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { TbPhotoPlus } from "react-icons/tb";
 
-export type UploadFolder = "profiles" | "licenses" | "listings" | "chat";
+export type UploadFolder = "profiles" | "licenses" | "registrations" | "listings" | "chat";
 
 interface ImageUploadProps {
   onChange: (value: string) => void;
@@ -75,7 +75,14 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         <span className="text-xs">JPG, PNG or WebP · up to 5 MB</span>
         {value && (
           <span className="absolute inset-0">
-            <Image alt="Uploaded image" fill sizes="(max-width: 768px) 100vw, 520px" className="object-cover" src={value} />
+            {folder === "licenses" ? (
+              // Protected licence delivery needs the browser's same-origin session cookie;
+              // the Next image optimizer does not forward that cookie to the asset route.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img alt="Uploaded licence" className="h-full w-full object-cover" src={value} />
+            ) : (
+              <Image alt="Uploaded image" fill sizes="(max-width: 768px) 100vw, 520px" className="object-cover" src={value} />
+            )}
             <span className="absolute inset-x-0 bottom-0 bg-black/60 px-3 py-2 text-sm font-medium text-white">{uploading ? "Uploading…" : "Click to replace"}</span>
           </span>
         )}

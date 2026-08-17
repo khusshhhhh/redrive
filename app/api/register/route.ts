@@ -13,6 +13,7 @@ import {
   isValidDateOfBirth,
   normalizeAustralianMobile,
 } from "@/app/libs/profileValidation";
+import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 
 const duplicateEmailResponse = (emailVerified = false) => NextResponse.json(
   {
@@ -30,6 +31,12 @@ export async function GET(request: Request) {
   if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
     return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
   }
+
+  const rateLimit = await consumeRateLimits([
+    { scope: "signup-check-ip", identifier: getClientIp(request), limit: 30, windowMs: 15 * 60_000 },
+    { scope: "signup-check-email", identifier: email, limit: 8, windowMs: 15 * 60_000 },
+  ]);
+  if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
 
   const user = await prisma.user.findUnique({ where: { email }, select: { emailVerified: true } });
   return NextResponse.json({ exists: !!user, emailVerified: !!user?.emailVerified });
@@ -62,6 +69,12 @@ export async function POST(request: Request) {
     const number = body.number?.trim();
     const dateOfBirth = body.dateOfBirth?.trim();
     const { password } = body;
+
+    const rateLimit = await consumeRateLimits([
+      { scope: "signup-ip", identifier: getClientIp(request), limit: 5, windowMs: 60 * 60_000 },
+      { scope: "signup-email", identifier: email || "missing", limit: 3, windowMs: 60 * 60_000 },
+    ]);
+    if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
 
     if (!email || !name || !password || !number || !dateOfBirth ||
       !body.streetAddress?.trim() || !body.suburb?.trim() || !body.state?.trim()) {
@@ -126,6 +139,8 @@ export async function POST(request: Request) {
     };
 
     const user = await prisma.user.create({ data: { email, ...verificationData } });
+
+    await writeAuditEvent({ request, actorUserId: user.id, action: "ACCOUNT_CREATED", targetType: "User", targetId: user.id });
 
     const delivery = await sendVerificationEmail(email, code);
 

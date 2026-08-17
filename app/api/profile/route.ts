@@ -8,6 +8,7 @@ import {
   normalizeAustralianMobile,
 } from "@/app/libs/profileValidation";
 import { hasSubmittedLicense } from "@/app/libs/licenseVerification";
+import { writeAuditEvent } from "@/app/libs/security";
 
 export async function PUT(request: Request) {
   try {
@@ -49,7 +50,7 @@ export async function PUT(request: Request) {
 
     const existingUser = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { profileVerified: true, licenseImage: true },
+      select: { id: true, profileVerified: true, licenseImage: true, licenseStatus: true },
     });
 
     const nextLicenseImage = licenseImage ?? existingUser?.licenseImage ?? "";
@@ -64,6 +65,8 @@ export async function PUT(request: Request) {
     const profileVerified = hasSubmittedLicense(nextLicenseImage)
       ? licenseChanged ? "PENDING" : existingUser?.profileVerified === "Y" ? "Y" : "PENDING"
       : "N";
+    const assetMatch = nextLicenseImage.match(/^\/api\/files\/license\?asset=(.+)$/);
+    const licensePublicId = assetMatch ? decodeURIComponent(assetMatch[1]) : undefined;
 
     // Update the user profile in the database
     const updatedUser = await prisma.user.update({
@@ -83,9 +86,15 @@ export async function PUT(request: Request) {
         image: image ?? "",
         profileVerified,
         licenseImage: nextLicenseImage,
+        ...(licensePublicId ? { licensePublicId } : {}),
+        licenseStatus: hasSubmittedLicense(nextLicenseImage)
+          ? licenseChanged ? "PENDING" : existingUser?.licenseStatus || "PENDING"
+          : "NOT_SUBMITTED",
         licenseType: licenseType ?? "",
       },
     });
+
+    if (licenseChanged) await writeAuditEvent({ request, actorUserId: existingUser?.id, action: "LICENCE_SUBMITTED", targetType: "User", targetId: existingUser?.id });
 
     return NextResponse.json(updatedUser, { status: 200 });
   } catch (error) {

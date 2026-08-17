@@ -3,6 +3,7 @@ import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
 import { notificationService } from "@/app/services/notificationService";
+import { writeAuditEvent } from "@/app/libs/security";
 
 // ✅ GET: Fetch reservation details with user included
 export async function GET(
@@ -65,6 +66,15 @@ export async function GET(
       },
       listing: {
         ...reservation.listing,
+        address: reservation.listing.userId === currentUser.id || ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status)
+          ? reservation.listing.address
+          : "",
+        latitude: reservation.listing.userId === currentUser.id || ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status)
+          ? reservation.listing.latitude
+          : null,
+        longitude: reservation.listing.userId === currentUser.id || ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status)
+          ? reservation.listing.longitude
+          : null,
         createdAt: reservation.listing.createdAt.toISOString(),
       },
     };
@@ -135,9 +145,35 @@ export async function DELETE(
     const cancelledBy = currentUser.id === reservation.userId ? "you" : reservation.listing.title + " owner";
     const notifyUserId = currentUser.id === reservation.userId ? reservation.listing.userId : reservation.userId;
 
-    await prisma.reservation.delete({
+    if (["CANCELLED", "DECLINED", "COMPLETED"].includes(reservation.status)) {
+      return NextResponse.json({ error: "This reservation can no longer be cancelled" }, { status: 409 });
+    }
+
+    let reason: string | undefined;
+    try {
+      const body = await request.json();
+      reason = typeof body?.reason === "string" ? body.reason.trim().slice(0, 500) : undefined;
+    } catch {
+      reason = undefined;
+    }
+
+    const daysUntilPickup = Math.ceil((reservation.startDate.getTime() - Date.now()) / 86_400_000);
+    const refundAmount = reservation.paymentStatus === "PAID"
+      ? (daysUntilPickup >= 7 ? reservation.totalFees : Math.round(reservation.totalFees * 0.5))
+      : 0;
+
+    await prisma.reservation.update({
       where: { id: reservationId },
+      data: {
+        status: "CANCELLED",
+        cancelledAt: new Date(),
+        cancelledById: currentUser.id,
+        cancellationReason: reason || null,
+        refundAmount,
+      },
     });
+
+    await writeAuditEvent({ request, actorUserId: currentUser.id, action: "RESERVATION_CANCELLED", targetType: "Reservation", targetId: reservation.id, reason, metadata: { refundAmount } });
 
     // Send cancellation notification
     try {
@@ -153,7 +189,7 @@ export async function DELETE(
     }
 
     return NextResponse.json(
-      { success: true, message: "Reservation canceled" },
+      { success: true, message: "Reservation cancelled", refundAmount },
       { status: 200 }
     );
   } catch (error) {
@@ -179,7 +215,7 @@ export async function PATCH(
 
     const { reservationId } = await context.params;
     const body = await request.json();
-    const { status } = body;
+    const status = typeof body.status === "string" ? body.status.toUpperCase() : "";
 
     if (!reservationId || !status) {
       return NextResponse.json({ error: "Invalid data" }, { status: 400 });
@@ -201,10 +237,21 @@ export async function PATCH(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const transitions: Record<string, string[]> = {
+      REVIEWING: ["APPROVED", "DECLINED"],
+      APPROVED: ["ACTIVE"],
+      ACTIVE: ["COMPLETED"],
+    };
+    if (!transitions[reservation.status]?.includes(status)) {
+      return NextResponse.json({ error: `Cannot change ${reservation.status} reservation to ${status}` }, { status: 409 });
+    }
+
     const updated = await prisma.reservation.update({
       where: { id: reservationId },
       data: { status },
     });
+
+    await writeAuditEvent({ request, actorUserId: currentUser.id, action: "RESERVATION_STATUS_CHANGED", targetType: "Reservation", targetId: reservation.id, metadata: { from: reservation.status, to: status } });
 
     // Send notification based on status change
     try {

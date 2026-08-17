@@ -6,11 +6,18 @@ import {
   sendVerificationEmail,
   verificationExpiry,
 } from "@/app/libs/emailVerification";
+import { consumeRateLimits, getClientIp, tooManyRequests } from "@/app/libs/security";
 
 export async function POST(request: Request) {
   const { email: rawEmail } = await request.json();
   const email = rawEmail?.trim().toLowerCase();
   if (!email) return NextResponse.json({ error: "Email is required" }, { status: 400 });
+
+  const rateLimit = await consumeRateLimits([
+    { scope: "resend-ip", identifier: getClientIp(request), limit: 10, windowMs: 60 * 60_000 },
+    { scope: "resend-account", identifier: email, limit: 4, windowMs: 60 * 60_000 },
+  ]);
+  if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user || user.emailVerified) {

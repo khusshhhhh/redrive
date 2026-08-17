@@ -1,17 +1,23 @@
 import { Listing, Reservation, User, Notification, NotificationType } from "@prisma/client";
 
-export type SafeListing = Omit<Listing, "createdAt" | "regoImage"> & {
+export type SafeListing = Omit<Listing, "createdAt" | "regoImage" | "instantBook" | "minimumNoticeHours" | "minimumTripDays" | "maximumTripDays" | "preparationBufferHours" | "exactLocationReleaseRule"> & {
   createdAt: string;
   regoImage: string; // ✅ Ensure regoImage is always a string
   badgeValue?: string;
   cleaningFeeOption?: string | null;
   cleaningFeeAmount?: number | null;
   returnCleaningFeeAmount?: number | null;
+  instantBook?: boolean;
+  minimumNoticeHours?: number;
+  minimumTripDays?: number;
+  maximumTripDays?: number;
+  preparationBufferHours?: number;
+  exactLocationReleaseRule?: string;
 };
 
 export type SafeReservation = Omit<
   Reservation,
-  "createdAt" | "startDate" | "endDate"
+  "createdAt" | "startDate" | "endDate" | "updatedAt" | "quoteSnapshot" | "pricingPolicyVersion" | "paymentStatus" | "cancelledAt" | "cancelledById" | "cancellationReason" | "refundAmount" | "pickupAddressReleasedAt"
 > & {
   createdAt: string;
   startDate: string;
@@ -19,6 +25,15 @@ export type SafeReservation = Omit<
   user: SafeUser; // ✅ Ensure user is required
   listing: SafeListing;
   status: string;
+  updatedAt?: string;
+  quoteSnapshot?: unknown;
+  pricingPolicyVersion?: string;
+  paymentStatus?: string;
+  cancelledAt?: string | null;
+  cancelledById?: string | null;
+  cancellationReason?: string | null;
+  refundAmount?: number | null;
+  pickupAddressReleasedAt?: string | null;
 };
 
 export type SafeUser = Pick<
@@ -33,6 +48,11 @@ export type SafeUser = Pick<
   emailVerified: string | null;
   lastActiveAt: string | null;
   hasPassword?: boolean;
+};
+
+export type PublicHost = Pick<User, "id" | "name" | "image" | "profileVerified" | "suburb" | "state"> & {
+  createdAt: string;
+  listings?: { createdAt: string }[];
 };
 
 // Minimal presence-bearing user info attached to a chat (avatar/name/online

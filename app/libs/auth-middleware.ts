@@ -53,7 +53,8 @@ export async function getCurrentUserEnhanced(
           }
           const decoded = jwt.verify(
             token,
-            process.env.NEXTAUTH_SECRET
+            process.env.NEXTAUTH_SECRET,
+            { issuer: "redrive", audience: "redrive-api" }
           ) as { userId: string; email: string; name: string };
 
           const user = await prisma.user.findUnique({

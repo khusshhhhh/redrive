@@ -88,6 +88,12 @@ export default async function getListings(params: IListingsParams) {
 
     return listings.map((listing) => ({
       ...listing,
+      address: "",
+      latitude: null,
+      longitude: null,
+      regoNumber: null,
+      regoEndDate: null,
+      regoImage: "",
       badgeValue: badgeMap[listing.badge] || null,
       createdAt: listing.createdAt.toISOString(),
     }));

@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { SafeUser } from "@/app/types";
+import { PublicHost, SafeUser } from "@/app/types";
 import { IconType } from "react-icons";
 import Avatar from "../Avatar";
 import { FaCheck, FaGasPump } from "react-icons/fa";
@@ -23,7 +23,7 @@ import useLoginModal from "@/app/hooks/useLoginModal";
 
 interface ListingInfoProps {
     listingId: string;
-    user: SafeUser & { listings?: { createdAt: string }[] };
+    user: PublicHost;
     currentUser?: SafeUser | null;
     description: string;
     information: string;

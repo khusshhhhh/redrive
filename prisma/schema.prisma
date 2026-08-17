@@ -8,48 +8,58 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  name           String?
-  email          String?   @unique
-  emailVerified  DateTime?
-  verificationCodeHash String?
+  id                      String    @id @default(auto()) @map("_id") @db.ObjectId
+  name                    String?
+  email                   String?   @unique
+  emailVerified           DateTime?
+  verificationCodeHash    String?
   verificationCodeExpires DateTime?
-  verificationCodeSentAt DateTime?
-  verificationAttempts Int @default(0)
-  verificationRequired Boolean?
-  loginOtpEnabled Boolean @default(false)
-  loginOtpCodeHash String?
-  loginOtpCodeExpires DateTime?
-  loginOtpCodeSentAt DateTime?
-  loginOtpAttempts Int @default(0)
-  number         String?
-  dateOfBirth    String?
-  image          String?
-  hashedPassword String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  lastActiveAt   DateTime?
-  favoriteIds    String[]  @db.ObjectId
+  verificationCodeSentAt  DateTime?
+  verificationAttempts    Int       @default(0)
+  verificationRequired    Boolean?
+  loginOtpEnabled         Boolean   @default(false)
+  loginOtpCodeHash        String?
+  loginOtpCodeExpires     DateTime?
+  loginOtpCodeSentAt      DateTime?
+  loginOtpAttempts        Int       @default(0)
+  number                  String?
+  dateOfBirth             String?
+  image                   String?
+  hashedPassword          String?
+  passwordChangedAt       DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  lastActiveAt            DateTime?
+  favoriteIds             String[]  @db.ObjectId
 
-  streetAddress  String?
-  suburb         String?
-  state          String?
-  postcode       String?
-  hobbies        String[]  @default([])  
-  dreamDestinations String[] @default([]) 
+  streetAddress     String?
+  suburb            String?
+  state             String?
+  postcode          String?
+  hobbies           String[] @default([])
+  dreamDestinations String[] @default([])
 
-  licenseImage   String?  // ✅ Stores uploaded license image
-  licenseType    String?  // ✅ Stores selected license type
-  profileVerified   String?   @default("N")
-  role              String?   @default("USER") // USER or ADMIN; nullable for existing MongoDB records
+  licenseImage           String? // ✅ Stores uploaded license image
+  licensePublicId        String?
+  licenseType            String? // ✅ Stores selected license type
+  licenseStatus          String    @default("NOT_SUBMITTED")
+  licenseExpiresAt       DateTime?
+  licenseReviewedAt      DateTime?
+  licenseReviewedBy      String?   @db.ObjectId
+  licenseRejectionReason String?
+  profileVerified        String?   @default("N")
+  role                   String?   @default("USER") // USER or ADMIN; nullable for existing MongoDB records
 
-  accounts     Account[]
-  listings     Listing[]
-  reservations Reservation[]
-  reviews      Review[]
-  messagesSent Message[] @relation("UserMessages")
+  accounts      Account[]
+  listings      Listing[]
+  reservations  Reservation[]
+  reviews       Review[]
+  messagesSent  Message[]      @relation("UserMessages")
   notifications Notification[]
 
+  @@index([createdAt])
+  @@index([lastActiveAt])
+  @@index([role])
 }
 
 model Account {
@@ -72,66 +82,281 @@ model Account {
 }
 
 model Listing {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  title         String
-  description   String
-  company       String
-  modal         String
-  imageSrcs     String[] @default([]) // ✅ Supports multiple images
-  createdAt     DateTime @default(now())
-  category      String
-  guestCount    Int
-  doorCount     Int
-  sleepCount    Int
-  fuelType      String
-  fuelEconomy   Float?    // ✅ Allowing null values for fuel economy
-  driveChain    String    // ✅ Adding a new drive chain field
-  year          Int
-  information   String?
-  userId        String   @db.ObjectId
-  price         Int
-  amenities     String[] @default([])
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  company     String
+  modal       String
+  imageSrcs   String[] @default([]) // ✅ Supports multiple images
+  createdAt   DateTime @default(now())
+  category    String
+  guestCount  Int
+  doorCount   Int
+  sleepCount  Int
+  fuelType    String
+  fuelEconomy Float? // ✅ Allowing null values for fuel economy
+  driveChain  String // ✅ Adding a new drive chain field
+  year        Int
+  information String?
+  userId      String   @db.ObjectId
+  price       Int
+  amenities   String[] @default([])
 
-  badge         String?  // ✅ New badge field
+  badge String? // ✅ New badge field
 
-  state        String
-  suburb       String
-  address      String    @default("")
-  latitude     Float?
-  longitude    Float?
+  state     String
+  suburb    String
+  address   String @default("")
+  latitude  Float?
+  longitude Float?
 
   // ✅ New fields for registration details
-  regoNumber   String?  @unique // Ensure unique registration numbers
-  regoEndDate  DateTime?
-  regoImage    String?  // Store Cloudinary image URL
+  regoNumber  String?   @unique // Ensure unique registration numbers
+  regoEndDate DateTime?
+  regoImage   String? // Store Cloudinary image URL
 
   // Cleaning fee details
-  cleaningFeeOption        String?  // "YES", "NO", or "UPON_RETURNING"
-  cleaningFeeAmount        Int?
-  returnCleaningFeeAmount  Int?
+  cleaningFeeOption       String? // "YES", "NO", or "UPON_RETURNING"
+  cleaningFeeAmount       Int?
+  returnCleaningFeeAmount Int?
 
-  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instantBook              Boolean @default(false)
+  minimumNoticeHours       Int     @default(24)
+  minimumTripDays          Int     @default(1)
+  maximumTripDays          Int     @default(30)
+  preparationBufferHours   Int     @default(2)
+  exactLocationReleaseRule String  @default("APPROVED_BOOKING")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   reservations Reservation[]
   reviews      Review[]
+
+  @@index([state, suburb, category, price])
+  @@index([userId, createdAt])
+  @@index([category, createdAt])
 }
 
 model Reservation {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String   @db.ObjectId
-  listingId  String   @db.ObjectId
-  startDate  DateTime
-  endDate    DateTime
-  totalPrice Int
-  redriveFee Int  // ✅ Added redrive fee field
-  serviceFee Int  // ✅ New service fee field
-  insuranceType String   // ✅ Stores "Risk Taker", "Happy Driver", or "No Insurance"
-  insuranceFee  Int      // ✅ Stores calculated insurance cost
-  totalFees  Int
-  status     String   @default("REVIEWING") // NEW: reviewing, APPROVED, DECLINED
-  createdAt  DateTime @default(now())
+  id                      String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId                  String    @db.ObjectId
+  listingId               String    @db.ObjectId
+  startDate               DateTime
+  endDate                 DateTime
+  totalPrice              Int
+  redriveFee              Int // ✅ Added redrive fee field
+  serviceFee              Int // ✅ New service fee field
+  insuranceType           String // ✅ Stores "Risk Taker", "Happy Driver", or "No Insurance"
+  insuranceFee            Int // ✅ Stores calculated insurance cost
+  totalFees               Int
+  status                  String    @default("REVIEWING") // NEW: reviewing, APPROVED, DECLINED
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  quoteSnapshot           Json?
+  pricingPolicyVersion    String    @default("2026-08-17")
+  paymentStatus           String    @default("NOT_STARTED")
+  cancelledAt             DateTime?
+  cancelledById           String?   @db.ObjectId
+  cancellationReason      String?
+  refundAmount            Int?
+  pickupAddressReleasedAt DateTime?
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status, createdAt])
+  @@index([listingId, status, startDate, endDate])
+  @@index([createdAt])
+}
+
+model RateLimitBucket {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  key       String   @unique
+  count     Int      @default(1)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String    @db.ObjectId
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+}
+
+model AuditEvent {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  actorUserId String?  @db.ObjectId
+  action      String
+  targetType  String
+  targetId    String?
+  reason      String?
+  metadata    Json?
+  ipHash      String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([actorUserId, createdAt])
+  @@index([targetType, targetId, createdAt])
+  @@index([action, createdAt])
+}
+
+model AvailabilityBlock {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  listingId String   @db.ObjectId
+  startDate DateTime
+  endDate   DateTime
+  type      String   @default("OWNER_BLOCK")
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([listingId, startDate, endDate])
+}
+
+model BookingQuote {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @db.ObjectId
+  listingId     String   @db.ObjectId
+  reservationId String?  @db.ObjectId
+  startDate     DateTime
+  endDate       DateTime
+  days          Int
+  dailyRate     Int
+  basePrice     Int
+  redriveFee    Int
+  serviceFee    Int
+  insuranceType String
+  insuranceFee  Int
+  cleaningFee   Int
+  total         Int
+  currency      String   @default("AUD")
+  policyVersion String
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([listingId, startDate, endDate])
+  @@index([expiresAt])
+}
+
+model UserSession {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String    @db.ObjectId
+  tokenHash  String    @unique
+  deviceName String?
+  browser    String?
+  ipHash     String?
+  lastSeenAt DateTime  @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId, revokedAt, lastSeenAt])
+  @@index([expiresAt])
+}
+
+model WebAuthnCredential {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String    @db.ObjectId
+  credentialId String    @unique
+  publicKey    Bytes
+  counter      Int       @default(0)
+  transports   String[]  @default([])
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime?
+
+  @@index([userId, createdAt])
+}
+
+model HandoverReport {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  reservationId     String    @db.ObjectId
+  phase             String
+  submittedById     String    @db.ObjectId
+  odometer          Int?
+  fuelOrChargeLevel Int?
+  checklist         Json?
+  notes             String?
+  acknowledgedByIds String[]  @db.ObjectId
+  status            String    @default("DRAFT")
+  submittedAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([reservationId, phase])
+  @@index([submittedById, createdAt])
+}
+
+model HandoverMedia {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  reportId  String   @db.ObjectId
+  url       String
+  publicId  String?
+  category  String
+  createdAt DateTime @default(now())
+
+  @@index([reportId, createdAt])
+}
+
+model IncidentCase {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  reservationId  String   @db.ObjectId
+  reporterUserId String   @db.ObjectId
+  type           String
+  status         String   @default("OPEN")
+  summary        String
+  location       String?
+  evidence       Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([reservationId, createdAt])
+  @@index([reporterUserId, status, createdAt])
+}
+
+model SavedSearch {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String    @db.ObjectId
+  name           String
+  filters        Json
+  alertFrequency String    @default("DAILY")
+  active         Boolean   @default(true)
+  lastNotifiedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId, active, createdAt])
+}
+
+model MaintenanceRecord {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  listingId   String    @db.ObjectId
+  type        String
+  status      String    @default("DUE")
+  dueAt       DateTime?
+  completedAt DateTime?
+  odometer    Int?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([listingId, status, dueAt])
+}
+
+model FeatureFlag {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  key               String   @unique
+  enabled           Boolean  @default(false)
+  rolloutPercentage Int      @default(0)
+  allowedUserIds    String[] @db.ObjectId
+  updatedAt         DateTime @updatedAt
 }
 
 model Review {
@@ -155,11 +380,11 @@ model Badge {
 }
 
 model Chat {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  participantIds String[] @db.ObjectId
-  messages     Message[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  participantIds String[]  @db.ObjectId
+  messages       Message[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   // Ephemeral typing-indicator state (1:1 chats, single active typer)
   typingUserId String?   @db.ObjectId
@@ -174,26 +399,26 @@ model Message {
   senderId  String   @db.ObjectId
   text      String?
   imageUrl  String?
-  readByIds String[] @db.ObjectId @default([])
+  readByIds String[] @default([]) @db.ObjectId
   createdAt DateTime @default(now())
 
-  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
   sender User @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([chatId, createdAt])
 }
 
 model Notification {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String   @db.ObjectId
-  type        NotificationType
-  title       String
-  message     String
-  data        Json?    // Additional data like listingId, reservationId, etc.
-  read        Boolean  @default(false)
-  actionUrl   String?  // Where to redirect when clicked
-  createdAt   DateTime @default(now())
-  expiresAt   DateTime? // Optional expiration for time-sensitive notifications
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String           @db.ObjectId
+  type      NotificationType
+  title     String
+  message   String
+  data      Json? // Additional data like listingId, reservationId, etc.
+  read      Boolean          @default(false)
+  actionUrl String? // Where to redirect when clicked
+  createdAt DateTime         @default(now())
+  expiresAt DateTime? // Optional expiration for time-sensitive notifications
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -202,26 +427,25 @@ model Notification {
 }
 
 enum NotificationType {
-  BOOKING_REQUEST       // New booking request received
-  BOOKING_APPROVED      // Your booking was approved
-  BOOKING_DECLINED      // Your booking was declined
-  BOOKING_CANCELLED     // Booking was cancelled
-  BOOKING_REMINDER      // Upcoming booking reminder
-  BOOKING_COMPLETED     // Booking completed
-  
-  REVIEW_RECEIVED       // New review on your listing
-  REVIEW_REMINDER       // Reminder to leave a review
-  
-  MESSAGE_RECEIVED      // New message in chat
-  
-  LISTING_FAVORITED     // Someone favorited your listing
-  LISTING_UPDATED       // Your listing was updated
-  
-  PROFILE_VERIFIED      // Profile verification status change
-  PAYMENT_RECEIVED      // Payment received
-  PAYMENT_REQUIRED      // Payment required
-  
-  SYSTEM_UPDATE         // System notifications
-  SECURITY_ALERT        // Security-related notifications
-}
+  BOOKING_REQUEST // New booking request received
+  BOOKING_APPROVED // Your booking was approved
+  BOOKING_DECLINED // Your booking was declined
+  BOOKING_CANCELLED // Booking was cancelled
+  BOOKING_REMINDER // Upcoming booking reminder
+  BOOKING_COMPLETED // Booking completed
 
+  REVIEW_RECEIVED // New review on your listing
+  REVIEW_REMINDER // Reminder to leave a review
+
+  MESSAGE_RECEIVED // New message in chat
+
+  LISTING_FAVORITED // Someone favorited your listing
+  LISTING_UPDATED // Your listing was updated
+
+  PROFILE_VERIFIED // Profile verification status change
+  PAYMENT_RECEIVED // Payment received
+  PAYMENT_REQUIRED // Payment required
+
+  SYSTEM_UPDATE // System notifications
+  SECURITY_ALERT // Security-related notifications
+}

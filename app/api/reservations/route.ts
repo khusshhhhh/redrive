@@ -1,171 +1,110 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
-import type { NextRequest } from "next/server";
-import { notificationService } from "@/app/services/notificationService";
 import { hasSubmittedLicense } from "@/app/libs/licenseVerification";
+import { buildBookingQuote, PRICING_POLICY_VERSION } from "@/app/libs/booking";
+import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
+import { notificationService } from "@/app/services/notificationService";
 
-// ✅ Function to determine service fee based on total price
-const calculateServiceFee = (totalPrice: number): number => {
-  if (totalPrice <= 200) return 10;
-  if (totalPrice <= 400) return 25;
-  if (totalPrice <= 800) return 40;
-  if (totalPrice <= 1200) return 60;
-  if (totalPrice <= 2000) return 80;
-  return 100;
-};
+const blockingStatuses = ["REVIEWING", "APPROVED", "ACTIVE"];
 
-// ✅ POST: Create a reservation
 export async function POST(request: NextRequest) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
-    if (!currentUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const renter = await prisma.user.findUnique({
-      where: { id: currentUser.id },
-      select: { licenseImage: true },
-    });
+    const rateLimit = await consumeRateLimits([
+      { scope: "reservation-user", identifier: currentUser.id, limit: 12, windowMs: 60 * 60_000 },
+      { scope: "reservation-ip", identifier: getClientIp(request), limit: 30, windowMs: 60 * 60_000 },
+    ]);
+    if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
 
-    if (!hasSubmittedLicense(renter?.licenseImage)) {
-      return NextResponse.json(
-        {
-          error: "Upload your driving licence and submit it for verification before requesting a booking.",
-          code: "LICENSE_REQUIRED",
-        },
-        { status: 403 }
-      );
+    const renter = await prisma.user.findUnique({ where: { id: currentUser.id }, select: { licenseImage: true, licenseStatus: true } });
+    if (!hasSubmittedLicense(renter?.licenseImage) || renter?.licenseStatus === "REJECTED" || renter?.licenseStatus === "EXPIRED") {
+      return NextResponse.json({ error: "Upload a valid driving licence and submit it for verification before requesting a booking.", code: "LICENSE_REQUIRED" }, { status: 403 });
     }
 
     const body = await request.json();
-
-    const {
-      listingId,
-      startDate,
-      endDate,
-      totalPrice,
-      insuranceType,
-      insuranceFee,
-    } = body;
-
-    if (!listingId || !startDate || !endDate || !totalPrice) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+    const listingId = typeof body.listingId === "string" ? body.listingId : "";
+    const startDate = new Date(body.startDate);
+    const endDate = new Date(body.endDate);
+    if (!listingId || Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()) || endDate < startDate) {
+      return NextResponse.json({ error: "Choose a valid vehicle and date range" }, { status: 400 });
     }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (startDate < today) return NextResponse.json({ error: "Pickup date cannot be in the past" }, { status: 400 });
 
-    // ✅ Fetch listing to ensure it exists and check ownership
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
+      select: { id: true, title: true, userId: true, price: true, cleaningFeeOption: true, cleaningFeeAmount: true, minimumNoticeHours: true, minimumTripDays: true, maximumTripDays: true },
+    });
+    if (!listing) return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+    if (listing.userId === currentUser.id) return NextResponse.json({ error: "You cannot book your own listing" }, { status: 403 });
+
+    const quote = buildBookingQuote({ dailyRate: listing.price, startDate, endDate, insuranceType: body.insuranceType, cleaningFee: listing.cleaningFeeOption === "YES" ? listing.cleaningFeeAmount || 0 : 0 });
+    if (quote.days < listing.minimumTripDays || quote.days > listing.maximumTripDays) {
+      return NextResponse.json({ error: `Trip length must be between ${listing.minimumTripDays} and ${listing.maximumTripDays} days` }, { status: 400 });
+    }
+    if (startDate.getTime() - Date.now() < listing.minimumNoticeHours * 60 * 60_000) {
+      return NextResponse.json({ error: `This vehicle requires at least ${listing.minimumNoticeHours} hours notice` }, { status: 409 });
+    }
+
+    const [reservationConflict, ownerBlock] = await Promise.all([
+      prisma.reservation.findFirst({ where: { listingId, status: { in: blockingStatuses }, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
+      prisma.availabilityBlock.findFirst({ where: { listingId, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
+    ]);
+    if (reservationConflict || ownerBlock) return NextResponse.json({ error: "Those dates are no longer available", code: "DATES_UNAVAILABLE" }, { status: 409 });
+
+    const reservation = await prisma.$transaction(async (tx) => {
+      const created = await tx.reservation.create({
+        data: { userId: currentUser.id, listingId, startDate, endDate, totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION, status: "REVIEWING" },
+      });
+      await tx.bookingQuote.create({
+        data: { userId: currentUser.id, listingId, reservationId: created.id, startDate, endDate, days: quote.days, dailyRate: quote.dailyRate, basePrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, cleaningFee: quote.cleaningFee, total: quote.total, currency: quote.currency, policyVersion: quote.policyVersion, expiresAt: new Date(Date.now() + 15 * 60_000) },
+      });
+      return created;
     });
 
-    if (!listing) {
-      return NextResponse.json(
-        { error: "Listing not found" },
-        { status: 404 }
-      );
-    }
-
-    // ✅ Prevent users from booking their own listings
-    if (listing.userId === currentUser.id) {
-      return NextResponse.json(
-        { error: "You cannot book your own listing" },
-        { status: 403 }
-      );
-    }
-
-    // Ensure `insuranceType` and `insuranceFee` are properly handled
-    const finalInsuranceType = insuranceType || "No Insurance"; // Default if not provided
-    const finalInsuranceFee = insuranceFee || 0;
-
-
-    const redriveFee = Math.round(totalPrice * 0.08);
-    const serviceFee = calculateServiceFee(totalPrice);
-    const upfrontCleaningFee = listing.cleaningFeeOption === "YES" ? (listing.cleaningFeeAmount || 0) : 0;
-    const totalFees = totalPrice + redriveFee + serviceFee + finalInsuranceFee + upfrontCleaningFee;
-
-    const reservation = await prisma.reservation.create({
-      data: {
-        userId: currentUser.id,
-        listingId,
-        startDate,
-        endDate,
-        totalPrice,
-        redriveFee,
-        serviceFee,
-        insuranceType: finalInsuranceType,
-        insuranceFee: finalInsuranceFee,
-        totalFees,
-        status: "REVIEWING",
-      },
-    });
-
-    // Send booking request notification to listing owner
-    try {
-      await notificationService.notifyBookingRequest(
-        listing.userId,
-        currentUser.name || "Someone",
-        listing.title,
-        reservation.id
-      );
-    } catch (notificationError) {
-      console.error("Error sending booking request notification:", notificationError);
-      // Don't fail the reservation creation if notification fails
-    }
-
-    return NextResponse.json(reservation, { status: 201 });
+    void notificationService.notifyBookingRequest(listing.userId, currentUser.name || "Someone", listing.title, reservation.id).catch((error) => console.error("Booking notification failed", error));
+    await writeAuditEvent({ request, actorUserId: currentUser.id, action: "RESERVATION_CREATED", targetType: "Reservation", targetId: reservation.id, metadata: { listingId, total: quote.total } });
+    return NextResponse.json(reservation, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("Error creating reservation:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error", details: error instanceof Error ? error.message : String(error) },
-      { status: 500 }
-    );
+    console.error("Error creating reservation", error);
+    return NextResponse.json({ error: "Unable to create reservation" }, { status: 500 });
   }
 }
 
-export async function GET(req: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const currentUser = await getCurrentUserEnhanced(req);
-    if (!currentUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
+    const currentUser = await getCurrentUserEnhanced(request);
+    if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const reservations = await prisma.reservation.findMany({
+      where: { OR: [{ userId: currentUser.id }, { listing: { userId: currentUser.id } }] },
+      orderBy: { createdAt: "desc" },
+      take: 100,
       include: {
-        user: true, // ✅ Ensure user is included
-        listing: true, // ✅ Ensure listing is included
+        user: { select: { id: true, name: true, email: true, number: true, image: true, profileVerified: true, createdAt: true, updatedAt: true, emailVerified: true, lastActiveAt: true } },
+        listing: true,
       },
     });
-
-    // ✅ Convert all Date fields to ISO strings for TypeScript compatibility
-    const safeReservations = reservations.map((reservation) => ({
-      ...reservation,
-      createdAt: reservation.createdAt.toISOString(),
-      startDate: reservation.startDate.toISOString(),
-      endDate: reservation.endDate.toISOString(),
-      user: {
-        ...reservation.user,
-        createdAt: reservation.user.createdAt.toISOString(),
-        updatedAt: reservation.user.updatedAt.toISOString(),
-        emailVerified: reservation.user.emailVerified
-          ? reservation.user.emailVerified.toISOString()
-          : null,
-      },
-      listing: {
-        ...reservation.listing,
-        createdAt: reservation.listing.createdAt.toISOString(),
-        regoImage: reservation.listing.regoImage ?? "", // ✅ Ensure regoImage is always a string
-      },
-    }));
-
-    return NextResponse.json(safeReservations, { status: 200 });
+    const safeReservations = reservations.map((reservation) => {
+      const maySeeExactLocation = reservation.listing.userId === currentUser.id
+        || ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status);
+      return {
+        ...reservation,
+        listing: {
+          ...reservation.listing,
+          address: maySeeExactLocation ? reservation.listing.address : "",
+          latitude: maySeeExactLocation ? reservation.listing.latitude : null,
+          longitude: maySeeExactLocation ? reservation.listing.longitude : null,
+        },
+      };
+    });
+    return NextResponse.json(safeReservations, { status: 200, headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
-    console.error("❌ Error fetching reservations:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch reservations" },
-      { status: 500 }
-    );
+    console.error("Error fetching reservations", error);
+    return NextResponse.json({ error: "Failed to fetch reservations" }, { status: 500 });
   }
 }

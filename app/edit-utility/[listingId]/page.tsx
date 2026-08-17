@@ -357,7 +357,7 @@ const EditUtilityPage = () => {
                 {/* Registration Image */}
                 <div className="mb-8">
                     <p className="font-semibold mb-4 text-ink">Registration Image</p>
-                    <ImageUpload folder="licenses" value={regoImage} onChange={(image) => setRegoImage(image)} />
+                        <ImageUpload folder="registrations" value={regoImage} onChange={(image) => setRegoImage(image)} />
                 </div>
 
                 {/* Pricing */}

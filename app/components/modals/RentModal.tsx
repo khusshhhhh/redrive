@@ -76,7 +76,7 @@ const RentModal = () => {
 
         const formData = new FormData();
         formData.append("image", file);
-        formData.append("folder", "licenses");
+        formData.append("folder", "registrations");
 
         try {
             const response = await fetch("/api/upload", {
