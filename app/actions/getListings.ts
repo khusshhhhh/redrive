@@ -7,6 +7,7 @@ export interface IListingsParams {
   startDate?: string;
   endDate?: string;
   state?: string;
+  suburb?: string;
   category?: string;
   information?: string;
   minPrice?: number | string; // Ensure this accepts both number & string
@@ -22,6 +23,7 @@ export default async function getListings(params: IListingsParams) {
       startDate,
       endDate,
       state,
+      suburb,
       category,
       information,
       minPrice,
@@ -39,6 +41,10 @@ export default async function getListings(params: IListingsParams) {
     // Only filter by state if one is provided and it's not "Anywhere"
     if (state && state !== "Anywhere") {
       query.state = state;
+    }
+
+    if (suburb) {
+      query.suburb = { equals: suburb, mode: "insensitive" };
     }
 
     if (information)

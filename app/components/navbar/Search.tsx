@@ -16,13 +16,16 @@ const Search = () => {
 
   // Retrieve filters from URL params
   const stateValue = params?.get("state") || "Anywhere";
+  const suburbValue = params?.get("suburb");
   const startDate = params?.get("startDate");
   const endDate = params?.get("endDate");
   const guestCount = params?.get("guestCount");
 
   const locationLabel = useMemo(() => {
+    if (suburbValue && stateValue !== "Anywhere") return `${suburbValue}, ${stateValue}`;
+    if (suburbValue) return suburbValue;
     return stateValue !== "Anywhere" ? stateValue : "Anywhere";
-  }, [stateValue]);
+  }, [stateValue, suburbValue]);
 
   const durationLabel = useMemo(() => {
     if (startDate && endDate) {
@@ -43,11 +46,12 @@ const Search = () => {
   const filtersApplied = useMemo(() => {
     return (
       (stateValue && stateValue !== "Anywhere") ||
+      suburbValue ||
       startDate ||
       endDate ||
       guestCount
     );
-  }, [stateValue, startDate, endDate, guestCount]);
+  }, [stateValue, suburbValue, startDate, endDate, guestCount]);
 
   // Handler to clear filters by navigating to the base route without query parameters
   const handleClearFilters = () => {

@@ -23,7 +23,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
 
   return (
     <footer className="bg-white border-t border-hairline mt-16">
-      <div className="max-w-[1280px] mx-auto px-4 md:px-10 py-12 grid grid-cols-1 sm:grid-cols-3 gap-8">
+      <div className="max-w-[1280px] mx-auto grid grid-cols-1 gap-9 px-4 py-12 sm:grid-cols-2 md:px-10 lg:grid-cols-4">
         <div>
           <h3 className="text-title-sm font-medium text-ink mb-4">Support</h3>
           <ul className="flex flex-col gap-3 text-sm text-body">
@@ -50,18 +50,27 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
         </div>
 
         <div>
+          <h3 className="text-title-sm font-medium text-ink mb-4">Explore</h3>
+          <ul className="flex flex-col gap-3 text-sm text-body">
+            <li><Link href="/blog" className="hover:underline hover:text-ink">Travel and sharing journal</Link></li>
+            <li><Link href="/newsroom" className="hover:underline hover:text-ink">Newsroom</Link></li>
+            <li><Link href="/favorites" className="hover:underline hover:text-ink">Saved vehicles</Link></li>
+          </ul>
+        </div>
+
+        <div>
           <h3 className="text-title-sm font-medium text-ink mb-4">Redrive</h3>
           <ul className="flex flex-col gap-3 text-sm text-body">
             <li><Link href="/about" className="hover:underline hover:text-ink">About</Link></li>
             <li><Link href="/careers" className="hover:underline hover:text-ink">Careers</Link></li>
-            <li><Link href="/newsroom" className="hover:underline hover:text-ink">Newsroom</Link></li>
+            <li><Link href="/safety" className="hover:underline hover:text-ink">Trust and safety</Link></li>
           </ul>
         </div>
       </div>
 
       <div className="border-t border-hairline-soft">
         <div className="max-w-[1280px] mx-auto px-4 md:px-10 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-caption-sm text-muted">
-          <span>© {new Date().getFullYear()} Redrive, Inc.</span>
+          <span>© {new Date().getFullYear()} Redrive. Built for Australian journeys.</span>
           <div className="flex gap-4">
             <Link href="/favorites" className="hover:underline">Favourites</Link>
             <Link href="/trips" className="hover:underline">Trips</Link>

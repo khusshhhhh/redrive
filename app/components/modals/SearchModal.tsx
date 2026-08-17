@@ -9,7 +9,8 @@ import useSearchModal from "@/app/hooks/useSearchModal";
 import Calendar from "../inputs/Calender";
 import Counter from "../inputs/Counter";
 import Modal from "./Modal";
-import StateSelector from "../inputs/StateSelector";
+import StateSelector, { states as AU_STATES } from "../inputs/StateSelector";
+import SuburbSelector, { type SuburbOption } from "../inputs/SuburbSelector";
 import Slider from "@mui/material/Slider";
 import TextField from "@mui/material/TextField"; // ✅ Import Input Fields
 
@@ -20,10 +21,18 @@ const SearchModal = () => {
 
     // ✅ Retrieve selected state from URL params (default: "Anywhere")
     const existingState = params?.get("state") || "Anywhere";
+    const existingSuburb = params?.get("suburb") || "";
 
     // ✅ Search Filters State
     const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(
-        existingState !== "Anywhere" ? { value: existingState, label: existingState } : null
+        existingState !== "Anywhere"
+            ? AU_STATES.find((item) => item.value === existingState) || { value: existingState, label: existingState }
+            : null
+    );
+    const [selectedSuburb, setSelectedSuburb] = useState<SuburbOption | null>(
+        existingSuburb
+            ? { value: existingSuburb, label: existingSuburb, state: existingState !== "Anywhere" ? existingState : undefined }
+            : null
     );
 
     const [guestCount, setGuestCount] = useState(0);
@@ -67,7 +76,8 @@ const SearchModal = () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const updatedQuery: any = {
             ...currentQuery,
-            state: selectedState?.value || "Anywhere", // ✅ Allow "Anywhere"
+            state: selectedState?.value || undefined,
+            suburb: selectedSuburb?.value || undefined,
             guestCount,
             sleepCount,
             minPrice: priceRange[0],
@@ -87,12 +97,12 @@ const SearchModal = () => {
                 url: "/",
                 query: updatedQuery,
             },
-            { skipNull: true }
+            { skipNull: true, skipEmptyString: true }
         );
 
         searchModal.onClose();
         router.push(url);
-    }, [searchModal, selectedState, router, guestCount, sleepCount, dateRange, priceRange, params]);
+    }, [searchModal, selectedState, selectedSuburb, router, guestCount, sleepCount, dateRange, priceRange, params]);
 
     return (
         <Modal
@@ -103,21 +113,51 @@ const SearchModal = () => {
             actionLabel="Search"
             body={
                 <div className="flex flex-col gap-10">
-                    {/* ✅ State Selector */}
+                    {/* Optional location filters */}
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-1">
-                            <div className="text-lg font-bold">Select a state <span className="text-base">(Optional)</span></div>
-                            <div className="text-base text-muted font-light">Choose your destination!</div>
+                            <div className="text-lg font-bold">Choose a location <span className="text-base font-normal text-muted">(Optional)</span></div>
+                            <div className="text-base text-muted font-light">Search Australia-wide, or narrow results by state and suburb.</div>
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-ink">State</label>
+                                <StateSelector
+                                    value={selectedState || undefined}
+                                    onChange={(state) => {
+                                        setSelectedState(state);
+                                        if (selectedSuburb?.state && selectedSuburb.state !== state.value) {
+                                            setSelectedSuburb(null);
+                                        }
+                                    }}
+                                    onClear={() => setSelectedState(null)}
+                                />
+                            </div>
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-ink">Suburb</label>
+                                <SuburbSelector
+                                    state={selectedState?.value}
+                                    value={selectedSuburb || undefined}
+                                    onChange={(suburb) => {
+                                        setSelectedSuburb(suburb);
+                                        if (!selectedState && suburb.state) {
+                                            const state = AU_STATES.find((item) => item.value === suburb.state);
+                                            if (state) setSelectedState(state);
+                                        }
+                                    }}
+                                    onClear={() => setSelectedSuburb(null)}
+                                    allowAllStates={!selectedState}
+                                />
+                            </div>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <StateSelector
-                                value={selectedState}
-                                onChange={setSelectedState}
-                                allowAnywhere={true} // ✅ Ensure "Anywhere" is an option
-                            />
                             <div className="text-base text-muted font-light">
                                 Selected Location:{" "}
-                                <span className="font-medium">{selectedState ? selectedState.label : "Anywhere"}</span>
+                                <span className="font-medium">
+                                    {selectedSuburb
+                                        ? `${selectedSuburb.value}${selectedState ? `, ${selectedState.value}` : ""}`
+                                        : selectedState?.label || "Anywhere"}
+                                </span>
                             </div>
                         </div>
                     </div>

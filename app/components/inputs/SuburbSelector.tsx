@@ -16,10 +16,11 @@ interface SuburbSelectorProps {
     state?: string;
     value?: SuburbOption;
     onChange: (value: SuburbOption) => void;
+    onClear?: () => void;
     allowAllStates?: boolean;
 }
 
-const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onChange, allowAllStates = false }) => {
+const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onChange, onClear, allowAllStates = false }) => {
     const [suburbs, setSuburbs] = useState<SuburbOption[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -71,6 +72,8 @@ const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onCh
                 onChange={(selectedOption) => {
                     if (selectedOption) {
                         onChange(selectedOption);
+                    } else {
+                        onClear?.();
                     }
                 }}
                 classNames={selectClassNames}

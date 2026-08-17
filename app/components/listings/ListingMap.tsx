@@ -43,7 +43,60 @@ const ListingMap: React.FC<ListingMapProps> = ({ suburb, state }) => {
         keyboardShortcuts: false,
         clickableIcons: false,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
-        mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || undefined,
+        styles: [
+          {
+            featureType: "all",
+            elementType: "geometry",
+            stylers: [{ saturation: -100 }],
+          },
+          {
+            featureType: "all",
+            elementType: "labels.text.fill",
+            stylers: [{ color: "#4b5557" }],
+          },
+          {
+            featureType: "all",
+            elementType: "labels.text.stroke",
+            stylers: [{ color: "#ffffff" }, { weight: 3 }],
+          },
+          {
+            featureType: "poi",
+            stylers: [{ visibility: "off" }],
+          },
+          {
+            featureType: "transit",
+            stylers: [{ visibility: "off" }],
+          },
+          {
+            featureType: "road",
+            elementType: "labels.icon",
+            stylers: [{ visibility: "off" }],
+          },
+          {
+            featureType: "road.local",
+            elementType: "labels.text",
+            stylers: [{ visibility: "simplified" }],
+          },
+          {
+            featureType: "administrative.land_parcel",
+            stylers: [{ visibility: "off" }],
+          },
+          {
+            featureType: "landscape",
+            elementType: "geometry",
+            stylers: [{ color: "#f4f4f2" }],
+          },
+          {
+            featureType: "road",
+            elementType: "geometry",
+            stylers: [{ color: "#ffffff" }],
+          },
+          {
+            featureType: "water",
+            elementType: "geometry",
+            stylers: [{ color: "#d9ddde" }],
+          },
+        ],
       });
 
       // Show an approximate suburb area without revealing the owner's address.
@@ -52,11 +105,11 @@ const ListingMap: React.FC<ListingMapProps> = ({ suburb, state }) => {
         center,
         radius: 550,
         clickable: false,
-        strokeColor: "#39715A",
+        strokeColor: "#087985",
         strokeOpacity: 0.9,
         strokeWeight: 2,
-        fillColor: "#39715A",
-        fillOpacity: 0.12,
+        fillColor: "#087985",
+        fillOpacity: 0.14,
       });
       setStatus("ready");
     };

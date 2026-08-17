@@ -32,9 +32,9 @@ body::-webkit-scrollbar {
 }
 
 body {
-  /* Network-independent Airbnb-style fallback stack. This keeps Vercel builds
-     deterministic and avoids late web-font swaps that can contribute to CLS. */
-  font-family: Circular, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  /* Manrope is an open-source geometric sans with the friendly proportions
+     wanted for Redrive, self-hosted by next/font after build. */
+  font-family: var(--font-redrive), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   font-synthesis: none;
   text-rendering: optimizeLegibility;

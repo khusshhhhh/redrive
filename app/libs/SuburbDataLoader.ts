@@ -50,7 +50,7 @@ class SuburbDataLoader {
     return response.json();
   }
 
-  getSuburbsByState(state: string): { value: string; label: string; postcode?: number }[] {
+  getSuburbsByState(state: string): { value: string; label: string; postcode?: number; state?: string }[] {
     if (!this.data) {
       return [];
     }
@@ -61,6 +61,7 @@ class SuburbDataLoader {
         value: suburb.suburb,
         label: `${suburb.suburb}, ${suburb.postcode}`,
         postcode: suburb.postcode,
+        state: suburb.state,
       }))
       .sort((a, b) => a.label.localeCompare(b.label));
   }

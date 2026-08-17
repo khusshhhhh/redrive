@@ -17,10 +17,11 @@ export const states = [
 interface StateSelectorProps {
     value?: { value: string; label: string };
     onChange: (value: { value: string; label: string }) => void;
+    onClear?: () => void;
     allowAnywhere?: boolean; // Add this line
 }
 
-const StateSelector: React.FC<StateSelectorProps> = ({ value, onChange }) => {
+const StateSelector: React.FC<StateSelectorProps> = ({ value, onChange, onClear }) => {
     return (
         <div>
             <Select
@@ -32,6 +33,8 @@ const StateSelector: React.FC<StateSelectorProps> = ({ value, onChange }) => {
                 onChange={(selectedOption) => {
                     if (selectedOption) {
                         onChange(selectedOption);
+                    } else {
+                        onClear?.();
                     }
                 }}
                 classNames={selectClassNames}
