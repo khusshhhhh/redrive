@@ -27,6 +27,7 @@ const getCurrentUser = cache(async () => {
       name: currentUser.name,
       email: currentUser.email,
       number: currentUser.number,
+      dateOfBirth: currentUser.dateOfBirth,
       image: currentUser.image,
       createdAt: currentUser.createdAt.toISOString(),
       updatedAt: currentUser.updatedAt.toISOString(),

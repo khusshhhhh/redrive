@@ -3,6 +3,7 @@ import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
 import { notificationService } from "@/app/services/notificationService";
+import { hasSubmittedLicense } from "@/app/libs/licenseVerification";
 
 // ✅ Function to determine service fee based on total price
 const calculateServiceFee = (totalPrice: number): number => {
@@ -20,6 +21,21 @@ export async function POST(request: NextRequest) {
     const currentUser = await getCurrentUserEnhanced(request);
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const renter = await prisma.user.findUnique({
+      where: { id: currentUser.id },
+      select: { licenseImage: true },
+    });
+
+    if (!hasSubmittedLicense(renter?.licenseImage)) {
+      return NextResponse.json(
+        {
+          error: "Upload your driving licence and submit it for verification before requesting a booking.",
+          code: "LICENSE_REQUIRED",
+        },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();

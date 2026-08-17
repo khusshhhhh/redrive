@@ -22,58 +22,46 @@ const ListingMap: React.FC<ListingMapProps> = ({ suburb, state }) => {
     let cancelled = false;
     setStatus("loading");
 
-    loadGoogleMaps()
-      .then((google) => {
-        if (cancelled || !mapRef.current) return;
-        const geocoder = new google.maps.Geocoder();
-        geocoder.geocode(
-          {
-            address: `${suburb}, ${state}, Australia`,
-            componentRestrictions: { country: "AU" },
-          },
-          (results, geocodeStatus) => {
-            if (cancelled || !mapRef.current) return;
-            const result = results?.[0];
-            if (geocodeStatus !== "OK" || !result?.geometry?.location) {
-              setStatus("error");
-              return;
-            }
+    const loadMap = async () => {
+      const params = new URLSearchParams({ suburb, state });
+      const response = await fetch(`/api/suburbs/coordinates?${params}`);
 
-            const map = new google.maps.Map(mapRef.current, {
-              center: result.geometry.location,
-              zoom: 14,
-              disableDefaultUI: true,
-              gestureHandling: "none",
-              keyboardShortcuts: false,
-              clickableIcons: false,
-              mapTypeId: google.maps.MapTypeId.ROADMAP,
-              mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || undefined,
-            });
+      if (!response.ok) {
+        throw new Error("Suburb coordinates are unavailable");
+      }
 
-            if (result.geometry.viewport) {
-              map.fitBounds(result.geometry.viewport, 28);
-              google.maps.event.addListenerOnce(map, "idle", () => {
-                if ((map.getZoom() || 0) < 13) map.setZoom(13);
-                if ((map.getZoom() || 0) > 15) map.setZoom(15);
-              });
-            }
+      const center = (await response.json()) as { lat: number; lng: number };
+      const google = await loadGoogleMaps();
 
-            // Show an approximate suburb area without revealing the owner's address.
-            new google.maps.Circle({
-              map,
-              center: result.geometry.location,
-              radius: 550,
-              clickable: false,
-              strokeColor: "#39715A",
-              strokeOpacity: 0.9,
-              strokeWeight: 2,
-              fillColor: "#39715A",
-              fillOpacity: 0.12,
-            });
-            setStatus("ready");
-          }
-        );
-      })
+      if (cancelled || !mapRef.current) return;
+
+      const map = new google.maps.Map(mapRef.current, {
+        center,
+        zoom: 14,
+        disableDefaultUI: true,
+        gestureHandling: "none",
+        keyboardShortcuts: false,
+        clickableIcons: false,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || undefined,
+      });
+
+      // Show an approximate suburb area without revealing the owner's address.
+      new google.maps.Circle({
+        map,
+        center,
+        radius: 550,
+        clickable: false,
+        strokeColor: "#39715A",
+        strokeOpacity: 0.9,
+        strokeWeight: 2,
+        fillColor: "#39715A",
+        fillOpacity: 0.12,
+      });
+      setStatus("ready");
+    };
+
+    loadMap()
       .catch(() => {
         if (!cancelled) setStatus("error");
       });

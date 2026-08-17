@@ -59,6 +59,9 @@ export default function ConfirmReservation() {
       router.push("/trips");
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Booking request could not be sent");
+      if (error.response?.data?.code === "LICENSE_REQUIRED") {
+        router.push("/profile#verification");
+      }
     } finally { setSubmitting(false); }
   };
 

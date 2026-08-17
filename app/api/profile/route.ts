@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import {
+  isValidAustralianMobile,
+  isValidDateOfBirth,
+  normalizeAustralianMobile,
+} from "@/app/libs/profileValidation";
+import { hasSubmittedLicense } from "@/app/libs/licenseVerification";
 
 export async function PUT(request: Request) {
   try {
@@ -15,6 +21,7 @@ export async function PUT(request: Request) {
     const {
       name,
       number,
+      dateOfBirth,
       streetAddress,
       suburb,
       state,
@@ -26,15 +33,45 @@ export async function PUT(request: Request) {
       licenseImage,
     } = body;
 
-    // Determine if the profile should be verified
-    const profileVerified = licenseImage ? "Y" : undefined;
+    if (number && !isValidAustralianMobile(number)) {
+      return NextResponse.json(
+        { error: "Enter a valid Australian mobile number" },
+        { status: 400 }
+      );
+    }
+
+    if (dateOfBirth && !isValidDateOfBirth(dateOfBirth)) {
+      return NextResponse.json(
+        { error: "Enter a valid date of birth" },
+        { status: 400 }
+      );
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { profileVerified: true, licenseImage: true },
+    });
+
+    const nextLicenseImage = licenseImage ?? existingUser?.licenseImage ?? "";
+    if (nextLicenseImage && !hasSubmittedLicense(nextLicenseImage)) {
+      return NextResponse.json(
+        { error: "Upload the licence image using Redrive's secure uploader" },
+        { status: 400 }
+      );
+    }
+
+    const licenseChanged = nextLicenseImage !== (existingUser?.licenseImage ?? "");
+    const profileVerified = hasSubmittedLicense(nextLicenseImage)
+      ? licenseChanged ? "PENDING" : existingUser?.profileVerified === "Y" ? "Y" : "PENDING"
+      : "N";
 
     // Update the user profile in the database
     const updatedUser = await prisma.user.update({
       where: { email: session.user.email },
       data: {
         name: name ?? "",
-        number: number ?? "",
+        number: number ? normalizeAustralianMobile(number) : "",
+        dateOfBirth: dateOfBirth ?? "",
         streetAddress: streetAddress ?? "",
         suburb: suburb ?? "",
         state: state ?? "",
@@ -44,8 +81,8 @@ export async function PUT(request: Request) {
           ? dreamDestinations
           : [],
         image: image ?? "",
-        profileVerified: profileVerified ?? undefined, // Update only if license uploaded
-        licenseImage: licenseImage ?? "",
+        profileVerified,
+        licenseImage: nextLicenseImage,
         licenseType: licenseType ?? "",
       },
     });

@@ -1,7 +1,9 @@
 import getListings, { IListingsParams } from "./actions/getListings";
 import getCurrentUser from "./actions/getCurrentUser";
+import getFavoriteListings from "./actions/getFavoriteListings";
 import Container from "./components/Container";
 import EmptyState from "./components/EmptyState";
+import FavoriteListings from "./components/FavoriteListings";
 import ListingCard from "./components/listings/ListingCard";
 import RecentlyViewed from "./components/RecentlyViewed";
 
@@ -14,9 +16,10 @@ const Home = async ({ searchParams }: HomeProps) => {
   const resolvedSearchParams = await Promise.resolve(searchParams);
   const params: IListingsParams = resolvedSearchParams ? { ...resolvedSearchParams } : {};
 
-  const [listings, currentUser] = await Promise.all([
+  const [listings, currentUser, favoriteListings] = await Promise.all([
     getListings(params),
     getCurrentUser(),
+    getFavoriteListings(),
   ]);
 
   // Check if any filters are applied
@@ -77,7 +80,15 @@ const Home = async ({ searchParams }: HomeProps) => {
 
           {/* Loaded below the stable results grid so browser-only history cannot
               push the primary content down and create layout shift. */}
-          {!hasFilters && <RecentlyViewed currentUser={currentUser} />}
+          {!hasFilters && (
+            <>
+              <FavoriteListings
+                listings={favoriteListings}
+                currentUser={currentUser}
+              />
+              <RecentlyViewed currentUser={currentUser} />
+            </>
+          )}
         </div>
       </Container>
   );

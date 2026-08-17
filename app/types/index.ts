@@ -23,7 +23,7 @@ export type SafeReservation = Omit<
 
 export type SafeUser = Pick<
   User,
-  | "id" | "name" | "email" | "number" | "image" | "favoriteIds"
+  | "id" | "name" | "email" | "number" | "dateOfBirth" | "image" | "favoriteIds"
   | "streetAddress" | "suburb" | "state" | "postcode" | "hobbies"
   | "dreamDestinations" | "licenseImage" | "licenseType"
   | "profileVerified" | "loginOtpEnabled"

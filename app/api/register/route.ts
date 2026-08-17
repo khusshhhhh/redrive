@@ -7,6 +7,11 @@ import {
   sendVerificationEmail,
   verificationExpiry,
 } from "@/app/libs/emailVerification";
+import {
+  isValidAustralianMobile,
+  isValidDateOfBirth,
+  normalizeAustralianMobile,
+} from "@/app/libs/profileValidation";
 
 export async function POST(request: Request) {
   try {
@@ -32,11 +37,28 @@ export async function POST(request: Request) {
 
     const email = body.email?.trim().toLowerCase();
     const name = body.name?.trim();
+    const number = body.number?.trim();
+    const dateOfBirth = body.dateOfBirth?.trim();
     const { password } = body;
 
-    if (!email || !name || !password) {
+    if (!email || !name || !password || !number || !dateOfBirth ||
+      !body.streetAddress?.trim() || !body.suburb?.trim() || !body.state?.trim()) {
       return NextResponse.json(
-        { error: "All fields are required" },
+        { error: "Complete all required signup details" },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidAustralianMobile(number)) {
+      return NextResponse.json(
+        { error: "Enter a valid Australian mobile number" },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidDateOfBirth(dateOfBirth)) {
+      return NextResponse.json(
+        { error: "Enter a valid date of birth" },
         { status: 400 }
       );
     }
@@ -66,6 +88,18 @@ export async function POST(request: Request) {
     const code = createVerificationCode();
     const verificationData = {
       name,
+      number: normalizeAustralianMobile(number),
+      dateOfBirth,
+      streetAddress: body.streetAddress.trim(),
+      suburb: body.suburb.trim(),
+      state: body.state.trim(),
+      postcode: body.postcode?.toString().trim() || "",
+      hobbies: typeof body.hobbies === "string"
+        ? body.hobbies.split(",").map((item: string) => item.trim()).filter(Boolean)
+        : [],
+      dreamDestinations: typeof body.dreamDestinations === "string"
+        ? body.dreamDestinations.split(",").map((item: string) => item.trim()).filter(Boolean)
+        : [],
       hashedPassword,
       verificationCodeHash: hashVerificationCode(code),
       verificationCodeExpires: verificationExpiry(),

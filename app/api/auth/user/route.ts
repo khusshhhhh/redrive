@@ -26,6 +26,7 @@ export async function GET() {
       name: currentUser.name,
       email: currentUser.email,
       number: currentUser.number,
+      dateOfBirth: currentUser.dateOfBirth,
       image: currentUser.image,
       streetAddress: currentUser.streetAddress,
       suburb: currentUser.suburb,

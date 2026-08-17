@@ -23,6 +23,7 @@ model User {
   loginOtpCodeSentAt DateTime?
   loginOtpAttempts Int @default(0)
   number         String?
+  dateOfBirth    String?
   image          String?
   hashedPassword String?
   createdAt      DateTime  @default(now())

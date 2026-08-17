@@ -5,10 +5,12 @@ import Calendar from '../inputs/Calender';
 import Button from '../Button';
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
 import { useRouter } from 'next/navigation';
-import { SafeListing } from '@/app/types';
-import { Info } from "lucide-react";
+import { SafeListing, SafeUser } from '@/app/types';
+import { Info, ShieldAlert } from "lucide-react";
 import { Card, CardContent } from "../CardContent";
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { hasSubmittedLicense } from '@/app/libs/licenseVerification';
 
 const calculateServiceFee = (totalPrice: number): number => {
     if (totalPrice <= 200) return 10;
@@ -34,6 +36,8 @@ interface ListingReservationProps {
     onSubmit: (insuranceType: string, insuranceFee: number) => void; // ✅ Updated to pass insurance details
     disabled?: boolean;
     disabledDates: Date[];
+    currentUser?: SafeUser | null;
+    onRequireLogin: () => void;
 }
 
 const ListingReservation: React.FC<ListingReservationProps> = ({
@@ -49,6 +53,8 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     setInsuranceType,
     insuranceFee,
     setInsuranceFee,
+    currentUser,
+    onRequireLogin,
 }) => {
     const redriveFee = Math.round(totalPrice * 0.08);
     const serviceFee = calculateServiceFee(totalPrice);
@@ -159,10 +165,25 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
             </div>
             <hr className="border-hairline-soft" />
             <div className="p-4">
+                {currentUser && !hasSubmittedLicense(currentUser.licenseImage) && (
+                    <div className="mb-4 flex gap-3 rounded-sm border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-900">
+                        <ShieldAlert size={18} className="mt-0.5 shrink-0" />
+                        <span><strong>Licence required.</strong> Upload your driving licence from Profile before requesting this vehicle.</span>
+                    </div>
+                )}
                 <Button
                     disabled={disabled}
                     label="Continue"
                     onClick={() => {
+                        if (!currentUser) {
+                            onRequireLogin();
+                            return;
+                        }
+                        if (!hasSubmittedLicense(currentUser.licenseImage)) {
+                            toast.error("Upload your driving licence before booking");
+                            router.push("/profile#verification");
+                            return;
+                        }
                         if (!listing?.id) {
                             console.error("Listing ID is missing!");
                             return;

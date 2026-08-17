@@ -8,6 +8,7 @@ import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
+  CalendarDays,
   Camera,
   Check,
   Heart,
@@ -28,11 +29,14 @@ import SuburbSelector, { type SuburbOption } from "@/app/components/inputs/Subur
 import StateSelector, { states as AU_STATES } from "@/app/components/inputs/StateSelector";
 import Button from "@/app/components/Button";
 import type { SafeUser } from "@/app/types";
+import { isValidAustralianMobile, isValidDateOfBirth } from "@/app/libs/profileValidation";
+import { hasSubmittedLicense } from "@/app/libs/licenseVerification";
 
 interface ProfileFormData {
   name: string;
   email: string;
   number: string;
+  dateOfBirth: string;
   streetAddress: string;
   suburb: string;
   state: string;
@@ -79,6 +83,7 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
       name: initialUser.name || "",
       email: initialUser.email || "",
       number: initialUser.number || "",
+      dateOfBirth: initialUser.dateOfBirth || "",
       streetAddress: initialUser.streetAddress || "",
       suburb: initialUser.suburb || "",
       state: initialUser.state || "",
@@ -113,19 +118,21 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
   const [emailVerified] = useState(Boolean(initialUser.emailVerified));
   const [loginOtpEnabled, setLoginOtpEnabled] = useState(Boolean(initialUser.loginOtpEnabled));
   const [hasPassword] = useState(Boolean(initialUser.hasPassword));
+  const licenseSubmitted = hasSubmittedLicense(licenseImage);
 
   const name = watch("name");
   const email = watch("email");
   const phone = watch("number");
+  const dateOfBirth = watch("dateOfBirth");
   const streetAddress = watch("streetAddress");
   const hobbies = watch("hobbies");
   const newPassword = passwordForm.watch("newPassword");
 
   const completion = useMemo(() => {
-    const complete = [name, email, phone, streetAddress, selectedSuburb?.value, selectedState?.value, hobbies, image !== "/images/placeholder.png", licenseImage]
+    const complete = [name, email, phone, dateOfBirth, streetAddress, selectedSuburb?.value, selectedState?.value, hobbies, image !== "/images/placeholder.png", licenseSubmitted]
       .filter(Boolean).length;
-    return Math.round((complete / 9) * 100);
-  }, [name, email, phone, streetAddress, selectedSuburb, selectedState, hobbies, image, licenseImage]);
+    return Math.round((complete / 10) * 100);
+  }, [name, email, phone, dateOfBirth, streetAddress, selectedSuburb, selectedState, hobbies, image, licenseSubmitted]);
 
   const onAddressSelect = (result: ParsedAddress) => {
     if (result.state) {
@@ -198,8 +205,8 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
       });
       toast.success("Profile saved");
       router.refresh();
-    } catch {
-      toast.error("We couldn’t save your changes");
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "We couldn’t save your changes");
     } finally {
       setIsSaving(false);
     }
@@ -268,7 +275,8 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
               <p className="mt-1 truncate text-sm text-muted">{email}</p>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 {emailVerified && <span className="inline-flex items-center gap-1 rounded-full bg-surface-soft px-3 py-1 text-xs font-medium text-ink"><Check size={12} /> Email verified</span>}
-                {profileVerified === "Y" && <span className="inline-flex items-center gap-1 rounded-full bg-surface-soft px-3 py-1 text-xs font-medium text-ink"><BadgeCheck size={13} /> ID added</span>}
+                {licenseSubmitted && profileVerified === "Y" && <span className="inline-flex items-center gap-1 rounded-full bg-surface-soft px-3 py-1 text-xs font-medium text-ink"><BadgeCheck size={13} /> Licence verified</span>}
+                {licenseSubmitted && profileVerified === "PENDING" && <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800"><ShieldCheck size={13} /> Licence submitted</span>}
               </div>
             </div>
             <nav className="hidden rounded-md border border-hairline-soft bg-white p-2 lg:block">
@@ -283,7 +291,12 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
               <SectionCard id="personal" icon={<UserRound size={19} />} title="Personal details" description="The information hosts and guests use to recognise and contact you.">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Input id="name" label="Full name" register={register} required errors={errors} />
-                  <Input id="number" type="tel" label="Phone number" register={register} errors={errors} />
+                  <Input id="number" type="tel" label="Mobile number" register={register} errors={errors} validate={(value: string) => !value || isValidAustralianMobile(value) || "Enter a valid Australian mobile number"} />
+                  <div className="sm:col-span-2">
+                    <label htmlFor="dateOfBirth" className="mb-2 flex items-center gap-2 text-xs font-semibold text-ink"><CalendarDays size={14} />Date of birth</label>
+                    <input id="dateOfBirth" type="date" max={new Date().toISOString().slice(0, 10)} {...register("dateOfBirth", { validate: (value) => !value || isValidDateOfBirth(value) || "Enter a valid date of birth" })} className={`h-14 w-full rounded-sm border bg-white px-4 text-sm text-ink outline-none focus:ring-1 focus:ring-ink ${errors.dateOfBirth ? "border-error" : "border-hairline focus:border-ink"}`} />
+                    {errors.dateOfBirth && <p className="mt-1 text-xs text-error">{errors.dateOfBirth.message}</p>}
+                  </div>
                   <div className="sm:col-span-2">
                     <Input id="email" type="email" label="Email address" register={register} disabled errors={errors} />
                     <p className="mt-2 text-xs text-muted">Your sign-in email cannot be changed here.</p>
@@ -328,8 +341,10 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
                 </div>
               </SectionCard>
 
-              <SectionCard id="verification" icon={<ShieldCheck size={19} />} title="Identity document" description="Add the licence that applies to the vehicles you plan to drive or host.">
+              <SectionCard id="verification" icon={<ShieldCheck size={19} />} title="Driving licence" description="A licence upload is required before you can request a vehicle booking.">
                 <div className="space-y-4">
+                  {!licenseSubmitted && <div className="rounded-sm border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900"><strong>Booking is currently locked.</strong> Upload your licence to continue to booking review.</div>}
+                  {licenseSubmitted && profileVerified !== "Y" && <div className="rounded-sm border border-hairline-soft bg-surface-soft p-4 text-sm leading-6 text-ink">Your licence is on file and awaiting profile verification. You can now send booking requests.</div>}
                   <select value={licenseType} onChange={(event) => setLicenseType(event.target.value)} className="h-14 w-full rounded-sm border border-hairline bg-white px-4 text-sm text-ink outline-none focus:border-ink focus:ring-1 focus:ring-ink">
                     <option>Driver License</option><option>Boat License</option><option>Other License</option>
                   </select>

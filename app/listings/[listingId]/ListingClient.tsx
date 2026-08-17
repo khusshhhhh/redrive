@@ -203,6 +203,8 @@ const ListingClient: React.FC<ListingClientProps> = ({
                                     setInsuranceType={setInsuranceType} // ✅ Allow user to update it
                                     insuranceFee={insuranceFee} // ✅ Add insurance fee state
                                     setInsuranceFee={setInsuranceFee} // ✅ Allow updates
+                                    currentUser={currentUser}
+                                    onRequireLogin={loginModal.onOpen}
                                 />
                             </div>
                         </div>
