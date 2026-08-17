@@ -16,10 +16,18 @@ const NotificationBell = () => {
     notifications,
     unreadCount,
     loading,
+    error,
+    refresh,
     markAsRead,
     markAllAsRead,
     deleteNotification,
-  } = useNotifications({ autoRefresh: true, refreshInterval: 30000 });
+  } = useNotifications({ autoRefresh: true, refreshInterval: 10000 });
+
+  const toggleNotifications = () => {
+    const nextOpen = !isOpen;
+    setIsOpen(nextOpen);
+    if (nextOpen) void refresh();
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -124,12 +132,14 @@ const NotificationBell = () => {
     <div className="relative" ref={dropdownRef}>
       {/* Bell Icon with Badge */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-ink hover:text-muted transition-colors duration-200"
+        onClick={toggleNotifications}
+        aria-label={unreadCount ? `Notifications, ${unreadCount} unread` : "Notifications"}
+        aria-expanded={isOpen}
+        className="relative rounded-full p-2 text-ink transition hover:bg-surface-soft hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
         <Bell size={24} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+          <span className="notification-badge absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-white ring-2 ring-white" aria-live="polite">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
@@ -137,7 +147,7 @@ const NotificationBell = () => {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-card border border-hairline-soft z-50 max-h-96 overflow-hidden">
+        <div className="notification-panel absolute right-0 z-50 mt-2 w-[min(22rem,calc(100vw-2rem))] max-h-[32rem] overflow-hidden rounded-md border border-hairline-soft bg-white shadow-card">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-hairline-soft">
             <h3 className="font-semibold text-ink">Notifications</h3>
@@ -158,6 +168,13 @@ const NotificationBell = () => {
               <div className="p-4 text-center text-muted">
                 Loading notifications...
               </div>
+            ) : error ? (
+              <div className="p-6 text-center">
+                <Bell size={34} className="mx-auto text-muted" />
+                <p className="mt-3 text-sm font-semibold text-ink">Notifications could not load</p>
+                <p className="mt-1 text-xs leading-5 text-muted">Check your connection, then try again.</p>
+                <button type="button" onClick={() => void refresh()} className="mt-4 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white transition hover:bg-primary-active">Try again</button>
+              </div>
             ) : recentNotifications.length === 0 ? (
               <div className="p-8 text-center text-muted">
                 <Bell size={48} className="mx-auto mb-2 opacity-50" />
@@ -170,7 +187,7 @@ const NotificationBell = () => {
                   <div
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`p-4 hover:bg-surface-soft cursor-pointer transition-colors duration-200 ${
+                    className={`relative cursor-pointer p-4 pl-5 transition-colors duration-200 hover:bg-surface-soft ${
                       !notification.read ? "bg-surface-soft" : ""
                     }`}
                   >

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import { Prisma } from "@prisma/client";
+import { getAdminUser } from "@/app/libs/adminAuth";
 
 // GET - Fetch user's notifications
 export async function GET(request: NextRequest) {
@@ -14,8 +15,8 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const unreadOnly = searchParams.get("unread") === "true";
-    const limit = parseInt(searchParams.get("limit") || "20");
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10) || 20));
+    const offset = Math.max(0, parseInt(searchParams.get("offset") || "0", 10) || 0);
 
     const whereClause: Prisma.NotificationWhereInput = {
       userId: currentUser.id,
@@ -32,36 +33,18 @@ export async function GET(request: NextRequest) {
       { expiresAt: { gte: now } }
     ];
 
-    const notifications = await prisma.notification.findMany({
-      where: whereClause,
-      orderBy: {
-        createdAt: "desc"
-      },
-      take: limit,
-      skip: offset,
-    });
-
-    const totalCount = await prisma.notification.count({
-      where: whereClause,
-    });
-
-    const unreadCount = await prisma.notification.count({
-      where: {
-        userId: currentUser.id,
-        read: false,
-        OR: [
-          { expiresAt: null },
-          { expiresAt: { gte: now } }
-        ]
-      },
-    });
+    const [notifications, totalCount, unreadCount] = await Promise.all([
+      prisma.notification.findMany({ where: whereClause, orderBy: { createdAt: "desc" }, take: limit, skip: offset }),
+      prisma.notification.count({ where: whereClause }),
+      prisma.notification.count({ where: { userId: currentUser.id, read: false, OR: [{ expiresAt: null }, { expiresAt: { gte: now } }] } }),
+    ]);
 
     return NextResponse.json({
       notifications,
       totalCount,
       unreadCount,
       hasMore: totalCount > offset + limit
-    });
+    }, { headers: { "Cache-Control": "private, no-store" } });
 
   } catch (error) {
     console.error("Error fetching notifications:", error);
@@ -75,11 +58,8 @@ export async function GET(request: NextRequest) {
 // POST - Create new notification (for admin/system use)
 export async function POST(request: NextRequest) {
   try {
-    const currentUser = await getCurrentUser();
-
-    if (!currentUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const currentUser = await getAdminUser();
+    if (!currentUser) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const body = await request.json();
     const { 

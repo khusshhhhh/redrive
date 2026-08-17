@@ -18,6 +18,7 @@ interface ListingCardProps {
     currentUser?: SafeUser | null;
     showEditButton?: boolean;
     priority?: boolean;
+    compact?: boolean;
 }
 
 const ListingCard: React.FC<ListingCardProps> = memo(({
@@ -30,6 +31,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
     currentUser,
     showEditButton = false,
     priority = false,
+    compact = false,
 }) => {
     const router = useRouter();
     const [imageLoaded, setImageLoaded] = useState(false);
@@ -73,7 +75,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
             className="col-span-1 cursor-pointer group"
         >
             <div className="flex flex-col gap-2 w-full">
-                <div className="aspect-square w-full relative overflow-hidden rounded-md shadow-none group-hover:shadow-card transition-shadow">
+                <div className={`${compact ? "aspect-[4/3]" : "aspect-square"} w-full relative overflow-hidden rounded-md shadow-none group-hover:shadow-card transition-shadow`}>
                     {!imageLoaded && <div className="absolute inset-0 shimmer" />}
                     <Image
                         fill
@@ -94,7 +96,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                         <HeartButton listingId={data.id} currentUser={currentUser} />
                     </div>
                 </div>
-                <div className="font-semibold text-title-md text-ink">{data.title}</div>
+                <div className={`${compact ? "line-clamp-2 text-sm leading-5" : "text-title-md"} font-semibold text-ink`}>{data.title}</div>
                 <div className="font-normal text-muted text-body-sm">
                     {reservationDate || data.category} | {data.suburb}, {data.state}
                 </div>

@@ -67,7 +67,11 @@ export async function POST(request: NextRequest) {
       return created;
     });
 
-    void notificationService.notifyBookingRequest(listing.userId, currentUser.name || "Someone", listing.title, reservation.id).catch((error) => console.error("Booking notification failed", error));
+    try {
+      await notificationService.notifyBookingRequest(listing.userId, currentUser.name || "Someone", listing.title, reservation.id);
+    } catch (notificationError) {
+      console.error("Booking notification failed", notificationError);
+    }
     await writeAuditEvent({ request, actorUserId: currentUser.id, action: "RESERVATION_CREATED", targetType: "Reservation", targetId: reservation.id, metadata: { listingId, total: quote.total } });
     return NextResponse.json(reservation, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {

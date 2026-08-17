@@ -215,11 +215,13 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
   const updateLoginOtp = async () => {
     const next = !loginOtpEnabled;
     setIsUpdatingOtp(true);
+    setLoginOtpEnabled(next);
     try {
       await axios.patch("/api/profile/security", { loginOtpEnabled: next });
-      setLoginOtpEnabled(next);
+      window.dispatchEvent(new Event("redrive:notifications"));
       toast.success(next ? "Login verification enabled" : "Login verification disabled");
     } catch (error: any) {
+      setLoginOtpEnabled(!next);
       toast.error(error.response?.data?.error || "Security setting could not be changed");
     } finally {
       setIsUpdatingOtp(false);
@@ -233,6 +235,7 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
       });
+      window.dispatchEvent(new Event("redrive:notifications"));
       passwordForm.reset();
       setShowPasswordForm(false);
       toast.success("Password updated");
@@ -360,9 +363,18 @@ export default function ProfileClient({ initialUser }: { initialUser: SafeUser &
                 <div className="flex items-start justify-between gap-5 p-5">
                   <div className="flex gap-3">
                     <div className="mt-0.5 text-primary"><KeyRound size={19} /></div>
-                    <div><h3 className="text-sm font-semibold text-ink">Email code at login</h3><p className="mt-1 max-w-md text-xs leading-5 text-muted">{hasPassword ? "After your password is accepted, we’ll email a one-time code before opening your account." : "Google sign-in uses your Google account security, so this setting applies only to password accounts."}</p></div>
+                    <div><h3 className="text-sm font-semibold text-ink">Email code at login</h3><p id="login-verification-description" className="mt-1 max-w-md text-xs leading-5 text-muted">{hasPassword ? "After your password is accepted, we’ll email a one-time code before opening your account." : "Google sign-in uses your Google account security, so this setting applies only to password accounts."}</p></div>
                   </div>
-                  <button type="button" role="switch" aria-checked={loginOtpEnabled} aria-label="Email code at login" disabled={isUpdatingOtp || !hasPassword} onClick={updateLoginOtp} className={`relative mt-1 h-7 w-12 shrink-0 rounded-full transition ${loginOtpEnabled ? "bg-ink" : "bg-hairline"} disabled:cursor-not-allowed disabled:opacity-50`}><span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${loginOtpEnabled ? "translate-x-6" : "translate-x-1"}`} /></button>
+                  <div className="flex shrink-0 flex-col items-end gap-1.5">
+                    <button type="button" role="switch" aria-checked={loginOtpEnabled} aria-describedby="login-verification-description login-verification-status" disabled={isUpdatingOtp || !hasPassword} onClick={updateLoginOtp} className={`group relative h-9 w-[4.25rem] overflow-hidden rounded-full border p-1 transition-all duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${loginOtpEnabled ? "border-primary bg-primary shadow-[0_0_0_4px_rgba(8,121,133,0.10)]" : "border-hairline bg-surface-strong"} disabled:cursor-not-allowed disabled:opacity-50`}>
+                      <span aria-hidden="true" className={`absolute inset-y-0 text-[9px] font-bold uppercase tracking-wide transition-opacity duration-200 ${loginOtpEnabled ? "left-2.5 flex items-center text-white opacity-100" : "opacity-0"}`}>On</span>
+                      <span aria-hidden="true" className={`absolute inset-y-0 right-2 flex items-center text-[9px] font-bold uppercase tracking-wide text-muted transition-opacity duration-200 ${loginOtpEnabled ? "opacity-0" : "opacity-100"}`}>Off</span>
+                      <span className={`relative flex h-7 w-7 items-center justify-center rounded-full bg-white text-primary shadow-sm transition-all duration-300 ease-[cubic-bezier(.2,.8,.2,1)] ${loginOtpEnabled ? "translate-x-8 rotate-0" : "translate-x-0 -rotate-12"}`}>
+                        {isUpdatingOtp ? <span className="loader-orbit h-3.5 w-3.5 rounded-full border-2 border-hairline border-t-primary" /> : loginOtpEnabled ? <Check size={15} strokeWidth={3} /> : <X size={14} />}
+                      </span>
+                    </button>
+                    <span id="login-verification-status" role="status" aria-live="polite" className={`text-[11px] font-semibold transition-colors ${loginOtpEnabled ? "text-primary" : "text-muted"}`}>{isUpdatingOtp ? "Saving…" : loginOtpEnabled ? "Verification on" : "Verification off"}</span>
+                  </div>
                 </div>
 
                 <div className="p-5">

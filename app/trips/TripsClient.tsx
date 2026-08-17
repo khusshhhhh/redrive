@@ -43,7 +43,7 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
         <Container>
           <div className="py-6 sm:py-10">
             <Heading title="Bookings" subtitle="Your booked trips and history!" />
-            <div className="mt-8 grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div className="mt-8 grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                 {reservations.map((reservation) => {
                     const today = new Date();
                     const reservationStartDate = new Date(reservation.startDate);
@@ -74,6 +74,7 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
                             disabled={deletingId === reservation.id || !canCancel}
                             actionLabel={canReview ? "Review Booking" : canCancel ? "Cancel Booking" : "Cannot Cancel"}
                             currentUser={currentUser}
+                            compact
                         />
                     );
                 })}

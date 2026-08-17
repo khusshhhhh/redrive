@@ -200,7 +200,7 @@ class NotificationService {
       title: "New Message",
       message: `${senderName}: ${messagePreview.substring(0, 50)}${messagePreview.length > 50 ? '...' : ''}`,
       data: { senderName, chatId, messagePreview },
-      actionUrl: `/messages?chat=${chatId}`,
+      actionUrl: `/messages/${chatId}`,
     });
   }
 

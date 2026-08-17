@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import { SafeNotification } from "@/app/types";
 import { toast } from "react-hot-toast";
@@ -32,6 +32,7 @@ export const useNotifications = ({
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasLoadedRef = useRef(false);
 
   // Fetch notifications
   const fetchNotifications = useCallback(async (
@@ -41,7 +42,7 @@ export const useNotifications = ({
     append = false
   ) => {
     try {
-      setLoading(true);
+      if (!hasLoadedRef.current) setLoading(true);
       setError(null);
 
       const params = new URLSearchParams({
@@ -65,6 +66,7 @@ export const useNotifications = ({
       setUnreadCount(data.unreadCount);
       setTotalCount(data.totalCount);
       setHasMore(data.hasMore);
+      hasLoadedRef.current = true;
     } catch (error) {
       console.error("Error fetching notifications:", error);
       setError(getErrorMessage(error, "Failed to fetch notifications"));
@@ -237,6 +239,25 @@ export const useNotifications = ({
 
     return () => clearInterval(interval);
   }, [autoRefresh, refreshInterval, fetchNotifications]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") void fetchNotifications();
+    };
+    window.addEventListener("focus", refreshWhenVisible);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    return () => {
+      window.removeEventListener("focus", refreshWhenVisible);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
+  }, [autoRefresh, fetchNotifications]);
+
+  useEffect(() => {
+    const refreshFromAppEvent = () => void fetchNotifications();
+    window.addEventListener("redrive:notifications", refreshFromAppEvent);
+    return () => window.removeEventListener("redrive:notifications", refreshFromAppEvent);
+  }, [fetchNotifications]);
 
   return {
     notifications,

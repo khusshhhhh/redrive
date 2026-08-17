@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getAdminUser } from "@/app/libs/adminAuth";
 import { writeAuditEvent } from "@/app/libs/security";
+import { notificationService } from "@/app/services/notificationService";
 
 export async function PATCH(request: Request, context: { params: Promise<{ userId: string }> }) {
   const admin = await getAdminUser();
@@ -16,5 +17,6 @@ export async function PATCH(request: Request, context: { params: Promise<{ userI
     select: { id: true, licenseStatus: true, profileVerified: true, licenseExpiresAt: true },
   });
   await writeAuditEvent({ request, actorUserId: admin.id, action: `LICENCE_${status}`, targetType: "User", targetId: userId, reason: body.reason });
+  await notificationService.notifyProfileVerified(userId, status === "VERIFIED" ? "Y" : status).catch((error) => console.error("Licence notification failed", error));
   return NextResponse.json(user);
 }

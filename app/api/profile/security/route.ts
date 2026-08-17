@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import bcrypt from "bcryptjs";
 import prisma from "@/app/libs/prismadb";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { notificationService } from "@/app/services/notificationService";
+import { writeAuditEvent } from "@/app/libs/security";
 
 const passwordIsStrong = (password: string) =>
   password.length >= 8 &&
@@ -47,6 +49,16 @@ export async function PATCH(request: Request) {
     },
   });
 
+  await Promise.all([
+    notificationService.notifySecurityAlert(
+      user.id,
+      loginOtpEnabled ? "Login verification enabled" : "Login verification disabled",
+      loginOtpEnabled ? "A one-time email code is now required after your password." : "Your account no longer requires an email code after your password.",
+      "/profile#security",
+    ),
+    writeAuditEvent({ request, actorUserId: user.id, action: loginOtpEnabled ? "LOGIN_OTP_ENABLED" : "LOGIN_OTP_DISABLED", targetType: "User", targetId: user.id }),
+  ]).catch((error) => console.error("Security setting notification failed", error));
+
   return NextResponse.json({ loginOtpEnabled });
 }
 
@@ -73,8 +85,13 @@ export async function PUT(request: Request) {
 
   await prisma.user.update({
     where: { id: user.id },
-    data: { hashedPassword: await bcrypt.hash(newPassword, 12) },
+    data: { hashedPassword: await bcrypt.hash(newPassword, 12), passwordChangedAt: new Date() },
   });
+
+  await Promise.all([
+    notificationService.notifySecurityAlert(user.id, "Password changed", "Your Redrive password was changed. If this was not you, reset it immediately.", "/profile#security"),
+    writeAuditEvent({ request, actorUserId: user.id, action: "PASSWORD_CHANGED", targetType: "User", targetId: user.id }),
+  ]).catch((error) => console.error("Password-change notification failed", error));
 
   return NextResponse.json({ changed: true });
 }
