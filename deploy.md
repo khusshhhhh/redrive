@@ -131,6 +131,7 @@ Set all of these in **Vercel → Project → Settings → Environment Variables*
 | `DATABASE_URL` | MongoDB Atlas connection string | Server |
 | `NEXTAUTH_SECRET` | `openssl rand -base64 32` | Server |
 | `NEXTAUTH_URL` | Your deployed URL | Server |
+| `ADMIN_EMAILS` | Comma-separated emails authorised for `/admin` | Server |
 | `GOOGLE_CLIENT_ID` | Google Cloud Console OAuth client | Server |
 | `GOOGLE_CLIENT_SECRET` | Google Cloud Console OAuth client | Server |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Google Cloud Console API key | Client |
@@ -167,6 +168,7 @@ Run through this after every deploy that touches env vars or auth:
 
 - [ ] Homepage loads and shows listings (confirms `DATABASE_URL` is correct and `prisma db push` ran).
 - [ ] Register a new account with email/password, then log out and log back in (confirms `NEXTAUTH_SECRET`/Credentials provider).
+- [ ] Add an existing account email to `ADMIN_EMAILS`, sign in at `/admin/login`, and confirm an unlisted account cannot access `/admin`.
 - [ ] Click "Sign in with Google" and complete the flow (confirms `GOOGLE_CLIENT_ID`/`SECRET` and the redirect URI match).
 - [ ] Open a listing detail page and confirm the map renders (confirms `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` and its HTTP-referrer restriction allow your domain).
 - [ ] Start "Add your items" and upload an image (confirms `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` and the `redrive` unsigned preset exist).
@@ -186,11 +188,30 @@ Run through this after every deploy that touches env vars or auth:
 | Cron job shows `401` in Vercel's Cron Jobs log | `CRON_SECRET` isn't set (or doesn't match) in the deployed environment. |
 | Two users can register with the same email, or duplicate rego numbers get accepted | `npx prisma db push` was never run against this database — the unique indexes don't exist yet. |
 | Address autocomplete shows no dropdown, or server logs show `Google Places autocomplete error` | `GOOGLE_PLACES_API_KEY` is missing/invalid, "Places API" isn't enabled on that key's project, or billing isn't enabled on the Google Cloud project (Places API requires a billing account even within the free monthly credit). |
+| `/admin` redirects to the admin login after valid credentials | The signed-in email is not in `ADMIN_EMAILS` and the database account does not have `role: "ADMIN"`. |
 | Picking an address suggestion fills the street address but not State/Suburb | Google's returned locality name doesn't match an entry in the app's static suburb list (`app/libs/SuburbDataLoader.ts`) closely enough — the State always fills since it's just the AU state code; re-pick the suburb manually from the dropdown in that case. |
 
 ---
 
-## 10. Real-time chat feature — how to run it
+## 10. Admin dashboard (`ADMIN_EMAILS`)
+
+The protected operations dashboard is available at:
+
+```text
+https://<your-production-domain>/admin/login
+```
+
+It uses Redrive's existing email/password authentication, including the optional email OTP. To grant access:
+
+1. Create and verify a normal Redrive password account.
+2. Add its email to the server-only `ADMIN_EMAILS` environment variable. Separate multiple administrators with commas, for example `owner@example.com,ops@example.com`.
+3. Redeploy after changing a Vercel environment variable, then visit `/admin/login` and sign in with that account.
+
+As a database-managed alternative, set the user's `role` field to `ADMIN`. All other users retain the default `USER` role. Never put an administrator password in an environment variable or source file. The dashboard is marked `noindex`, and every protected admin page checks authorisation on the server before querying analytics.
+
+---
+
+## 11. Real-time chat feature — how to run it
 
 The messaging system (`app/messages/*`, `app/api/chats/*`) was rebuilt to be real-time: live message delivery, typing indicators, read receipts, and online/last-seen presence. **No new environment variables or third-party accounts are needed** — it's built entirely on Server-Sent Events (SSE) backed by MongoDB, streamed through your existing Next.js API routes.
 
@@ -224,7 +245,7 @@ If a message doesn't arrive live but appears after a manual page refresh, check 
 
 ---
 
-## 11. Candidate application colour schemes
+## 12. Candidate application colour schemes
 
 Coast and Country is the active application palette. The remaining schemes are retained as future alternatives. Each palette keeps a light marketplace interface and provides a primary action colour, hover colour, dark text, soft surface and subtle border.
 

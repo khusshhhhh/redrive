@@ -41,6 +41,7 @@ model User {
   licenseImage   String?  // ✅ Stores uploaded license image
   licenseType    String?  // ✅ Stores selected license type
   profileVerified   String?   @default("N")
+  role              String?   @default("USER") // USER or ADMIN; nullable for existing MongoDB records
 
   accounts     Account[]
   listings     Listing[]

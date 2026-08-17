@@ -1,0 +1,63 @@
+import { Activity, BadgeCheck, CalendarDays, CarFront, CircleDollarSign, Clock3, Heart, MessageSquareText, ShieldCheck, Star, TrendingDown, TrendingUp, Users } from "lucide-react";
+import { redirect } from "next/navigation";
+
+import { RankingBars, StatusDonut, TrendChart } from "@/app/admin/components/AdminCharts";
+import RefreshDashboard from "@/app/admin/components/RefreshDashboard";
+import { getAdminDashboardData } from "@/app/libs/adminData";
+import { getAdminUser } from "@/app/libs/adminAuth";
+
+export const dynamic = "force-dynamic";
+
+const money = (value: number) => new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD", maximumFractionDigits: 0 }).format(value);
+const date = (value: Date | string) => new Intl.DateTimeFormat("en-AU", { day: "numeric", month: "short", year: "numeric" }).format(new Date(value));
+const initials = (name?: string | null, email?: string | null) => (name || email || "U").split(/\s|@/).filter(Boolean).slice(0, 2).map((value) => value[0].toUpperCase()).join("");
+
+export default async function AdminDashboardPage() {
+  if (!await getAdminUser()) redirect("/admin/login");
+  const data = await getAdminDashboardData();
+  const m = data.metrics;
+  return <main className="px-4 py-7 sm:px-6 lg:px-9 lg:py-9">
+    <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs font-semibold uppercase tracking-[.17em] text-primary">Live marketplace data</p><h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Operations overview</h1><p className="mt-2 text-sm text-muted">Users, supply, bookings, revenue, trust and marketplace activity in one place.</p></div><div className="flex items-center gap-3"><span className="hidden text-xs text-muted sm:block">Updated {new Date(data.generatedAt).toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" })}</span><RefreshDashboard /></div></header>
+
+    <section className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <MetricCard label="Registered users" value={m.totalUsers.toLocaleString()} detail={`${m.newUsersCurrent} joined in 30 days`} icon={<Users size={19}/>} trend={m.userGrowth} />
+      <MetricCard label="Live listings" value={m.totalListings.toLocaleString()} detail={`${data.states.length} states represented`} icon={<CarFront size={19}/>} />
+      <MetricCard label="Total bookings" value={m.totalBookings.toLocaleString()} detail={`${m.approvalRate}% approved or completed`} icon={<CalendarDays size={19}/>} />
+      <MetricCard label="Gross booking value" value={money(m.grossBookingValue)} detail={`${money(m.averageBookingValue)} average booking`} icon={<CircleDollarSign size={19}/>} />
+    </section>
+
+    <section className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-8">
+      <MiniMetric label="Platform revenue" value={money(m.platformRevenue)} icon={<TrendingUp size={16}/>} />
+      <MiniMetric label="Active users · 30d" value={m.activeUsers.toLocaleString()} icon={<Activity size={16}/>} />
+      <MiniMetric label="Verified profiles" value={m.verifiedProfiles.toLocaleString()} icon={<BadgeCheck size={16}/>} />
+      <MiniMetric label="Licences uploaded" value={m.licencesUploaded.toLocaleString()} icon={<ShieldCheck size={16}/>} />
+      <MiniMetric label="Average rating" value={`${m.averageRating || "—"} / 5`} icon={<Star size={16}/>} />
+      <MiniMetric label="Average trip" value={`${m.averageTripDays || "—"} days`} icon={<Clock3 size={16}/>} />
+      <MiniMetric label="Saved vehicles" value={m.savedVehicles.toLocaleString()} icon={<Heart size={16}/>} />
+      <MiniMetric label="Messages" value={m.totalMessages.toLocaleString()} icon={<MessageSquareText size={16}/>} />
+    </section>
+
+    <div id="analytics" className="scroll-mt-28 pt-7"><div className="grid gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,.7fr)]"><TrendChart monthly={data.monthly}/><StatusDonut statuses={data.statuses} total={m.totalBookings}/></div><div className="mt-5 grid gap-5 md:grid-cols-2"><RankingBars eyebrow="Vehicle supply" title="Listings by category" rows={data.categories}/><RankingBars eyebrow="Geographic coverage" title="Listings by state" rows={data.states}/></div></div>
+
+    <section className="mt-7 grid gap-5 xl:grid-cols-[1.15fr_.85fr]">
+      <Panel id="bookings" eyebrow="Booking operations" title="Recent reservations" count={`${m.totalBookings} total`}><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left"><thead><tr className="border-b border-hairline-soft text-[11px] uppercase tracking-wide text-muted"><Th>Guest and vehicle</Th><Th>Trip dates</Th><Th>Status</Th><Th align="right">Booking value</Th></tr></thead><tbody>{data.recentBookings.map((booking) => <tr key={booking.id} className="border-b border-hairline-soft/70 last:border-0"><Td><p className="font-semibold text-ink">{booking.user.name || booking.user.email || "Guest"}</p><p className="mt-1 max-w-[230px] truncate text-xs text-muted">{booking.listing.title} · {booking.listing.state}</p></Td><Td><p>{date(booking.startDate)}</p><p className="mt-1 text-xs text-muted">to {date(booking.endDate)}</p></Td><Td><Status value={booking.status}/></Td><Td align="right"><p className="font-semibold text-ink">{money(booking.totalFees)}</p><p className="mt-1 text-xs text-muted">Hire {money(booking.totalPrice)}</p></Td></tr>)}</tbody></table></div></Panel>
+      <Panel eyebrow="Performance" title="Most booked vehicles" count="All time"><div className="space-y-1">{data.topListings.map((listing, index) => <div key={listing.id} className="flex items-center gap-4 rounded-xl px-2 py-3 hover:bg-surface-soft/60"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-soft text-sm font-semibold text-primary">{index + 1}</span><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-ink">{listing.title}</p><p className="mt-1 text-xs text-muted">{listing.state} · {money(listing.price)}/day</p></div><div className="text-right"><p className="text-sm font-semibold text-ink">{listing._count.reservations} trips</p><p className="mt-1 text-xs text-muted">{listing.averageRating ? `★ ${listing.averageRating}` : "No ratings"}</p></div></div>)}</div></Panel>
+    </section>
+
+    <section className="mt-5 grid gap-5 xl:grid-cols-2">
+      <Panel id="listings" eyebrow="Supply" title="Newest listings" count={`${m.totalListings} total`}><div className="overflow-x-auto"><table className="w-full min-w-[620px] text-left"><thead><tr className="border-b border-hairline-soft text-[11px] uppercase tracking-wide text-muted"><Th>Vehicle</Th><Th>Location</Th><Th>Activity</Th><Th align="right">Rate</Th></tr></thead><tbody>{data.recentListings.map((listing) => <tr key={listing.id} className="border-b border-hairline-soft/70 last:border-0"><Td><p className="max-w-[210px] truncate font-semibold text-ink">{listing.title}</p><p className="mt-1 text-xs text-muted">{listing.category} · {listing.user.name || listing.user.email}</p></Td><Td>{listing.suburb}, {listing.state}</Td><Td><span className="text-xs text-muted">{listing._count.reservations} bookings · {listing._count.reviews} reviews</span></Td><Td align="right"><strong className="text-ink">{money(listing.price)}</strong><span className="text-xs text-muted"> / day</span></Td></tr>)}</tbody></table></div></Panel>
+      <Panel id="users" eyebrow="Community" title="Newest users" count={`${m.totalUsers} total`}><div className="overflow-x-auto"><table className="w-full min-w-[620px] text-left"><thead><tr className="border-b border-hairline-soft text-[11px] uppercase tracking-wide text-muted"><Th>Account</Th><Th>Joined</Th><Th>Readiness</Th><Th>Access</Th></tr></thead><tbody>{data.recentUsers.map((user) => <tr key={user.id} className="border-b border-hairline-soft/70 last:border-0"><Td><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-soft text-xs font-semibold text-primary">{initials(user.name, user.email)}</span><div><p className="font-semibold text-ink">{user.name || "Unnamed user"}</p><p className="mt-1 text-xs text-muted">{user.email || "No email"}</p></div></div></Td><Td>{date(user.createdAt)}</Td><Td><div className="flex flex-wrap gap-1.5">{user.emailVerified && <Tag>Email</Tag>}{user.licenseImage && <Tag>Licence</Tag>}{user.profileVerified === "Y" && <Tag>Verified</Tag>}{!user.emailVerified && !user.licenseImage && user.profileVerified !== "Y" && <span className="text-xs text-muted">Incomplete</span>}</div></Td><Td><span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${user.role === "ADMIN" ? "bg-ink text-white" : "bg-surface-soft text-body"}`}>{user.role || "USER"}</span></Td></tr>)}</tbody></table></div></Panel>
+    </section>
+
+    <section className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Insight label="Booking approval" value={`${m.approvalRate}%`} copy="Share of reservations approved or completed."/><Insight label="Profile verification" value={`${m.totalUsers ? Math.round(m.verifiedProfiles/m.totalUsers*100) : 0}%`} copy="Users whose profiles are marked verified."/><Insight label="Licence readiness" value={`${m.totalUsers ? Math.round(m.licencesUploaded/m.totalUsers*100) : 0}%`} copy="Users with a driving licence uploaded."/><Insight label="Protection fees" value={money(m.protectionFees)} copy="Protection selections recorded across bookings."/></section>
+  </main>;
+}
+
+function MetricCard({ label, value, detail, icon, trend }: { label: string; value: string; detail: string; icon: React.ReactNode; trend?: number }) { return <article className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm"><div className="flex items-start justify-between"><span className="text-sm font-medium text-muted">{label}</span><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-soft text-primary">{icon}</span></div><strong className="mt-5 block text-2xl font-semibold tracking-tight text-ink">{value}</strong><p className="mt-2 flex items-center gap-1 text-xs text-muted">{trend !== undefined && (trend >= 0 ? <TrendingUp size={13} className="text-secondary"/> : <TrendingDown size={13} className="text-red-500"/>)}{detail}{trend !== undefined && ` · ${trend >= 0 ? "+" : ""}${trend}%`}</p></article>; }
+function MiniMetric({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) { return <article className="rounded-xl border border-black/5 bg-white p-4"><span className="text-primary">{icon}</span><strong className="mt-3 block text-lg text-ink">{value}</strong><span className="mt-1 block text-[11px] leading-4 text-muted">{label}</span></article>; }
+function Panel({ id, eyebrow, title, count, children }: { id?: string; eyebrow: string; title: string; count: string; children: React.ReactNode }) { return <section id={id} className="scroll-mt-28 rounded-2xl border border-black/5 bg-white p-5 shadow-sm sm:p-6"><div className="mb-5 flex items-end justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">{eyebrow}</p><h2 className="mt-1 text-lg font-semibold text-ink">{title}</h2></div><span className="text-xs text-muted">{count}</span></div>{children}</section>; }
+function Th({ children, align = "left" }: { children: React.ReactNode; align?: "left" | "right" }) { return <th className={`px-3 py-3 font-semibold ${align === "right" ? "text-right" : ""}`}>{children}</th>; }
+function Td({ children, align = "left" }: { children: React.ReactNode; align?: "left" | "right" }) { return <td className={`px-3 py-4 text-sm text-body ${align === "right" ? "text-right" : ""}`}>{children}</td>; }
+function Status({ value }: { value: string }) { const status = value.toUpperCase(); const tone = status === "APPROVED" || status === "COMPLETED" ? "bg-emerald-50 text-emerald-700" : status === "DECLINED" || status === "CANCELLED" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"; return <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${tone}`}>{status.toLowerCase().replace(/^./, (letter) => letter.toUpperCase())}</span>; }
+function Tag({ children }: { children: React.ReactNode }) { return <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700">{children}</span>; }
+function Insight({ label, value, copy }: { label: string; value: string; copy: string }) { return <article className="rounded-xl bg-ink p-5 text-white"><span className="text-xs font-medium text-white/55">{label}</span><strong className="mt-2 block text-2xl">{value}</strong><p className="mt-3 text-xs leading-5 text-white/55">{copy}</p></article>; }
