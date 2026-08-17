@@ -173,7 +173,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ currentUser }) => {
                 className="p-3 text-center bg-surface-soft hover:bg-surface-strong rounded-md transition-colors group"
               >
                 <div className="w-12 h-12 rounded-md mx-auto mb-2 flex items-center justify-center bg-white border border-hairline group-hover:border-ink transition-colors">
-                  <Icon className="w-6 h-6 text-ink" />
+                  <Icon className={`h-6 w-6 ${action.id === "favorites" ? "text-favorite" : "text-ink"}`} />
                 </div>
                 <h4 className="font-medium text-sm text-ink mb-1">{action.label}</h4>
                 <p className="text-xs text-muted leading-tight">{action.description}</p>

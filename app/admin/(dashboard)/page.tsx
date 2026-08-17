@@ -33,7 +33,7 @@ export default async function AdminDashboardPage() {
       <MiniMetric label="Licences uploaded" value={m.licencesUploaded.toLocaleString()} icon={<ShieldCheck size={16}/>} />
       <MiniMetric label="Average rating" value={`${m.averageRating || "—"} / 5`} icon={<Star size={16}/>} />
       <MiniMetric label="Average trip" value={`${m.averageTripDays || "—"} days`} icon={<Clock3 size={16}/>} />
-      <MiniMetric label="Saved vehicles" value={m.savedVehicles.toLocaleString()} icon={<Heart size={16}/>} />
+      <MiniMetric label="Saved vehicles" value={m.savedVehicles.toLocaleString()} icon={<Heart size={16} className="text-favorite"/>} />
       <MiniMetric label="Messages" value={m.totalMessages.toLocaleString()} icon={<MessageSquareText size={16}/>} />
     </section>
 

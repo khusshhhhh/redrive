@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
 import prisma from "@/app/libs/prismadb";
 import { NextResponse } from "next/server";
 import {
@@ -12,6 +13,27 @@ import {
   isValidDateOfBirth,
   normalizeAustralianMobile,
 } from "@/app/libs/profileValidation";
+
+const duplicateEmailResponse = (emailVerified = false) => NextResponse.json(
+  {
+    code: "EMAIL_ALREADY_REGISTERED",
+    error: emailVerified
+      ? "This email is already connected to a Redrive account. Sign in instead."
+      : "A Redrive signup has already been started with this email. Sign in or finish verifying that account.",
+    emailVerified,
+  },
+  { status: 409 }
+);
+
+export async function GET(request: Request) {
+  const email = new URL(request.url).searchParams.get("email")?.trim().toLowerCase();
+  if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+    return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
+  }
+
+  const user = await prisma.user.findUnique({ where: { email }, select: { emailVerified: true } });
+  return NextResponse.json({ exists: !!user, emailVerified: !!user?.emailVerified });
+}
 
 export async function POST(request: Request) {
   try {
@@ -65,12 +87,7 @@ export async function POST(request: Request) {
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
 
-    if (existingUser?.emailVerified) {
-      return NextResponse.json(
-        { error: "An account with this email already exists" },
-        { status: 409 }
-      );
-    }
+    if (existingUser) return duplicateEmailResponse(!!existingUser.emailVerified);
 
     const passwordIsStrong = password.length >= 8 &&
       /[A-Z]/.test(password) &&
@@ -108,9 +125,7 @@ export async function POST(request: Request) {
       verificationRequired: true,
     };
 
-    const user = existingUser
-      ? await prisma.user.update({ where: { email }, data: verificationData })
-      : await prisma.user.create({ data: { email, ...verificationData } });
+    const user = await prisma.user.create({ data: { email, ...verificationData } });
 
     const delivery = await sendVerificationEmail(email, code);
 
@@ -123,6 +138,9 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return duplicateEmailResponse();
+    }
     console.error("❌ Error registering user:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unable to create account" },

@@ -121,7 +121,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
                 <MenuItem onClick={() => { rentModal.onOpen(); closeMenu(); }} label="List your car" icon={<IconFilePlus size={18} className="text-ink" />} />
                 <MenuItem onClick={() => { router.push("/trips"); closeMenu(); }} label="Bookings" icon={<IconLocationCheck size={18} className="text-ink" />} />
                 <MenuItem onClick={() => { router.push("/reservations"); closeMenu(); }} label="Reservations" icon={<IconCalendar size={18} className="text-ink" />} />
-                <MenuItem onClick={() => { router.push("/favorites"); closeMenu(); }} label="Favourites" icon={<IconHearts size={18} className="text-ink" />} />
+                <MenuItem onClick={() => { router.push("/favorites"); closeMenu(); }} label="Favourites" icon={<IconHearts size={18} className="text-favorite" />} />
                 <MenuItem onClick={() => { router.push("/properties"); closeMenu(); }} label="My Utilities" icon={<IconBrandDatabricks size={18} className="text-ink" />} />
                 <MenuItem onClick={() => { router.push("/messages"); closeMenu(); }} label="Messages" icon={<IconMessage size={18} className="text-ink" />} />
                 <hr className="border-hairline-soft" />

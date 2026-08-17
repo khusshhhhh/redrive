@@ -64,6 +64,7 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
             <li><Link href="/about" className="hover:underline hover:text-ink">About</Link></li>
             <li><Link href="/careers" className="hover:underline hover:text-ink">Careers</Link></li>
             <li><Link href="/safety" className="hover:underline hover:text-ink">Trust and safety</Link></li>
+            <li className="border-t border-hairline-soft pt-3"><Link href="/admin/login" className="text-xs text-muted hover:text-ink hover:underline">Admin</Link></li>
           </ul>
         </div>
       </div>

@@ -182,7 +182,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
           title: 'More Like Your Favorites',
           description: 'Vehicles similar to ones you\'ve saved',
           icon: Heart,
-          color: 'text-ink',
+          color: 'text-favorite',
           listings: mockListings.slice(1, 3),
           reason: 'You favorited luxury SUVs',
           actionText: 'Browse Luxury Vehicles',

@@ -102,7 +102,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                         className="flex items-center gap-2 text-sm font-medium text-ink underline hover:text-muted transition cursor-pointer"
                     >
                         {hasFavorited ? (
-                            <IconHeartFilled size={18} className="text-primary" />
+                            <IconHeartFilled size={18} className="text-favorite" />
                         ) : (
                             <IconHeart size={18} />
                         )}

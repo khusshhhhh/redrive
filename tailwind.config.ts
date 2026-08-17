@@ -33,6 +33,9 @@ const config: Config = {
         "legal-link": "#06636D",
         luxe: "#39715A",
         plus: "#D39A12",
+        favorite: "#D94F70",
+        "favorite-active": "#B93B59",
+        "favorite-soft": "#FFF0F4",
       },
       borderRadius: {
         none: "0px",

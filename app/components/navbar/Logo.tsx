@@ -12,17 +12,15 @@ const Logo = () => {
       aria-label="Redrive home"
       className="flex items-center gap-2 cursor-pointer select-none"
     >
-      {/* Compass needle mark: points the driver forward, loops back to where the
-          journey started — the "re" in redrive. */}
-      <svg viewBox="0 0 40 40" className="w-9 h-9 md:w-11 md:h-11 shrink-0" aria-hidden="true">
-        <rect width="40" height="40" rx="11" className="fill-primary" />
-        <circle cx="20" cy="20" r="7" fill="none" stroke="#ffffff" strokeWidth="2.4" />
-        <line x1="12.5" y1="27.5" x2="27.5" y2="12.5" stroke="#ffffff" strokeWidth="2.4" strokeLinecap="round" />
-        <polygon points="27.5,12.5 25.73,17.81 22.19,14.27" className="fill-accent" />
-        <circle cx="12.5" cy="27.5" r="1.4" fill="#ffffff" />
-        <circle cx="20" cy="20" r="1.7" className="fill-secondary" />
+      {/* A road-shaped R with a wattle-gold sun: movement, return journeys and
+          the Australian Coast and Country palette in one minimal mark. */}
+      <svg viewBox="0 0 64 64" className="h-9 w-9 shrink-0 md:h-11 md:w-11" aria-hidden="true">
+        <rect width="64" height="64" rx="17" className="fill-primary" />
+        <path d="M19 49V22c0-5.5 4.5-10 10-10h6c8.3 0 15 5.8 15 13s-6.7 13-15 13H20" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="m34 38 14 13" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" />
+        <circle cx="49" cy="13" r="4.5" className="fill-accent" />
       </svg>
-      <span className="hidden sm:block text-xl md:text-2xl font-bold tracking-tight text-ink">
+      <span className="hidden text-xl font-bold tracking-[-0.04em] text-ink sm:block md:text-2xl">
         redrive
       </span>
     </div>
