@@ -67,14 +67,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
         </Container>
       </div>
       {pathname === "/" && (
-        <Suspense fallback={<div className="h-[58px] border-t border-transparent" aria-hidden="true" />}>
+        <Suspense fallback={<div className="h-16 border-t border-transparent sm:h-[72px]" aria-hidden="true" />}>
           <Categories />
         </Suspense>
       )}
     </header>
     <div
       aria-hidden="true"
-      className={pathname === "/" ? "h-[122px] md:h-[126px]" : "h-[64px] md:h-[68px]"}
+      className={pathname === "/" ? "h-[128px] sm:h-[140px]" : "h-[64px] md:h-[68px]"}
       style={headerHeight ? { height: `${headerHeight}px` } : undefined}
     />
     </>

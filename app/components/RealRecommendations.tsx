@@ -9,6 +9,7 @@ import useRecentlyViewed from "../hooks/useRecentlyViewed";
 import type { SafeListing, SafeUser } from "../types";
 import Heading from "./Heading";
 import ListingCard from "./listings/ListingCard";
+import HorizontalScroller from "./HorizontalScroller";
 
 type RecommendedListing = SafeListing & { recommendationReason: string };
 const HIDDEN_KEY = "redrive_hidden_recommendations";
@@ -54,9 +55,12 @@ const RealRecommendations = ({ currentUser }: { currentUser?: SafeUser | null })
         <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-active"><IconSparkles size={19} /></span>
         <Heading title="Recommended for you" subtitle="Real vehicles ranked from your location, dates and activity" />
       </div>
-      <div className="mt-4 flex gap-5 overflow-x-auto pb-2 scrollbar-hide">
+      <HorizontalScroller
+        ariaLabel="Recommended vehicles"
+        className="mt-4 gap-5 pb-2"
+      >
         {visible.map((listing) => (
-          <article key={listing.id} className="w-[240px] shrink-0 sm:w-[260px]">
+          <article key={listing.id} className="w-[240px] shrink-0 snap-start sm:w-[260px]">
             <div className="mb-2 flex min-h-9 items-start justify-between gap-2 rounded-sm bg-surface-soft px-2.5 py-2 text-[11px] leading-4 text-muted">
               <span><IconSparkles size={13} className="mr-1 inline text-primary" />{listing.recommendationReason}</span>
               <button type="button" onClick={() => hide(listing.id)} aria-label={`Show fewer recommendations like ${listing.title}`} className="shrink-0 rounded-full p-1 hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><IconEyeOff size={14} /></button>
@@ -64,7 +68,7 @@ const RealRecommendations = ({ currentUser }: { currentUser?: SafeUser | null })
             <ListingCard currentUser={currentUser} data={listing} />
           </article>
         ))}
-      </div>
+      </HorizontalScroller>
     </section>
   );
 };

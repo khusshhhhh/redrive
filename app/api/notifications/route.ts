@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import { Prisma } from "@prisma/client";
 import { getAdminUser } from "@/app/libs/adminAuth";
 
 // GET - Fetch user's notifications
 export async function GET(request: NextRequest) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
 
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -30,13 +30,14 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     whereClause.OR = [
       { expiresAt: null },
+      { expiresAt: { isSet: false } },
       { expiresAt: { gte: now } }
     ];
 
     const [notifications, totalCount, unreadCount] = await Promise.all([
       prisma.notification.findMany({ where: whereClause, orderBy: { createdAt: "desc" }, take: limit, skip: offset }),
       prisma.notification.count({ where: whereClause }),
-      prisma.notification.count({ where: { userId: currentUser.id, read: false, OR: [{ expiresAt: null }, { expiresAt: { gte: now } }] } }),
+      prisma.notification.count({ where: { userId: currentUser.id, read: false, OR: [{ expiresAt: null }, { expiresAt: { isSet: false } }, { expiresAt: { gte: now } }] } }),
     ]);
 
     return NextResponse.json({

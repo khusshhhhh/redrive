@@ -76,14 +76,14 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
 
   return (
     <div className="relative" ref={menuRef}>
-      <div className="flex flex-row items-center gap-3">
+      <div className="flex flex-row items-center gap-1 sm:gap-2 md:gap-3">
         <div
           onClick={onRent}
           className="hidden md:block text-sm font-medium py-3 px-5 bg-primary rounded-full hover:bg-primary-active text-white transition cursor-pointer"
         >
           List your car
         </div>
-        {currentUser && <div className="hidden md:block"><NotificationBell /></div>}
+        {currentUser && <NotificationBell />}
         <button
           type="button"
           onClick={toggleOpen}

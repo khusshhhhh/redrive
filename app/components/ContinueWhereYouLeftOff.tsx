@@ -12,6 +12,7 @@ import useRecentlyViewed from "../hooks/useRecentlyViewed";
 import { SafeListing, SafeUser } from "../types";
 import Heading from "./Heading";
 import ListingCard from "./listings/ListingCard";
+import HorizontalScroller from "./HorizontalScroller";
 
 interface ContinueWhereYouLeftOffProps {
   currentUser: SafeUser;
@@ -108,13 +109,16 @@ const ContinueWhereYouLeftOff: React.FC<ContinueWhereYouLeftOffProps> = ({ curre
         {listings.length > 0 && (
           <div className="min-w-0">
             <p className="mb-3 text-sm font-semibold text-ink">Recently viewed</p>
-            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide sm:gap-5">
+            <HorizontalScroller
+              ariaLabel="Recently viewed vehicles"
+              className="gap-4 pb-2 sm:gap-5"
+            >
               {listings.map((listing) => (
-                <div key={listing.id} className="w-[220px] shrink-0 sm:w-[240px]">
+                <div key={listing.id} className="w-[220px] shrink-0 snap-start sm:w-[240px]">
                   <ListingCard currentUser={currentUser} data={listing} />
                 </div>
               ))}
-            </div>
+            </HorizontalScroller>
           </div>
         )}
       </div>

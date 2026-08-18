@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 
 // PATCH - Bulk mark notifications as read
 export async function PATCH(request: NextRequest) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
 
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -65,7 +65,7 @@ export async function PATCH(request: NextRequest) {
 // DELETE - Bulk delete notifications
 export async function DELETE(request: NextRequest) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
 
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

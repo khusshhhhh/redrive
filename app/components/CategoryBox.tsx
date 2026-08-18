@@ -54,14 +54,16 @@ const CategoryBox: React.FC<CategoryBoxProps> = ({
             aria-pressed={selected}
             aria-label={`${selected ? "Remove" : "Show"} ${label} filter`}
             className={`
-          flex min-h-12 min-w-0 w-full flex-col items-center justify-center
-          gap-1 border-b-2 px-0.5 py-1.5 hover:text-ink transition cursor-pointer outline-none focus-visible:bg-surface-soft focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:min-h-14 sm:gap-1.5 sm:px-1 sm:py-2
+          flex min-h-14 min-w-0 w-full flex-col items-center justify-center
+          gap-1.5 border-b-2 px-1 py-2 hover:text-ink transition cursor-pointer outline-none focus-visible:bg-surface-soft focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:min-h-16 sm:gap-2 sm:px-2
           ${selected ? "border-b-secondary" : "border-transparent"}
           ${selected ? "text-secondary-active" : "text-muted"}
         `}
         >
-            <Icon size={22} />
-            <div className="hidden max-w-full truncate text-[10px] font-medium sm:block lg:text-sm">{label}</div>
+            <span className="flex text-current [&_svg]:h-7 [&_svg]:w-7 sm:[&_svg]:h-8 sm:[&_svg]:w-8">
+                <Icon aria-hidden="true" />
+            </span>
+            <div className="max-w-full truncate text-[11px] font-semibold sm:text-xs lg:text-sm">{label}</div>
         </button>
     );
 };

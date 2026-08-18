@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Heading from "./Heading";
 import ListingCard from "./listings/ListingCard";
+import HorizontalScroller from "./HorizontalScroller";
 import useRecentlyViewed from "../hooks/useRecentlyViewed";
 import { SafeListing, SafeUser } from "../types";
 
@@ -49,13 +50,16 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ currentUser }) => {
   return (
     <div className="bg-white mt-12">
       <Heading title="Recently Viewed" subtitle="Pick up where you left off" />
-      <div className="mt-4 flex flex-row gap-6 overflow-x-auto scrollbar-hide pb-2">
+      <HorizontalScroller
+        ariaLabel="Recently viewed vehicles"
+        className="mt-4 gap-6 pb-2"
+      >
         {listings.map((listing) => (
-          <div key={listing.id} className="w-[220px] shrink-0">
+          <div key={listing.id} className="w-[220px] shrink-0 snap-start">
             <ListingCard currentUser={currentUser} data={listing} />
           </div>
         ))}
-      </div>
+      </HorizontalScroller>
     </div>
   );
 };

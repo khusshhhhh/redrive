@@ -23,8 +23,8 @@ class NotificationService {
           title: params.title,
           message: params.message,
           data: params.data || {},
-          actionUrl: params.actionUrl,
-          expiresAt: params.expiresAt,
+          actionUrl: params.actionUrl ?? null,
+          expiresAt: params.expiresAt ?? null,
         },
       });
 
@@ -45,8 +45,8 @@ class NotificationService {
           title: n.title,
           message: n.message,
           data: n.data || {},
-          actionUrl: n.actionUrl,
-          expiresAt: n.expiresAt,
+          actionUrl: n.actionUrl ?? null,
+          expiresAt: n.expiresAt ?? null,
         })),
       });
 

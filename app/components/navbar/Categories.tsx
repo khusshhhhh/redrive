@@ -2,6 +2,7 @@
 
 import Container from "../Container";
 import CategoryBox from "../CategoryBox";
+import HorizontalScroller from "../HorizontalScroller";
 import { usePathname, useSearchParams } from "next/navigation";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { IconCamper, IconCar, IconCaravan, IconMotorbike, IconSailboat, IconSpeedboat, IconSwimming, IconTent, IconTir, IconTruck } from "@tabler/icons-react";
@@ -79,28 +80,23 @@ const Categories = () => {
     }
     return (
         <Container>
-            <div
-                className="
-          grid
-          w-full
-          grid-cols-10
-          items-center
-          gap-0
-          py-1
-          sm:gap-1
-          md:gap-2
-        "
+            <HorizontalScroller
+                ariaLabel="Vehicle categories"
+                className="gap-1 py-1 sm:gap-2"
             >
                 {categories.map((item) => (
-                    <CategoryBox
+                    <div
                         key={item.label}
-                        label={item.label}
-                        selected={category == item.label}
-                        icon={item.icon}
-                    />
+                        className="basis-[28%] shrink-0 snap-start sm:basis-[18%] md:basis-[14%] lg:basis-[12.5%]"
+                    >
+                        <CategoryBox
+                            label={item.label}
+                            selected={category == item.label}
+                            icon={item.icon}
+                        />
+                    </div>
                 ))}
-
-            </div>
+            </HorizontalScroller>
         </Container>
     );
 };

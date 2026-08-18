@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 
 interface IParams {
   notificationId: string;
@@ -12,7 +12,7 @@ export async function PATCH(
   { params }: { params: Promise<IParams> }
 ) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
 
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -60,7 +60,7 @@ export async function DELETE(
   { params }: { params: Promise<IParams> }
 ) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUserEnhanced(request);
 
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

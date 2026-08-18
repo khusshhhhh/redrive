@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { IconBriefcase, IconCalendarEvent, IconMapPinStar } from "@tabler/icons-react";
 import type { SafeListing, SafeUser } from "../types";
 import ListingCard from "./listings/ListingCard";
+import HorizontalScroller from "./HorizontalScroller";
 
 interface PurposefulCollectionsProps {
   listings: SafeListing[];
@@ -55,9 +56,9 @@ const PurposefulCollections = ({ listings, weekendListings, weekendStart, weeken
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary"><collection.icon size={19} /></span>
           <div><h2 className="text-lg font-semibold text-ink sm:text-xl">{collection.title}</h2><p className="mt-0.5 text-xs text-muted sm:text-sm">{collection.subtitle}</p></div>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide sm:gap-5">
-          {collection.listings.map((listing, index) => <div key={listing.id} className="w-[238px] shrink-0 sm:w-[260px]"><ListingCard data={listing} currentUser={currentUser} compact tripDays={collection.tripDays} priority={collectionIndex === 0 && index < 2} /></div>)}
-        </div>
+        <HorizontalScroller ariaLabel={collection.title} className="gap-4 pb-2 sm:gap-5">
+          {collection.listings.map((listing, index) => <div key={listing.id} className="w-[238px] shrink-0 snap-start sm:w-[260px]"><ListingCard data={listing} currentUser={currentUser} compact tripDays={collection.tripDays} priority={collectionIndex === 0 && index < 2} /></div>)}
+        </HorizontalScroller>
       </div>)}
     </section>
   );

@@ -147,7 +147,7 @@ const NotificationBell = () => {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="notification-panel absolute right-0 z-50 mt-2 w-[min(22rem,calc(100vw-2rem))] max-h-[32rem] overflow-hidden rounded-md border border-hairline-soft bg-white shadow-card">
+        <div className="notification-panel fixed inset-x-4 top-[64px] z-[70] max-h-[calc(100dvh-5rem)] overflow-hidden rounded-md border border-hairline-soft bg-white shadow-card md:absolute md:inset-x-auto md:right-0 md:top-auto md:mt-2 md:w-[min(22rem,calc(100vw-2rem))] md:max-h-[32rem]">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-hairline-soft">
             <h3 className="font-semibold text-ink">Notifications</h3>

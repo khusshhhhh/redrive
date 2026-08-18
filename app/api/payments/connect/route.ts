@@ -7,10 +7,15 @@ import { getStripe } from "@/app/libs/stripe";
 import { consumeRateLimits, tooManyRequests } from "@/app/libs/security";
 
 async function syncAccount(userId: string, accountId: string) {
-  const account = await getStripe().accounts.retrieve(accountId);
+  const account = await getStripe().accounts.retrieve(accountId, {
+    expand: ["external_accounts"],
+  });
   const detailsSubmitted = account.details_submitted;
   const payoutsEnabled =
     account.payouts_enabled && account.capabilities?.transfers === "active";
+  const bankAccount = account.external_accounts?.data.find(
+    (externalAccount) => externalAccount.object === "bank_account",
+  );
   await prisma.user.update({
     where: { id: userId },
     data: {
@@ -18,7 +23,17 @@ async function syncAccount(userId: string, accountId: string) {
       stripePayoutsEnabled: payoutsEnabled,
     },
   });
-  return { connected: true, detailsSubmitted, payoutsEnabled };
+  return {
+    connected: true,
+    detailsSubmitted,
+    payoutsEnabled,
+    bankAccount: bankAccount
+      ? {
+          bankName: bankAccount.bank_name,
+          last4: bankAccount.last4,
+        }
+      : null,
+  };
 }
 
 export async function GET(request: Request) {
@@ -34,6 +49,7 @@ export async function GET(request: Request) {
       connected: false,
       detailsSubmitted: false,
       payoutsEnabled: false,
+      bankAccount: null,
     });
   }
   try {
@@ -60,7 +76,10 @@ export async function POST(request: Request) {
     { scope: "stripe-connect", identifier: currentUser.id, limit: 10, windowMs: 60 * 60_000 },
   ]);
   if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
+  let action: "onboard" | "manage" = "onboard";
   try {
+    const body = await request.json().catch(() => ({}));
+    action = body?.action === "manage" ? "manage" : "onboard";
     const user = await prisma.user.findUnique({
       where: { id: currentUser.id },
       select: { email: true, stripeConnectedAccountId: true },
@@ -69,6 +88,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     let accountId = user.stripeConnectedAccountId;
+    if (action === "manage") {
+      if (!accountId) {
+        return NextResponse.json(
+          { error: "Set up your payout account before managing bank details" },
+          { status: 409 },
+        );
+      }
+      const loginLink = await getStripe().accounts.createLoginLink(accountId);
+      return NextResponse.json({ url: loginLink.url });
+    }
+
     if (!accountId) {
       const account = await getStripe().accounts.create(
         {
@@ -98,9 +128,14 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ url: link.url });
   } catch (error) {
-    console.error("Stripe Connect onboarding failed", error);
+    console.error(`Stripe Connect ${action} flow failed`, error);
     return NextResponse.json(
-      { error: "Payout setup could not be started" },
+      {
+        error:
+          action === "manage"
+            ? "Bank details could not be opened"
+            : "Payout setup could not be started",
+      },
       { status: 503 },
     );
   }

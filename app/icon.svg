@@ -1,5 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <path d="M10 39V16c0-5 4-9 9-9h7c7.2 0 12 4.2 12 10.5S33.2 28 26 28H11" fill="none" stroke="#087985" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="m26 28 12 11" fill="none" stroke="#087985" stroke-width="4.5" stroke-linecap="round"/>
-  <circle cx="39" cy="8" r="3.4" fill="#D39A12"/>
+  <rect width="48" height="48" fill="#FFFFFF"/>
+  <!-- Lowercase r traced from the Manrope variable font used by the app. -->
+  <path
+    d="M140 0L140 1080L218 1080L218 822L192 856Q209 900 235 938Q261 976 286 1000Q330 1043 390.5 1065.5Q451 1088 512 1091.5Q573 1095 620 1080L620 1000Q553 1015 478 1005.5Q403 996 338 936Q281 883 257.5 814Q234 745 229 671.5Q224 598 224 532L224 0Z"
+    transform="translate(13 40) scale(.0292 -.0292)"
+    fill="#087985"
+    stroke="#087985"
+    stroke-width="70"
+    stroke-linejoin="round"
+  />
 </svg>

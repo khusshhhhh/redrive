@@ -1,5 +1,6 @@
 import Heading from "./Heading";
 import ListingCard from "./listings/ListingCard";
+import HorizontalScroller from "./HorizontalScroller";
 import { SafeListing, SafeUser } from "../types";
 
 interface FavoriteListingsProps {
@@ -20,13 +21,16 @@ const FavoriteListings: React.FC<FavoriteListingsProps> = ({
       <div id="favorite-listings-heading">
         <Heading title="Your Favorites" subtitle="Vehicles you have saved" />
       </div>
-      <div className="mt-4 flex flex-row gap-6 overflow-x-auto scrollbar-hide pb-2">
+      <HorizontalScroller
+        ariaLabel="Favourite vehicles"
+        className="mt-4 gap-6 pb-2"
+      >
         {listings.map((listing) => (
-          <div key={listing.id} className="w-[220px] shrink-0">
+          <div key={listing.id} className="w-[220px] shrink-0 snap-start">
             <ListingCard currentUser={currentUser} data={listing} />
           </div>
         ))}
-      </div>
+      </HorizontalScroller>
     </section>
   );
 };
