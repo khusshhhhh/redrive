@@ -82,12 +82,12 @@ const Categories = () => {
         <Container>
             <HorizontalScroller
                 ariaLabel="Vehicle categories"
-                className="gap-1 py-1 sm:gap-2"
+                className="gap-1 py-1 sm:gap-2 md:grid md:grid-cols-10 md:snap-none md:overflow-x-visible"
             >
                 {categories.map((item) => (
                     <div
                         key={item.label}
-                        className="basis-[28%] shrink-0 snap-start sm:basis-[18%] md:basis-[14%] lg:basis-[12.5%]"
+                        className="basis-[28%] shrink-0 snap-start sm:basis-[18%] md:basis-auto md:shrink md:snap-none"
                     >
                         <CategoryBox
                             label={item.label}
