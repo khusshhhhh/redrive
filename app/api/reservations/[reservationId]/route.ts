@@ -4,12 +4,13 @@ import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
 import { notificationService } from "@/app/services/notificationService";
 import { writeAuditEvent } from "@/app/libs/security";
+import { getStripe } from "@/app/libs/stripe";
 
 // ✅ GET: Fetch reservation details with user included
 export async function GET(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any // Override type checking for params
+  context: any, // Override type checking for params
 ) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
@@ -22,7 +23,7 @@ export async function GET(
     if (!reservationId) {
       return NextResponse.json(
         { error: "Invalid reservation ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -34,11 +35,14 @@ export async function GET(
     if (!reservation) {
       return NextResponse.json(
         { error: "Reservation not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    if (reservation.userId !== currentUser.id && reservation.listing.userId !== currentUser.id) {
+    if (
+      reservation.userId !== currentUser.id &&
+      reservation.listing.userId !== currentUser.id
+    ) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -69,15 +73,21 @@ export async function GET(
       },
       listing: {
         ...reservation.listing,
-        address: reservation.listing.userId === currentUser.id || ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status)
-          ? reservation.listing.address
-          : "",
-        latitude: reservation.listing.userId === currentUser.id || ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status)
-          ? reservation.listing.latitude
-          : null,
-        longitude: reservation.listing.userId === currentUser.id || ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status)
-          ? reservation.listing.longitude
-          : null,
+        address:
+          reservation.listing.userId === currentUser.id ||
+          ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status)
+            ? reservation.listing.address
+            : "",
+        latitude:
+          reservation.listing.userId === currentUser.id ||
+          ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status)
+            ? reservation.listing.latitude
+            : null,
+        longitude:
+          reservation.listing.userId === currentUser.id ||
+          ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status)
+            ? reservation.listing.longitude
+            : null,
         createdAt: reservation.listing.createdAt.toISOString(),
       },
     };
@@ -86,8 +96,11 @@ export async function GET(
   } catch (error) {
     console.error("❌ Error fetching reservation:", error);
     return NextResponse.json(
-      { error: "Internal Server Error", details: error instanceof Error ? error.message : String(error) },
-      { status: 500 }
+      {
+        error: "Internal Server Error",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
     );
   }
 }
@@ -95,7 +108,7 @@ export async function GET(
 export async function DELETE(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any // Override type checking for params
+  context: any, // Override type checking for params
 ) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
@@ -108,16 +121,16 @@ export async function DELETE(
     // Validate the reservation
     const reservation = await prisma.reservation.findUnique({
       where: { id: reservationId },
-      include: { 
+      include: {
         listing: true,
-        user: true 
+        user: true,
       },
     });
 
     if (!reservation) {
       return NextResponse.json(
         { error: "Reservation not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -128,7 +141,7 @@ export async function DELETE(
     ) {
       return NextResponse.json(
         { error: "Unauthorized to cancel this reservation" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -140,30 +153,109 @@ export async function DELETE(
     if (today > twoDaysBefore) {
       return NextResponse.json(
         { error: "Too late to cancel this reservation" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Determine who cancelled and notify the other party
-    const cancelledBy = currentUser.id === reservation.userId ? "you" : reservation.listing.title + " owner";
-    const notifyUserId = currentUser.id === reservation.userId ? reservation.listing.userId : reservation.userId;
+    const cancelledBy =
+      currentUser.id === reservation.userId
+        ? "you"
+        : reservation.listing.title + " owner";
+    const notifyUserId =
+      currentUser.id === reservation.userId
+        ? reservation.listing.userId
+        : reservation.userId;
 
     if (["CANCELLED", "DECLINED", "COMPLETED"].includes(reservation.status)) {
-      return NextResponse.json({ error: "This reservation can no longer be cancelled" }, { status: 409 });
+      return NextResponse.json(
+        { error: "This reservation can no longer be cancelled" },
+        { status: 409 },
+      );
     }
 
     let reason: string | undefined;
     try {
       const body = await request.json();
-      reason = typeof body?.reason === "string" ? body.reason.trim().slice(0, 500) : undefined;
+      reason =
+        typeof body?.reason === "string"
+          ? body.reason.trim().slice(0, 500)
+          : undefined;
     } catch {
       reason = undefined;
     }
 
-    const daysUntilPickup = Math.ceil((reservation.startDate.getTime() - Date.now()) / 86_400_000);
-    const refundAmount = reservation.paymentStatus === "PAID"
-      ? (daysUntilPickup >= 7 ? reservation.totalFees : Math.round(reservation.totalFees * 0.5))
+    const daysUntilPickup = Math.ceil(
+      (reservation.startDate.getTime() - Date.now()) / 86_400_000,
+    );
+    const isOwnerCancellation = currentUser.id === reservation.listing.userId;
+    const refundAmount = ["PAID_HELD", "RELEASED"].includes(
+      reservation.paymentStatus,
+    )
+      ? isOwnerCancellation || daysUntilPickup >= 7
+        ? reservation.totalFees
+        : Math.round(reservation.totalFees * 0.5)
       : 0;
+
+    const payment = await prisma.payment.findUnique({
+      where: { reservationId },
+    });
+    if (refundAmount > 0) {
+      if (!payment?.stripePaymentIntentId || payment.status === "RELEASED") {
+        return NextResponse.json(
+          {
+            error:
+              payment?.status === "RELEASED"
+                ? "Contact support because this payout has already been released"
+                : "Payment details are not ready for an automatic refund",
+          },
+          { status: 409 },
+        );
+      }
+      try {
+        const refund = await getStripe().refunds.create(
+          {
+            payment_intent: payment.stripePaymentIntentId,
+            amount: refundAmount * 100,
+            metadata: { reservationId, cancelledById: currentUser.id },
+          },
+          {
+            idempotencyKey: `reservation-${reservationId}-cancellation-refund`,
+          },
+        );
+        await prisma.payment.update({
+          where: { id: payment.id },
+          data: {
+            status:
+              refundAmount === reservation.totalFees
+                ? "REFUNDED"
+                : "PARTIALLY_REFUNDED",
+            stripeRefundId: refund.id,
+            refundedAt: new Date(),
+          },
+        });
+      } catch (error) {
+        console.error("Stripe cancellation refund failed", error);
+        return NextResponse.json(
+          {
+            error:
+              "The refund could not be confirmed, so the booking was not cancelled",
+          },
+          { status: 503 },
+        );
+      }
+    } else if (
+      payment?.stripeCheckoutSessionId &&
+      payment.status === "CHECKOUT_PENDING"
+    ) {
+      try {
+        await getStripe().checkout.sessions.expire(
+          payment.stripeCheckoutSessionId,
+        );
+      } catch {
+        /* The session may already be expired. */
+      }
+    }
 
     await prisma.reservation.update({
       where: { id: reservationId },
@@ -173,10 +265,24 @@ export async function DELETE(
         cancelledById: currentUser.id,
         cancellationReason: reason || null,
         refundAmount,
+        paymentStatus:
+          refundAmount > 0
+            ? refundAmount === reservation.totalFees
+              ? "REFUNDED"
+              : "PARTIALLY_REFUNDED"
+            : reservation.paymentStatus,
       },
     });
 
-    await writeAuditEvent({ request, actorUserId: currentUser.id, action: "RESERVATION_CANCELLED", targetType: "Reservation", targetId: reservation.id, reason, metadata: { refundAmount } });
+    await writeAuditEvent({
+      request,
+      actorUserId: currentUser.id,
+      action: "RESERVATION_CANCELLED",
+      targetType: "Reservation",
+      targetId: reservation.id,
+      reason,
+      metadata: { refundAmount },
+    });
 
     // Send cancellation notification
     try {
@@ -184,22 +290,25 @@ export async function DELETE(
         notifyUserId,
         reservation.listing.title,
         reservation.id,
-        cancelledBy
+        cancelledBy,
       );
     } catch (notificationError) {
-      console.error("Error sending cancellation notification:", notificationError);
+      console.error(
+        "Error sending cancellation notification:",
+        notificationError,
+      );
       // Don't fail the cancellation if notification fails
     }
 
     return NextResponse.json(
       { success: true, message: "Reservation cancelled", refundAmount },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error canceling reservation:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -208,7 +317,7 @@ export async function DELETE(
 export async function PATCH(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: any
+  context: any,
 ) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
@@ -218,7 +327,8 @@ export async function PATCH(
 
     const { reservationId } = await context.params;
     const body = await request.json();
-    const status = typeof body.status === "string" ? body.status.toUpperCase() : "";
+    const status =
+      typeof body.status === "string" ? body.status.toUpperCase() : "";
 
     if (!reservationId || !status) {
       return NextResponse.json({ error: "Invalid data" }, { status: 400 });
@@ -226,14 +336,17 @@ export async function PATCH(
 
     const reservation = await prisma.reservation.findUnique({
       where: { id: reservationId },
-      include: { 
+      include: {
         listing: true,
-        user: true 
+        user: true,
       },
     });
 
     if (!reservation) {
-      return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Reservation not found" },
+        { status: 404 },
+      );
     }
 
     if (reservation.listing.userId !== currentUser.id) {
@@ -242,26 +355,80 @@ export async function PATCH(
 
     const transitions: Record<string, string[]> = {
       REVIEWING: ["APPROVED", "DECLINED"],
-      APPROVED: ["ACTIVE"],
-      ACTIVE: ["COMPLETED"],
     };
     if (!transitions[reservation.status]?.includes(status)) {
-      return NextResponse.json({ error: `Cannot change ${reservation.status} reservation to ${status}` }, { status: 409 });
+      return NextResponse.json(
+        {
+          error: `Cannot change ${reservation.status} reservation to ${status}`,
+        },
+        { status: 409 },
+      );
+    }
+
+    if (status === "APPROVED") {
+      const owner = await prisma.user.findUnique({
+        where: { id: currentUser.id },
+        select: { stripeConnectedAccountId: true, stripePayoutsEnabled: true },
+      });
+      let payoutsEnabled = Boolean(owner?.stripePayoutsEnabled);
+      if (owner?.stripeConnectedAccountId) {
+        try {
+          const account = await getStripe().accounts.retrieve(
+            owner.stripeConnectedAccountId,
+          );
+          payoutsEnabled =
+            account.payouts_enabled &&
+            account.capabilities?.transfers === "active";
+          await prisma.user.update({
+            where: { id: currentUser.id },
+            data: {
+              stripeDetailsSubmitted: account.details_submitted,
+              stripePayoutsEnabled: payoutsEnabled,
+            },
+          });
+        } catch (error) {
+          console.error("Unable to verify host payout account", error);
+          return NextResponse.json(
+            { error: "Payout setup could not be verified. Try again shortly." },
+            { status: 503 },
+          );
+        }
+      }
+      if (!payoutsEnabled)
+        return NextResponse.json(
+          {
+            error:
+              "Set up and verify your Stripe payout account before approving bookings",
+            code: "PAYOUT_SETUP_REQUIRED",
+          },
+          { status: 409 },
+        );
     }
 
     const updated = await prisma.reservation.update({
       where: { id: reservationId },
       data: {
         status,
-        ...(
-          reservation.status === "REVIEWING" && ["APPROVED", "DECLINED"].includes(status)
-            ? { respondedAt: new Date() }
-            : {}
-        ),
+        ...(reservation.status === "REVIEWING" &&
+        ["APPROVED", "DECLINED"].includes(status)
+          ? {
+              respondedAt: new Date(),
+              ...(status === "APPROVED"
+                ? { paymentDueAt: new Date(Date.now() + 24 * 60 * 60_000) }
+                : {}),
+            }
+          : {}),
       },
     });
 
-    await writeAuditEvent({ request, actorUserId: currentUser.id, action: "RESERVATION_STATUS_CHANGED", targetType: "Reservation", targetId: reservation.id, metadata: { from: reservation.status, to: status } });
+    await writeAuditEvent({
+      request,
+      actorUserId: currentUser.id,
+      action: "RESERVATION_STATUS_CHANGED",
+      targetType: "Reservation",
+      targetId: reservation.id,
+      metadata: { from: reservation.status, to: status },
+    });
 
     // Send notification based on status change
     try {
@@ -269,13 +436,19 @@ export async function PATCH(
         await notificationService.notifyBookingApproved(
           reservation.userId,
           reservation.listing.title,
-          reservation.id
+          reservation.id,
+        );
+        await notificationService.notifyPaymentRequired(
+          reservation.userId,
+          reservation.totalFees,
+          reservation.listing.title,
+          reservation.id,
         );
       } else if (status === "DECLINED") {
         await notificationService.notifyBookingDeclined(
           reservation.userId,
           reservation.listing.title,
-          reservation.id
+          reservation.id,
         );
       }
     } catch (notificationError) {
@@ -288,7 +461,7 @@ export async function PATCH(
     console.error("Error updating reservation:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -46,7 +46,11 @@ export default async function getReservations(params: IParams) {
       startDate: reservation.startDate.toISOString(),
       endDate: reservation.endDate.toISOString(),
       cancelledAt: reservation.cancelledAt?.toISOString() ?? null,
-      pickupAddressReleasedAt: reservation.pickupAddressReleasedAt?.toISOString() ?? null,
+      pickupAddressReleasedAt:
+        reservation.pickupAddressReleasedAt?.toISOString() ?? null,
+      paidAt: reservation.paidAt?.toISOString() ?? null,
+      completedAt: reservation.completedAt?.toISOString() ?? null,
+      paymentDueAt: reservation.paymentDueAt?.toISOString() ?? null,
       user: {
         ...reservation.user,
         createdAt: reservation.user.createdAt.toISOString(),

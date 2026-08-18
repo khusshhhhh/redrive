@@ -8,6 +8,14 @@
     {
       "path": "/api/cron/security-maintenance",
       "schedule": "15 2 * * *"
+    },
+    {
+      "path": "/api/cron/payouts",
+      "schedule": "30 1 * * *"
+    },
+    {
+      "path": "/api/cron/booking-maintenance",
+      "schedule": "0 * * * *"
     }
   ]
 }

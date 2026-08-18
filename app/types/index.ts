@@ -1,6 +1,22 @@
-import { Listing, Reservation, User, Notification, NotificationType } from "@prisma/client";
+import {
+  Listing,
+  Reservation,
+  User,
+  Notification,
+  NotificationType,
+} from "@prisma/client";
 
-export type SafeListing = Omit<Listing, "createdAt" | "regoImage" | "instantBook" | "minimumNoticeHours" | "minimumTripDays" | "maximumTripDays" | "preparationBufferHours" | "exactLocationReleaseRule"> & {
+export type SafeListing = Omit<
+  Listing,
+  | "createdAt"
+  | "regoImage"
+  | "instantBook"
+  | "minimumNoticeHours"
+  | "minimumTripDays"
+  | "maximumTripDays"
+  | "preparationBufferHours"
+  | "exactLocationReleaseRule"
+> & {
   createdAt: string;
   regoImage: string; // ✅ Ensure regoImage is always a string
   badgeValue?: string;
@@ -21,7 +37,22 @@ export type SafeListing = Omit<Listing, "createdAt" | "regoImage" | "instantBook
 
 export type SafeReservation = Omit<
   Reservation,
-  "createdAt" | "startDate" | "endDate" | "updatedAt" | "respondedAt" | "quoteSnapshot" | "pricingPolicyVersion" | "paymentStatus" | "cancelledAt" | "cancelledById" | "cancellationReason" | "refundAmount" | "pickupAddressReleasedAt"
+  | "createdAt"
+  | "startDate"
+  | "endDate"
+  | "updatedAt"
+  | "respondedAt"
+  | "quoteSnapshot"
+  | "pricingPolicyVersion"
+  | "paymentStatus"
+  | "cancelledAt"
+  | "cancelledById"
+  | "cancellationReason"
+  | "refundAmount"
+  | "pickupAddressReleasedAt"
+  | "paidAt"
+  | "completedAt"
+  | "paymentDueAt"
 > & {
   createdAt: string;
   startDate: string;
@@ -39,14 +70,31 @@ export type SafeReservation = Omit<
   cancellationReason?: string | null;
   refundAmount?: number | null;
   pickupAddressReleasedAt?: string | null;
+  paidAt?: string | null;
+  completedAt?: string | null;
+  paymentDueAt?: string | null;
 };
 
 export type SafeUser = Pick<
   User,
-  | "id" | "name" | "email" | "number" | "dateOfBirth" | "image" | "favoriteIds"
-  | "streetAddress" | "suburb" | "state" | "postcode" | "hobbies"
-  | "dreamDestinations" | "licenseImage" | "licenseType"
-  | "profileVerified" | "loginOtpEnabled" | "licenseStatus"
+  | "id"
+  | "name"
+  | "email"
+  | "number"
+  | "dateOfBirth"
+  | "image"
+  | "favoriteIds"
+  | "streetAddress"
+  | "suburb"
+  | "state"
+  | "postcode"
+  | "hobbies"
+  | "dreamDestinations"
+  | "licenseImage"
+  | "licenseType"
+  | "profileVerified"
+  | "loginOtpEnabled"
+  | "licenseStatus"
 > & {
   createdAt: string;
   updatedAt: string;
@@ -56,7 +104,10 @@ export type SafeUser = Pick<
   hasPassword?: boolean;
 };
 
-export type PublicHost = Pick<User, "id" | "name" | "image" | "profileVerified" | "suburb" | "state"> & {
+export type PublicHost = Pick<
+  User,
+  "id" | "name" | "image" | "profileVerified" | "suburb" | "state"
+> & {
   createdAt: string;
   listings?: { createdAt: string }[];
 };

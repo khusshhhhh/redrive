@@ -8,29 +8,32 @@ datasource db {
 }
 
 model User {
-  id                      String    @id @default(auto()) @map("_id") @db.ObjectId
-  name                    String?
-  email                   String?   @unique
-  emailVerified           DateTime?
-  verificationCodeHash    String?
-  verificationCodeExpires DateTime?
-  verificationCodeSentAt  DateTime?
-  verificationAttempts    Int       @default(0)
-  verificationRequired    Boolean?
-  loginOtpEnabled         Boolean   @default(false)
-  loginOtpCodeHash        String?
-  loginOtpCodeExpires     DateTime?
-  loginOtpCodeSentAt      DateTime?
-  loginOtpAttempts        Int       @default(0)
-  number                  String?
-  dateOfBirth             String?
-  image                   String?
-  hashedPassword          String?
-  passwordChangedAt       DateTime?
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-  lastActiveAt            DateTime?
-  favoriteIds             String[]  @db.ObjectId
+  id                       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name                     String?
+  email                    String?   @unique
+  emailVerified            DateTime?
+  verificationCodeHash     String?
+  verificationCodeExpires  DateTime?
+  verificationCodeSentAt   DateTime?
+  verificationAttempts     Int       @default(0)
+  verificationRequired     Boolean?
+  loginOtpEnabled          Boolean   @default(false)
+  loginOtpCodeHash         String?
+  loginOtpCodeExpires      DateTime?
+  loginOtpCodeSentAt       DateTime?
+  loginOtpAttempts         Int       @default(0)
+  number                   String?
+  dateOfBirth              String?
+  image                    String?
+  hashedPassword           String?
+  passwordChangedAt        DateTime?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  lastActiveAt             DateTime?
+  favoriteIds              String[]  @db.ObjectId
+  stripeConnectedAccountId String?   @unique
+  stripeDetailsSubmitted   Boolean   @default(false)
+  stripePayoutsEnabled     Boolean   @default(false)
 
   streetAddress     String?
   suburb            String?
@@ -50,12 +53,14 @@ model User {
   profileVerified        String?   @default("N")
   role                   String?   @default("USER") // USER or ADMIN; nullable for existing MongoDB records
 
-  accounts      Account[]
-  listings      Listing[]
-  reservations  Reservation[]
-  reviews       Review[]
-  messagesSent  Message[]      @relation("UserMessages")
-  notifications Notification[]
+  accounts         Account[]
+  listings         Listing[]
+  reservations     Reservation[]
+  reviews          Review[]
+  messagesSent     Message[]      @relation("UserMessages")
+  notifications    Notification[]
+  paymentsAsRenter Payment[]      @relation("RenterPayments")
+  paymentsAsOwner  Payment[]      @relation("OwnerPayments")
 
   @@index([createdAt])
   @@index([lastActiveAt])
@@ -160,14 +165,58 @@ model Reservation {
   cancellationReason      String?
   refundAmount            Int?
   pickupAddressReleasedAt DateTime?
+  paidAt                  DateTime?
+  completedAt             DateTime?
+  paymentDueAt            DateTime?
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  payment Payment?
 
   @@index([userId, status, createdAt])
   @@index([listingId, status, startDate, endDate])
   @@index([listingId, respondedAt])
   @@index([createdAt])
+  @@index([status, paymentDueAt])
+}
+
+model Payment {
+  id                      String    @id @default(auto()) @map("_id") @db.ObjectId
+  reservationId           String    @unique @db.ObjectId
+  renterId                String    @db.ObjectId
+  ownerId                 String    @db.ObjectId
+  amount                  Int
+  ownerAmount             Int
+  platformAmount          Int
+  currency                String    @default("aud")
+  status                  String    @default("CHECKOUT_PENDING")
+  stripeCheckoutSessionId String?   @unique
+  stripePaymentIntentId   String?   @unique
+  stripeChargeId          String?
+  stripeTransferId        String?   @unique
+  stripeRefundId          String?
+  failureMessage          String?
+  paidAt                  DateTime?
+  releasedAt              DateTime?
+  refundedAt              DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  renter      User        @relation("RenterPayments", fields: [renterId], references: [id], onDelete: Restrict)
+  owner       User        @relation("OwnerPayments", fields: [ownerId], references: [id], onDelete: Restrict)
+
+  @@index([renterId, status, createdAt])
+  @@index([ownerId, status, createdAt])
+}
+
+model StripeWebhookEvent {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  stripeEventId String   @unique
+  type          String
+  processedAt   DateTime @default(now())
+
+  @@index([processedAt])
 }
 
 model RateLimitBucket {
