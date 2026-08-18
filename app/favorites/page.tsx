@@ -14,7 +14,9 @@ const ListingPage = async () => {
             <ClientOnly>
                 <EmptyState
                     title="No favorites found"
-                    subtitle="Looks like you have no favorite listings."
+                    subtitle="Save vehicles while exploring and they will appear here."
+                    actionLabel="Explore vehicles"
+                    actionHref="/"
                 />
             </ClientOnly>
         );

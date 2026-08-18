@@ -64,6 +64,7 @@ export default async function getListings(params: IListingsParams) {
       query.NOT = {
         reservations: {
           some: {
+            status: { in: ["REVIEWING", "APPROVED", "ACTIVE"] },
             OR: [
               { endDate: { gte: startDate }, startDate: { lte: startDate } },
               { startDate: { lte: endDate }, endDate: { gte: endDate } },
@@ -75,6 +76,16 @@ export default async function getListings(params: IListingsParams) {
 
     const listings = await prisma.listing.findMany({
       where: query,
+      include: {
+        user: { select: { profileVerified: true } },
+        reviews: { select: { rating: true } },
+        reservations: {
+          where: { respondedAt: { not: null } },
+          select: { createdAt: true, respondedAt: true },
+          orderBy: { respondedAt: "desc" },
+          take: 20,
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -86,8 +97,19 @@ export default async function getListings(params: IListingsParams) {
 
     const badgeMap = Object.fromEntries(badges.map((b) => [b.key, b.value]));
 
-    return listings.map((listing) => ({
-      ...listing,
+    return listings.map((listing) => {
+      const { reviews, reservations, user, ...publicListing } = listing;
+      const reviewAverage = reviews.length
+        ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+        : 0;
+      const responseHours = reservations
+        .map((reservation) => reservation.respondedAt
+          ? Math.max(0, (reservation.respondedAt.getTime() - reservation.createdAt.getTime()) / 3_600_000)
+          : null)
+        .filter((hours): hours is number => hours !== null);
+
+      return {
+      ...publicListing,
       address: "",
       latitude: null,
       longitude: null,
@@ -96,7 +118,14 @@ export default async function getListings(params: IListingsParams) {
       regoImage: "",
       badgeValue: badgeMap[listing.badge] || null,
       createdAt: listing.createdAt.toISOString(),
-    }));
+      reviewAverage: Math.round(reviewAverage * 10) / 10,
+      reviewCount: reviews.length,
+      hostVerified: user.profileVerified === "Y",
+      hostResponseHours: responseHours.length
+        ? Math.round((responseHours.reduce((sum, hours) => sum + hours, 0) / responseHours.length) * 10) / 10
+        : null,
+    };
+    });
   } catch (error) {
     throw new Error(
       error instanceof Error ? error.message : "An unknown error occurred"

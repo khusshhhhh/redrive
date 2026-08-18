@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { notificationService } from "@/app/services/notificationService";
+import { cleanSavedSearchFilters, savedSearchFiltersToQuery } from "@/app/libs/savedSearch";
+import type { Prisma } from "@prisma/client";
 
 // Vercel Cron (and any manual trigger) must present this as
 // `Authorization: Bearer <CRON_SECRET>`. Vercel adds this header
@@ -110,6 +112,39 @@ async function runNotificationCron() {
       }
     }
 
+    // Deliver opted-in saved-search alerts. Alerts are in-app notifications;
+    // email delivery can be added later without changing the saved-search model.
+    const now = new Date();
+    const savedSearches = await prisma.savedSearch.findMany({ where: { active: true }, take: 200 });
+    let savedSearchAlerts = 0;
+
+    for (const savedSearch of savedSearches) {
+      const intervalMs = savedSearch.alertFrequency === "DAILY" ? 86_400_000 : 7 * 86_400_000;
+      const lastScan = savedSearch.lastNotifiedAt || savedSearch.createdAt;
+      if (now.getTime() - lastScan.getTime() < intervalMs) continue;
+
+      const filters = cleanSavedSearchFilters(savedSearch.filters);
+      const where = {
+        ...savedSearchFiltersToQuery(filters),
+        userId: { not: savedSearch.userId },
+        createdAt: { gt: lastScan },
+      } as Prisma.ListingWhereInput;
+      const matches = await prisma.listing.findMany({ where, select: { id: true }, take: 4 });
+
+      if (matches.length > 0) {
+        const query = new URLSearchParams(Object.entries(filters).map(([key, value]) => [key, String(value)])).toString();
+        await notificationService.notifySystemUpdate(
+          savedSearch.userId,
+          "New vehicles match your saved search",
+          `${matches.length === 4 ? "At least 4" : matches.length} new vehicle${matches.length === 1 ? "" : "s"} match “${savedSearch.name}”.`,
+          `/?${query}`,
+        );
+        savedSearchAlerts += 1;
+      }
+
+      await prisma.savedSearch.update({ where: { id: savedSearch.id }, data: { lastNotifiedAt: now } });
+    }
+
     console.log("✅ Notification cron job completed successfully");
 
     return NextResponse.json({
@@ -118,6 +153,7 @@ async function runNotificationCron() {
       stats: {
         upcomingReservations: upcomingReservations.length,
         completedReservations: completedReservations.length,
+        savedSearchAlerts,
       },
     });
 

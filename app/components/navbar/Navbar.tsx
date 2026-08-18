@@ -49,12 +49,12 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
     <header ref={headerRef} className={`fixed inset-x-0 top-0 z-30 w-full border-b bg-white/95 backdrop-blur-md transition-[box-shadow,border-color] duration-300 ${isScrolled ? "border-hairline shadow-[0_8px_24px_rgba(24,54,58,0.08)]" : "border-hairline-soft shadow-none"}`}>
       <div className={`transition-[padding] duration-300 ${isScrolled ? "py-2" : "py-2.5 sm:py-3"}`}>
         <Container>
-          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2.5 md:gap-y-0">
+          <div className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2.5 md:grid-cols-[auto_1fr_auto] md:gap-x-3">
             <div className="shrink-0">
               <Logo />
             </div>
-            <div className="col-span-3 row-start-2 min-w-0 md:col-span-1 md:row-start-auto md:flex md:justify-center">
-              <div className="w-full md:w-auto">
+            <div className="col-start-2 min-w-0 md:col-span-1 md:col-start-auto md:flex md:justify-center">
+              <div className="md:w-auto">
                 <Suspense fallback={<SearchFallback />}>
                   <Search />
                 </Suspense>
@@ -74,7 +74,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
     </header>
     <div
       aria-hidden="true"
-      className={pathname === "/" ? "h-[174px] md:h-[126px]" : "h-[112px] md:h-[68px]"}
+      className={pathname === "/" ? "h-[122px] md:h-[126px]" : "h-[64px] md:h-[68px]"}
       style={headerHeight ? { height: `${headerHeight}px` } : undefined}
     />
     </>
@@ -85,10 +85,10 @@ export default Navbar;
 
 function SearchFallback() {
   return (
-    <div className="flex h-[48px] w-full items-center justify-between rounded-full border border-hairline bg-white py-2 shadow-card md:w-[460px]" aria-hidden="true">
-      <span className="px-6 text-sm font-medium text-ink">Anywhere</span>
-      <span className="hidden flex-1 border-x border-hairline px-10 text-center text-sm font-medium text-ink sm:block">Any Week</span>
-      <span className="mr-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white"><BiSearch size={18} /></span>
+    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-hairline bg-white text-ink md:h-[48px] md:w-[460px] md:justify-between md:py-2 md:shadow-card" aria-hidden="true">
+      <span className="hidden px-6 text-sm font-medium text-ink md:block">Anywhere</span>
+      <span className="hidden flex-1 border-x border-hairline px-10 text-center text-sm font-medium text-ink md:block">Any Week</span>
+      <span className="flex h-8 w-8 items-center justify-center rounded-full md:mr-2 md:bg-primary md:text-white"><BiSearch size={20} /></span>
     </div>
   );
 }

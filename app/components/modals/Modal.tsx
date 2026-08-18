@@ -42,6 +42,7 @@ interface ModalProps {
     secondaryActionLabel?: string;
     compact?: boolean;
     centered?: boolean;
+    mobileFullScreen?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -58,6 +59,7 @@ const Modal: React.FC<ModalProps> = ({
     secondaryActionLabel,
     compact = false,
     centered = false,
+    mobileFullScreen = false,
 }) => {
     const [showModal, setShowModal] = useState(false);
 
@@ -123,7 +125,7 @@ const Modal: React.FC<ModalProps> = ({
             <div
                 className={compact
                     ? `relative w-full sm:max-w-[480px] sm:px-4 sm:py-8 ${centered ? "max-w-[480px] px-4 py-6" : ""}`
-                    : "relative mx-auto h-[100dvh] w-full p-2 sm:my-6 sm:h-[95%] sm:w-11/12 sm:px-4 md:w-4/6 lg:w-3/6 xl:w-2/5"}
+                    : `relative mx-auto h-[100dvh] w-full ${mobileFullScreen ? "p-0" : "p-2"} sm:my-6 sm:h-[95%] sm:w-11/12 sm:px-4 md:w-4/6 lg:w-3/6 xl:w-2/5`}
                 onClick={(e) => e.stopPropagation()} // Prevent modal from closing when clicking inside
             >
                 {/* Modal Content */}
@@ -131,12 +133,12 @@ const Modal: React.FC<ModalProps> = ({
                     className={`h-full transition-[transform,opacity] duration-[360ms] ease-[cubic-bezier(.22,1,.36,1)] motion-reduce:transition-none
           ${showModal ? 'translate-y-0 opacity-100' : 'translate-y-[110%] opacity-0'}`}
                 >
-                    <div className={`relative flex w-full flex-col bg-white outline-none overflow-hidden ${compact ? `max-h-[94dvh] shadow-2xl sm:max-h-[calc(100dvh-64px)] sm:rounded-lg ${centered ? "rounded-lg" : "rounded-t-[28px]"}` : "h-full rounded-md border-0 shadow-card md:h-auto"}`}>
+                    <div className={`relative flex w-full flex-col bg-white outline-none overflow-hidden ${compact ? `max-h-[94dvh] shadow-2xl sm:max-h-[calc(100dvh-64px)] sm:rounded-lg ${centered ? "rounded-lg" : "rounded-t-[28px]"}` : `h-full ${mobileFullScreen ? "rounded-none" : "rounded-md"} border-0 shadow-card sm:rounded-md md:h-auto`}`}>
                         {!centered && <div className="absolute left-1/2 top-2 z-20 h-1 w-10 -translate-x-1/2 rounded-full bg-hairline sm:hidden" aria-hidden="true" />}
 
                         {/* Modal Header */}
-                        <div className={`relative top-0 z-10 flex items-center justify-center bg-white ${compact ? "px-8 pb-4 pt-8 sm:pt-10" : "border-b border-hairline-soft px-4 py-5 sm:p-6"}`}>
-                            <button onClick={handleClose} aria-label="Close dialog" className={`absolute z-20 rounded-full border-0 transition text-muted hover:bg-surface-soft hover:text-ink ${compact ? "right-4 top-4 p-2" : "left-4 p-1"}`}>
+                        <div className={`relative top-0 z-10 flex items-center justify-center bg-white ${compact ? "px-8 pb-4 pt-8 sm:pt-10" : `border-b border-hairline-soft px-4 py-5 sm:p-6 ${mobileFullScreen ? "safe-top" : ""}`}`}>
+                            <button onClick={handleClose} aria-label="Close dialog" className={`absolute z-20 flex h-11 w-11 items-center justify-center rounded-full border-0 text-muted transition hover:bg-surface-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${compact ? "right-4 top-4" : "left-4"}`}>
                                 <IoMdClose size={compact ? 20 : 18} />
                             </button>
                             <div id="modal-title" className={`${compact ? "text-xl" : "text-title-md"} font-semibold text-ink px-10 text-center truncate`}>{title}</div>

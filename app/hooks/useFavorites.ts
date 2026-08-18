@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import { SafeUser } from "../types";
@@ -15,11 +15,11 @@ const useFavorite = ({ listingId, currentUser }: IUseFavorite) => {
   const router = useRouter();
   const loginModal = useLoginModal();
 
-  const hasFavorited = useMemo(() => {
-    const list = currentUser?.favoriteIds || [];
+  const serverFavorite = (currentUser?.favoriteIds || []).includes(listingId);
+  const [hasFavorited, setHasFavorited] = useState(serverFavorite);
+  const [isUpdating, setIsUpdating] = useState(false);
 
-    return list.includes(listingId);
-  }, [currentUser, listingId]);
+  useEffect(() => setHasFavorited(serverFavorite), [serverFavorite]);
 
   const toggleFavorite = useCallback(
     async (e: React.SyntheticEvent) => {
@@ -29,6 +29,10 @@ const useFavorite = ({ listingId, currentUser }: IUseFavorite) => {
         return loginModal.onOpen();
       }
 
+      if (isUpdating) return;
+      const nextFavorite = !hasFavorited;
+      setHasFavorited(nextFavorite);
+      setIsUpdating(true);
       try {
         let request;
 
@@ -40,18 +44,22 @@ const useFavorite = ({ listingId, currentUser }: IUseFavorite) => {
 
         await request();
         router.refresh();
-        toast.success("Success");
+        toast.success(nextFavorite ? "Saved to favourites" : "Removed from favourites");
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        toast.error("Something went wrong");
+        setHasFavorited(!nextFavorite);
+        toast.error("Could not update favourites. Try again.");
+      } finally {
+        setIsUpdating(false);
       }
     },
-    [currentUser, hasFavorited, listingId, loginModal, router]
+    [currentUser, hasFavorited, isUpdating, listingId, loginModal, router]
   );
 
   return {
     hasFavorited,
     toggleFavorite,
+    isUpdating,
   };
 };
 

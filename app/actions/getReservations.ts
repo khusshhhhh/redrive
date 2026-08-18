@@ -42,6 +42,7 @@ export default async function getReservations(params: IParams) {
       ...reservation,
       createdAt: reservation.createdAt.toISOString(),
       updatedAt: reservation.updatedAt.toISOString(),
+      respondedAt: reservation.respondedAt?.toISOString() ?? null,
       startDate: reservation.startDate.toISOString(),
       endDate: reservation.endDate.toISOString(),
       cancelledAt: reservation.cancelledAt?.toISOString() ?? null,
@@ -55,6 +56,9 @@ export default async function getReservations(params: IParams) {
           : null,
         lastActiveAt: reservation.user.lastActiveAt
           ? reservation.user.lastActiveAt.toISOString()
+          : null,
+        licenseExpiresAt: reservation.user.licenseExpiresAt
+          ? reservation.user.licenseExpiresAt.toISOString()
           : null,
       },
       listing: {

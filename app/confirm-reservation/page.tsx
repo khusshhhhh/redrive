@@ -11,6 +11,7 @@ import { CalendarDays, ChevronLeft, Clock3, Info, MapPin, MessageCircle, ShieldC
 
 import Container from "@/app/components/Container";
 import Button from "@/app/components/Button";
+import InlineRetry from "@/app/components/InlineRetry";
 
 const serviceFeeFor = (total: number) => total <= 200 ? 10 : total <= 400 ? 25 : total <= 800 ? 40 : total <= 1200 ? 60 : total <= 2000 ? 80 : 100;
 const money = (value: number) => `AU$${value.toLocaleString("en-AU")}`;
@@ -28,14 +29,17 @@ export default function ConfirmReservation() {
   const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!listingId) { setLoading(false); return; }
     axios.get(`/api/listings/${listingId}`)
       .then((response) => setListing(response.data))
-      .catch(() => toast.error("Failed to load booking details"))
+      .then(() => setLoadError(false))
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
-  }, [listingId]);
+  }, [listingId, reloadKey]);
 
   const totals = useMemo(() => {
     const serviceFee = serviceFeeFor(basePrice);
@@ -66,6 +70,7 @@ export default function ConfirmReservation() {
   };
 
   if (loading) return <ConfirmationSkeleton />;
+  if (loadError) return <Container><div className="py-12"><InlineRetry title="Booking details unavailable" message="Your selected dates are still preserved. Try loading the vehicle details again." onRetry={() => { setLoading(true); setReloadKey((value) => value + 1); }} /></div></Container>;
   if (!listing || !validRequest) return <div className="py-32 text-center"><h1 className="text-2xl font-semibold text-ink">Booking details unavailable</h1><button onClick={() => router.push("/")} className="mt-5 text-sm font-semibold text-primary hover:underline">Return to listings</button></div>;
 
   const host = listing.user;

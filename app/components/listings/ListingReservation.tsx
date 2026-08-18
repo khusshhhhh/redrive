@@ -92,9 +92,10 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
 
     return (
         <div className="bg-white shadow-card rounded-md border border-hairline-soft overflow-hidden mt-10 md:mt-0">
-            <div className="flex flex-row items-center gap-1 p-4">
-                <div className="text-display-md font-semibold text-ink">$ {price}</div>
-                <div className="font-normal text-muted">per day</div>
+            <div className="p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">Estimated trip total</div>
+                <div className="mt-1 text-display-md font-semibold text-ink">AU$ {totalFees}</div>
+                <div className="mt-1 text-xs text-muted">AU$ {price} per day · {dayCount} day{dayCount === 1 ? "" : "s"} · fees shown below</div>
             </div>
             <hr className="border-hairline-soft" />
             <Calendar value={dateRange} disabledDates={disabledDates} onChange={(value) => onChangeDate(value.selection)} />

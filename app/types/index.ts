@@ -13,11 +13,15 @@ export type SafeListing = Omit<Listing, "createdAt" | "regoImage" | "instantBook
   maximumTripDays?: number;
   preparationBufferHours?: number;
   exactLocationReleaseRule?: string;
+  reviewAverage?: number;
+  reviewCount?: number;
+  hostVerified?: boolean;
+  hostResponseHours?: number | null;
 };
 
 export type SafeReservation = Omit<
   Reservation,
-  "createdAt" | "startDate" | "endDate" | "updatedAt" | "quoteSnapshot" | "pricingPolicyVersion" | "paymentStatus" | "cancelledAt" | "cancelledById" | "cancellationReason" | "refundAmount" | "pickupAddressReleasedAt"
+  "createdAt" | "startDate" | "endDate" | "updatedAt" | "respondedAt" | "quoteSnapshot" | "pricingPolicyVersion" | "paymentStatus" | "cancelledAt" | "cancelledById" | "cancellationReason" | "refundAmount" | "pickupAddressReleasedAt"
 > & {
   createdAt: string;
   startDate: string;
@@ -26,6 +30,7 @@ export type SafeReservation = Omit<
   listing: SafeListing;
   status: string;
   updatedAt?: string;
+  respondedAt?: string | null;
   quoteSnapshot?: unknown;
   pricingPolicyVersion?: string;
   paymentStatus?: string;
@@ -41,12 +46,13 @@ export type SafeUser = Pick<
   | "id" | "name" | "email" | "number" | "dateOfBirth" | "image" | "favoriteIds"
   | "streetAddress" | "suburb" | "state" | "postcode" | "hobbies"
   | "dreamDestinations" | "licenseImage" | "licenseType"
-  | "profileVerified" | "loginOtpEnabled"
+  | "profileVerified" | "loginOtpEnabled" | "licenseStatus"
 > & {
   createdAt: string;
   updatedAt: string;
   emailVerified: string | null;
   lastActiveAt: string | null;
+  licenseExpiresAt: string | null;
   hasPassword?: boolean;
 };
 

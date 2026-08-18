@@ -13,21 +13,25 @@ const HeartButton: React.FC<HeartButtonProps> = ({
     listingId,
     currentUser
 }) => {
-    const { hasFavorited, toggleFavorite } = useFavorite({
+    const { hasFavorited, toggleFavorite, isUpdating } = useFavorite({
         listingId,
         currentUser
     })
     return (
-        <div
+        <button
+            type="button"
             onClick={toggleFavorite}
-            className="relative hover:opacity-80 transition cursor-pointer">
+            disabled={isUpdating}
+            aria-pressed={hasFavorited}
+            aria-label={hasFavorited ? "Remove from favourites" : "Save to favourites"}
+            className={`relative flex h-11 w-11 items-center justify-center rounded-full outline-none transition hover:scale-105 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transform-none motion-reduce:transition-none ${hasFavorited ? "scale-110" : "scale-100"}`}>
             <AiOutlineHeart
                 size={32}
-                className="fill-white absolute -top-[2px] -right-[2px]" />
+                className="absolute fill-white" />
             <AiFillHeart
                 size={28}
-                className={hasFavorited ? 'fill-favorite' : 'fill-neutral-500/40'} />
-        </div>
+                className={`transition-colors motion-reduce:transition-none ${hasFavorited ? 'fill-favorite' : 'fill-neutral-500/40'}`} />
+        </button>
 
     );
 };

@@ -63,6 +63,9 @@ export async function GET(
         lastActiveAt: reservation.user.lastActiveAt
           ? reservation.user.lastActiveAt.toISOString()
           : null,
+        licenseExpiresAt: reservation.user.licenseExpiresAt
+          ? reservation.user.licenseExpiresAt.toISOString()
+          : null,
       },
       listing: {
         ...reservation.listing,
@@ -248,7 +251,14 @@ export async function PATCH(
 
     const updated = await prisma.reservation.update({
       where: { id: reservationId },
-      data: { status },
+      data: {
+        status,
+        ...(
+          reservation.status === "REVIEWING" && ["APPROVED", "DECLINED"].includes(status)
+            ? { respondedAt: new Date() }
+            : {}
+        ),
+      },
     });
 
     await writeAuditEvent({ request, actorUserId: currentUser.id, action: "RESERVATION_STATUS_CHANGED", targetType: "Reservation", targetId: reservation.id, metadata: { from: reservation.status, to: status } });

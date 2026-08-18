@@ -1,6 +1,69 @@
 # Redrive feature opportunities and product roadmap
 
-Updated: 17 August 2026
+Updated: 18 August 2026
+
+## Next product proposal — 18 August 2026
+
+The next phase should turn Redrive from a marketplace people visit occasionally into a useful trip companion they return to. The strongest approach is a simple loop: help guests discover the right vehicle, make choosing feel safe, preserve their progress, and bring them back only when something genuinely relevant changes.
+
+### Shipped in today's mobile navigation pass
+
+- **Compact mobile header:** the full-width search field is replaced by one accessible search icon, leaving more room for content.
+- **Clear Redrive identity:** the Coast and Country mark and wordmark are visible in the mobile header.
+- **Simpler account access:** the mobile user menu is opened by the avatar alone; the hamburger icon is removed on small screens.
+- **Search-state continuity:** a small wattle-coloured indicator appears on the search icon when filters are active.
+- **Reduced mobile clutter:** notifications remain available in the product, while the small-screen header focuses on logo, search and account.
+
+### Recommended next engagement sprint
+
+| Order | Proposal | User benefit | First implementation | Success measure |
+|---|---|---|---|---|
+| 1 | Continue where you left off | Users can return to their last search, viewed vehicles and unfinished booking | Add a signed-in home module backed by recent views and the latest meaningful search | Return visit to listing rate |
+| 2 | Account-synced saved searches | A useful reason to return when suitable inventory appears | Persist saved filters in Prisma and offer opt-in daily or weekly alerts | Alert-to-listing open rate |
+| 3 | Compare up to three vehicles | Reduces tab switching and decision fatigue | Add a sticky compare tray with total price, seats, transmission, rating and key features | Compare-to-request conversion |
+| 4 | Trust-forward listing cards | Users understand quality before opening every listing | Show rating confidence, response time, verified-host state and total trip price when dates exist | Listing-to-request conversion |
+| 5 | Booking readiness checklist | Fewer surprises after a user decides to book | Show profile, email and licence readiness with one next action | Started-to-completed request rate |
+| 6 | Real recommendation rails | Discovery feels relevant without opaque AI | Rank real inventory using location, availability, favourites and recent views, with a visible reason | Recommendation save rate |
+
+### Implementation progress — 18 August 2026
+
+| Order | Status | Delivered |
+|---|---|---|
+| 1 | Implemented | Signed-in “Continue your journey” module with the latest submitted search and up to four recently viewed vehicles; signed-out visitors retain browser-local history |
+| 2 | Implemented | Authenticated Prisma saved-search CRUD, cross-device management, Off/Daily/Weekly controls and scheduled in-app alerts for newly added matching inventory |
+| 3 | Implemented | Persistent compare controls, mobile-safe sticky tray and `/compare` table for up to three vehicles with date-aware vehicle totals and key attributes |
+| 4 | Implemented | Listing cards now show real review confidence, verified-host state, measured host response time where history exists and estimated vehicle totals when dates are selected |
+| 5 | Implemented | Signed-in booking-readiness checklist for profile, email and driving licence with one prioritized next action |
+| 6 | Implemented | Mock recommendations replaced by real inventory ranked by requested/profile location, date availability, favourites, recent views, reviews and verified-host state, with visible reasons and “show less” control |
+
+Operational note: saved-search alerts use the existing daily Vercel notification cron and `CRON_SECRET`. Host response-time labels begin appearing after hosts approve or decline new booking requests because Redrive now records a dedicated response timestamp instead of estimating from unrelated activity.
+
+### UI/UX improvements implemented — 18 August 2026
+
+1. **Focused mobile search sheet — implemented:** the header icon opens a full-height three-step Location and vehicle → Dates → Guests and budget flow. Session-backed draft state survives closing and reopening; desktop keeps the complete form.
+2. **Total-price clarity — implemented:** dated listing cards and booking surfaces lead with the estimated trip total and retain the daily rate as supporting context.
+3. **Better card scanning — implemented:** titles stay within two lines, ratings occupy a fixed scan position, pricing follows one hierarchy and the first image remains dominant.
+4. **Purposeful home sections — implemented:** “Available this weekend” uses reservation-aware availability, “Popular” requires real reviews and “Work-ready utilities” uses real ute, van and truck inventory. Every row hides below three credible results.
+5. **Helpful empty states — implemented:** users can deliberately expand from suburb to state, remove dates, change vehicle type or reset everything; untouched filters remain visible and preserved.
+6. **Fast perceived performance — implemented:** first listing images are prioritized, compact and grid skeletons match card proportions, and existing measured header spacing prevents content jumps.
+7. **Accessible mobile controls — implemented for changed surfaces:** the new search, favourite, empty, retry and modal controls use 44px targets, visible focus, useful labels, safe-area padding and reduced-motion fallbacks.
+8. **Consistent feedback — implemented:** favourites update optimistically with specific success/error language, booking and messages preserve user state on recoverable failures, and shared retry UI replaces dead ends.
+
+### Engagement principles and guardrails
+
+- Ask for alert permission only after a user saves a search or favourite; default to a digest instead of frequent messages.
+- Every recommendation should say why it appears and offer “Show less like this”.
+- Measure useful outcomes—return visits, saves, comparisons and completed booking requests—not raw screen time.
+- Never expose an exact vehicle address in discovery, analytics or engagement messages.
+- Avoid fake urgency, countdown timers, fabricated popularity and notification badges that do not represent real user value.
+
+### Suggested two-week delivery slice
+
+1. ~~Polish and test the new mobile search sheet opened by the header icon.~~ Completed 18 August 2026.
+2. ~~Add a reusable “Continue your search” module using existing recent-view/search state.~~ Completed 18 August 2026.
+3. ~~Build the compare tray for up to three listings.~~ Completed 18 August 2026.
+4. Add the core funnel events: search submitted, listing viewed, favourite saved, compare started and booking request completed—without addresses or full query strings.
+5. Run mobile QA at 320px, 375px and 430px, plus keyboard, 200% zoom and reduced-motion checks.
 
 ## Airbnb-inspired discovery and UI opportunities — 17 August 2026
 

@@ -25,6 +25,10 @@ body {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
+.safe-top {
+  padding-top: max(1.25rem, env(safe-area-inset-top));
+}
+
 button,
 [role="button"],
 label[for] {

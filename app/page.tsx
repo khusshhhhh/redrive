@@ -6,6 +6,13 @@ import EmptyState from "./components/EmptyState";
 import FavoriteListings from "./components/FavoriteListings";
 import ListingCard from "./components/listings/ListingCard";
 import RecentlyViewed from "./components/RecentlyViewed";
+import ContinueWhereYouLeftOff from "./components/ContinueWhereYouLeftOff";
+import SavedSearchManager from "./components/SavedSearchManager";
+import { differenceInCalendarDays } from "date-fns";
+import BookingReadiness from "./components/BookingReadiness";
+import RealRecommendations from "./components/RealRecommendations";
+import PurposefulCollections from "./components/PurposefulCollections";
+import { addDays, nextSaturday } from "date-fns";
 
 interface HomeProps {
   searchParams?: IListingsParams;
@@ -15,15 +22,21 @@ const Home = async ({ searchParams }: HomeProps) => {
   // Ensure searchParams is awaited before using its properties.
   const resolvedSearchParams = await Promise.resolve(searchParams);
   const params: IListingsParams = resolvedSearchParams ? { ...resolvedSearchParams } : {};
+  const hasFilters = Object.values(params).some(value => value !== undefined && value !== '');
+  const today = new Date();
+  const weekendStart = nextSaturday(today);
+  const weekendEnd = addDays(weekendStart, 1);
 
-  const [listings, currentUser, favoriteListings] = await Promise.all([
+  const [listings, currentUser, favoriteListings, weekendListings] = await Promise.all([
     getListings(params),
     getCurrentUser(),
     getFavoriteListings(),
+    hasFilters ? Promise.resolve([]) : getListings({ startDate: weekendStart.toISOString(), endDate: weekendEnd.toISOString() }),
   ]);
 
-  // Check if any filters are applied
-  const hasFilters = Object.values(params).some(value => value !== undefined && value !== '');
+  const tripDays = params.startDate && params.endDate
+    ? Math.max(1, differenceInCalendarDays(new Date(params.endDate), new Date(params.startDate)) + 1)
+    : null;
 
   return (
       <Container>
@@ -42,6 +55,9 @@ const Home = async ({ searchParams }: HomeProps) => {
             </div>
           )}
 
+          {currentUser && <SavedSearchManager currentFilters={params} hasFilters={hasFilters} />}
+          {currentUser && <BookingReadiness currentUser={currentUser} />}
+
           {/* Main Content */}
           {listings.length === 0 ? (
             <EmptyState showReset />
@@ -59,6 +75,8 @@ const Home = async ({ searchParams }: HomeProps) => {
                   </div>
                 </div>
               )}
+              {!hasFilters && <PurposefulCollections listings={listings} weekendListings={weekendListings} weekendStart={weekendStart} weekendEnd={weekendEnd} currentUser={currentUser} />}
+              {!hasFilters && <h2 className="mb-4 text-display-sm font-semibold text-ink">All vehicles</h2>}
               <div className="
                 grid
                 grid-cols-1
@@ -75,6 +93,7 @@ const Home = async ({ searchParams }: HomeProps) => {
                     key={listing.id}
                     data={listing}
                     priority={index < 2}
+                    tripDays={tripDays}
                   />
                 ))}
               </div>
@@ -98,7 +117,12 @@ const Home = async ({ searchParams }: HomeProps) => {
                 listings={favoriteListings}
                 currentUser={currentUser}
               />
-              <RecentlyViewed currentUser={currentUser} />
+              {currentUser ? (
+                <ContinueWhereYouLeftOff currentUser={currentUser} />
+              ) : (
+                <RecentlyViewed currentUser={currentUser} />
+              )}
+              <RealRecommendations currentUser={currentUser} />
             </>
           )}
         </div>

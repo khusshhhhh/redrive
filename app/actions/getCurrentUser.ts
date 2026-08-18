@@ -42,6 +42,8 @@ const getCurrentUser = cache(async () => {
       dreamDestinations: currentUser.dreamDestinations,
       licenseImage: currentUser.licenseImage,
       licenseType: currentUser.licenseType,
+      licenseStatus: currentUser.licenseStatus,
+      licenseExpiresAt: currentUser.licenseExpiresAt?.toISOString() || null,
       profileVerified: currentUser.profileVerified,
       loginOtpEnabled: currentUser.loginOtpEnabled,
       hasPassword: Boolean(currentUser.hashedPassword),

@@ -11,6 +11,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Manrope } from "next/font/google";
 import type { Metadata } from "next";
 import { siteUrl } from "./libs/siteUrl";
+import CompareTray from "./components/CompareTray";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -58,6 +59,7 @@ export default async function RootLayout({
         <main className="app-content min-h-screen pb-20 md:pb-0">{children}</main>
         <Footer currentUser={currentUser} />
         <MobileBottomNav currentUser={currentUser} />
+        <CompareTray />
         <Analytics />
         <SpeedInsights />
       </body>

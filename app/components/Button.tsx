@@ -55,7 +55,7 @@ const Button: React.FC<ButtonProps> = ({
             className={`group relative flex items-center justify-center gap-2 my-2 disabled:cursor-not-allowed rounded-sm transition-all duration-200 w-full overflow-hidden font-medium
                 ${outline ? 'bg-white border border-ink text-ink hover:bg-surface-soft' : 'bg-primary border border-primary text-white hover:bg-primary-active'}
                 ${loading ? 'opacity-90 cursor-wait' : 'disabled:opacity-70'}
-                ${small ? 'py-2 text-button-sm h-10' : 'py-3 text-button-md h-12'}
+                ${small ? 'py-2 text-button-sm h-11' : 'py-3 text-button-md h-12'}
                 ${className || ''}`}
             {...props}
         >

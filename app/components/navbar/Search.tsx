@@ -60,13 +60,24 @@ const Search = () => {
 
   return (
     <div className="flex min-w-0 flex-row items-center gap-2 sm:gap-4">
+      <button
+        type="button"
+        onClick={searchModal.onOpen}
+        aria-label={`Search vehicles. ${locationLabel}, ${durationLabel}, ${guestLabel}`}
+        className="relative flex h-11 w-11 items-center justify-center rounded-full border border-hairline bg-white text-ink outline-none transition hover:border-border-strong hover:bg-surface-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:hidden"
+      >
+        <BiSearch size={22} aria-hidden="true" />
+        {filtersApplied && (
+          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent ring-2 ring-white" aria-hidden="true" />
+        )}
+      </button>
       <div
         onClick={searchModal.onOpen}
         role="button"
         tabIndex={0}
         onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); searchModal.onOpen(); } }}
         aria-label={`Search vehicles. ${locationLabel}, ${durationLabel}, ${guestLabel}`}
-        className="min-w-0 flex-1 cursor-pointer rounded-full border border-hairline bg-white py-1 text-ink shadow-card outline-none transition hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:py-2 md:w-auto md:flex-none"
+        className="hidden min-w-0 flex-1 cursor-pointer rounded-full border border-hairline bg-white py-1 text-ink shadow-card outline-none transition hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:py-2 md:block md:w-auto md:flex-none"
       >
         <div className="flex min-w-0 flex-row items-center justify-between sm:gap-4 md:gap-10">
           {/* Selected Location */}
@@ -90,7 +101,7 @@ const Search = () => {
         </div>
       </div>
       {/* Show Clear Filters button only if a filter is applied */}
-      <div>
+      <div className="hidden md:block">
         {filtersApplied && (
           <div className="text-center">
             <button

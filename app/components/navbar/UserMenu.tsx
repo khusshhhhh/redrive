@@ -83,12 +83,16 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
         >
           List your car
         </div>
-        {currentUser && <NotificationBell />}
-        <div
+        {currentUser && <div className="hidden md:block"><NotificationBell /></div>}
+        <button
+          type="button"
           onClick={toggleOpen}
-          className="flex min-h-11 min-w-11 cursor-pointer flex-row items-center justify-center gap-2 rounded-full border border-hairline px-2 py-1.5 text-ink transition hover:shadow-card sm:px-3 sm:py-2"
+          aria-label={currentUser ? "Open account menu" : "Open sign in menu"}
+          aria-expanded={isOpen}
+          aria-haspopup="menu"
+          className="flex h-11 w-11 cursor-pointer flex-row items-center justify-center rounded-full border border-hairline bg-white text-ink outline-none transition hover:border-border-strong hover:shadow-card focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:h-auto md:w-auto md:min-h-11 md:min-w-11 md:gap-2 md:px-3 md:py-2"
         >
-          <IconMenu3 size={18} />
+          <IconMenu3 className="hidden md:block" size={18} />
           <div>
             {currentUser?.image ? (
               <Avatar src={currentUser.image} />
@@ -96,7 +100,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
               <IconUserCircle className="text-muted" size={30} />
             )}
           </div>
-        </div>
+        </button>
       </div>
 
       {isOpen && (

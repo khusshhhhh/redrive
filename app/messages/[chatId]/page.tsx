@@ -14,6 +14,7 @@ import ChatSidebar from "@/app/components/messages/ChatSidebar";
 import TypingIndicator from "@/app/components/messages/TypingIndicator";
 import { useSSE } from "@/app/hooks/useSSE";
 import { isOnline } from "@/app/helpers/presence";
+import InlineRetry from "@/app/components/InlineRetry";
 
 const TYPING_SEND_THROTTLE_MS = 2000;
 const TYPING_STOP_DELAY_MS = 3000;
@@ -42,6 +43,8 @@ const ChatPage = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [otherTyping, setOtherTyping] = useState(false);
   const [streamSince, setStreamSince] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const attachmentInputRef = useRef<HTMLInputElement>(null);
@@ -60,6 +63,7 @@ const ChatPage = () => {
     setMessages([]);
     setOtherUser(null);
     setStreamSince(null);
+    setLoadError(false);
     seenIdsRef.current = new Set();
 
     axios.get("/api/auth/user").then((res) => {
@@ -85,7 +89,7 @@ const ChatPage = () => {
       })
       .catch(() => {
         if (!cancelled) {
-          toast.error("Failed to load conversation");
+          setLoadError(true);
           setLoading(false);
         }
       });
@@ -93,7 +97,7 @@ const ChatPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [chatId]);
+  }, [chatId, reloadKey]);
 
   const markRead = useCallback(() => {
     if (!chatId) return;
@@ -301,6 +305,8 @@ const ChatPage = () => {
       </div>
     );
   }
+
+  if (loadError) return <Container><div className="py-8"><InlineRetry title="Conversation unavailable" message="Your messages are still safe. Check your connection and try loading the conversation again." onRetry={() => setReloadKey((value) => value + 1)} /></div></Container>;
 
   const online = isOnline(otherUser?.lastActiveAt);
 
