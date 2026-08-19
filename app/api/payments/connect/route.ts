@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     action = body?.action === "manage" ? "manage" : "onboard";
     const user = await prisma.user.findUnique({
       where: { id: currentUser.id },
-      select: { email: true, stripeConnectedAccountId: true },
+      select: { name: true, email: true, stripeConnectedAccountId: true },
     });
     if (!user)
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -100,14 +100,37 @@ export async function POST(request: Request) {
     }
 
     if (!accountId) {
-      const account = await getStripe().accounts.create(
+      if (!user.email) {
+        return NextResponse.json(
+          { error: "Add an email address before setting up payouts" },
+          { status: 409 },
+        );
+      }
+
+      const account = await getStripe().v2.core.accounts.create(
         {
-          type: "express",
-          country: "AU",
-          email: user.email || undefined,
-          capabilities: { transfers: { requested: true } },
-          business_profile: {
-            product_description: "Peer-to-peer vehicle hire through Redrive",
+          contact_email: user.email,
+          display_name: user.name || undefined,
+          dashboard: "express",
+          identity: { country: "au" },
+          defaults: {
+            currency: "aud",
+            responsibilities: {
+              fees_collector: "application",
+              losses_collector: "application",
+            },
+            profile: {
+              product_description: "Peer-to-peer vehicle hire through Redrive",
+            },
+          },
+          configuration: {
+            recipient: {
+              capabilities: {
+                stripe_balance: {
+                  stripe_transfers: { requested: true },
+                },
+              },
+            },
           },
           metadata: { redriveUserId: currentUser.id },
         },
@@ -120,11 +143,17 @@ export async function POST(request: Request) {
       });
     }
 
-    const link = await getStripe().accountLinks.create({
+    const link = await getStripe().v2.core.accountLinks.create({
       account: accountId,
-      refresh_url: `${siteUrl}/profile?payouts=refresh#payouts`,
-      return_url: `${siteUrl}/profile?payouts=returned#payouts`,
-      type: "account_onboarding",
+      use_case: {
+        type: "account_onboarding",
+        account_onboarding: {
+          configurations: ["recipient"],
+          collection_options: { fields: "eventually_due" },
+          refresh_url: `${siteUrl}/profile?payouts=refresh#payouts`,
+          return_url: `${siteUrl}/profile?payouts=returned#payouts`,
+        },
+      },
     });
     return NextResponse.json({ url: link.url });
   } catch (error) {
