@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
-import { ArrowLeft, KeyRound, Mail } from "lucide-react";
+import { ArrowLeft, CarFront, KeyRound, Mail } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
@@ -90,6 +90,7 @@ const LoginModal = () => {
 
   const credentialBody = (
     <div className="space-y-6">
+      <LoginJourney />
       <div className="text-center">
         <p className="text-sm leading-6 text-muted">Access your trips, messages and hosted vehicles.</p>
       </div>
@@ -149,5 +150,33 @@ const LoginModal = () => {
     />
   );
 };
+
+function LoginJourney() {
+  return (
+    <div className="relative overflow-hidden rounded-md bg-ink px-5 py-4 text-white">
+      <div className="flex items-center justify-between gap-5">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">
+            Welcome back to
+          </p>
+          <div className="mt-1 flex items-end gap-0.5" role="img" aria-label="Redrive">
+            <span
+              aria-hidden="true"
+              data-wordmark="redrive"
+              className="login-wordmark text-2xl font-bold tracking-[-0.045em]"
+            >
+              redrive
+            </span>
+            <span aria-hidden="true" className="mb-0.5 text-xl font-bold leading-none text-accent">.</span>
+          </div>
+        </div>
+        <div className="signup-drive text-accent" aria-hidden="true">
+          <CarFront size={30} strokeWidth={1.8} />
+        </div>
+      </div>
+      <div className="signup-road mt-3 h-0.5 w-full opacity-60" aria-hidden="true" />
+    </div>
+  );
+}
 
 export default LoginModal;

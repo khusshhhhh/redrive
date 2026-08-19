@@ -153,6 +153,7 @@ model Reservation {
   insuranceType           String // ✅ Stores "Risk Taker", "Happy Driver", or "No Insurance"
   insuranceFee            Int // ✅ Stores calculated insurance cost
   totalFees               Int
+  message                 String?   @db.String
   status                  String    @default("REVIEWING") // NEW: reviewing, APPROVED, DECLINED
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt

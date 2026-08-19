@@ -20,17 +20,24 @@ export async function POST(request: NextRequest) {
     ]);
     if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
 
-    const renter = await prisma.user.findUnique({ where: { id: currentUser.id }, select: { licenseImage: true, licenseStatus: true } });
+    const renter = await prisma.user.findUnique({ where: { id: currentUser.id }, select: { emailVerified: true, licenseImage: true, licenseStatus: true } });
+    if (!renter?.emailVerified) {
+      return NextResponse.json({ error: "Verify your email before requesting a booking.", code: "EMAIL_VERIFICATION_REQUIRED" }, { status: 403 });
+    }
     if (!hasSubmittedLicense(renter?.licenseImage) || renter?.licenseStatus === "REJECTED" || renter?.licenseStatus === "EXPIRED") {
       return NextResponse.json({ error: "Upload a valid driving licence and submit it for verification before requesting a booking.", code: "LICENSE_REQUIRED" }, { status: 403 });
     }
 
     const body = await request.json();
     const listingId = typeof body.listingId === "string" ? body.listingId : "";
+    const message = typeof body.message === "string" ? body.message.trim() : "";
     const startDate = new Date(body.startDate);
     const endDate = new Date(body.endDate);
     if (!listingId || Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()) || endDate < startDate) {
       return NextResponse.json({ error: "Choose a valid vehicle and date range" }, { status: 400 });
+    }
+    if (message.length > 1500) {
+      return NextResponse.json({ error: "Message must be 1,500 characters or fewer" }, { status: 400 });
     }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -59,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     const reservation = await prisma.$transaction(async (tx) => {
       const created = await tx.reservation.create({
-        data: { userId: currentUser.id, listingId, startDate, endDate, totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION, status: "REVIEWING" },
+        data: { userId: currentUser.id, listingId, startDate, endDate, totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total, message: message || null, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION, status: "REVIEWING" },
       });
       await tx.bookingQuote.create({
         data: { userId: currentUser.id, listingId, reservationId: created.id, startDate, endDate, days: quote.days, dailyRate: quote.dailyRate, basePrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, cleaningFee: quote.cleaningFee, total: quote.total, currency: quote.currency, policyVersion: quote.policyVersion, expiresAt: new Date(Date.now() + 15 * 60_000) },

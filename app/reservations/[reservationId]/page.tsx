@@ -18,6 +18,7 @@ import {
   Landmark,
   MapPin,
   MessageCircle,
+  MessageSquareQuote,
   ShieldCheck,
   UserRound,
 } from "lucide-react";
@@ -243,6 +244,19 @@ export default function ReservationDetails() {
                   <DateCard label="Return" date={reservation.endDate} />
                 </div>
               </section>
+
+              {reservation.message && (
+                <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+                  <SectionHeading
+                    icon={<MessageSquareQuote size={19} />}
+                    title="Message for the host"
+                    subtitle="Sent with the original booking request."
+                  />
+                  <p className="mt-6 whitespace-pre-wrap rounded-md border border-hairline-soft bg-surface-soft p-5 text-sm leading-6 text-body">
+                    {reservation.message}
+                  </p>
+                </section>
+              )}
 
               <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
                 <SectionHeading

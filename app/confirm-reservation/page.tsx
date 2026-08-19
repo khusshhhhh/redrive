@@ -7,7 +7,7 @@ import axios from "axios";
 import Image from "next/image";
 import { differenceInCalendarDays, format } from "date-fns";
 import { toast } from "react-hot-toast";
-import { CalendarDays, ChevronLeft, Clock3, Info, MapPin, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
+import { CalendarDays, ChevronLeft, Clock3, Info, MapPin, MessageCircle, Send, ShieldCheck, Sparkles } from "lucide-react";
 
 import Container from "@/app/components/Container";
 import Button from "@/app/components/Button";
@@ -29,6 +29,7 @@ export default function ConfirmReservation() {
   const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
   const [loadError, setLoadError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -58,11 +59,14 @@ export default function ConfirmReservation() {
     }
     setSubmitting(true);
     try {
-      await axios.post("/api/reservations", { listingId, startDate, endDate, totalPrice: basePrice, insuranceType, insuranceFee });
+      await axios.post("/api/reservations", { listingId, startDate, endDate, totalPrice: basePrice, insuranceType, insuranceFee, message });
       toast.success("Booking request sent");
       router.push("/trips");
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Booking request could not be sent");
+      if (error.response?.data?.code === "EMAIL_VERIFICATION_REQUIRED") {
+        router.push("/profile#email-verification");
+      }
       if (error.response?.data?.code === "LICENSE_REQUIRED") {
         router.push("/profile#verification");
       }
@@ -99,6 +103,24 @@ export default function ConfirmReservation() {
               <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
                 <SectionTitle icon={<ShieldCheck size={19} />} title="Protection selection" subtitle="Review the cover selected on the listing page." />
                 <div className="mt-6 flex items-start justify-between gap-5 rounded-sm bg-surface-soft p-5"><div><p className="font-semibold text-ink">{insuranceType}</p><p className="mt-1 text-xs leading-5 text-muted">{insuranceType === "No Insurance" ? "You selected no additional protection. Review your responsibility before continuing." : "Your selected protection is included for the full booking period."}</p></div><span className="shrink-0 font-semibold text-ink">{money(insuranceFee)}</span></div>
+              </section>
+
+              <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+                <SectionTitle icon={<Send size={19} />} title="Message to the host" subtitle={`Help ${host?.name?.split(" ")[0] || "the host"} understand what you have planned.`} />
+                <label htmlFor="booking-message" className="mt-6 block text-sm font-semibold text-ink">Message</label>
+                <div className="relative mt-2">
+                  <textarea
+                    id="booking-message"
+                    value={message}
+                    onChange={(event) => setMessage(event.target.value)}
+                    maxLength={1500}
+                    rows={6}
+                    placeholder="Tell the host why you’re hiring the vehicle, where you’re heading, and anything useful about your plans."
+                    className="min-h-36 w-full resize-y rounded-md border border-hairline bg-surface-soft/50 px-4 py-3 pr-14 text-sm leading-6 text-ink outline-none transition placeholder:text-muted-soft focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
+                  />
+                  <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-white px-2 py-1 text-[10px] font-semibold tabular-nums text-muted shadow-sm">{message.length}/1500</span>
+                </div>
+                <p className="mt-2 text-xs leading-5 text-muted">This will be attached to your booking request. Avoid sharing payment or identity details.</p>
               </section>
 
               <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">

@@ -14,6 +14,7 @@ import {
   Heart,
   KeyRound,
   LockKeyhole,
+  MailCheck,
   MapPin,
   ShieldCheck,
   Sparkles,
@@ -43,6 +44,7 @@ import {
 } from "@/app/libs/profileValidation";
 import { hasSubmittedLicense } from "@/app/libs/licenseVerification";
 import PayoutSettings from "@/app/components/payments/PayoutSettings";
+import EmailVerification from "@/app/components/profile/EmailVerification";
 
 interface ProfileFormData {
   name: string;
@@ -167,7 +169,7 @@ export default function ProfileClient({
   );
   const [destinationInput, setDestinationInput] = useState("");
   const [profileVerified] = useState(initialUser.profileVerified || "N");
-  const [emailVerified] = useState(Boolean(initialUser.emailVerified));
+  const [emailVerified, setEmailVerified] = useState(Boolean(initialUser.emailVerified));
   const [loginOtpEnabled, setLoginOtpEnabled] = useState(
     Boolean(initialUser.loginOtpEnabled),
   );
@@ -440,6 +442,7 @@ export default function ProfileClient({
             <nav className="hidden rounded-md border border-hairline-soft bg-white p-2 lg:block">
               {[
                 ["personal", "Personal details"],
+                ["email-verification", "Email verification"],
                 ["address", "Address"],
                 ["about", "About you"],
                 ["verification", "Verification"],
@@ -529,6 +532,22 @@ export default function ProfileClient({
                     </p>
                   </div>
                 </div>
+              </SectionCard>
+
+              <SectionCard
+                id="email-verification"
+                icon={<MailCheck size={19} />}
+                title="Email verification"
+                description="Confirm your sign-in email before sending a booking request."
+              >
+                <EmailVerification
+                  email={initialUser.email || ""}
+                  verified={emailVerified}
+                  onVerified={() => {
+                    setEmailVerified(true);
+                    router.refresh();
+                  }}
+                />
               </SectionCard>
 
               <SectionCard

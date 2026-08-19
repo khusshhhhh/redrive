@@ -180,6 +180,11 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                             onRequireLogin();
                             return;
                         }
+                        if (!currentUser.emailVerified) {
+                            toast.error("Verify your email before booking");
+                            router.push("/profile#email-verification");
+                            return;
+                        }
                         if (!hasSubmittedLicense(currentUser.licenseImage)) {
                             toast.error("Upload your driving licence before booking");
                             router.push("/profile#verification");

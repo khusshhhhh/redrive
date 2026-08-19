@@ -20,9 +20,9 @@ const BookingReadiness = ({ currentUser }: { currentUser: SafeUser }) => {
   ];
 
   const next = !profileReady
-    ? { href: "/profile#personal-details", label: "Complete profile" }
+    ? { href: "/profile#personal", label: "Complete profile" }
     : !emailReady
-      ? { href: "/profile#verification", label: "Verify email" }
+      ? { href: "/profile#email-verification", label: "Verify email" }
       : !licenceReady
         ? { href: "/profile#verification", label: "Add driving licence" }
         : null;
