@@ -124,7 +124,7 @@ const Modal: React.FC<ModalProps> = ({
         >
             <div
                 className={compact
-                    ? `relative w-full sm:max-w-[480px] sm:px-4 sm:py-8 ${centered ? "max-w-[480px] px-4 py-6" : ""}`
+                    ? `relative w-full sm:max-w-[440px] sm:px-4 sm:py-8 ${centered ? "max-w-[440px] px-4 py-6" : ""}`
                     : `relative mx-auto h-[100dvh] w-full ${mobileFullScreen ? "p-0" : "p-2"} sm:my-6 sm:h-[95%] sm:w-11/12 sm:px-4 md:w-4/6 lg:w-3/6 xl:w-2/5`}
                 onClick={(e) => e.stopPropagation()} // Prevent modal from closing when clicking inside
             >
@@ -137,22 +137,22 @@ const Modal: React.FC<ModalProps> = ({
                         {!centered && <div className="absolute left-1/2 top-2 z-20 h-1 w-10 -translate-x-1/2 rounded-full bg-hairline sm:hidden" aria-hidden="true" />}
 
                         {/* Modal Header */}
-                        <div className={`relative top-0 z-10 flex items-center justify-center bg-white ${compact ? "px-8 pb-4 pt-8 sm:pt-10" : `border-b border-hairline-soft px-4 py-5 sm:p-6 ${mobileFullScreen ? "safe-top" : ""}`}`}>
-                            <button onClick={handleClose} aria-label="Close dialog" className={`absolute z-20 flex h-11 w-11 items-center justify-center rounded-full border-0 text-muted transition hover:bg-surface-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${compact ? "right-4 top-4" : "left-4"}`}>
+                        <div className={`relative top-0 z-10 flex items-center justify-center bg-white ${compact ? "px-8 pb-2 pt-7 sm:pt-8" : `border-b border-hairline-soft px-4 py-5 sm:p-6 ${mobileFullScreen ? "safe-top" : ""}`}`}>
+                            <button onClick={handleClose} aria-label="Close dialog" className={`absolute z-20 flex items-center justify-center rounded-full border-0 text-muted transition hover:bg-surface-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${compact ? "right-3 top-3 h-10 w-10" : "left-4 h-11 w-11"}`}>
                                 <IoMdClose size={compact ? 20 : 18} />
                             </button>
-                            <div id="modal-title" className={`${compact ? "text-xl" : "text-title-md"} font-semibold text-ink px-10 text-center truncate`}>{title}</div>
+                            <div id="modal-title" className={`${compact ? "text-lg" : "text-title-md"} font-semibold text-ink px-10 text-center truncate`}>{title}</div>
                         </div>
 
                         {/* Modal Body */}
-                        <div className={`relative flex-auto overflow-y-auto overscroll-contain text-ink ${compact ? "px-5 pb-3 pt-4 sm:px-10" : "max-h-[calc(100dvh-154px)] p-4 sm:max-h-[70vh] sm:p-6"}`}>{body}</div>
+                        <div className={`relative flex-auto overflow-y-auto overscroll-contain text-ink ${compact ? "px-5 pb-2 pt-3 sm:px-8" : "max-h-[calc(100dvh-154px)] p-4 sm:max-h-[70vh] sm:p-6"}`}>{body}</div>
 
                         {/* Modal Footer */}
-                        <div className={`safe-bottom sticky bottom-0 z-10 flex w-full flex-col items-center gap-1 bg-white sm:flex-row sm:gap-4 ${compact ? "px-5 pt-2 sm:px-10 sm:pt-3" : "border-t border-hairline-soft px-4 pt-2 sm:px-6 sm:pt-3"}`}>
+                        <div className={`safe-bottom sticky bottom-0 z-10 flex w-full flex-col items-center gap-1 bg-white sm:flex-row sm:gap-3 ${compact ? "px-5 pt-1 sm:px-8" : "border-t border-hairline-soft px-4 pt-2 sm:px-6 sm:pt-3"}`}>
                             {secondaryAction && secondaryActionLabel && (
-                                <Button outline disabled={disabled} label={secondaryActionLabel} onClick={handleSecondaryAction} />
+                                <Button small={compact} outline disabled={disabled} label={secondaryActionLabel} onClick={handleSecondaryAction} />
                             )}
-                            <Button disabled={disabled} loading={loading} label={actionLabel} onClick={handleSubmit} />
+                            <Button small={compact} disabled={disabled} loading={loading} label={actionLabel} onClick={handleSubmit} />
                         </div>
 
                         {/* Extra Footer (if provided) */}

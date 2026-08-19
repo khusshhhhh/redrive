@@ -98,9 +98,11 @@ const LoginModal = () => {
         <Input id="email" type="email" label="Email address" disabled={isLoading} register={register} errors={errors} required />
         <PasswordField id="password" label="Password" autoComplete="current-password" disabled={isLoading} register={register} errors={errors} />
       </div>
-      <div className="flex items-center gap-2 text-xs leading-5 text-muted">
-        <KeyRound size={15} className="shrink-0" />
-        If login verification is enabled, we’ll ask for a code after checking your password.
+      <div className="flex items-center gap-2.5 rounded-md bg-surface-soft px-3 py-2.5 text-xs leading-5 text-muted">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-primary">
+          <KeyRound size={14} />
+        </span>
+        If you use login verification, we’ll ask for a code next.
       </div>
     </div>
   );
@@ -128,10 +130,10 @@ const LoginModal = () => {
   );
 
   const footer = stage === "credentials" ? (
-    <div className="mx-6 mb-7 mt-3 flex flex-col gap-4 sm:mx-10">
+    <div className="mx-5 mb-5 mt-0 flex flex-col gap-2 sm:mx-8">
       <div className="relative"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-hairline-soft" /></div><div className="relative flex justify-center"><span className="bg-white px-3 text-[11px] uppercase tracking-widest text-muted-soft">or</span></div></div>
-      <Button outline label="Continue with Google" icon={FcGoogle} onClick={async () => { await signIn("google"); }} />
-      <p className="text-center text-sm text-muted">New to Redrive? <button type="button" onClick={toggle} className="font-semibold text-ink hover:underline">Create an account</button></p>
+      <Button small outline label="Continue with Google" icon={FcGoogle} onClick={async () => { await signIn("google"); }} />
+      <p className="text-center text-sm text-muted">New to Redrive? <button type="button" onClick={toggle} className="min-h-11 rounded-xs px-1 font-semibold text-ink underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Create an account</button></p>
     </div>
   ) : undefined;
 

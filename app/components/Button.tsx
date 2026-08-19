@@ -52,10 +52,10 @@ const Button: React.FC<ButtonProps> = ({
             onClick={handleClick}
             disabled={disabled || loading}
             aria-busy={loading}
-            className={`group relative flex items-center justify-center gap-2 my-2 disabled:cursor-not-allowed rounded-sm transition-all duration-200 w-full overflow-hidden font-medium
+            className={`group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-sm font-medium transition-all duration-200 disabled:cursor-not-allowed
                 ${outline ? 'bg-white border border-ink text-ink hover:bg-surface-soft' : 'bg-primary border border-primary text-white hover:bg-primary-active'}
                 ${loading ? 'opacity-90 cursor-wait' : 'disabled:opacity-70'}
-                ${small ? 'py-2 text-button-sm h-11' : 'py-3 text-button-md h-12'}
+                ${small ? 'my-1 h-11 py-2 text-button-sm' : 'my-2 h-12 py-3 text-button-md'}
                 ${className || ''}`}
             {...props}
         >
@@ -69,7 +69,7 @@ const Button: React.FC<ButtonProps> = ({
                     <span>{loadingLabel || "Please wait"}</span>
                 </span>
             ) : Icon ? (
-                <Icon size={24} className="absolute left-4 top-1/2 transform -translate-y-1/2" />
+                <Icon size={small ? 20 : 24} className="absolute left-4 top-1/2 transform -translate-y-1/2" />
             ) : null}
             {!loading && (children || label)}
         </button>
