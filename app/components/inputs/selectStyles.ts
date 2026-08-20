@@ -11,7 +11,7 @@ export const selectClassNames: ClassNamesConfig<any, boolean> = {
                 ? "border-ink border-2"
                 : "border-hairline"
         } ${state.isDisabled ? "opacity-60 cursor-not-allowed" : ""}`,
-    placeholder: () => "text-muted ml-1",
+    placeholder: () => "ml-1 text-sm text-muted-soft",
     input: () => "text-ink ml-1",
     singleValue: () => "text-ink ml-1",
     valueContainer: () => "gap-1",

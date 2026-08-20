@@ -298,12 +298,9 @@ const RentModal = () => {
                 <div className="flex flex-col gap-8">
                     {/* Address first: selecting a Google result fills suburb and state. */}
                     <div>
-                        <label className="block text-ink text-sm font-semibold mb-2">
-                            Number & Street Address
-                        </label>
                         <AddressAutocomplete
                             id="address"
-                            label="Street Address"
+                            label="Number & street address"
                             register={register}
                             setValue={setValue}
                             errors={errors}
@@ -315,7 +312,7 @@ const RentModal = () => {
                     </div>
 
                     <div>
-                        <label className="block text-ink text-sm font-semibold mb-2">
+                        <label className="mb-1.5 block text-xs font-medium text-muted">
                             Suburb
                         </label>
                         <SuburbSelector
@@ -333,7 +330,7 @@ const RentModal = () => {
                     </div>
 
                     <div>
-                        <label className="block text-ink text-sm font-semibold mb-2">
+                        <label className="mb-1.5 block text-xs font-medium text-muted">
                             State
                         </label>
                         <StateSelector
@@ -398,7 +395,8 @@ const RentModal = () => {
                 />
                 <Input
                     id="title"
-                    label="Title e.g, 'Powerful Ute in Adelaide'"
+                    label="Listing title"
+                    placeholder="e.g. Powerful ute in Adelaide"
                     disabled={isLoading}
                     register={register}
                     errors={errors}
@@ -406,7 +404,8 @@ const RentModal = () => {
                 />
                 <TextArea
                     id="description"
-                    label="Description in 100 words"
+                    label="Description"
+                    placeholder="Describe what makes your vehicle useful, comfortable or unique."
                     disabled={isLoading}
                     register={register}
                     errors={errors}
@@ -420,7 +419,8 @@ const RentModal = () => {
                 <div className="flex flex-col gap-8">
                     <Input
                         id="company"
-                        label="Company e.g, 'Ford'"
+                        label="Make"
+                        placeholder="e.g. Ford"
                         disabled={isLoading}
                         register={register}
                         errors={errors}
@@ -428,7 +428,8 @@ const RentModal = () => {
                     />
                     <Input
                         id="modal"
-                        label="Modal Name e.g, 'Raptor'"
+                        label="Model"
+                        placeholder="e.g. Ranger Raptor"
                         disabled={isLoading}
                         register={register}
                         errors={errors}
@@ -488,7 +489,8 @@ const RentModal = () => {
                 />
                 <TextArea
                     id="information"
-                    label="Information"
+                    label="Additional information"
+                    placeholder="Add instructions, care requirements or anything guests should know."
                     disabled={isLoading}
                     register={register}
                     errors={errors}
@@ -533,8 +535,8 @@ const RentModal = () => {
 
                 {/* ✅ Registration Expiry Date */}
                 <div>
-                    <label className="block text-ink text-sm font-semibold mb-2">Registration Expiry Date</label>
-                    <div className="mt-4">
+                    <label className="mb-1.5 block text-xs font-medium text-muted">Registration expiry date</label>
+                    <div>
                         <DateSelector
                             value={regoEndDate}
                             onChange={(value) => setCustomValue("regoEndDate", value)}

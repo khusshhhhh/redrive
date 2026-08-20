@@ -486,7 +486,7 @@ export default function ProfileClient({
                   <div className="sm:col-span-2">
                     <label
                       htmlFor="dateOfBirth"
-                      className="mb-2 flex items-center gap-2 text-xs font-semibold text-ink"
+                      className={`mb-1.5 flex items-center gap-2 text-xs font-medium ${errors.dateOfBirth ? "text-error" : "text-muted"}`}
                     >
                       <CalendarDays size={14} />
                       Date of birth
@@ -501,7 +501,8 @@ export default function ProfileClient({
                           isValidDateOfBirth(value) ||
                           "Enter a valid date of birth",
                       })}
-                      className={`h-14 w-full rounded-sm border bg-white px-4 text-sm text-ink outline-none focus:ring-1 focus:ring-ink ${errors.dateOfBirth ? "border-error" : "border-hairline focus:border-ink"}`}
+                      aria-invalid={Boolean(errors.dateOfBirth)}
+                      className={`h-12 w-full rounded-sm border bg-white px-4 text-base text-ink outline-none transition ${errors.dateOfBirth ? "border-error focus:border-error focus:ring-1 focus:ring-error" : "border-hairline focus:border-ink focus:ring-1 focus:ring-ink"}`}
                     />
                     {errors.dateOfBirth && (
                       <p className="mt-1 text-xs text-error">
@@ -558,7 +559,7 @@ export default function ProfileClient({
                   />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-xs font-semibold text-ink">
+                      <label className="mb-1.5 block text-xs font-medium text-muted">
                         Suburb
                       </label>
                       <SuburbSelector
@@ -569,7 +570,7 @@ export default function ProfileClient({
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-xs font-semibold text-ink">
+                      <label className="mb-1.5 block text-xs font-medium text-muted">
                         State
                       </label>
                       <StateSelector
@@ -606,7 +607,7 @@ export default function ProfileClient({
                   <div>
                     <label
                       htmlFor="destination"
-                      className="mb-2 block text-xs font-semibold text-ink"
+                      className="mb-1.5 block text-xs font-medium text-muted"
                     >
                       Dream destinations
                     </label>
@@ -624,7 +625,7 @@ export default function ProfileClient({
                           }
                         }}
                         placeholder="Type a place and press Enter"
-                        className="h-12 min-w-0 flex-1 rounded-sm border border-hairline bg-white px-4 text-sm text-ink outline-none transition focus:border-ink focus:ring-1 focus:ring-ink"
+                        className="h-12 min-w-0 flex-1 rounded-sm border border-hairline bg-white px-4 text-base text-ink outline-none transition placeholder:text-sm placeholder:text-muted-soft focus:border-ink focus:ring-1 focus:ring-ink"
                       />
                       <button
                         type="button"

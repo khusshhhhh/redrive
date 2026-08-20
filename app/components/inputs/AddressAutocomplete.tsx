@@ -158,41 +158,45 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
 
     return (
         <div className="w-full relative" ref={wrapperRef}>
-            <IconMapPin size={18} className="text-muted absolute top-5 left-4 z-10" />
-
-            <input
-                id={id}
-                disabled={disabled}
-                {...registered}
-                onChange={(e) => {
-                    registerOnChange(e);
-                    onManualChange?.(e.target.value);
-                    search(e.target.value);
-                }}
-                onFocus={(e) => {
-                    if (e.target.value.trim().length >= MIN_CHARS) search(e.target.value);
-                }}
-                onKeyDown={handleKeyDown}
-                autoComplete="off"
-                placeholder=" "
-                type="text"
-                className={`peer w-full p-4 pt-6 pl-11 font-normal bg-white text-ink border rounded-sm outline-none transition disabled:opacity-70 disabled:cursor-not-allowed
-                             ${errors[id] ? "border-error" : "border-hairline"}
-                             ${errors[id] ? "focus:border-error focus:border-2" : "focus:border-ink focus:border-2"}`}
-            />
             <label
-                className={`absolute text-body-md duration-150 transform -translate-y-3 top-5 z-10 origin-[0] left-11
-                    peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0
-                    peer-focus:scale-75 peer-focus:-translate-y-4
-                    ${errors[id] ? "text-error" : "text-muted"}`}
+                htmlFor={id}
+                className={`mb-1.5 block text-xs font-medium ${errors[id] ? "text-error" : "text-muted"}`}
             >
                 {label}
             </label>
+            <div className="relative">
+                <IconMapPin size={18} aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-muted" />
+                <input
+                    id={id}
+                    disabled={disabled}
+                    {...registered}
+                    onChange={(e) => {
+                        registerOnChange(e);
+                        onManualChange?.(e.target.value);
+                        search(e.target.value);
+                    }}
+                    onFocus={(e) => {
+                        if (e.target.value.trim().length >= MIN_CHARS) search(e.target.value);
+                    }}
+                    onKeyDown={handleKeyDown}
+                    autoComplete="off"
+                    placeholder="Start typing an address"
+                    type="text"
+                    aria-invalid={Boolean(errors[id])}
+                    className={`h-12 w-full rounded-sm border bg-white pl-11 pr-11 text-base font-normal text-ink outline-none transition placeholder:text-sm placeholder:text-muted-soft disabled:cursor-not-allowed disabled:bg-surface-soft disabled:opacity-70
+                                 ${errors[id] ? "border-error focus:border-error focus:ring-1 focus:ring-error" : "border-hairline focus:border-ink focus:ring-1 focus:ring-ink"}`}
+                />
+                {loading && (
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                        <DotLoader size="sm" color="#526D68" />
+                    </div>
+                )}
+            </div>
 
-            {loading && (
-                <div className="absolute right-4 top-6">
-                    <DotLoader size="sm" color="#526D68" />
-                </div>
+            {errors[id] && (
+                <p className="mt-1.5 text-xs text-error">
+                    {String(errors[id]?.message || `${label} is required`)}
+                </p>
             )}
 
             {isOpen && suggestions.length > 0 && (

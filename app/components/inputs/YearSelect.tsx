@@ -29,20 +29,25 @@ const YearSelect: React.FC<YearSelectProps> = ({
     const selectedYear = watch ? watch(id) || "" : ""; // ✅ Ensure watch is available
 
     return (
-        <div className="w-full relative">
+        <div className="w-full">
+            {label && (
+                <label htmlFor={id} className={`mb-1.5 block text-xs font-medium ${errors[id] ? "text-error" : "text-muted"}`}>
+                    {label}
+                </label>
+            )}
             <select
                 id={id}
                 disabled={disabled}
                 {...register(id, { required })}
                 value={selectedYear}
                 onChange={(e) => setValue(id, e.target.value)}
-                className={`peer w-full p-4 pt-6 font-normal bg-white border rounded-sm outline-none transition disabled:opacity-70 disabled:cursor-not-allowed
-                            pl-4 appearance-none
+                aria-invalid={Boolean(errors[id])}
+                className={`h-12 w-full appearance-none rounded-sm border bg-white px-4 text-base font-normal text-ink outline-none transition disabled:cursor-not-allowed disabled:bg-surface-soft disabled:opacity-70
                             ${errors[id] ? "border-error" : "border-hairline"}
-                            ${errors[id] ? "focus:border-error focus:border-2" : "focus:border-ink focus:border-2"}
+                            ${errors[id] ? "focus:border-error focus:ring-1 focus:ring-error" : "focus:border-ink focus:ring-1 focus:ring-ink"}
                 `}
             >
-                <option value="" disabled hidden>Select Year</option>
+                <option value="" disabled>Select a year</option>
                 {years.map((year) => (
                     <option key={year} value={year}>
                         {year}
@@ -50,21 +55,9 @@ const YearSelect: React.FC<YearSelectProps> = ({
                 ))}
             </select>
 
-            <label
-                className={`text-md duration-150 transform top-5 left-4 z-10 origin-[0]
-                    peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0
-                    peer-focus:scale-75 peer-focus:-translate-y-4
-                    ${selectedYear ? "hidden" : ""}
-                    ${errors[id] ? "text-error" : "text-muted"}
-                    absolute
-                `}
-            >
-                {label}
-            </label>
-
             {errors[id] && (
-                <p className="text-error text-sm mt-1">
-                    {label} is required
+                <p className="mt-1.5 text-xs text-error">
+                    {String(errors[id]?.message || `${label || "Year"} is required`)}
                 </p>
             )}
         </div>

@@ -49,6 +49,14 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Examples and hints should support a form value, never compete with it. */
+input::placeholder,
+textarea::placeholder {
+  color: #748b85;
+  font-size: 0.875rem;
+  opacity: 0.72;
+}
+
 .leaflet-bottom,
 .leaflet-control,
 .leaflet-pane,

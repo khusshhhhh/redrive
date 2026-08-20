@@ -203,12 +203,12 @@ const EditUtilityPage = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Title */}
                 <div className="mb-8">
-                    <Input id="title" label="Title" register={register} errors={errors} required />
+                    <Input id="title" label="Listing title" placeholder="e.g. Powerful ute in Adelaide" register={register} errors={errors} required />
                 </div>
 
                 {/* Description */}
                 <div className="mb-8">
-                    <TextArea id="description" label="Description" register={register} errors={errors} required />
+                    <TextArea id="description" label="Description" placeholder="Describe what makes your vehicle useful, comfortable or unique." register={register} errors={errors} required />
                 </div>
 
                 {/* Category Selection */}
@@ -240,26 +240,32 @@ const EditUtilityPage = () => {
                     <div className="flex flex-col gap-6">
                         <AddressAutocomplete
                             id="address"
-                            label="Number & Street Address"
+                            label="Number & street address"
                             register={register}
                             setValue={setValue}
                             errors={errors}
                             required
                             onSelect={onAddressSelect}
                         />
-                        <SuburbSelector
-                            state={selectedState?.value}
-                            value={selectedSuburb}
-                            allowAllStates
-                            onChange={(selected) => {
-                                setSelectedSuburb(selected);
-                                if (selected.state) {
-                                    const state = AU_STATES.find((item) => item.value === selected.state);
-                                    if (state) setSelectedState(state);
-                                }
-                            }}
-                        />
-                        <StateSelector value={selectedState} onChange={setSelectedState} />
+                        <div>
+                            <label className="mb-1.5 block text-xs font-medium text-muted">Suburb</label>
+                            <SuburbSelector
+                                state={selectedState?.value}
+                                value={selectedSuburb}
+                                allowAllStates
+                                onChange={(selected) => {
+                                    setSelectedSuburb(selected);
+                                    if (selected.state) {
+                                        const state = AU_STATES.find((item) => item.value === selected.state);
+                                        if (state) setSelectedState(state);
+                                    }
+                                }}
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-1.5 block text-xs font-medium text-muted">State</label>
+                            <StateSelector value={selectedState} onChange={setSelectedState} />
+                        </div>
                     </div>
                 </div>
 
@@ -316,7 +322,7 @@ const EditUtilityPage = () => {
                 {/* Additional Information */}
                 <div className="mb-8">
                     <p className="font-semibold mb-4 text-ink">Additional Information</p>
-                    <TextArea id="information" label="" register={register} errors={errors} required />
+                    <TextArea id="information" label="Additional information" placeholder="Add instructions, care requirements or anything guests should know." register={register} errors={errors} required />
                 </div>
 
                 {/* Amenities Selection */}
@@ -351,7 +357,10 @@ const EditUtilityPage = () => {
                         register={register}
                         errors={errors}
                     />
-                    <DateSelector value={regoEndDate} onChange={(date) => setRegoEndDate(date)} />
+                    <div className="mt-5">
+                        <label className="mb-1.5 block text-xs font-medium text-muted">Registration expiry date</label>
+                        <DateSelector value={regoEndDate} onChange={(date) => setRegoEndDate(date)} />
+                    </div>
                 </div>
 
                 {/* Registration Image */}
@@ -365,7 +374,7 @@ const EditUtilityPage = () => {
                     <p className="font-semibold mb-4 text-ink">Pricing</p>
                     <Input
                         id="price"
-                        label=""
+                        label="Daily price (AUD)"
                         type="number"
                         register={register}
                         errors={errors}

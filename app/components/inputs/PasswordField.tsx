@@ -47,34 +47,36 @@ export default function PasswordField({
 
   return (
     <div className="space-y-3">
-      <div className="relative">
-        <input
-          id={id}
-          type={visible ? "text" : "password"}
-          disabled={disabled}
-          autoComplete={autoComplete}
-          placeholder=" "
-          {...register(id, { required, validate })}
-          className={`peer h-14 w-full rounded-sm border bg-white px-4 pb-2 pt-6 pr-12 text-base text-ink outline-none transition disabled:cursor-not-allowed disabled:bg-surface-soft disabled:opacity-70 ${
-            error
-              ? "border-error focus:border-error focus:ring-1 focus:ring-error"
-              : "border-hairline focus:border-ink focus:ring-1 focus:ring-ink"
-          }`}
-        />
+      <div>
         <label
           htmlFor={id}
-          className={`pointer-events-none absolute left-4 top-2 origin-left text-xs transition-all peer-placeholder-shown:top-[17px] peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs ${error ? "text-error" : "text-muted"}`}
+          className={`mb-1.5 block text-xs font-medium ${error ? "text-error" : "text-muted"}`}
         >
           {label}
         </label>
-        <button
-          type="button"
-          onClick={() => setVisible((current) => !current)}
-          aria-label={visible ? "Hide password" : "Show password"}
-          className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft hover:text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-1"
-        >
-          {visible ? <EyeOff size={19} /> : <Eye size={19} />}
-        </button>
+        <div className="relative">
+          <input
+            id={id}
+            type={visible ? "text" : "password"}
+            disabled={disabled}
+            autoComplete={autoComplete}
+            aria-invalid={Boolean(error)}
+            {...register(id, { required, validate })}
+            className={`h-12 w-full rounded-sm border bg-white px-4 pr-12 text-base text-ink outline-none transition disabled:cursor-not-allowed disabled:bg-surface-soft disabled:opacity-70 ${
+              error
+                ? "border-error focus:border-error focus:ring-1 focus:ring-error"
+                : "border-hairline focus:border-ink focus:ring-1 focus:ring-ink"
+            }`}
+          />
+          <button
+            type="button"
+            onClick={() => setVisible((current) => !current)}
+            aria-label={visible ? "Hide password" : "Show password"}
+            className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-muted transition hover:bg-surface-soft hover:text-ink focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-1"
+          >
+            {visible ? <EyeOff size={19} /> : <Eye size={19} />}
+          </button>
+        </div>
       </div>
 
       {showRequirements && valueForStrength && (
