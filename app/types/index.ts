@@ -101,6 +101,16 @@ export type SafeUser = Pick<
   emailVerified: string | null;
   lastActiveAt: string | null;
   licenseExpiresAt: string | null;
+  licenseExpiryDate?: string | null;
+  licenseIssuerState?: string | null;
+  licenseHolderName?: string | null;
+  licenseNumberLast4?: string | null;
+  licenseCardLast4?: string | null;
+  licenseNameMatches?: boolean | null;
+  licenseDobMatches?: boolean | null;
+  licenseClassificationConfidence?: number | null;
+  licenseVerifiedAt?: string | null;
+  licenseRejectionReason?: string | null;
   hasPassword?: boolean;
 };
 

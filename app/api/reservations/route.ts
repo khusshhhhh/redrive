@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
-import { hasSubmittedLicense } from "@/app/libs/licenseVerification";
+import { hasCurrentVerifiedLicense } from "@/app/libs/licenseVerification";
 import { buildBookingQuote, PRICING_POLICY_VERSION } from "@/app/libs/booking";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 import { notificationService } from "@/app/services/notificationService";
@@ -20,12 +20,12 @@ export async function POST(request: NextRequest) {
     ]);
     if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
 
-    const renter = await prisma.user.findUnique({ where: { id: currentUser.id }, select: { emailVerified: true, licenseImage: true, licenseStatus: true } });
+    const renter = await prisma.user.findUnique({ where: { id: currentUser.id }, select: { emailVerified: true, licenseStatus: true, licenseExpiresAt: true } });
     if (!renter?.emailVerified) {
       return NextResponse.json({ error: "Verify your email before requesting a booking.", code: "EMAIL_VERIFICATION_REQUIRED" }, { status: 403 });
     }
-    if (!hasSubmittedLicense(renter?.licenseImage) || renter?.licenseStatus === "REJECTED" || renter?.licenseStatus === "EXPIRED") {
-      return NextResponse.json({ error: "Upload a valid driving licence and submit it for verification before requesting a booking.", code: "LICENSE_REQUIRED" }, { status: 403 });
+    if (!hasCurrentVerifiedLicense(renter?.licenseStatus, renter?.licenseExpiresAt)) {
+      return NextResponse.json({ error: "A checked, current Australian driver licence is required before requesting a booking.", code: "LICENSE_NOT_VERIFIED" }, { status: 403 });
     }
 
     const body = await request.json();

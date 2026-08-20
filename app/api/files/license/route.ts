@@ -12,10 +12,11 @@ export async function GET(request: Request) {
   const asset = new URL(request.url).searchParams.get("asset") || "";
   if (!asset.startsWith("redrive/licenses/") || asset.length > 300) return NextResponse.json({ error: "Invalid asset" }, { status: 400 });
 
-  const viewer = await prisma.user.findUnique({ where: { email: session.user.email }, select: { id: true, role: true, licensePublicId: true } });
+  const viewer = await prisma.user.findUnique({ where: { email: session.user.email }, select: { id: true, role: true, licensePublicId: true, licenseBackPublicId: true } });
   const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map((email) => email.trim().toLowerCase());
   const isAdmin = viewer?.role === "ADMIN" || adminEmails.includes(session.user.email.toLowerCase());
-  if (!viewer || (!isAdmin && viewer.licensePublicId !== asset)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const ownsAsset = viewer?.licensePublicId === asset || viewer?.licenseBackPublicId === asset;
+  if (!viewer || (!isAdmin && !ownsAsset)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const signedUrl = cloudinary.url(asset, { type: "authenticated", secure: true, sign_url: true, expires_at: Math.floor(Date.now() / 1000) + 300 });
   return NextResponse.redirect(signedUrl, { headers: { "Cache-Control": "private, no-store" } });

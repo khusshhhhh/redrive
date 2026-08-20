@@ -39,9 +39,9 @@ export const helpArticles: EditorialArticle[] = [
     published: "2026-08-17",
     readTime: "3 min read",
     sections: [
-      { heading: "Why a licence is required", paragraphs: ["A driving licence helps establish booking readiness and gives hosts confidence that a guest has supplied an appropriate identity document. Redrive blocks new booking requests until a licence image has been uploaded through the secure profile uploader."] },
-      { heading: "Upload from your profile", paragraphs: ["Open Profile, go to Driving licence, choose the appropriate licence type and upload a clear JPG, PNG or WebP image. Files must be 5 MB or smaller."], items: ["Photograph the full document", "Make sure essential details are readable", "Do not upload unrelated identity documents"] },
-      { heading: "Understand the status", paragraphs: ["Submitted means the licence is securely on file and the profile is awaiting verification. Verified means the review has been completed. Replacing a verified document returns the status to submitted so the new image can be reviewed."] },
+      { heading: "Why a licence is required", paragraphs: ["A driving licence helps establish booking readiness. Redrive blocks new booking requests until both sides are recognised as an Australian driver licence, the printed expiry is current, and the name and date of birth match the guest profile."] },
+      { heading: "Upload from your profile", paragraphs: ["Open Profile, go to Driving licence and upload clear front and back JPG, PNG or WebP images. Each file must be 10 MB or smaller."], items: ["Photograph the full document", "Make sure essential details are readable", "Do not upload unrelated identity documents"] },
+      { heading: "Understand the status", paragraphs: ["Needs confirmation means the document text was read and must be reviewed by the user. Details checked means the document appears current and the name and date of birth match the profile. Details mismatch or expired keeps booking locked. This check does not contact a government issuer or confirm authenticity, suspension, licence class, or driving entitlement."] },
     ],
   },
   {
@@ -213,8 +213,8 @@ export const newsroomPosts: EditorialArticle[] = [
     readTime: "3 min read",
     sections: [
       { heading: "A more complete start", paragraphs: ["Redrive’s three-step signup now collects the practical profile information used throughout a trip, including mobile number, date of birth, address and optional profile details. Email verification remains part of the account-creation flow."] },
-      { heading: "Licence-aware booking", paragraphs: ["Guests without a securely uploaded driving licence now see a clear explanation before checkout. The same requirement is enforced by the reservation service so it cannot be bypassed through the interface."] },
-      { heading: "Designed for clarity", paragraphs: ["New licence submissions are described as submitted or pending rather than automatically presented as verified. Guests can still browse and save vehicles while completing their profile."] },
+      { heading: "Licence-aware booking", paragraphs: ["Guests without checked, current licence details see a clear explanation before checkout. The same requirement is enforced by the reservation service so it cannot be bypassed through the interface."] },
+      { heading: "Designed for clarity", paragraphs: ["Redrive distinguishes a readable uploaded document from a completed details check and explains the limits of the automated result. Guests can still browse and save vehicles while completing their profile."] },
     ],
   },
   {

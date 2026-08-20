@@ -52,7 +52,24 @@ export default async function getReservations(params: IParams) {
       completedAt: reservation.completedAt?.toISOString() ?? null,
       paymentDueAt: reservation.paymentDueAt?.toISOString() ?? null,
       user: {
-        ...reservation.user,
+        id: reservation.user.id,
+        name: reservation.user.name,
+        email: reservation.user.email,
+        number: reservation.user.number,
+        dateOfBirth: reservation.user.dateOfBirth,
+        image: reservation.user.image,
+        favoriteIds: reservation.user.favoriteIds,
+        streetAddress: reservation.user.streetAddress,
+        suburb: reservation.user.suburb,
+        state: reservation.user.state,
+        postcode: reservation.user.postcode,
+        hobbies: reservation.user.hobbies,
+        dreamDestinations: reservation.user.dreamDestinations,
+        licenseImage: reservation.user.licenseImage,
+        licenseType: reservation.user.licenseType,
+        licenseStatus: reservation.user.licenseStatus,
+        profileVerified: reservation.user.profileVerified,
+        loginOtpEnabled: reservation.user.loginOtpEnabled,
         createdAt: reservation.user.createdAt.toISOString(),
         updatedAt: reservation.user.updatedAt.toISOString(),
         emailVerified: reservation.user.emailVerified
@@ -64,11 +81,21 @@ export default async function getReservations(params: IParams) {
         licenseExpiresAt: reservation.user.licenseExpiresAt
           ? reservation.user.licenseExpiresAt.toISOString()
           : null,
+        licenseExpiryDate: reservation.user.licenseExpiryDate,
+        licenseIssuerState: reservation.user.licenseIssuerState,
+        licenseHolderName: reservation.user.licenseHolderName,
+        licenseNumberLast4: reservation.user.licenseNumberLast4,
+        licenseCardLast4: reservation.user.licenseCardLast4,
+        licenseNameMatches: reservation.user.licenseNameMatches,
+        licenseDobMatches: reservation.user.licenseDobMatches,
+        licenseClassificationConfidence: reservation.user.licenseClassificationConfidence,
+        licenseVerifiedAt: reservation.user.licenseVerifiedAt?.toISOString() ?? null,
+        licenseRejectionReason: reservation.user.licenseRejectionReason,
       },
       listing: {
         ...reservation.listing,
         createdAt: reservation.listing.createdAt.toISOString(),
-        regoImage: reservation.listing.regoImage ?? "", // ✅ Ensure regoImage is always a string
+        regoImage: "",
       },
     }));
 

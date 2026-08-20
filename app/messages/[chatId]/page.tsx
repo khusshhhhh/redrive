@@ -253,8 +253,8 @@ const ChatPage = () => {
 
   const uploadAttachment = async (file?: File) => {
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Choose an image smaller than 5 MB");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Choose an image no larger than 10 MB");
       return;
     }
 

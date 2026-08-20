@@ -50,7 +50,7 @@ Redrive helps guests discover and request vehicles while giving owners the tools
 - Six-digit SMTP email verification with a responsive Redrive email template.
 - Optional email code after password sign-in.
 - Single-use, hashed password-reset tokens and recovery pages.
-- Driving-licence upload, pending/reviewed/expired lifecycle and booking-readiness checks.
+- Front/back Australian driver-licence OCR classification, profile/expiry matching and booking-readiness checks.
 - Private authenticated Cloudinary licence delivery using short-lived signed URLs.
 - Account/IP rate limiting for authentication and sensitive actions.
 - Administrator roles, protected admin routes and security audit events.
@@ -192,6 +192,8 @@ Copy [`.env.example`](.env.example) and supply real values locally and in the de
 | `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM` | Production email | SMTP credentials and sender identity |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Maps | Browser Maps API key |
 | `GOOGLE_PLACES_API_KEY` | Address search | Server-side Places key |
+| `GOOGLE_CLOUD_VISION_API_KEY` | Licence checks | Server-side OCR for front/back Australian driver-licence images |
+| `LICENSE_DATA_ENCRYPTION_KEY`, `LICENSE_DATA_HMAC_KEY` | Licence checks | Encrypts document numbers and creates keyed duplicate-check hashes |
 | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Uploads | Cloudinary cloud identifier |
 | `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Uploads | Server-only signed-upload credentials |
 | `CRON_SECRET` | Production jobs | Protects scheduled notification and security tasks |
@@ -220,7 +222,7 @@ When SMTP is intentionally blank during local development, the code is logged by
 
 - Authentication and ownership checks on protected data-changing routes.
 - Account and IP rate-limit buckets with hashed identifiers.
-- Signed uploads with MIME, file-size and file-signature validation.
+- Signed uploads with a 10 MB limit, extension/MIME/signature allow-lists and full image decode/re-encoding.
 - Authenticated licence assets and short-lived delivery URLs.
 - Server-calculated booking totals and controlled status transitions.
 - Security headers including CSP, HSTS, frame denial and MIME-sniffing prevention.

@@ -7,8 +7,6 @@ import {
   isValidDateOfBirth,
   normalizeAustralianMobile,
 } from "@/app/libs/profileValidation";
-import { hasSubmittedLicense } from "@/app/libs/licenseVerification";
-import { writeAuditEvent } from "@/app/libs/security";
 
 export async function PUT(request: Request) {
   try {
@@ -30,8 +28,6 @@ export async function PUT(request: Request) {
       hobbies,
       dreamDestinations,
       image,
-      licenseType,
-      licenseImage,
     } = body;
 
     if (number && !isValidAustralianMobile(number)) {
@@ -50,23 +46,14 @@ export async function PUT(request: Request) {
 
     const existingUser = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true, profileVerified: true, licenseImage: true, licenseStatus: true },
+      select: { name: true, dateOfBirth: true, licenseStatus: true },
     });
-
-    const nextLicenseImage = licenseImage ?? existingUser?.licenseImage ?? "";
-    if (nextLicenseImage && !hasSubmittedLicense(nextLicenseImage)) {
-      return NextResponse.json(
-        { error: "Upload the licence image using Redrive's secure uploader" },
-        { status: 400 }
-      );
+    if (!existingUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-
-    const licenseChanged = nextLicenseImage !== (existingUser?.licenseImage ?? "");
-    const profileVerified = hasSubmittedLicense(nextLicenseImage)
-      ? licenseChanged ? "PENDING" : existingUser?.profileVerified === "Y" ? "Y" : "PENDING"
-      : "N";
-    const assetMatch = nextLicenseImage.match(/^\/api\/files\/license\?asset=(.+)$/);
-    const licensePublicId = assetMatch ? decodeURIComponent(assetMatch[1]) : undefined;
+    const verifiedIdentityChanged = existingUser.licenseStatus === "VERIFIED" &&
+      ((name ?? "") !== (existingUser.name ?? "") ||
+        (dateOfBirth ?? "") !== (existingUser.dateOfBirth ?? ""));
 
     // Update the user profile in the database
     const updatedUser = await prisma.user.update({
@@ -84,26 +71,41 @@ export async function PUT(request: Request) {
           ? dreamDestinations
           : [],
         image: image ?? "",
-        profileVerified,
-        licenseImage: nextLicenseImage,
-        ...(licensePublicId ? { licensePublicId } : {}),
-        licenseStatus: hasSubmittedLicense(nextLicenseImage)
-          ? licenseChanged ? "PENDING" : existingUser?.licenseStatus || "PENDING"
-          : "NOT_SUBMITTED",
-        licenseType: licenseType ?? "",
+        ...(verifiedIdentityChanged ? {
+          licenseStatus: "DETAILS_MISMATCH",
+          licenseNameMatches: false,
+          licenseDobMatches: false,
+          licenseVerifiedAt: null,
+          licenseRejectionReason: "Your profile name or date of birth changed after the licence check. Check the licence again.",
+          profileVerified: "N",
+        } : {}),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        number: true,
+        dateOfBirth: true,
+        image: true,
+        streetAddress: true,
+        suburb: true,
+        state: true,
+        postcode: true,
+        hobbies: true,
+        dreamDestinations: true,
+        profileVerified: true,
+        licenseStatus: true,
+        licenseExpiresAt: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
-    if (licenseChanged) await writeAuditEvent({ request, actorUserId: existingUser?.id, action: "LICENCE_SUBMITTED", targetType: "User", targetId: existingUser?.id });
-
-    return NextResponse.json(updatedUser, { status: 200 });
+    return NextResponse.json(updatedUser, { status: 200, headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     console.error("❌ Error updating profile:", error);
     return NextResponse.json(
-      {
-        error: "Failed to update profile",
-        details: error instanceof Error ? error.message : String(error),
-      },
+      { error: "Failed to update profile" },
       { status: 500 }
     );
   }

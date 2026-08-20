@@ -3,17 +3,18 @@
 import Link from "next/link";
 import { IconArrowRight, IconCheck, IconId, IconMailCheck, IconUserCheck } from "@tabler/icons-react";
 import type { SafeUser } from "../types";
+import { hasCurrentVerifiedLicense } from "../libs/licenseVerification";
 
 const BookingReadiness = ({ currentUser }: { currentUser: SafeUser }) => {
   const profileReady = Boolean(currentUser.name && currentUser.number && currentUser.suburb && currentUser.state);
   const emailReady = Boolean(currentUser.emailVerified);
-  const licenceReady = Boolean(currentUser.licenseImage) && currentUser.licenseStatus !== "EXPIRED" && currentUser.licenseStatus !== "REJECTED";
+  const licenceReady = hasCurrentVerifiedLicense(currentUser.licenseStatus, currentUser.licenseExpiresAt);
   const completed = [profileReady, emailReady, licenceReady].filter(Boolean).length;
 
   const items = [
     { label: "Profile details", ready: profileReady, icon: IconUserCheck, note: profileReady ? "Complete" : "Add contact and location details" },
     { label: "Email", ready: emailReady, icon: IconMailCheck, note: emailReady ? "Verified" : "Verification required" },
-    { label: "Driving licence", ready: licenceReady, icon: IconId, note: licenceReady ? (currentUser.profileVerified === "Y" ? "Verified" : "Submitted") : "Upload required" },
+    { label: "Driving licence", ready: licenceReady, icon: IconId, note: licenceReady ? "Details checked" : "Check required" },
   ];
   const incompleteItems = items.filter((item) => !item.ready);
 

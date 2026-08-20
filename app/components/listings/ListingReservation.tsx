@@ -10,7 +10,7 @@ import { Info, ShieldAlert } from "lucide-react";
 import { Card, CardContent } from "../CardContent";
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { hasSubmittedLicense } from '@/app/libs/licenseVerification';
+import { hasCurrentVerifiedLicense } from '@/app/libs/licenseVerification';
 
 const calculateServiceFee = (totalPrice: number): number => {
     if (totalPrice <= 200) return 10;
@@ -61,6 +61,7 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     const dayCount = differenceInCalendarDays(dateRange.endDate, dateRange.startDate) + 1;
     const router = useRouter();
     const [infoPopup, setInfoPopup] = useState<string | null>(null);
+    const licenceReady = currentUser ? hasCurrentVerifiedLicense(currentUser.licenseStatus, currentUser.licenseExpiresAt) : false;
 
     const upfrontCleaningFee = listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0;
     const returnCleaningFee = listing.cleaningFeeOption === 'UPON_RETURNING' ? (listing.returnCleaningFeeAmount || 0) : 0;
@@ -166,10 +167,10 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
             </div>
             <hr className="border-hairline-soft" />
             <div className="p-4">
-                {currentUser && !hasSubmittedLicense(currentUser.licenseImage) && (
+                {currentUser && !licenceReady && (
                     <div className="mb-4 flex gap-3 rounded-sm border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-900">
                         <ShieldAlert size={18} className="mt-0.5 shrink-0" />
-                        <span><strong>Licence required.</strong> Upload your driving licence from Profile before requesting this vehicle.</span>
+                        <span><strong>Licence check required.</strong> Check a current Australian driver licence from Profile before requesting this vehicle.</span>
                     </div>
                 )}
                 <Button
@@ -185,8 +186,8 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                             router.push("/profile#email-verification");
                             return;
                         }
-                        if (!hasSubmittedLicense(currentUser.licenseImage)) {
-                            toast.error("Upload your driving licence before booking");
+                        if (!licenceReady) {
+                            toast.error("Check your current Australian driver licence before booking");
                             router.push("/profile#verification");
                             return;
                         }

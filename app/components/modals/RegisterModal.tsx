@@ -21,7 +21,7 @@ import Button from "../Button";
 import Modal from "./Modal";
 
 type RegisterStage = "account" | "profile" | "about" | "verify" | "success";
-type UploadFolder = "profiles" | "licenses";
+type UploadFolder = "profiles";
 
 const RegisterModal = () => {
   const registerModal = useRegisterModal();
@@ -32,14 +32,13 @@ const RegisterModal = () => {
   const [verificationEmail, setVerificationEmail] = useState("");
   const [previewCode, setPreviewCode] = useState("");
   const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [licenseImage, setLicenseImage] = useState<File | null>(null);
   const [signedIn, setSignedIn] = useState(false);
   const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
   const [selectedSuburb, setSelectedSuburb] = useState<SuburbOption | null>(null);
   const [existingEmailNotice, setExistingEmailNotice] = useState<{ email: string; verified: boolean } | null>(null);
 
   const { register, handleSubmit, watch, setValue, getValues, trigger, setError, clearErrors, formState: { errors } } = useForm<FieldValues>({
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "", number: "", dateOfBirth: "", streetAddress: "", suburb: "", state: "", postcode: "", hobbies: "", dreamDestinations: "", licenseType: "Driver License" },
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "", number: "", dateOfBirth: "", streetAddress: "", suburb: "", state: "", postcode: "", hobbies: "", dreamDestinations: "" },
     mode: "onChange",
   });
 
@@ -142,15 +141,13 @@ const RegisterModal = () => {
   };
 
   const completeProfile = async () => {
-    const [profileResult, licenseResult] = await Promise.allSettled([
+    const profileResult = await Promise.allSettled([
       profileImage ? uploadFile(profileImage, "profiles") : Promise.resolve(""),
-      licenseImage ? uploadFile(licenseImage, "licenses") : Promise.resolve(""),
     ]);
-    const image = profileResult.status === "fulfilled" ? profileResult.value : "";
-    const uploadedLicense = licenseResult.status === "fulfilled" ? licenseResult.value : "";
+    const image = profileResult[0].status === "fulfilled" ? profileResult[0].value : "";
     const data = getValues();
-    await axios.put("/api/profile", { ...data, image, licenseImage: uploadedLicense, hobbies: data.hobbies ? data.hobbies.split(",").map((item: string) => item.trim()).filter(Boolean) : [], dreamDestinations: data.dreamDestinations ? data.dreamDestinations.split(",").map((item: string) => item.trim()).filter(Boolean) : [] });
-    if (profileResult.status === "rejected" || licenseResult.status === "rejected") toast.error("Your account is ready, but one image could not be uploaded. You can retry from your profile.");
+    await axios.put("/api/profile", { ...data, image, hobbies: data.hobbies ? data.hobbies.split(",").map((item: string) => item.trim()).filter(Boolean) : [], dreamDestinations: data.dreamDestinations ? data.dreamDestinations.split(",").map((item: string) => item.trim()).filter(Boolean) : [] });
+    if (profileResult[0].status === "rejected") toast.error("Your account is ready, but the profile image could not be uploaded. You can retry from your profile.");
   };
 
   const verifyEmail = async () => {
@@ -216,11 +213,11 @@ const RegisterModal = () => {
 
   const profileContent = <div className="space-y-4"><SignupJourney step={2} /><StepProgress current={2} /><SignupImagePicker label="Profile picture (optional)" description="Help hosts recognise you at handover." value={profileImage} onChange={setProfileImage} variant="avatar" /><Input id="number" type="tel" label="Australian mobile number" disabled={isLoading} register={register} errors={errors} required validate={(value: string) => isValidAustralianMobile(value) || "Enter a valid Australian mobile number"} /><p className="flex gap-2 text-xs leading-5 text-muted"><Smartphone size={14} className="mt-0.5 shrink-0" />We save your number securely. SMS ownership verification needs a delivery provider and is not enabled yet.</p><div><label htmlFor="signup-date-of-birth" className="mb-2 block text-xs font-semibold text-ink">Date of birth</label><input id="signup-date-of-birth" type="date" max={new Date().toISOString().slice(0, 10)} {...register("dateOfBirth", { required: "Enter your date of birth", validate: (value: string) => isValidDateOfBirth(value) || "Enter a valid date of birth" })} className={`h-14 w-full rounded-sm border bg-white px-4 text-sm text-ink outline-none focus:ring-1 focus:ring-ink ${errors.dateOfBirth ? "border-error" : "border-hairline focus:border-ink"}`} />{errors.dateOfBirth && <p className="mt-1 text-xs text-error">{String(errors.dateOfBirth.message || "Enter your date of birth")}</p>}</div><AddressAutocomplete id="streetAddress" label="Number & street address" disabled={isLoading} required register={register} setValue={setValue} errors={errors} onSelect={onAddressSelect} /><div className="grid gap-3 sm:grid-cols-2"><div><label className="mb-2 block text-xs font-semibold text-ink">Suburb</label><SuburbSelector state={selectedState?.value} value={selectedSuburb || undefined} allowAllStates onChange={selectSuburb} /></div><div><label className="mb-2 block text-xs font-semibold text-ink">State</label><StateSelector value={selectedState} onChange={selectState} /></div></div><input type="hidden" {...register("suburb", { required: true })} /><input type="hidden" {...register("state", { required: true })} />{(errors.suburb || errors.state) && <p className="text-xs text-error">Choose your suburb and state.</p>}<input type="hidden" {...register("postcode")} /></div>;
 
-  const aboutContent = <div className="space-y-4"><SignupJourney step={3} /><StepProgress current={3} /><Input id="hobbies" label="Hobbies, separated by commas" disabled={isLoading} register={register} errors={errors} /><Input id="dreamDestinations" label="Dream destinations, separated by commas" disabled={isLoading} register={register} errors={errors} /><div><label htmlFor="signup-license-type" className="mb-2 block text-xs font-semibold text-ink">Licence type</label><select id="signup-license-type" {...register("licenseType")} className="h-14 w-full rounded-sm border border-hairline bg-white px-4 text-sm text-ink outline-none focus:border-ink focus:ring-1 focus:ring-ink"><option>Driver License</option><option>Boat License</option><option>Other License</option></select></div><SignupImagePicker label="Driving licence" description="You may skip this now, but booking stays locked until it is uploaded." value={licenseImage} onChange={setLicenseImage} /><div className={`flex gap-3 rounded-sm border p-4 text-xs leading-5 ${licenseImage ? "border-hairline-soft bg-surface-soft text-ink" : "border-amber-200 bg-amber-50 text-amber-900"}`}><ShieldCheck size={17} className="mt-0.5 shrink-0" /><span>{licenseImage ? "Your licence will be securely uploaded after email verification and submitted for profile verification." : "Without a licence upload you can explore and save vehicles, but you cannot request a booking."}</span></div></div>;
+  const aboutContent = <div className="space-y-4"><SignupJourney step={3} /><StepProgress current={3} /><Input id="hobbies" label="Hobbies, separated by commas" disabled={isLoading} register={register} errors={errors} /><Input id="dreamDestinations" label="Dream destinations, separated by commas" disabled={isLoading} register={register} errors={errors} /><div className="flex gap-3 rounded-sm border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-900"><ShieldCheck size={17} className="mt-0.5 shrink-0" /><span>After signup, open Profile to photograph both sides of your Australian driver licence. Booking remains locked until its details and expiry match your profile.</span></div></div>;
 
   const verifyContent = <div className="flex flex-col items-center px-1 pb-3 text-center"><div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-surface-soft text-primary"><Mail size={23} /></div><p className="text-sm leading-6 text-muted">We sent a code to</p><p className="max-w-full truncate text-sm font-semibold text-ink">{verificationEmail}</p><input autoFocus inputMode="numeric" autoComplete="one-time-code" aria-label="Six-digit verification code" value={verificationCode} onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))} onKeyDown={(event) => { if (event.key === "Enter") verifyEmail(); }} placeholder="000000" className="mt-6 w-full rounded-xl border border-hairline bg-white px-4 py-4 text-center text-2xl font-semibold tracking-[0.45em] text-ink outline-none transition placeholder:text-hairline focus:border-ink focus:ring-1 focus:ring-ink" />{previewCode && <p className="mt-3 rounded-lg bg-surface-soft px-3 py-2 text-xs text-muted">Local preview code: <strong className="text-ink">{previewCode}</strong></p>}<p className="mt-5 text-xs text-muted">Code expires in 10 minutes. Didn’t get it? <button type="button" disabled={isLoading} onClick={resendCode} className="font-semibold text-ink hover:underline disabled:opacity-50">Send a new code</button></p><button type="button" onClick={() => setStage("account")} className="mt-3 text-xs text-muted hover:text-ink hover:underline">Change signup details</button></div>;
 
-  const successContent = <div className="flex flex-col items-center px-2 py-4 text-center"><div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><Check size={30} strokeWidth={2.5} /></div><h3 className="text-xl font-semibold text-ink">Ready for the road</h3><p className="mt-2 max-w-sm text-sm leading-6 text-muted">Your email and profile details are saved. {licenseImage ? "Your licence has been submitted for verification." : "Add your licence from Profile before requesting a booking."}</p></div>;
+  const successContent = <div className="flex flex-col items-center px-2 py-4 text-center"><div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><Check size={30} strokeWidth={2.5} /></div><h3 className="text-xl font-semibold text-ink">Account created</h3><p className="mt-2 max-w-sm text-sm leading-6 text-muted">Your email and profile details are saved. Add and check your Australian driver licence from Profile before requesting a booking.</p></div>;
 
   const footerContent = <div className="mx-5 mb-5 mt-0 flex flex-col gap-2 sm:mx-8"><div className="relative"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-hairline-soft" /></div><div className="relative flex justify-center"><span className="bg-white px-3 text-[11px] uppercase tracking-widest text-muted-soft">or</span></div></div><Button small outline label="Continue with Google" icon={FcGoogle} onClick={async () => { await signIn("google", { callbackUrl: "/profile" }); }} /><div className="text-center"><span className="text-sm text-muted">Already have an account? </span><button type="button" onClick={toggle} className="min-h-11 rounded-xs px-1 text-sm font-semibold text-ink underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Log in</button></div></div>;
 

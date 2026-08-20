@@ -3,14 +3,17 @@ import { NextResponse } from "next/server";
 import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
 
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import {
+  MAX_UPLOAD_BYTES,
+  UploadValidationError,
+  sanitizeImage,
+  validateImageUploadMetadata,
+} from "@/app/libs/uploadSecurity";
 
 export const runtime = "nodejs";
 
-const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
-const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const ALLOWED_FOLDERS = new Set([
   "profiles",
-  "licenses",
   "registrations",
   "listings",
   "chat",
@@ -23,40 +26,13 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-function hasValidImageSignature(buffer: Buffer, type: string) {
-  if (type === "image/jpeg") {
-    return (
-      buffer.length >= 3 &&
-      buffer[0] === 0xff &&
-      buffer[1] === 0xd8 &&
-      buffer[2] === 0xff
-    );
-  }
-  if (type === "image/png") {
-    return (
-      buffer.length >= 8 &&
-      buffer
-        .subarray(0, 8)
-        .equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
-    );
-  }
-  return (
-    buffer.length >= 12 &&
-    buffer.toString("ascii", 0, 4) === "RIFF" &&
-    buffer.toString("ascii", 8, 12) === "WEBP"
-  );
-}
-
 function uploadImage(buffer: Buffer, folder: string) {
   return new Promise<UploadApiResponse>((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: `redrive/${folder}`,
         resource_type: "image",
-        type:
-          folder === "licenses" || folder === "handovers"
-            ? "authenticated"
-            : "upload",
+        type: folder === "handovers" ? "authenticated" : "upload",
         allowed_formats: ["jpg", "jpeg", "png", "webp"],
         transformation:
           folder === "profiles"
@@ -98,7 +74,7 @@ export async function POST(request: Request) {
     const contentLength = Number(request.headers.get("content-length") || 0);
     if (contentLength > MAX_UPLOAD_BYTES + 64 * 1024) {
       return NextResponse.json(
-        { error: "Image must be 5 MB or smaller" },
+        { error: "Image must be 10 MB or smaller" },
         { status: 413 },
       );
     }
@@ -106,46 +82,27 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const file = formData.get("image");
     const requestedFolder = formData.get("folder");
-    const folder =
-      typeof requestedFolder === "string" &&
-      ALLOWED_FOLDERS.has(requestedFolder)
-        ? requestedFolder
-        : "listings";
+    if (typeof requestedFolder !== "string" || !ALLOWED_FOLDERS.has(requestedFolder)) {
+      return NextResponse.json({ error: "Invalid upload destination" }, { status: 400 });
+    }
+    const folder = requestedFolder;
 
-    if (!(file instanceof Blob) || file.size === 0) {
+    if (!(file instanceof Blob)) {
       return NextResponse.json(
         { error: "Choose an image to upload" },
         { status: 400 },
       );
     }
-    if (file.size > MAX_UPLOAD_BYTES) {
-      return NextResponse.json(
-        { error: "Image must be 5 MB or smaller" },
-        { status: 413 },
-      );
-    }
-    if (!ALLOWED_TYPES.has(file.type)) {
-      return NextResponse.json(
-        { error: "Use a JPG, PNG, or WebP image" },
-        { status: 415 },
-      );
-    }
+    validateImageUploadMetadata(file);
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    if (!hasValidImageSignature(buffer, file.type)) {
-      return NextResponse.json(
-        { error: "The selected file is not a valid image" },
-        { status: 415 },
-      );
-    }
+    const originalBuffer = Buffer.from(await file.arrayBuffer());
+    const buffer = await sanitizeImage(originalBuffer, file.type);
 
     const result = await uploadImage(buffer, folder);
     const url =
-      folder === "licenses"
-        ? `/api/files/license?asset=${encodeURIComponent(result.public_id)}`
-        : folder === "handovers"
-          ? `/api/files/handover?asset=${encodeURIComponent(result.public_id)}`
-          : result.secure_url;
+      folder === "handovers"
+        ? `/api/files/handover?asset=${encodeURIComponent(result.public_id)}`
+        : result.secure_url;
     const previewUrl =
       folder === "handovers"
         ? cloudinary.url(result.public_id, {
@@ -160,6 +117,9 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
+    if (error instanceof UploadValidationError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     console.error("Cloudinary upload failed", error);
     return NextResponse.json(
       { error: "Image upload failed. Please try again." },

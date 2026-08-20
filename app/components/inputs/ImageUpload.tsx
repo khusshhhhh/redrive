@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { TbPhotoPlus } from "react-icons/tb";
 
-export type UploadFolder = "profiles" | "licenses" | "registrations" | "listings" | "chat";
+export type UploadFolder = "profiles" | "registrations" | "listings" | "chat";
 
 interface ImageUploadProps {
   onChange: (value: string) => void;
@@ -33,8 +33,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   const upload = useCallback(async (file?: File) => {
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Choose an image smaller than 5 MB");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Choose an image no larger than 10 MB");
       return;
     }
 
@@ -72,17 +72,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       >
         <TbPhotoPlus size={24} aria-hidden="true" />
         <span className="font-semibold text-ink">{uploading ? "Uploading…" : value ? "Replace image" : "Choose an image"}</span>
-        <span className="text-xs">JPG, PNG or WebP · up to 5 MB</span>
+        <span className="text-xs">JPG, PNG or WebP · up to 10 MB</span>
         {value && (
           <span className="absolute inset-0">
-            {folder === "licenses" ? (
-              // Protected licence delivery needs the browser's same-origin session cookie;
-              // the Next image optimizer does not forward that cookie to the asset route.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img alt="Uploaded licence" className="h-full w-full object-cover" src={value} />
-            ) : (
-              <Image alt="Uploaded image" fill sizes="(max-width: 768px) 100vw, 520px" className="object-cover" src={value} />
-            )}
+            <Image alt="Uploaded image" fill sizes="(max-width: 768px) 100vw, 520px" className="object-cover" src={value} />
             <span className="absolute inset-x-0 bottom-0 bg-black/60 px-3 py-2 text-sm font-medium text-white">{uploading ? "Uploading…" : "Click to replace"}</span>
           </span>
         )}

@@ -42,9 +42,9 @@ import {
   isValidAustralianMobile,
   isValidDateOfBirth,
 } from "@/app/libs/profileValidation";
-import { hasSubmittedLicense } from "@/app/libs/licenseVerification";
 import PayoutSettings from "@/app/components/payments/PayoutSettings";
 import EmailVerification from "@/app/components/profile/EmailVerification";
+import LicenseVerificationPanel from "@/app/components/profile/LicenseVerificationPanel";
 
 interface ProfileFormData {
   name: string;
@@ -126,12 +126,6 @@ export default function ProfileClient({
   const [image, setImage] = useState(
     initialUser.image || "/images/placeholder.png",
   );
-  const [licenseImage, setLicenseImage] = useState(
-    initialUser.licenseImage || "",
-  );
-  const [licenseType, setLicenseType] = useState(
-    initialUser.licenseType || "Driver License",
-  );
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isUpdatingOtp, setIsUpdatingOtp] = useState(false);
@@ -168,13 +162,12 @@ export default function ProfileClient({
     initialUser.dreamDestinations || [],
   );
   const [destinationInput, setDestinationInput] = useState("");
-  const [profileVerified] = useState(initialUser.profileVerified || "N");
   const [emailVerified, setEmailVerified] = useState(Boolean(initialUser.emailVerified));
   const [loginOtpEnabled, setLoginOtpEnabled] = useState(
     Boolean(initialUser.loginOtpEnabled),
   );
   const [hasPassword] = useState(Boolean(initialUser.hasPassword));
-  const licenseSubmitted = hasSubmittedLicense(licenseImage);
+  const licenseVerified = initialUser.licenseStatus === "VERIFIED";
 
   const name = watch("name");
   const email = watch("email");
@@ -195,7 +188,7 @@ export default function ProfileClient({
       selectedState?.value,
       hobbies,
       image !== "/images/placeholder.png",
-      licenseSubmitted,
+      licenseVerified,
     ].filter(Boolean).length;
     return Math.round((complete / 10) * 100);
   }, [
@@ -208,7 +201,7 @@ export default function ProfileClient({
     selectedState,
     hobbies,
     image,
-    licenseSubmitted,
+    licenseVerified,
   ]);
 
   const onAddressSelect = (result: ParsedAddress) => {
@@ -283,8 +276,6 @@ export default function ProfileClient({
       await axios.put("/api/profile", {
         ...data,
         image,
-        licenseImage,
-        licenseType,
         hobbies: data.hobbies
           ? data.hobbies
               .split(",")
@@ -427,14 +418,14 @@ export default function ProfileClient({
                     <Check size={12} /> Email verified
                   </span>
                 )}
-                {licenseSubmitted && profileVerified === "Y" && (
+                {licenseVerified && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-surface-soft px-3 py-1 text-xs font-medium text-ink">
-                    <BadgeCheck size={13} /> Licence verified
+                    <BadgeCheck size={13} /> Licence details checked
                   </span>
                 )}
-                {licenseSubmitted && profileVerified === "PENDING" && (
+                {initialUser.licenseStatus === "NEEDS_CONFIRMATION" && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800">
-                    <ShieldCheck size={13} /> Licence submitted
+                    <ShieldCheck size={13} /> Confirm licence details
                   </span>
                 )}
               </div>
@@ -674,40 +665,10 @@ export default function ProfileClient({
                 id="verification"
                 icon={<ShieldCheck size={19} />}
                 title="Driving licence"
-                description="A licence upload is required before you can request a vehicle booking."
+                description="Both sides must be recognised, current, and match your Redrive name and date of birth before booking."
               >
                 <div className="space-y-4">
-                  {!licenseSubmitted && (
-                    <div className="rounded-sm border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-                      <strong>Booking is currently locked.</strong> Upload your
-                      licence to continue to booking review.
-                    </div>
-                  )}
-                  {licenseSubmitted && profileVerified !== "Y" && (
-                    <div className="rounded-sm border border-hairline-soft bg-surface-soft p-4 text-sm leading-6 text-ink">
-                      Your licence is on file and awaiting profile verification.
-                      You can now send booking requests.
-                    </div>
-                  )}
-                  <select
-                    value={licenseType}
-                    onChange={(event) => setLicenseType(event.target.value)}
-                    className="h-14 w-full rounded-sm border border-hairline bg-white px-4 text-sm text-ink outline-none focus:border-ink focus:ring-1 focus:ring-ink"
-                  >
-                    <option>Driver License</option>
-                    <option>Boat License</option>
-                    <option>Other License</option>
-                  </select>
-                  <ImageUpload
-                    folder="licenses"
-                    onChange={setLicenseImage}
-                    value={licenseImage}
-                  />
-                  <p className="flex gap-2 text-xs leading-5 text-muted">
-                    <ShieldCheck size={15} className="mt-0.5 shrink-0" />
-                    Only upload a document you are authorised to provide. Avoid
-                    including unrelated personal documents.
-                  </p>
+                  <LicenseVerificationPanel user={initialUser} />
                 </div>
               </SectionCard>
             </form>

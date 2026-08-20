@@ -17,17 +17,36 @@ export async function GET(
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    // Fetch the user from Prisma
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { listings: true },
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        suburb: true,
+        state: true,
+        profileVerified: true,
+        createdAt: true,
+        listings: {
+          select: {
+            id: true,
+            title: true,
+            imageSrcs: true,
+            category: true,
+            price: true,
+            state: true,
+            suburb: true,
+            createdAt: true,
+          },
+        },
+      },
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json(user, { status: 200 });
+    return NextResponse.json(user, { status: 200, headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     console.error("❌ Error fetching user:", error);
     return NextResponse.json(

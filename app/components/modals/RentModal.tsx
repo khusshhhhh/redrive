@@ -552,7 +552,7 @@ const RentModal = () => {
                     id="regoDocument"
                 />
                 <label htmlFor="regoDocument" className={`relative flex min-h-40 flex-col items-center justify-center overflow-hidden rounded-md border-2 border-dashed p-5 text-center transition ${uploadingRego ? "cursor-wait border-hairline bg-surface-soft" : "cursor-pointer border-hairline text-muted hover:border-ink hover:bg-surface-soft/50"}`}>
-                    {uploadingRego ? <><span className="relative flex h-14 w-14 items-center justify-center"><span className="loader-orbit absolute inset-0 rounded-full border-2 border-hairline border-t-primary" /><span className="loader-core h-6 w-6 rounded-full bg-primary/15" /></span><span className="mt-4 font-semibold text-ink">Uploading registration document</span><span className="mt-1 text-xs text-muted">Checking and securing your image</span></> : <><span className="font-semibold text-ink">Upload registration document</span><span className="mt-1 text-xs">JPG, PNG or WebP · up to 5 MB</span></>}
+                    {uploadingRego ? <><span className="relative flex h-14 w-14 items-center justify-center"><span className="loader-orbit absolute inset-0 rounded-full border-2 border-hairline border-t-primary" /><span className="loader-core h-6 w-6 rounded-full bg-primary/15" /></span><span className="mt-4 font-semibold text-ink">Uploading registration document</span><span className="mt-1 text-xs text-muted">Checking and securing your image</span></> : <><span className="font-semibold text-ink">Upload registration document</span><span className="mt-1 text-xs">JPG, PNG or WebP · up to 10 MB</span></>}
                 </label>
 
                 {/* ✅ Show Uploaded Legal Document with Delete Option */}

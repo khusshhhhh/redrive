@@ -27,7 +27,7 @@ const ListingPhotoManager: React.FC<ListingPhotoManagerProps> = ({ images, onCha
   }, [onUploadingChange, uploading]);
 
   const uploadFile = async (file: File) => {
-    if (file.size > 5 * 1024 * 1024) throw new Error(`${file.name} is larger than 5 MB`);
+    if (file.size > 10 * 1024 * 1024) throw new Error(`${file.name} is larger than 10 MB`);
     const formData = new FormData();
     formData.append("image", file);
     formData.append("folder", "listings");
@@ -107,7 +107,7 @@ const ListingPhotoManager: React.FC<ListingPhotoManagerProps> = ({ images, onCha
           className="relative flex aspect-[16/10] min-h-48 w-full items-center justify-center overflow-hidden rounded-md border-2 border-dashed border-hairline bg-surface-soft/40 text-center transition hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-wait sm:min-h-64"
         >
           {images[0] ? <Image src={images[0]} alt="Main listing photo" fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover" /> : (
-            <span className="flex flex-col items-center gap-2 px-5 text-muted"><IconPhotoPlus size={30} /><span className="font-semibold text-ink">Upload main photo</span><span className="text-xs">JPG, PNG or WebP · up to 5 MB</span></span>
+            <span className="flex flex-col items-center gap-2 px-5 text-muted"><IconPhotoPlus size={30} /><span className="font-semibold text-ink">Upload main photo</span><span className="text-xs">JPG, PNG or WebP · up to 10 MB</span></span>
           )}
           {images[0] && !uploading && <span className="absolute inset-x-0 bottom-0 bg-black/65 px-4 py-3 text-sm font-semibold text-white">Tap to replace main photo</span>}
           {uploading === "main" && <UploadOverlay label="Uploading main photo" percent={percent} />}

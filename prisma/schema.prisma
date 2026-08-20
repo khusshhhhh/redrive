@@ -42,16 +42,32 @@ model User {
   hobbies           String[] @default([])
   dreamDestinations String[] @default([])
 
-  licenseImage           String? // ✅ Stores uploaded license image
-  licensePublicId        String?
-  licenseType            String? // ✅ Stores selected license type
-  licenseStatus          String    @default("NOT_SUBMITTED")
-  licenseExpiresAt       DateTime?
-  licenseReviewedAt      DateTime?
-  licenseReviewedBy      String?   @db.ObjectId
-  licenseRejectionReason String?
-  profileVerified        String?   @default("N")
-  role                   String?   @default("USER") // USER or ADMIN; nullable for existing MongoDB records
+  licenseImage                    String? // ✅ Stores uploaded license image
+  licensePublicId                 String?
+  licenseBackPublicId             String?
+  licenseType                     String? // ✅ Stores selected license type
+  licenseStatus                   String    @default("NOT_SUBMITTED")
+  licenseExpiresAt                DateTime?
+  licenseExpiryDate               String?
+  licenseIssuerState              String?
+  licenseHolderName               String?
+  licenseDateOfBirth              String?
+  licenseNumberEncrypted          String?
+  licenseNumberLast4              String?
+  licenseNumberHash               String?
+  licenseCardEncrypted            String?
+  licenseCardLast4                String?
+  licenseNameMatches              Boolean?
+  licenseDobMatches               Boolean?
+  licenseClassificationConfidence Float?
+  licenseVerificationSource       String?
+  licenseOcrDataEncrypted         String?
+  licenseVerifiedAt               DateTime?
+  licenseReviewedAt               DateTime?
+  licenseReviewedBy               String?   @db.ObjectId
+  licenseRejectionReason          String?
+  profileVerified                 String?   @default("N")
+  role                            String?   @default("USER") // USER or ADMIN; nullable for existing MongoDB records
 
   accounts         Account[]
   listings         Listing[]
@@ -65,6 +81,7 @@ model User {
   @@index([createdAt])
   @@index([lastActiveAt])
   @@index([role])
+  @@index([licenseNumberHash])
 }
 
 model Account {

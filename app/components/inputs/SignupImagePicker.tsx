@@ -40,8 +40,8 @@ const SignupImagePicker: React.FC<SignupImagePickerProps> = ({
       toast.error("Use a JPG, PNG or WebP image");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Choose an image smaller than 5 MB");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Choose an image no larger than 10 MB");
       return;
     }
     onChange(file);
