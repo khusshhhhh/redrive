@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { notificationService } from "@/app/services/notificationService";
@@ -167,7 +168,7 @@ async function runNotificationCron() {
 }
 
 // Vercel Cron sends a GET request to the scheduled path.
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -175,9 +176,13 @@ export async function GET(request: NextRequest) {
 }
 
 // Also allow POST for manual/external triggering with the same secret.
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   return runNotificationCron();
 }
+
+export const GET = monitorApiRoute("/api/cron/notifications", GETHandler, "GET");
+
+export const POST = monitorApiRoute("/api/cron/notifications", POSTHandler, "POST");

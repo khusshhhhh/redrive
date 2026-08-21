@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
@@ -6,7 +7,7 @@ import { buildChatSummary } from "@/app/libs/chatSerializers";
 // GET: inbox summary for the current user — one row per chat, last message
 // preview + unread count only (not the full message history, which is
 // fetched paginated per-chat via /api/chats/[chatId]/messages).
-export async function GET() {
+async function GETHandler() {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -39,7 +40,7 @@ export async function GET() {
 }
 
 // POST: create or return the existing 1:1 chat with a given user.
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -76,3 +77,7 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const GET = monitorApiRoute("/api/chats", GETHandler, "GET");
+
+export const POST = monitorApiRoute("/api/chats", POSTHandler, "POST");

@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getServerSession } from "next-auth";
@@ -8,7 +9,7 @@ import {
   normalizeAustralianMobile,
 } from "@/app/libs/profileValidation";
 
-export async function PUT(request: Request) {
+async function PUTHandler(request: Request) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -110,3 +111,5 @@ export async function PUT(request: Request) {
     );
   }
 }
+
+export const PUT = monitorApiRoute("/api/profile", PUTHandler, "PUT");

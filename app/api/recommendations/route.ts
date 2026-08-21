@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
@@ -5,7 +6,7 @@ import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 const objectIds = (value: string | null) => (value || "").split(",").filter((id) => /^[a-f\d]{24}$/i.test(id)).slice(0, 8);
 const validDate = (value: string | null) => value && !Number.isNaN(new Date(value).getTime()) ? new Date(value) : null;
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   const currentUser = await getCurrentUserEnhanced(request);
   const viewedIds = objectIds(request.nextUrl.searchParams.get("viewed"));
   const startDate = validDate(request.nextUrl.searchParams.get("startDate"));
@@ -82,3 +83,5 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json(ranked.slice(0, 6).map((item) => item.listing), { headers: { "Cache-Control": "private, no-store" } });
 }
+
+export const GET = monitorApiRoute("/api/recommendations", GETHandler, "GET");

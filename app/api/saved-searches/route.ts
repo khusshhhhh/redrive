@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
@@ -26,7 +27,7 @@ const serialize = (search: {
   updatedAt: search.updatedAt.toISOString(),
 });
 
-export async function GET() {
+async function GETHandler() {
   const user = await authenticatedUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -38,7 +39,7 @@ export async function GET() {
   return NextResponse.json(searches.map(serialize));
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const user = await authenticatedUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -67,3 +68,7 @@ export async function POST(request: Request) {
   });
   return NextResponse.json(serialize(search), { status: 201 });
 }
+
+export const GET = monitorApiRoute("/api/saved-searches", GETHandler, "GET");
+
+export const POST = monitorApiRoute("/api/saved-searches", POSTHandler, "POST");

@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
@@ -7,7 +8,7 @@ interface IParams {
 }
 
 // PATCH - Mark notification as read/unread
-export async function PATCH(
+async function PATCHHandler(
   request: NextRequest,
   { params }: { params: Promise<IParams> }
 ) {
@@ -55,7 +56,7 @@ export async function PATCH(
 }
 
 // DELETE - Delete notification
-export async function DELETE(
+async function DELETEHandler(
   request: NextRequest,
   { params }: { params: Promise<IParams> }
 ) {
@@ -98,3 +99,7 @@ export async function DELETE(
     );
   }
 }
+
+export const PATCH = monitorApiRoute("/api/notifications/[notificationId]", PATCHHandler, "PATCH");
+
+export const DELETE = monitorApiRoute("/api/notifications/[notificationId]", DELETEHandler, "DELETE");

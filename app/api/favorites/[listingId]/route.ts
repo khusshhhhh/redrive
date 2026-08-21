@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
@@ -5,7 +6,7 @@ import type { NextRequest } from "next/server";
 import { notificationService } from "@/app/services/notificationService";
 
 // ✅ POST: Add listing to favorites
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
     return NextResponse.error();
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
 }
 
 // ✅ DELETE: Remove listing from favorites
-export async function DELETE(request: NextRequest) {
+async function DELETEHandler(request: NextRequest) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
     return NextResponse.error();
@@ -69,3 +70,7 @@ export async function DELETE(request: NextRequest) {
 
   return NextResponse.json(user);
 }
+
+export const POST = monitorApiRoute("/api/favorites/[listingId]", POSTHandler, "POST");
+
+export const DELETE = monitorApiRoute("/api/favorites/[listingId]", DELETEHandler, "DELETE");

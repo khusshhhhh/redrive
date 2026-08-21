@@ -1,9 +1,10 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 
 import { releaseReservationPayment } from "@/app/libs/payments";
 import prisma from "@/app/libs/prismadb";
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const expected = process.env.CRON_SECRET;
   if (
     !expected ||
@@ -29,3 +30,5 @@ export async function GET(request: Request) {
     released: results.filter((result) => result.released).length,
   });
 }
+
+export const GET = monitorApiRoute("/api/cron/payouts", GETHandler, "GET");

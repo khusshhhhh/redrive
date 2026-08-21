@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
@@ -12,7 +13,7 @@ export const dynamic = "force-dynamic";
 // event so the inbox list can move it to the top and refresh its unread
 // badge without a manual refresh. Reconnects resume via `Last-Event-ID`
 // (see the per-chat stream route for the same pattern).
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -59,3 +60,5 @@ export async function GET(request: NextRequest) {
 
   return sseResponse(stream);
 }
+
+export const GET = monitorApiRoute("/api/chats/stream", GETHandler, "GET");

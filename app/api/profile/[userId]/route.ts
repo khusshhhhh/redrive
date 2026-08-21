@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import type { NextRequest } from "next/server";
@@ -5,7 +6,7 @@ import type { NextRequest } from "next/server";
 /**
  * ✅ GET: Fetch a user by ID
  */
-export async function GET(
+async function GETHandler(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context: any
@@ -55,3 +56,5 @@ export async function GET(
     );
   }
 }
+
+export const GET = monitorApiRoute("/api/profile/[userId]", GETHandler, "GET");

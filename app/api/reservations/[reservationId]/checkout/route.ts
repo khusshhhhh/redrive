@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
@@ -8,7 +9,7 @@ import { consumeRateLimits, tooManyRequests, writeAuditEvent } from "@/app/libs/
 
 type Context = { params: Promise<{ reservationId: string }> };
 
-export async function POST(request: Request, context: Context) {
+async function POSTHandler(request: Request, context: Context) {
   const currentUser = await getCurrentUserEnhanced(request);
   if (!currentUser)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -182,3 +183,5 @@ export async function POST(request: Request, context: Context) {
     );
   }
 }
+
+export const POST = monitorApiRoute("/api/reservations/[reservationId]/checkout", POSTHandler, "POST");

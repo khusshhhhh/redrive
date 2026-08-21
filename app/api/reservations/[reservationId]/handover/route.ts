@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
@@ -51,7 +52,7 @@ function cleanMedia(input: unknown) {
   });
 }
 
-export async function GET(request: Request, context: Context) {
+async function GETHandler(request: Request, context: Context) {
   const { reservationId } = await context.params;
   const auth = await access(request, reservationId);
   if (!auth) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -76,7 +77,7 @@ export async function GET(request: Request, context: Context) {
   );
 }
 
-export async function PUT(request: Request, context: Context) {
+async function PUTHandler(request: Request, context: Context) {
   const { reservationId } = await context.params;
   const auth = await access(request, reservationId);
   if (!auth) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -256,3 +257,7 @@ export async function PUT(request: Request, context: Context) {
   });
   return NextResponse.json({ ...report, media });
 }
+
+export const GET = monitorApiRoute("/api/reservations/[reservationId]/handover", GETHandler, "GET");
+
+export const PUT = monitorApiRoute("/api/reservations/[reservationId]/handover", PUTHandler, "PUT");

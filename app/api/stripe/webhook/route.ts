@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import type Stripe from "stripe";
 import { NextResponse } from "next/server";
 
@@ -6,7 +7,7 @@ import { getStripe } from "@/app/libs/stripe";
 
 export const runtime = "nodejs";
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const signature = request.headers.get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!signature || !webhookSecret)
@@ -145,3 +146,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = monitorApiRoute("/api/stripe/webhook", POSTHandler, "POST");

@@ -1,9 +1,10 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import prisma from "@/app/libs/prismadb";
 
-export async function GET() {
+async function GETHandler() {
   try {
     const session = await getServerSession(authOptions);
 
@@ -66,3 +67,5 @@ export async function GET() {
     );
   }
 }
+
+export const GET = monitorApiRoute("/api/auth/user", GETHandler, "GET");

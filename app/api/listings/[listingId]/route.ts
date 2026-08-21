@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
@@ -6,7 +7,7 @@ import prisma from "@/app/libs/prismadb";
 /**
  * ✅ GET: Fetch a specific listing by ID (Includes state, suburb, amenities, images, and rego details)
  */
-export async function GET(
+async function GETHandler(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context: any
@@ -54,7 +55,7 @@ export async function GET(
 /**
  * ✅ PUT: Update listing (Supports multiple images, rego details, state, suburb, and address)
  */
-export async function PUT(
+async function PUTHandler(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context: any
@@ -180,7 +181,7 @@ export async function PUT(
 /**
  * ✅ DELETE: Remove a listing (Ensures only the owner can delete it)
  */
-export async function DELETE(
+async function DELETEHandler(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context: any
@@ -237,3 +238,9 @@ export async function DELETE(
     );
   }
 }
+
+export const GET = monitorApiRoute("/api/listings/[listingId]", GETHandler, "GET");
+
+export const PUT = monitorApiRoute("/api/listings/[listingId]", PUTHandler, "PUT");
+
+export const DELETE = monitorApiRoute("/api/listings/[listingId]", DELETEHandler, "DELETE");

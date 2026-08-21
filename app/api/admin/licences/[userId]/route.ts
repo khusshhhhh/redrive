@@ -1,10 +1,11 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getAdminUser } from "@/app/libs/adminAuth";
 import { writeAuditEvent } from "@/app/libs/security";
 import { notificationService } from "@/app/services/notificationService";
 
-export async function PATCH(request: Request, context: { params: Promise<{ userId: string }> }) {
+async function PATCHHandler(request: Request, context: { params: Promise<{ userId: string }> }) {
   const admin = await getAdminUser();
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const { userId } = await context.params;
@@ -20,3 +21,5 @@ export async function PATCH(request: Request, context: { params: Promise<{ userI
   await notificationService.notifyProfileVerified(userId, status === "VERIFIED" ? "Y" : status).catch((error) => console.error("Licence notification failed", error));
   return NextResponse.json(user);
 }
+
+export const PATCH = monitorApiRoute("/api/admin/licences/[userId]", PATCHHandler, "PATCH");

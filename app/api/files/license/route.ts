@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
@@ -6,7 +7,7 @@ import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 cloudinary.config({ cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET });
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const asset = new URL(request.url).searchParams.get("asset") || "";
@@ -22,3 +23,4 @@ export async function GET(request: Request) {
   return NextResponse.redirect(signedUrl, { headers: { "Cache-Control": "private, no-store" } });
 }
 
+export const GET = monitorApiRoute("/api/files/license", GETHandler, "GET");

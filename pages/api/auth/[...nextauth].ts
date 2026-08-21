@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { consumeRateLimits, writeAuditEvent } from "@/app/libs/security";
+import { monitorPagesApiRoute } from "@/app/libs/apiMonitoring";
 
 import prisma from "@/app/libs/prismadb";
 import {
@@ -135,4 +136,6 @@ export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-export default NextAuth(authOptions);
+const authHandler = NextAuth(authOptions);
+
+export default monitorPagesApiRoute("/api/auth/[...nextauth]", authHandler);

@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
@@ -5,7 +6,7 @@ import { Prisma } from "@prisma/client";
 import { getAdminUser } from "@/app/libs/adminAuth";
 
 // GET - Fetch user's notifications
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
 
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST - Create new notification (for admin/system use)
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     const currentUser = await getAdminUser();
     if (!currentUser) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -103,3 +104,7 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const GET = monitorApiRoute("/api/notifications", GETHandler, "GET");
+
+export const POST = monitorApiRoute("/api/notifications", POSTHandler, "POST");

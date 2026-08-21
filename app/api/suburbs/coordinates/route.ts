@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import suburbData from "@/public/test.Suburb.json";
 
@@ -10,7 +11,7 @@ interface SuburbCoordinates {
 
 const suburbs = suburbData as SuburbCoordinates[];
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const { searchParams } = new URL(request.url);
   const suburb = searchParams.get("suburb")?.trim();
   const state = searchParams.get("state")?.trim();
@@ -44,3 +45,5 @@ export async function GET(request: Request) {
     }
   );
 }
+
+export const GET = monitorApiRoute("/api/suburbs/coordinates", GETHandler, "GET");

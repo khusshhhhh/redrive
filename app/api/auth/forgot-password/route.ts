@@ -1,10 +1,11 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import crypto from "crypto";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { sendPasswordResetEmail } from "@/app/libs/emailVerification";
 import { consumeRateLimits, getClientIp, securityHash, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const body = await request.json().catch(() => ({}));
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   if (!email || !/^\S+@\S+\.\S+$/.test(email)) return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
@@ -27,3 +28,4 @@ export async function POST(request: Request) {
   return NextResponse.json({ ...generic, ...(delivery.previewUrl ? { previewUrl: delivery.previewUrl } : {}) });
 }
 
+export const POST = monitorApiRoute("/api/auth/forgot-password", POSTHandler, "POST");

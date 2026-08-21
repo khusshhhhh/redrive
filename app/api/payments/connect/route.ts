@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
@@ -36,7 +37,7 @@ async function syncAccount(userId: string, accountId: string) {
   };
 }
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const currentUser = await getCurrentUserEnhanced(request);
   if (!currentUser)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -68,7 +69,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const currentUser = await getCurrentUserEnhanced(request);
   if (!currentUser)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -169,3 +170,7 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const GET = monitorApiRoute("/api/payments/connect", GETHandler, "GET");
+
+export const POST = monitorApiRoute("/api/payments/connect", POSTHandler, "POST");

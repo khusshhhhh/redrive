@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
@@ -92,7 +93,7 @@ function noStore<T>(body: T, init?: ResponseInit) {
   });
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) return noStore({ error: "Authentication required" }, { status: 401 });
@@ -251,7 +252,7 @@ function validNamePart(value: unknown) {
     /^[\p{L}\p{M}' -]+$/u.test(value.trim());
 }
 
-export async function PATCH(request: Request) {
+async function PATCHHandler(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) return noStore({ error: "Authentication required" }, { status: 401 });
@@ -408,3 +409,7 @@ export async function PATCH(request: Request) {
     return noStore({ error: "The licence details could not be saved" }, { status: 500 });
   }
 }
+
+export const POST = monitorApiRoute("/api/license-verification", POSTHandler, "POST");
+
+export const PATCH = monitorApiRoute("/api/license-verification", PATCHHandler, "PATCH");

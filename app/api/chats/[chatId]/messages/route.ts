@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
@@ -9,7 +10,7 @@ const PAGE_SIZE = 30;
 
 // GET: paginated message history, newest page first.
 // ?before=<messageId> to load older messages (infinite-scroll-up).
-export async function GET(
+async function GETHandler(
   request: NextRequest,
   { params }: { params: Promise<{ chatId: string }> }
 ) {
@@ -64,7 +65,7 @@ export async function GET(
 }
 
 // POST: send a message (text and/or an already-uploaded Cloudinary image URL).
-export async function POST(
+async function POSTHandler(
   request: NextRequest,
   { params }: { params: Promise<{ chatId: string }> }
 ) {
@@ -127,3 +128,7 @@ export async function POST(
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
+export const GET = monitorApiRoute("/api/chats/[chatId]/messages", GETHandler, "GET");
+
+export const POST = monitorApiRoute("/api/chats/[chatId]/messages", POSTHandler, "POST");

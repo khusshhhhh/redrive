@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
@@ -49,7 +50,7 @@ function uploadImage(buffer: Buffer, folder: string) {
   });
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
@@ -127,3 +128,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = monitorApiRoute("/api/upload", POSTHandler, "POST");

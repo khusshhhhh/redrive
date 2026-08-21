@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
@@ -13,7 +14,7 @@ export const dynamic = "force-dynamic";
 // every time this stream closes itself; the browser resends the id of the
 // last "message" event as `Last-Event-ID`, so reconnects resume exactly
 // where they left off with no manual bookkeeping on the client.
-export async function GET(
+async function GETHandler(
   request: NextRequest,
   { params }: { params: Promise<{ chatId: string }> }
 ) {
@@ -105,3 +106,5 @@ export async function GET(
 
   return sseResponse(stream);
 }
+
+export const GET = monitorApiRoute("/api/chats/[chatId]/stream", GETHandler, "GET");

@@ -1,9 +1,10 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import { notificationService } from "@/app/services/notificationService";
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -91,3 +92,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = monitorApiRoute("/api/reviews", POSTHandler, "POST");

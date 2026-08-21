@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import bcrypt from "bcryptjs";
@@ -19,7 +20,7 @@ async function getAuthenticatedUser() {
   return prisma.user.findUnique({ where: { email: session.user.email } });
 }
 
-export async function PATCH(request: Request) {
+async function PATCHHandler(request: Request) {
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -62,7 +63,7 @@ export async function PATCH(request: Request) {
   return NextResponse.json({ loginOtpEnabled });
 }
 
-export async function PUT(request: Request) {
+async function PUTHandler(request: Request) {
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!user.hashedPassword) {
@@ -95,3 +96,7 @@ export async function PUT(request: Request) {
 
   return NextResponse.json({ changed: true });
 }
+
+export const PATCH = monitorApiRoute("/api/profile/security", PATCHHandler, "PATCH");
+
+export const PUT = monitorApiRoute("/api/profile/security", PUTHandler, "PUT");

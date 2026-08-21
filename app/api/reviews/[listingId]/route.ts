@@ -1,7 +1,8 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 
-export async function GET(
+async function GETHandler(
   request: Request,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context: any
@@ -34,3 +35,5 @@ export async function GET(
     );
   }
 }
+
+export const GET = monitorApiRoute("/api/reviews/[listingId]", GETHandler, "GET");

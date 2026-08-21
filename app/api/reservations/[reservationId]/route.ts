@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
@@ -7,7 +8,7 @@ import { writeAuditEvent } from "@/app/libs/security";
 import { getStripe } from "@/app/libs/stripe";
 
 // ✅ GET: Fetch reservation details with user included
-export async function GET(
+async function GETHandler(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context: any, // Override type checking for params
@@ -105,7 +106,7 @@ export async function GET(
   }
 }
 // ✅ DELETE: Cancel a reservation
-export async function DELETE(
+async function DELETEHandler(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context: any, // Override type checking for params
@@ -314,7 +315,7 @@ export async function DELETE(
 }
 
 // PATCH: update reservation status
-export async function PATCH(
+async function PATCHHandler(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context: any,
@@ -465,3 +466,9 @@ export async function PATCH(
     );
   }
 }
+
+export const GET = monitorApiRoute("/api/reservations/[reservationId]", GETHandler, "GET");
+
+export const DELETE = monitorApiRoute("/api/reservations/[reservationId]", DELETEHandler, "DELETE");
+
+export const PATCH = monitorApiRoute("/api/reservations/[reservationId]", PATCHHandler, "PATCH");

@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
@@ -5,7 +6,7 @@ import { writeAuditEvent } from "@/app/libs/security";
 
 type Context = { params: Promise<{ listingId: string }> };
 
-export async function GET(request: Request, context: Context) {
+async function GETHandler(request: Request, context: Context) {
   const user = await getCurrentUserEnhanced(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { listingId } = await context.params;
@@ -15,7 +16,7 @@ export async function GET(request: Request, context: Context) {
   return NextResponse.json(blocks);
 }
 
-export async function POST(request: Request, context: Context) {
+async function POSTHandler(request: Request, context: Context) {
   const user = await getCurrentUserEnhanced(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { listingId } = await context.params;
@@ -28,7 +29,7 @@ export async function POST(request: Request, context: Context) {
   return NextResponse.json(block, { status: 201 });
 }
 
-export async function DELETE(request: Request, context: Context) {
+async function DELETEHandler(request: Request, context: Context) {
   const user = await getCurrentUserEnhanced(request); if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { listingId } = await context.params; const blockId = new URL(request.url).searchParams.get("blockId");
   const listing = await prisma.listing.findUnique({ where: { id: listingId }, select: { userId: true } });
@@ -39,3 +40,8 @@ export async function DELETE(request: Request, context: Context) {
   return NextResponse.json({ deleted: true });
 }
 
+export const GET = monitorApiRoute("/api/listings/[listingId]/availability", GETHandler, "GET");
+
+export const POST = monitorApiRoute("/api/listings/[listingId]/availability", POSTHandler, "POST");
+
+export const DELETE = monitorApiRoute("/api/listings/[listingId]/availability", DELETEHandler, "DELETE");

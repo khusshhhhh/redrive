@@ -1,9 +1,10 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 
 // PATCH - Bulk mark notifications as read
-export async function PATCH(request: NextRequest) {
+async function PATCHHandler(request: NextRequest) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
 
@@ -63,7 +64,7 @@ export async function PATCH(request: NextRequest) {
 }
 
 // DELETE - Bulk delete notifications
-export async function DELETE(request: NextRequest) {
+async function DELETEHandler(request: NextRequest) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
 
@@ -122,3 +123,7 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
+export const PATCH = monitorApiRoute("/api/notifications/bulk", PATCHHandler, "PATCH");
+
+export const DELETE = monitorApiRoute("/api/notifications/bulk", DELETEHandler, "DELETE");

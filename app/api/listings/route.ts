@@ -1,9 +1,10 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     // ✅ Fetch current user
     const currentUser = await getCurrentUserEnhanced(request);
@@ -158,3 +159,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = monitorApiRoute("/api/listings", POSTHandler, "POST");

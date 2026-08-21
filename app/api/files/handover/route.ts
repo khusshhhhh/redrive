@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
@@ -11,7 +12,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -55,3 +56,5 @@ export async function GET(request: Request) {
     headers: { "Cache-Control": "private, no-store" },
   });
 }
+
+export const GET = monitorApiRoute("/api/files/handover", GETHandler, "GET");

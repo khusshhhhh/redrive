@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
@@ -5,7 +6,7 @@ import getCurrentUser from "@/app/actions/getCurrentUser";
 // POST: heartbeat — marks the current user "active now". Called on a
 // timer by app/hooks/usePresence.ts while the app is open, independent of
 // whether a chat is open, so "online"/"last seen" is accurate app-wide.
-export async function POST() {
+async function POSTHandler() {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -23,3 +24,5 @@ export async function POST() {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
+export const POST = monitorApiRoute("/api/presence", POSTHandler, "POST");

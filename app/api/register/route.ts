@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
 import prisma from "@/app/libs/prismadb";
@@ -26,7 +27,7 @@ const duplicateEmailResponse = (emailVerified = false) => NextResponse.json(
   { status: 409 }
 );
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const email = new URL(request.url).searchParams.get("email")?.trim().toLowerCase();
   if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
     return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
@@ -42,7 +43,7 @@ export async function GET(request: Request) {
   return NextResponse.json({ exists: !!user, emailVerified: !!user?.emailVerified });
 }
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   try {
     let body;
 
@@ -163,3 +164,7 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const GET = monitorApiRoute("/api/register", GETHandler, "GET");
+
+export const POST = monitorApiRoute("/api/register", POSTHandler, "POST");

@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/app/libs/prismadb";
@@ -6,7 +7,7 @@ import crypto from "crypto";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 
 // POST: Login endpoint for API testing compatibility
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     if (process.env.ENABLE_LEGACY_API_AUTH !== "true") {
       return NextResponse.json({ error: "Use the standard Redrive sign-in flow" }, { status: 404 });
@@ -109,6 +110,10 @@ export async function POST(request: NextRequest) {
 }
 
 // GET: Check login endpoint availability
-export async function GET() {
+async function GETHandler() {
   return NextResponse.json({ enabled: process.env.ENABLE_LEGACY_API_AUTH === "true" });
 }
+
+export const POST = monitorApiRoute("/api/auth/login", POSTHandler, "POST");
+
+export const GET = monitorApiRoute("/api/auth/login", GETHandler, "GET");

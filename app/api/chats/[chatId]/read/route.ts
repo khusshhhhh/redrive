@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
@@ -7,7 +8,7 @@ import getCurrentUser from "@/app/actions/getCurrentUser";
 // current user. Deliberately a separate action (not a GET side effect) so
 // the client controls exactly when "read" fires — only while the
 // conversation is actually open/focused.
-export async function POST(
+async function POSTHandler(
   request: NextRequest,
   { params }: { params: Promise<{ chatId: string }> }
 ) {
@@ -38,3 +39,5 @@ export async function POST(
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
+export const POST = monitorApiRoute("/api/chats/[chatId]/read", POSTHandler, "POST");

@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
@@ -7,7 +8,7 @@ import getCurrentUser from "@/app/actions/getCurrentUser";
 // for the current user in this chat. Client throttles calls to roughly
 // once per 2s while actively typing, plus an immediate "stopped" signal on
 // blur/send/idle-timeout.
-export async function POST(
+async function POSTHandler(
   request: NextRequest,
   { params }: { params: Promise<{ chatId: string }> }
 ) {
@@ -38,3 +39,5 @@ export async function POST(
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
+export const POST = monitorApiRoute("/api/chats/[chatId]/typing", POSTHandler, "POST");

@@ -1,9 +1,10 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 
 import prisma from "@/app/libs/prismadb";
 import { getStripe } from "@/app/libs/stripe";
 
-export async function GET(request: Request) {
+async function GETHandler(request: Request) {
   const expected = process.env.CRON_SECRET;
   if (
     !expected ||
@@ -61,3 +62,5 @@ export async function GET(request: Request) {
   }
   return NextResponse.json({ checked: expired.length, expired: expiredCount });
 }
+
+export const GET = monitorApiRoute("/api/cron/booking-maintenance", GETHandler, "GET");

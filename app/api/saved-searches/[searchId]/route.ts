@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
@@ -11,7 +12,7 @@ async function userId() {
   return (await prisma.user.findUnique({ where: { email: session.user.email }, select: { id: true } }))?.id || null;
 }
 
-export async function PATCH(request: Request, context: { params: Promise<{ searchId: string }> }) {
+async function PATCHHandler(request: Request, context: { params: Promise<{ searchId: string }> }) {
   const currentUserId = await userId();
   if (!currentUserId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { searchId } = await context.params;
@@ -38,7 +39,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ searc
   });
 }
 
-export async function DELETE(_request: Request, context: { params: Promise<{ searchId: string }> }) {
+async function DELETEHandler(_request: Request, context: { params: Promise<{ searchId: string }> }) {
   const currentUserId = await userId();
   if (!currentUserId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { searchId } = await context.params;
@@ -49,3 +50,7 @@ export async function DELETE(_request: Request, context: { params: Promise<{ sea
   await prisma.savedSearch.delete({ where: { id: searchId } });
   return NextResponse.json({ success: true });
 }
+
+export const PATCH = monitorApiRoute("/api/saved-searches/[searchId]", PATCHHandler, "PATCH");
+
+export const DELETE = monitorApiRoute("/api/saved-searches/[searchId]", DELETEHandler, "DELETE");

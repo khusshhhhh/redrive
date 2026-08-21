@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
@@ -9,7 +10,7 @@ import { notificationService } from "@/app/services/notificationService";
 
 const blockingStatuses = ["REVIEWING", "APPROVED", "ACTIVE"];
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
     if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
     if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -119,3 +120,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Failed to fetch reservations" }, { status: 500 });
   }
 }
+
+export const POST = monitorApiRoute("/api/reservations", POSTHandler, "POST");
+
+export const GET = monitorApiRoute("/api/reservations", GETHandler, "GET");

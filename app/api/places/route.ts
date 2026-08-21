@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 
 interface GooglePrediction {
@@ -9,7 +10,7 @@ interface GooglePrediction {
   };
 }
 
-export async function GET(req: Request) {
+async function GETHandler(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const input = searchParams.get("input");
@@ -83,3 +84,5 @@ export async function GET(req: Request) {
     );
   }
 }
+
+export const GET = monitorApiRoute("/api/places", GETHandler, "GET");

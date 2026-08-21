@@ -1,9 +1,10 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { isVerificationCodeValid } from "@/app/libs/emailVerification";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const { email: rawEmail, code: rawCode } = await request.json();
   const email = rawEmail?.trim().toLowerCase();
   const code = rawCode?.replace(/\D/g, "");
@@ -57,3 +58,5 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ verified: true });
 }
+
+export const POST = monitorApiRoute("/api/auth/verify-email", POSTHandler, "POST");

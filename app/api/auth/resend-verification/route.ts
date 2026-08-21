@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import {
@@ -8,7 +9,7 @@ import {
 } from "@/app/libs/emailVerification";
 import { consumeRateLimits, getClientIp, tooManyRequests } from "@/app/libs/security";
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const { email: rawEmail } = await request.json();
   const email = rawEmail?.trim().toLowerCase();
   if (!email) return NextResponse.json({ error: "Email is required" }, { status: 400 });
@@ -42,3 +43,5 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ sent: true, ...(delivery.previewCode ? { previewCode: delivery.previewCode } : {}) });
 }
+
+export const POST = monitorApiRoute("/api/auth/resend-verification", POSTHandler, "POST");

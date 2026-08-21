@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 
 interface AddressComponent {
@@ -6,7 +7,7 @@ interface AddressComponent {
   types: string[];
 }
 
-export async function GET(req: Request) {
+async function GETHandler(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const placeId = searchParams.get("placeId");
@@ -77,3 +78,5 @@ export async function GET(req: Request) {
     );
   }
 }
+
+export const GET = monitorApiRoute("/api/places/details", GETHandler, "GET");

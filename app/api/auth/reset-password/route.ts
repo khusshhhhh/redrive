@@ -1,3 +1,4 @@
+import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
@@ -5,7 +6,7 @@ import { consumeRateLimits, getClientIp, securityHash, tooManyRequests, writeAud
 
 const strongPassword = (value: string) => value.length >= 8 && /[A-Z]/.test(value) && /[a-z]/.test(value) && /\d/.test(value) && /[^A-Za-z0-9]/.test(value);
 
-export async function POST(request: Request) {
+async function POSTHandler(request: Request) {
   const body = await request.json().catch(() => ({}));
   const token = typeof body.token === "string" ? body.token : "";
   const password = typeof body.password === "string" ? body.password : "";
@@ -26,3 +27,4 @@ export async function POST(request: Request) {
   return NextResponse.json({ changed: true });
 }
 
+export const POST = monitorApiRoute("/api/auth/reset-password", POSTHandler, "POST");
