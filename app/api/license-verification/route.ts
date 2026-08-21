@@ -8,6 +8,7 @@ import {
   MAX_UPLOAD_BYTES,
   UploadValidationError,
   createOcrImage,
+  imageTypeForUpload,
   sanitizeImage,
   validateImageUploadMetadata,
 } from "@/app/libs/uploadSecurity";
@@ -133,8 +134,8 @@ export async function POST(request: Request) {
       back.arrayBuffer().then((value) => Buffer.from(value)),
     ]);
     const [frontSafe, backSafe] = await Promise.all([
-      sanitizeImage(frontOriginal, front.type),
-      sanitizeImage(backOriginal, back.type),
+      sanitizeImage(frontOriginal, imageTypeForUpload(front)),
+      sanitizeImage(backOriginal, imageTypeForUpload(back)),
     ]);
     const [frontOcr, backOcr] = await Promise.all([
       createOcrImage(frontSafe),

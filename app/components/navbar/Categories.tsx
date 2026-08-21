@@ -86,7 +86,7 @@ const Categories = ({ compact = false }: CategoriesProps) => {
         <Container>
             <HorizontalScroller
                 ariaLabel="Vehicle categories"
-                className={`gap-1 transition-[padding] duration-300 ease-out motion-reduce:transition-none sm:gap-2 md:grid md:grid-cols-10 md:snap-none md:overflow-x-visible ${compact ? "py-0" : "py-1"}`}
+                className={`gap-1 transition-[padding] duration-300 ease-out motion-reduce:transition-none sm:gap-2 md:grid md:grid-cols-10 md:snap-none md:overflow-x-visible ${compact ? "pb-2.5 pt-0" : "py-1"}`}
             >
                 {categories.map((item) => (
                     <div

@@ -136,57 +136,17 @@ textarea::placeholder {
   color: #18363a;
 }
 
-/* The wordmark writes on from left to right, rests, then quietly resets. */
-@keyframes logoWrite {
-  0%, 8% { clip-path: inset(0 100% 0 0); opacity: 1; }
-  42%, 82% { clip-path: inset(0 0 0 0); opacity: 1; }
-  92% { clip-path: inset(0 0 0 0); opacity: 0; }
-  93%, 100% { clip-path: inset(0 100% 0 0); opacity: 1; }
-}
-
 .logo-wordmark {
-  position: relative;
   display: inline-block;
-  color: rgb(8 121 133 / 18%);
-  line-height: 1;
-}
-
-.logo-wordmark::after {
-  content: attr(data-wordmark);
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
   color: #087985;
-  white-space: nowrap;
-  clip-path: inset(0 100% 0 0);
-  animation: logoWrite 5.2s cubic-bezier(.45, 0, .2, 1) infinite;
-}
-
-/* The login card borrows the navbar wordmark reveal and signup road motion,
-   but uses a light treatment against the dark welcome panel. */
-.login-wordmark {
-  position: relative;
-  display: inline-block;
-  color: rgb(255 255 255 / 18%);
   line-height: 1;
 }
 
-.login-wordmark::after {
-  content: attr(data-wordmark);
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
+/* Keep the login wordmark static and legible against the dark welcome panel. */
+.login-wordmark {
+  display: inline-block;
   color: #ffffff;
-  white-space: nowrap;
-  clip-path: inset(0 100% 0 0);
-  animation: logoWrite 5.2s cubic-bezier(.45, 0, .2, 1) infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .logo-wordmark { color: #087985; }
-  .logo-wordmark::after { display: none; animation: none; }
-  .login-wordmark { color: #ffffff; }
-  .login-wordmark::after { display: none; animation: none; }
+  line-height: 1;
 }
 
 /* Loading motion: quiet, brand-consistent and stable in layout. */

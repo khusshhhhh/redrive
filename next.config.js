@@ -1,5 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Keep native Sharp and its dynamically-loaded libvips binary inside the
+  // licence verification function on Linux deployments such as Vercel.
+  outputFileTracingRoot: __dirname,
+  outputFileTracingIncludes: {
+    '/api/license-verification': [
+      './node_modules/sharp/**/*',
+      './node_modules/@img/sharp-linux-x64/**/*',
+      './node_modules/@img/sharp-libvips-linux-x64/**/*',
+    ],
+  },
+  serverExternalPackages: ['sharp'],
   async headers() {
     return [{
       source: '/(.*)',

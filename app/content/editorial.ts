@@ -40,7 +40,7 @@ export const helpArticles: EditorialArticle[] = [
     readTime: "3 min read",
     sections: [
       { heading: "Why a licence is required", paragraphs: ["A driving licence helps establish booking readiness. Redrive blocks new booking requests until both sides are recognised as an Australian driver licence, the printed expiry is current, and the name and date of birth match the guest profile."] },
-      { heading: "Upload from your profile", paragraphs: ["Open Profile, go to Driving licence and upload clear front and back JPG, PNG or WebP images. Each file must be 10 MB or smaller."], items: ["Photograph the full document", "Make sure essential details are readable", "Do not upload unrelated identity documents"] },
+      { heading: "Upload from your profile", paragraphs: ["Open Profile, go to Driving licence and upload clear front and back images. JPG, PNG, WebP, HEIC, HEIF, AVIF, GIF, BMP and TIFF are supported; each file must be 10 MB or smaller."], items: ["Photograph the full document", "Make sure essential details are readable", "Do not upload unrelated identity documents"] },
       { heading: "Understand the status", paragraphs: ["Needs confirmation means the document text was read and must be reviewed by the user. Details checked means the document appears current and the name and date of birth match the profile. Details mismatch or expired keeps booking locked. This check does not contact a government issuer or confirm authenticity, suspension, licence class, or driving entitlement."] },
     ],
   },

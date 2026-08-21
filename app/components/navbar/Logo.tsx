@@ -9,7 +9,6 @@ const Logo = () => {
     >
       <span
         aria-hidden="true"
-        data-wordmark="redrive"
         className="logo-wordmark text-2xl font-bold tracking-[-0.045em] sm:text-2xl md:text-[23px]"
       >
         redrive

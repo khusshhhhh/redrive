@@ -21,10 +21,15 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
   const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const updateHeader = () => setIsScrolled(window.scrollY > 18);
+    const desktopQuery = window.matchMedia("(min-width: 768px)");
+    const updateHeader = () => setIsScrolled(desktopQuery.matches && window.scrollY > 18);
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
-    return () => window.removeEventListener("scroll", updateHeader);
+    desktopQuery.addEventListener("change", updateHeader);
+    return () => {
+      window.removeEventListener("scroll", updateHeader);
+      desktopQuery.removeEventListener("change", updateHeader);
+    };
   }, []);
 
   useEffect(() => {

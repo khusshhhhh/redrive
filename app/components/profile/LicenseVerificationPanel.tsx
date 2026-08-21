@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, CheckCircle2, FileImage, LoaderCircle, ScanLine } from "lucide-react";
 import toast from "react-hot-toast";
@@ -9,8 +9,13 @@ import { AU_ISSUERS, type ExtractedLicenseFields } from "@/app/libs/licenseDocum
 import type { SafeUser } from "@/app/types";
 
 const MAX_BYTES = 10 * 1024 * 1024;
-const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
+const ALLOWED_TYPES = new Set([
+  "image/jpeg", "image/jpg", "image/png", "image/webp", "image/avif", "image/heic",
+  "image/heif", "image/gif", "image/bmp", "image/x-ms-bmp", "image/tiff",
+  "image/tif", "image/x-tiff",
+]);
+const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "avif", "heic", "heif", "gif", "bmp", "tif", "tiff"]);
+const ACCEPTED_IMAGES = "image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif,image/gif,image/bmp,image/tiff,.jpg,.jpeg,.png,.webp,.avif,.heic,.heif,.gif,.bmp,.tif,.tiff";
 
 type SafeResult = {
   licenseStatus: string;
@@ -27,8 +32,8 @@ type SafeResult = {
 
 function validateFile(file: File) {
   const extension = file.name.toLowerCase().split(".").pop() || "";
-  if (!ALLOWED_TYPES.has(file.type) || !ALLOWED_EXTENSIONS.has(extension)) {
-    return "Use a JPG, PNG or WebP image";
+  if ((file.type && !ALLOWED_TYPES.has(file.type.toLowerCase())) || !ALLOWED_EXTENSIONS.has(extension)) {
+    return "Use a JPG, PNG, WebP, HEIC, AVIF, GIF, BMP or TIFF image";
   }
   if (file.size > MAX_BYTES) return "Each image must be 10 MB or smaller";
   return "";
@@ -47,15 +52,47 @@ function FilePicker({
   onChange: (file: File | null) => void;
   disabled: boolean;
 }) {
+  const [previewFailed, setPreviewFailed] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState("");
+
+  useEffect(() => {
+    setPreviewFailed(false);
+    if (!file) {
+      setPreviewUrl("");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [file]);
+
   return (
-    <label htmlFor={id} className={`flex min-h-32 flex-col items-center justify-center rounded-sm border-2 border-dashed p-5 text-center transition ${disabled ? "cursor-wait opacity-60" : "cursor-pointer hover:border-ink"}`}>
-      <FileImage size={23} className="text-primary" />
-      <span className="mt-2 text-sm font-semibold text-ink">{label}</span>
-      <span className="mt-1 max-w-full truncate text-xs text-muted">{file?.name || "JPG, PNG or WebP · maximum 10 MB"}</span>
+    <label htmlFor={id} className={`group relative flex min-h-40 flex-col items-center justify-center overflow-hidden rounded-sm border-2 border-dashed text-center transition ${file ? "border-hairline bg-surface-soft" : "p-5"} ${disabled ? "cursor-wait opacity-60" : "cursor-pointer hover:border-ink"}`}>
+      {previewUrl && !previewFailed ? (
+        // A plain img is intentional here: local blob URLs are not compatible
+        // with the Next image optimiser and never leave the user's browser.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={previewUrl} alt={`${label} preview`} className="absolute inset-0 h-full w-full object-cover" onError={() => setPreviewFailed(true)} />
+      ) : (
+        <div className="flex flex-col items-center justify-center px-5">
+          <FileImage size={23} className="text-primary" />
+          <span className="mt-2 text-sm font-semibold text-ink">{label}</span>
+          <span className="mt-1 text-xs text-muted">Common image formats · maximum 10 MB</span>
+        </div>
+      )}
+      {file && (
+        <span className="absolute inset-x-2 bottom-2 z-10 rounded-xs bg-ink/85 px-2.5 py-1.5 text-left text-xs font-medium text-white shadow-card backdrop-blur-sm">
+          <span className="block font-semibold">{label}</span>
+          <span className="block truncate text-white/80">{file.name}</span>
+        </span>
+      )}
       <input
         id={id}
         type="file"
-        accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+        accept={ACCEPTED_IMAGES}
         capture="environment"
         className="sr-only"
         disabled={disabled}
