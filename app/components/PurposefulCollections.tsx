@@ -57,7 +57,7 @@ const PurposefulCollections = ({ listings, weekendListings, weekendStart, weeken
           <div><h2 className="text-lg font-semibold text-ink sm:text-xl">{collection.title}</h2><p className="mt-0.5 text-xs text-muted sm:text-sm">{collection.subtitle}</p></div>
         </div>
         <HorizontalScroller ariaLabel={collection.title} className="gap-4 pb-2 sm:gap-5">
-          {collection.listings.map((listing, index) => <div key={listing.id} className="w-[238px] shrink-0 snap-start sm:w-[260px]"><ListingCard data={listing} currentUser={currentUser} compact tripDays={collection.tripDays} priority={collectionIndex === 0 && index < 2} /></div>)}
+          {collection.listings.map((listing, index) => <div key={listing.id} className="w-[calc((100vw-3.25rem)/2)] min-w-[148px] max-w-[238px] shrink-0 snap-start sm:w-[250px]"><ListingCard data={listing} currentUser={currentUser} compact tripDays={collection.tripDays} priority={collectionIndex === 0 && index < 2} /></div>)}
         </HorizontalScroller>
       </div>)}
     </section>

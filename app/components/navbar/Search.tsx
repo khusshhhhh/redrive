@@ -9,7 +9,12 @@ import { BiSearch } from "react-icons/bi";
 import useSearchModal from "@/app/hooks/useSearchModal";
 import { IconX } from "@tabler/icons-react";
 
-const Search = () => {
+interface SearchProps {
+  compact?: boolean;
+  isHome?: boolean;
+}
+
+const Search = ({ compact = false, isHome = false }: SearchProps) => {
   const router = useRouter();
   const params = useSearchParams();
   const searchModal = useSearchModal();
@@ -59,14 +64,15 @@ const Search = () => {
   };
 
   return (
-    <div className="flex min-w-0 flex-row items-center gap-2 sm:gap-4">
+    <div className="flex min-w-0 flex-row items-center justify-center gap-2 sm:gap-4">
       <button
         type="button"
         onClick={searchModal.onOpen}
         aria-label={`Search vehicles. ${locationLabel}, ${durationLabel}, ${guestLabel}`}
-        className="relative flex h-11 w-11 items-center justify-center rounded-full border border-hairline bg-white text-ink outline-none transition hover:border-border-strong hover:bg-surface-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:hidden"
+        className={`relative items-center justify-center border border-hairline bg-white text-ink shadow-card outline-none transition-[width,height,background-color,border-color,box-shadow] duration-300 ease-out hover:border-border-strong hover:bg-surface-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 motion-reduce:transition-none md:hidden ${isHome && !compact ? "flex h-12 w-full gap-2 rounded-full px-5" : "flex h-11 w-11 rounded-full"}`}
       >
         <BiSearch size={22} aria-hidden="true" />
+        {isHome && !compact && <span className="truncate text-sm font-semibold">Start your search</span>}
         {filtersApplied && (
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent ring-2 ring-white" aria-hidden="true" />
         )}
@@ -77,25 +83,29 @@ const Search = () => {
         tabIndex={0}
         onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); searchModal.onOpen(); } }}
         aria-label={`Search vehicles. ${locationLabel}, ${durationLabel}, ${guestLabel}`}
-        className="hidden min-w-0 flex-1 cursor-pointer rounded-full border border-hairline bg-white py-1 text-ink shadow-card outline-none transition hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:py-2 md:block md:w-auto md:flex-none"
+        className={`hidden min-w-0 cursor-pointer rounded-full border border-hairline bg-white text-ink shadow-card outline-none transition-[width,min-height,box-shadow] duration-300 ease-out hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 motion-reduce:transition-none md:block ${isHome && !compact ? "min-h-16 w-[min(720px,54vw)] py-2" : "min-h-12 w-[min(500px,43vw)] py-1.5"}`}
       >
-        <div className="flex min-w-0 flex-row items-center justify-between sm:gap-4 md:gap-10">
+        <div className={`flex min-w-0 flex-row items-center justify-between transition-[gap] duration-300 ${isHome && !compact ? "gap-6" : "gap-4"}`}>
           {/* Selected Location */}
-          <div className="min-w-0 flex-1 px-4 sm:flex-none sm:px-5 md:px-6">
-            <div className="truncate text-[13px] font-semibold sm:text-caption sm:font-medium">{locationLabel}</div>
-            <div className="mt-0.5 truncate text-[11px] text-muted sm:hidden">{durationLabel} · {guestLabel}</div>
+          <div className={`min-w-0 flex-1 transition-[padding] duration-300 ${isHome && !compact ? "px-7" : "px-5"}`}>
+            {isHome && !compact && <div className="mb-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">Where</div>}
+            <div className={`truncate font-medium ${isHome && !compact ? "text-sm" : "text-[13px]"}`}>{locationLabel}</div>
           </div>
 
           {/* Date Range */}
-          <div className="hidden flex-1 border-x border-hairline px-6 text-center text-caption font-medium sm:block md:px-10 lg:px-16">
+          <div className={`hidden flex-1 border-x border-hairline text-left font-medium sm:block ${isHome && !compact ? "px-7 text-sm" : "px-6 text-center text-[13px]"}`}>
+            {isHome && !compact && <div className="mb-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">When</div>}
             {durationLabel}
           </div>
 
           {/* Guest Count */}
-          <div className="flex flex-row items-center gap-2 pr-1.5 text-caption font-medium sm:pl-3 sm:pr-2 md:pl-6">
-            <div className="hidden sm:block">{guestLabel}</div>
-            <div className="p-2 bg-primary rounded-full text-white">
-              <BiSearch size={18} />
+          <div className={`flex flex-row items-center gap-3 font-medium ${isHome && !compact ? "pl-2 pr-2 text-sm" : "pl-3 pr-2 text-[13px]"}`}>
+            <div className="hidden sm:block">
+              {isHome && !compact && <div className="mb-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">Who</div>}
+              {guestLabel}
+            </div>
+            <div className={`flex items-center justify-center rounded-full bg-primary text-white transition-[width,height] duration-300 ${isHome && !compact ? "h-11 w-11" : "h-8 w-8"}`}>
+              <BiSearch size={isHome && !compact ? 20 : 18} />
             </div>
           </div>
         </div>

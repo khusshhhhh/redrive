@@ -92,7 +92,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
             className="group col-span-1 cursor-pointer rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
         >
             <div className="flex w-full flex-col gap-2">
-                <div className={`${compact ? "aspect-[4/3]" : "aspect-[3/2] md:aspect-square"} relative w-full overflow-hidden rounded-md shadow-none transition-shadow group-hover:shadow-card`}>
+                <div className="relative aspect-square w-full overflow-hidden rounded-md shadow-none transition-shadow group-hover:shadow-card">
                     {!imageLoaded && <div className="absolute inset-0 shimmer" />}
                     <Image
                         fill

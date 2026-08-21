@@ -53,10 +53,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
             <div className="shrink-0">
               <Logo />
             </div>
-            <div className="col-start-2 min-w-0 md:col-span-1 md:col-start-auto md:flex md:justify-center">
-              <div className="md:w-auto">
+            <div className={`min-w-0 md:col-span-1 md:col-start-auto md:row-start-auto md:flex md:justify-center ${pathname === "/" && !isScrolled ? "col-span-3 col-start-1 row-start-2 mt-2" : "col-start-2 row-start-1 flex justify-center"}`}>
+              <div className={`w-full transition-[max-width] duration-300 ease-out motion-reduce:transition-none ${pathname === "/" && !isScrolled ? "max-w-none md:max-w-[720px]" : "max-w-fit md:max-w-[500px]"}`}>
                 <Suspense fallback={<SearchFallback />}>
-                  <Search />
+                  <Search compact={isScrolled} isHome={pathname === "/"} />
                 </Suspense>
               </div>
             </div>
@@ -68,7 +68,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
       </div>
       {pathname === "/" && (
         <Suspense fallback={<div className="h-16 border-t border-transparent sm:h-[72px]" aria-hidden="true" />}>
-          <Categories />
+          <Categories compact={isScrolled} />
         </Suspense>
       )}
     </header>

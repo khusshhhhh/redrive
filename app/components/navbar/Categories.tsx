@@ -68,7 +68,11 @@ export const categories = [
     // },
 ]
 
-const Categories = () => {
+interface CategoriesProps {
+    compact?: boolean;
+}
+
+const Categories = ({ compact = false }: CategoriesProps) => {
     const params = useSearchParams();
     const category = params?.get('category');
     const pathname = usePathname();
@@ -82,7 +86,7 @@ const Categories = () => {
         <Container>
             <HorizontalScroller
                 ariaLabel="Vehicle categories"
-                className="gap-1 py-1 sm:gap-2 md:grid md:grid-cols-10 md:snap-none md:overflow-x-visible"
+                className={`gap-1 transition-[padding] duration-300 ease-out motion-reduce:transition-none sm:gap-2 md:grid md:grid-cols-10 md:snap-none md:overflow-x-visible ${compact ? "py-0" : "py-1"}`}
             >
                 {categories.map((item) => (
                     <div
@@ -93,6 +97,7 @@ const Categories = () => {
                             label={item.label}
                             selected={category == item.label}
                             icon={item.icon}
+                            compact={compact}
                         />
                     </div>
                 ))}

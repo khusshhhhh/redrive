@@ -55,7 +55,7 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ currentUser }) => {
         className="mt-4 gap-6 pb-2"
       >
         {listings.map((listing) => (
-          <div key={listing.id} className="w-[220px] shrink-0 snap-start">
+          <div key={listing.id} className="w-[calc((100vw-3.25rem)/2)] min-w-[148px] max-w-[220px] shrink-0 snap-start sm:w-[220px]">
             <ListingCard currentUser={currentUser} data={listing} />
           </div>
         ))}
