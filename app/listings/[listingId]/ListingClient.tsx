@@ -185,6 +185,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                                 sleepCount={listing.sleepCount}
                                 fuelEconomy={listing.fuelEconomy}
                                 driveChain={listing.driveChain}
+                                cancellationPolicy={listing.cancellationPolicy}
                                 // ✅ Replace locationValue with formatted address
                                 address={`${listing.suburb}, ${listing.state}`}
                                 amenities={listing.amenities} state={listing.state} suburb={listing.suburb} />

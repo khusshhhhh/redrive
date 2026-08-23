@@ -6,6 +6,7 @@ import type { NextRequest } from "next/server";
 import { notificationService } from "@/app/services/notificationService";
 import { writeAuditEvent } from "@/app/libs/security";
 import { getStripe } from "@/app/libs/stripe";
+import { calculateCancellationOutcome } from "@/app/libs/cancellationPolicy";
 
 // ✅ GET: Fetch reservation details with user included
 async function GETHandler(
@@ -146,18 +147,6 @@ async function DELETEHandler(
       );
     }
 
-    // Check cancellation window: allow up to 2 days before start date
-    const today = new Date();
-    const twoDaysBefore = new Date(reservation.startDate);
-    twoDaysBefore.setDate(twoDaysBefore.getDate() - 2);
-
-    if (today > twoDaysBefore) {
-      return NextResponse.json(
-        { error: "Too late to cancel this reservation" },
-        { status: 400 },
-      );
-    }
-
     // Determine who cancelled and notify the other party
     const cancelledBy =
       currentUser.id === reservation.userId
@@ -186,21 +175,31 @@ async function DELETEHandler(
       reason = undefined;
     }
 
-    const daysUntilPickup = Math.ceil(
-      (reservation.startDate.getTime() - Date.now()) / 86_400_000,
-    );
     const isOwnerCancellation = currentUser.id === reservation.listing.userId;
+    const outcome = calculateCancellationOutcome({
+      policy: reservation.cancellationPolicy || reservation.listing.cancellationPolicy,
+      pickupAt: reservation.startDate,
+      cancelledByHost: isOwnerCancellation,
+    });
+    if (!outcome.canCancel) {
+      return NextResponse.json(
+        { error: outcome.explanation, code: "TRIP_ALREADY_STARTED" },
+        { status: 409 },
+      );
+    }
+
     const refundAmount = ["PAID_HELD", "RELEASED"].includes(
       reservation.paymentStatus,
     )
-      ? isOwnerCancellation || daysUntilPickup >= 7
-        ? reservation.totalFees
-        : Math.round(reservation.totalFees * 0.5)
+      ? Math.round(reservation.totalFees * outcome.refundPercentage / 100)
       : 0;
 
     const payment = await prisma.payment.findUnique({
       where: { reservationId },
     });
+    const cancellationPayoutAmount = payment && !isOwnerCancellation
+      ? Math.max(0, Math.round(payment.ownerAmount * (100 - outcome.refundPercentage) / 100))
+      : 0;
     if (refundAmount > 0) {
       if (!payment?.stripePaymentIntentId || payment.status === "RELEASED") {
         return NextResponse.json(
@@ -230,9 +229,13 @@ async function DELETEHandler(
             status:
               refundAmount === reservation.totalFees
                 ? "REFUNDED"
-                : "PARTIALLY_REFUNDED",
+                : cancellationPayoutAmount > 0
+                  ? "CANCELLATION_PAYOUT_PENDING"
+                  : "PARTIALLY_REFUNDED",
             stripeRefundId: refund.id,
             refundedAt: new Date(),
+            cancellationPayoutAmount: cancellationPayoutAmount || null,
+            cancellationPayoutDueAt: cancellationPayoutAmount > 0 ? reservation.startDate : null,
           },
         });
       } catch (error) {
@@ -245,6 +248,15 @@ async function DELETEHandler(
           { status: 503 },
         );
       }
+    } else if (payment?.status === "PAID_HELD" && cancellationPayoutAmount > 0) {
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: "CANCELLATION_PAYOUT_PENDING",
+          cancellationPayoutAmount,
+          cancellationPayoutDueAt: reservation.startDate,
+        },
+      });
     } else if (
       payment?.stripeCheckoutSessionId &&
       payment.status === "CHECKOUT_PENDING"
@@ -253,6 +265,7 @@ async function DELETEHandler(
         await getStripe().checkout.sessions.expire(
           payment.stripeCheckoutSessionId,
         );
+        await prisma.payment.update({ where: { id: payment.id }, data: { status: "CANCELLED" } });
       } catch {
         /* The session may already be expired. */
       }
@@ -266,8 +279,11 @@ async function DELETEHandler(
         cancelledById: currentUser.id,
         cancellationReason: reason || null,
         refundAmount,
+        refundPercentage: outcome.refundPercentage,
         paymentStatus:
-          refundAmount > 0
+          cancellationPayoutAmount > 0
+            ? "CANCELLATION_PAYOUT_PENDING"
+            : refundAmount > 0
             ? refundAmount === reservation.totalFees
               ? "REFUNDED"
               : "PARTIALLY_REFUNDED"
@@ -282,7 +298,7 @@ async function DELETEHandler(
       targetType: "Reservation",
       targetId: reservation.id,
       reason,
-      metadata: { refundAmount },
+      metadata: { refundAmount, refundPercentage: outcome.refundPercentage, cancellationPolicy: outcome.policy.key },
     });
 
     // Send cancellation notification
@@ -302,7 +318,14 @@ async function DELETEHandler(
     }
 
     return NextResponse.json(
-      { success: true, message: "Reservation cancelled", refundAmount },
+      {
+        success: true,
+        message: "Reservation cancelled",
+        refundAmount,
+        refundPercentage: outcome.refundPercentage,
+        cancellationPolicy: outcome.policy.key,
+        explanation: outcome.explanation,
+      },
       { status: 200 },
     );
   } catch (error) {

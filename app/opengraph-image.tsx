@@ -26,11 +26,12 @@ export default function OpenGraphImage() {
 
       <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", maxWidth: 790, zIndex: 1 }}>
         <div style={{ alignItems: "center", display: "flex", fontSize: 42, fontWeight: 700, gap: 20 }}>
-          <div style={{ alignItems: "center", background: "#0b3338", borderRadius: 20, display: "flex", height: 76, justifyContent: "center", position: "relative", width: 76 }}>
-            <div style={{ border: "8px solid white", borderBottomColor: "transparent", borderLeft: "0px", borderRadius: "0 18px 18px 0", height: 37, left: 23, position: "absolute", top: 17, width: 28 }} />
-            <div style={{ background: "white", borderRadius: 8, height: 48, left: 22, position: "absolute", top: 15, width: 8 }} />
-            <div style={{ background: "white", borderRadius: 8, height: 35, left: 38, position: "absolute", top: 40, transform: "rotate(-40deg)", transformOrigin: "top", width: 8 }} />
-            <div style={{ background: "#d4a72c", border: "3px solid #0b3338", borderRadius: 999, height: 16, position: "absolute", right: 9, top: 8, width: 16 }} />
+          <div style={{ alignItems: "center", background: "#0b3338", borderRadius: 20, display: "flex", height: 76, justifyContent: "center", overflow: "hidden", width: 76 }}>
+            <svg width="76" height="76" viewBox="0 0 64 64">
+              <path d="M9 64C17 50 24 42 24 31C24 19 31 9 44 0H61C43 14 39 23 40 33C41 45 35 55 29 64Z" fill="white" />
+              <path d="M22 58C29 47 33 39 32 30C31 21 36 14 45 7" fill="none" stroke="#0b3338" strokeWidth="3" strokeLinecap="round" strokeDasharray="5 6" />
+              <circle cx="49" cy="13" r="7" fill="#d4a72c" stroke="#0b3338" strokeWidth="3" />
+            </svg>
           </div>
           redrive
         </div>

@@ -19,6 +19,7 @@ import SuburbSelector from "../inputs/SuburbSelector";
 import DateSelector from "../inputs/DateSelector";
 import DriveChainSelector from "../inputs/DriveChainSelector";
 import ListingPhotoManager from "../inputs/ListingPhotoManager";
+import CancellationPolicySelector from "../listings/CancellationPolicySelector";
 
 
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
@@ -52,6 +53,7 @@ enum STEPS {
     LEGAL = 7,
     PRICE = 8,
     CLEANING = 9,
+    CANCELLATION = 10,
 }
 
 const RentModal = () => {
@@ -141,6 +143,7 @@ const RentModal = () => {
             cleaningFeeOption: 'NO',
             cleaningFeeAmount: '',
             returnCleaningFeeAmount: '',
+            cancellationPolicy: 'MODERATE',
         }
     });
 
@@ -152,6 +155,7 @@ const RentModal = () => {
     // const regoNumber = watch('regoNumber');
     const regoEndDate = watch('regoEndDate');
     const cleaningFeeOption = watch('cleaningFeeOption');
+    const cancellationPolicy = watch('cancellationPolicy');
 
     const Map = useMemo(
         () => dynamic(() => import('../Map'), { ssr: false }),
@@ -198,7 +202,7 @@ const RentModal = () => {
             return;
         }
 
-        if (step !== STEPS.CLEANING) {
+        if (step !== STEPS.CANCELLATION) {
             return onNext();
         }
 
@@ -242,7 +246,7 @@ const RentModal = () => {
 
 
     const actionLabel = useMemo(() => {
-        if (step === STEPS.CLEANING) {
+        if (step === STEPS.CANCELLATION) {
             return 'Create';
         }
 
@@ -663,6 +667,23 @@ const RentModal = () => {
                         />
                     </div>
                 )}
+            </div>
+        );
+    }
+
+    if (step === STEPS.CANCELLATION) {
+        bodyContent = (
+            <div className="flex flex-col gap-6">
+                <Heading
+                    title="Choose your cancellation policy"
+                    subtitle="Guests see these terms before requesting. Existing bookings keep the policy agreed when they booked."
+                />
+                <CancellationPolicySelector
+                    value={cancellationPolicy}
+                    onChange={(value) => setCustomValue('cancellationPolicy', value)}
+                    disabled={isLoading}
+                />
+                <p className="rounded-xl bg-surface-soft p-4 text-xs leading-5 text-muted">If you cancel as the host before pickup, the guest receives a full refund. Consumer rights and exceptional-circumstance reviews still apply regardless of the selected policy.</p>
             </div>
         );
     }

@@ -8,6 +8,7 @@ import { useCallback, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import ListingCard from "../components/listings/ListingCard";
+import { calculateCancellationOutcome } from "../libs/cancellationPolicy";
 
 interface TripsClientProps {
     reservations: SafeReservation[];
@@ -18,12 +19,19 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
     const router = useRouter();
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
-    const onCancel = useCallback((id: string) => {
-        setDeletingId(id);
+    const onCancel = useCallback((reservation: SafeReservation) => {
+        const outcome = calculateCancellationOutcome({ policy: reservation.cancellationPolicy, pickupAt: reservation.startDate });
+        const hasPaid = ["PAID_HELD", "RELEASED"].includes(reservation.paymentStatus || "");
+        const refund = hasPaid ? Math.round(reservation.totalFees * outcome.refundPercentage / 100) : 0;
+        const paymentCopy = hasPaid ? `Estimated refund: AU$${refund.toLocaleString("en-AU")} (${outcome.refundPercentage}%).` : "No payment has been collected for this request.";
+        const confirmed = window.confirm(`Cancel this booking?\n\n${outcome.explanation}\n\n${paymentCopy} This action cannot be undone.`);
+        if (!confirmed) return;
+        const reason = window.prompt("Optional: tell the host why you are cancelling. This will be kept with the booking record.") || "";
+        setDeletingId(reservation.id);
 
-        axios.delete(`/api/reservations/${id}`)
-            .then(() => {
-                toast.success("Reservation cancelled");
+        axios.delete(`/api/reservations/${reservation.id}`, { data: { reason } })
+            .then((response) => {
+                toast.success(response.data.refundAmount > 0 ? `Booking cancelled · AU$${response.data.refundAmount} refund started` : "Booking cancelled");
                 router.refresh();
             })
             .catch((error) => {
@@ -53,10 +61,10 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
                     const oneDayAfterEnd = new Date(reservationEndDate);
                     oneDayAfterEnd.setDate(oneDayAfterEnd.getDate() + 1);
 
-                    const canReview = today >= oneDayAfterEnd;
-                    const cancelDeadline = new Date(reservationStartDate);
-                    cancelDeadline.setDate(cancelDeadline.getDate() - 2);
-                    const canCancel = today < cancelDeadline; // Only allow canceling at least 2 days before start
+                    const canReview = reservation.status === "COMPLETED" && today >= oneDayAfterEnd;
+                    const cancellation = calculateCancellationOutcome({ policy: reservation.cancellationPolicy, pickupAt: reservationStartDate, cancelledAt: today });
+                    const canCancel = ["REVIEWING", "APPROVED"].includes(reservation.status) && cancellation.canCancel;
+                    const hasPaid = ["PAID_HELD", "RELEASED"].includes(reservation.paymentStatus || "");
 
                     return (
                         <ListingCard
@@ -68,11 +76,11 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
                                 canReview
                                     ? () => handleReviewRedirect(reservation.id)
                                     : canCancel
-                                        ? () => onCancel(reservation.id)
+                                        ? () => onCancel(reservation)
                                         : undefined // No action if cancellation is not allowed
                             }
-                            disabled={deletingId === reservation.id || !canCancel}
-                            actionLabel={canReview ? "Review Booking" : canCancel ? "Cancel Booking" : "Cannot Cancel"}
+                            disabled={deletingId === reservation.id || (!canCancel && !canReview)}
+                            actionLabel={canReview ? "Review booking" : canCancel ? hasPaid ? `Cancel · ${cancellation.refundPercentage}% refund` : "Cancel request" : undefined}
                             currentUser={currentUser}
                             compact
                         />

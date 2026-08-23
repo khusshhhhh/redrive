@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Redrive">
   <rect width="64" height="64" rx="16" fill="#0B3338"/>
-  <!-- A compact R whose curved shoulder becomes a road and forward arrow. -->
-  <path d="M19 49V16h15c10 0 16 5 16 13S44 41 34 41H20M35 41l14 12" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="49" cy="15" r="6" fill="#D4A72C" stroke="#0B3338" stroke-width="3"/>
+  <!-- A winding road narrowing toward a gold destination. -->
+  <path d="M9 64C17 50 24 42 24 31C24 19 31 9 44 0H61C43 14 39 23 40 33C41 45 35 55 29 64Z" fill="#fff"/>
+  <path d="M22 58C29 47 33 39 32 30C31 21 36 14 45 7" fill="none" stroke="#0B3338" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 6"/>
+  <circle cx="49" cy="13" r="7" fill="#D4A72C" stroke="#0B3338" stroke-width="3"/>
 </svg>

@@ -7,6 +7,7 @@ import { hasCurrentVerifiedLicense } from "@/app/libs/licenseVerification";
 import { buildBookingQuote, PRICING_POLICY_VERSION } from "@/app/libs/booking";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 import { notificationService } from "@/app/services/notificationService";
+import { cancellationPolicySnapshot, normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
 
 const blockingStatuses = ["REVIEWING", "APPROVED", "ACTIVE"];
 
@@ -46,7 +47,7 @@ async function POSTHandler(request: NextRequest) {
 
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
-      select: { id: true, title: true, userId: true, price: true, cleaningFeeOption: true, cleaningFeeAmount: true, minimumNoticeHours: true, minimumTripDays: true, maximumTripDays: true },
+      select: { id: true, title: true, userId: true, price: true, cleaningFeeOption: true, cleaningFeeAmount: true, minimumNoticeHours: true, minimumTripDays: true, maximumTripDays: true, cancellationPolicy: true },
     });
     if (!listing) return NextResponse.json({ error: "Listing not found" }, { status: 404 });
     if (listing.userId === currentUser.id) return NextResponse.json({ error: "You cannot book your own listing" }, { status: 403 });
@@ -67,7 +68,7 @@ async function POSTHandler(request: NextRequest) {
 
     const reservation = await prisma.$transaction(async (tx) => {
       const created = await tx.reservation.create({
-        data: { userId: currentUser.id, listingId, startDate, endDate, totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total, message: message || null, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION, status: "REVIEWING" },
+        data: { userId: currentUser.id, listingId, startDate, endDate, totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total, message: message || null, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION, cancellationPolicy: normalizeCancellationPolicy(listing.cancellationPolicy), cancellationPolicySnapshot: cancellationPolicySnapshot(listing.cancellationPolicy), status: "REVIEWING" },
       });
       await tx.bookingQuote.create({
         data: { userId: currentUser.id, listingId, reservationId: created.id, startDate, endDate, days: quote.days, dailyRate: quote.dailyRate, basePrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, cleaningFee: quote.cleaningFee, total: quote.total, currency: quote.currency, policyVersion: quote.policyVersion, expiresAt: new Date(Date.now() + 15 * 60_000) },

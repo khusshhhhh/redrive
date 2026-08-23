@@ -10,6 +10,7 @@ import { CalendarDays, ChevronRight, MapPin, UsersRound } from "lucide-react";
 
 import Container from "../components/Container";
 import type { SafeReservation, SafeUser } from "../types";
+import { calculateCancellationOutcome } from "../libs/cancellationPolicy";
 
 interface ReservationsClientProps {
   reservations: SafeReservation[];
@@ -26,14 +27,19 @@ export default function ReservationsClient({ reservations }: ReservationsClientP
   const router = useRouter();
   const [deletingId, setDeletingId] = useState("");
 
-  const onCancel = useCallback(async (id: string) => {
-    setDeletingId(id);
+  const onCancel = useCallback(async (reservation: SafeReservation) => {
+    const hasPaid = ["PAID_HELD", "RELEASED"].includes(reservation.paymentStatus || "");
+    const paymentCopy = hasPaid ? `The guest will receive a full refund of AU$${reservation.totalFees.toLocaleString("en-AU")}.` : "The guest has not been charged.";
+    const confirmed = window.confirm(`Cancel this guest’s booking?\n\n${paymentCopy} Their dates will be released immediately. This action cannot be undone.`);
+    if (!confirmed) return;
+    const reason = window.prompt("Tell the guest why you need to cancel this booking.") || "Host cancelled the booking";
+    setDeletingId(reservation.id);
     try {
-      await axios.delete(`/api/reservations/${id}`);
-      toast.success("Reservation cancelled");
+      await axios.delete(`/api/reservations/${reservation.id}`, { data: { reason } });
+      toast.success(hasPaid ? "Reservation cancelled · full guest refund started" : "Booking request cancelled");
       router.refresh();
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Reservation could not be cancelled");
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ error?: string }>(error) ? error.response?.data?.error || "Reservation could not be cancelled" : "Reservation could not be cancelled");
     } finally {
       setDeletingId("");
     }
@@ -52,6 +58,9 @@ export default function ReservationsClient({ reservations }: ReservationsClientP
           <div className="space-y-4">
             {reservations.map((reservation) => {
               const listing = reservation.listing;
+              const canCancel = ["REVIEWING", "APPROVED"].includes(reservation.status)
+                && calculateCancellationOutcome({ policy: reservation.cancellationPolicy, pickupAt: reservation.startDate, cancelledByHost: true }).canCancel;
+              const hasPaid = ["PAID_HELD", "RELEASED"].includes(reservation.paymentStatus || "");
               return (
                 <article key={reservation.id} className="overflow-hidden rounded-md border border-hairline-soft bg-white shadow-card">
                   <div className="grid md:grid-cols-[220px_1fr_auto]">
@@ -74,7 +83,7 @@ export default function ReservationsClient({ reservations }: ReservationsClientP
                     </div>
                     <div className="flex items-center gap-2 border-t border-hairline-soft p-4 md:w-44 md:flex-col md:justify-center md:border-l md:border-t-0">
                       <button onClick={() => router.push(`/reservations/${reservation.id}`)} className="flex h-11 flex-1 items-center justify-center gap-1 rounded-sm bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary-active md:w-full md:flex-none">Details <ChevronRight size={16} /></button>
-                      {reservation.status === "REVIEWING" && <button disabled={deletingId === reservation.id} onClick={() => void onCancel(reservation.id)} className="h-11 flex-1 rounded-sm border border-hairline px-4 text-sm font-semibold text-muted transition hover:border-error hover:text-error disabled:opacity-50 md:w-full md:flex-none">{deletingId === reservation.id ? "Cancelling…" : "Cancel"}</button>}
+                      {canCancel && <button disabled={deletingId === reservation.id} onClick={() => void onCancel(reservation)} className="h-11 flex-1 rounded-sm border border-hairline px-4 text-sm font-semibold text-muted transition hover:border-error hover:text-error disabled:opacity-50 md:w-full md:flex-none">{deletingId === reservation.id ? "Cancelling…" : hasPaid ? "Cancel · full refund" : "Decline request"}</button>}
                     </div>
                   </div>
                 </article>

@@ -17,6 +17,22 @@ export type EditorialArticle = {
 
 export const helpArticles: EditorialArticle[] = [
   {
+    slug: "understand-listing-cancellation-policies",
+    title: "Understand Flexible, Moderate and Firm cancellation policies",
+    description: "See exactly how listing-level cancellation windows, refund percentages and host cancellations work.",
+    category: "Bookings",
+    audience: "Guests",
+    published: "2026-08-23",
+    readTime: "5 min read",
+    sections: [
+      { heading: "Read the policy before requesting", paragraphs: ["Every listing shows one host-selected policy. Redrive copies that policy onto the reservation when the request is created, so later listing edits do not change an existing agreement."] },
+      { heading: "Compare the three choices", paragraphs: ["Flexible provides 100% until 24 hours before pickup and 50% after that. Moderate provides 100% until five days before pickup and 50% until 48 hours before pickup. Firm provides 100% until 14 days before pickup and 50% until seven days before pickup."], items: ["Thresholds use the exact pickup time", "The estimated outcome appears before confirmation", "After pickup, use trip-support tools instead"] },
+      { heading: "A practical date example", paragraphs: ["For a pickup on 1 September, cancellation on 29 August is fully refundable under Flexible, 50% refundable under Moderate, and outside the automatic refund window under Firm."] },
+      { heading: "When the host cancels", paragraphs: ["A host cancellation before pickup returns 100% of the amount paid through Redrive regardless of the guest policy. The host provides a reason and the dates are released."] },
+      { heading: "Refund and retained payout timing", paragraphs: ["Eligible refunds are requested against the original payment before the reservation is marked cancelled. Any host amount retained under a guest cancellation is scheduled for the original pickup time, providing time for payment or dispute checks."] },
+    ],
+  },
+  {
     slug: "delete-your-account-safely",
     title: "Delete your Redrive account safely",
     description: "Understand the permanent deletion process, email confirmation and issues that must be resolved first.",
@@ -277,6 +293,21 @@ export const blogPosts: EditorialArticle[] = [
 ];
 
 export const newsroomPosts: EditorialArticle[] = [
+  {
+    slug: "listing-level-cancellation-controls-and-clear-refunds",
+    title: "Listing-level cancellation controls bring clearer refund outcomes",
+    description: "Hosts can now choose a policy per vehicle while guests see exact terms before they request and before they cancel.",
+    category: "Booking update",
+    published: "2026-08-23",
+    readTime: "5 min read",
+    sections: [
+      { heading: "One policy per listing", paragraphs: ["Hosts choose Flexible, Moderate or Firm while creating or editing a vehicle. Each option uses fixed, plain-language thresholds so a guest can compare listings without interpreting custom legal text."] },
+      { heading: "The booking keeps its original policy", paragraphs: ["Redrive stores a versioned policy snapshot with the reservation. A host may update future booking terms, but cannot retrospectively reduce the refund available for an existing request."] },
+      { heading: "The same engine powers every surface", paragraphs: ["Listing pages, final booking review, Trips, host Reservations, the cancellation API and refund audit records all use the same policy definitions and exact pickup timestamp."] },
+      { heading: "Safer payment transitions", paragraphs: ["A paid reservation is not marked cancelled until Stripe confirms any required refund. A non-refunded host portion is recorded as a pending cancellation payout and becomes eligible at the original pickup time rather than being silently stranded."] },
+      { heading: "Host responsibility remains clear", paragraphs: ["When a host cancels before pickup, the guest receives a full refund regardless of policy. Consumer rights and exceptional-circumstance reviews remain separate from ordinary change-of-mind rules."] },
+    ],
+  },
   {
     slug: "account-deletion-and-privacy-controls",
     title: "Redrive adds verified, permanent account deletion",

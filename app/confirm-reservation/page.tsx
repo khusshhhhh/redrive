@@ -12,6 +12,7 @@ import { CalendarDays, ChevronLeft, Clock3, Info, MapPin, MessageCircle, Send, S
 import Container from "@/app/components/Container";
 import Button from "@/app/components/Button";
 import InlineRetry from "@/app/components/InlineRetry";
+import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
 
 const serviceFeeFor = (total: number) => total <= 200 ? 10 : total <= 400 ? 25 : total <= 800 ? 40 : total <= 1200 ? 60 : total <= 2000 ? 80 : 100;
 const money = (value: number) => `AU$${value.toLocaleString("en-AU")}`;
@@ -99,6 +100,8 @@ export default function ConfirmReservation() {
                 <SectionTitle icon={<CalendarDays size={19} />} title="Your trip" subtitle={`${bookingDays} day${bookingDays === 1 ? "" : "s"} reserved`} />
                 <div className="mt-6 grid gap-4 sm:grid-cols-2"><DateBlock label="Pickup" value={startDate!} /><DateBlock label="Return" value={endDate!} /></div>
               </section>
+
+              <CancellationPolicyDisplay value={listing.cancellationPolicy} />
 
               <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
                 <SectionTitle icon={<ShieldCheck size={19} />} title="Protection selection" subtitle="Review the cover selected on the listing page." />

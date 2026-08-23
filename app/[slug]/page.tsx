@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, Check, CircleHelp, Quote, ShieldCheck } from "lucide-react";
+import { ArrowRight, BookOpen, Check, CircleHelp, ExternalLink, FileText, Quote, ShieldCheck, Sparkles } from "lucide-react";
 import { buildSeoMetadata } from "@/app/libs/seo";
 
 type Section = { heading: string; body: string; items?: string[]; links?: { label: string; href: string }[] };
@@ -33,17 +33,22 @@ const pages: Record<string, PageContent> = {
   },
   "cancellation-options": {
     eyebrow: "Support",
-    title: "Plans change. Know your options.",
-    intro: "Cancellation outcomes depend on timing, the listing terms and whether the host has accepted the reservation.",
+    title: "Clear cancellation terms before anyone commits",
+    intro: "Every listing carries a host-selected policy. Redrive snapshots that policy when a guest books, calculates the outcome from the exact pickup time, and shows the expected refund before cancellation.",
     sections: [
-      { heading: "Before cancelling", body: "Open the reservation in Trips and review its status, dates and price breakdown. Message the host first when a small timing change could solve the issue." },
-      { heading: "Guest cancellations", body: "Any refundable amount should be shown before you confirm a cancellation. Service, protection or payment costs already incurred may be treated separately from the daily vehicle price." },
-      { heading: "Host cancellations", body: "Hosts should cancel only when they cannot safely or lawfully provide the booked vehicle. Guests should receive prompt notice so they can make other arrangements." },
+      { heading: "Flexible policy", body: "Guests receive a full refund when cancelling at least 24 hours before pickup. A cancellation after that deadline but before pickup receives 50% of the amount paid through Redrive. This policy can suit frequently booked vehicles and hosts comfortable with short-notice availability.", items: ["100% at least 24 hours before pickup", "50% inside 24 hours but before pickup", "Host cancellation remains 100% refundable"] },
+      { heading: "Moderate policy", body: "Guests receive a full refund until five days before pickup, then 50% until 48 hours before pickup. This is Redrive’s balanced default. For example, cancelling a 1 September pickup on 29 August falls in the 50% window.", items: ["100% at least 5 days before pickup", "50% from 5 days until 48 hours before pickup", "No automatic refund inside 48 hours"] },
+      { heading: "Firm policy", body: "Guests receive a full refund until 14 days before pickup and 50% until seven days before pickup. After that, no automatic refund is due under the listing policy. Firm can suit specialist vehicles or dates that are difficult for a host to refill.", items: ["100% at least 14 days before pickup", "50% from 14 days until 7 days before pickup", "No automatic refund inside 7 days"] },
+      { heading: "The policy is locked to the booking", body: "A host may change the policy for future requests from the listing editor, but an existing reservation keeps the policy snapshot accepted when it was created. This prevents either party from changing the agreed outcome after dates have been committed." },
+      { heading: "Before a guest cancels", body: "Open the booking in Trips and review the pickup time, policy name, estimated percentage and estimated refund. If a small timing change could solve the issue, message the host first. Cancellation is permanent and immediately releases the dates." },
+      { heading: "Host cancellations", body: "A host cancellation before pickup returns 100% of the amount paid through Redrive, regardless of the listing’s guest policy. Hosts must give a reason and should cancel only when they cannot safely or lawfully provide the vehicle. Repeated or avoidable cancellations may lead to marketplace review." },
       { heading: "Disruptions outside your control", body: "For severe weather, verified emergencies or travel restrictions, retain supporting documents and request a review through support." },
-      { heading: "Refund timing", body: "Approved refunds are returned to the original payment method. Your bank or card provider controls how quickly the credit appears after it has been processed." },
-      { heading: "Keep a clear record", body: "Use Redrive Messages for date-change discussions and save evidence of serious disruptions. This gives both parties a consistent timeline if support needs to review the booking." },
+      { heading: "How refunds are processed", body: "When a paid booking is eligible, Redrive requests the calculated refund against the original Stripe payment before marking the reservation cancelled. If the refund cannot be confirmed, the booking remains unchanged so support can safely investigate. Banks and card providers control when the returned funds become visible." },
+      { heading: "After pickup", body: "Ordinary cancellation is no longer available after the pickup time. Use the reservation’s handover, incident and support tools instead so vehicle condition, safety concerns, early returns and any financial adjustment can be reviewed with the relevant evidence." },
+      { heading: "Consumer rights remain", body: "A host-selected policy does not remove a right or remedy that cannot lawfully be excluded. Redrive may review exceptional events, misleading listing information, unavailable vehicles or service failures separately from a change-of-mind cancellation.", links: [{ label: "ACCC consumer rights and guarantees", href: "https://www.accc.gov.au/consumers/buying-products-and-services/consumer-rights-and-guarantees" }] },
+      { heading: "Keep a reliable record", body: "Cancellation time, cancelling party, reason, policy, refund percentage and refund amount are kept with the reservation and security audit. Use Redrive Messages for date-change discussions and retain evidence of serious disruptions." },
     ],
-    note: "This page is a general guide. The cancellation summary shown on your reservation is the source of truth for that booking.",
+    note: "The cancellation summary stored on the reservation is the source of truth for that booking. All time thresholds are calculated from the exact scheduled pickup time, not simply the calendar date.",
   },
   "vehicle-protection": {
     eyebrow: "Hosting",
@@ -210,58 +215,86 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
   const { slug } = await params;
   const page = pages[slug];
   if (!page) notFound();
+  const authorityLinkCount = page.sections.reduce((count, section) => count + (section.links?.length || 0), 0);
+  const practicalItemCount = page.sections.reduce((count, section) => count + (section.items?.length || 0), 0);
 
   return (
-    <main className="min-h-[60vh] bg-white">
-      <section className="border-b border-hairline-soft bg-surface-soft/50">
-        <div className="mx-auto max-w-[1120px] px-5 py-14 sm:px-8 sm:py-20 lg:px-10">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-primary">{page.eyebrow}</p>
-          <h1 className="max-w-3xl text-3xl font-semibold leading-tight text-ink sm:text-5xl">{page.title}</h1>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-muted sm:text-lg">{page.intro}</p>
-          {page.lastUpdated && <p className="mt-5 text-xs font-medium text-muted">Last updated {page.lastUpdated}</p>}
+    <main className="min-h-[70vh] bg-surface-soft/35">
+      <section className="relative overflow-hidden bg-ink text-white">
+        <div className="absolute -right-24 -top-40 h-[470px] w-[470px] rounded-full border-[72px] border-white/[0.045]" />
+        <div className="absolute -bottom-32 right-[22%] h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute right-[9%] top-24 h-4 w-4 rounded-full bg-accent shadow-[0_0_0_12px_rgba(212,167,44,0.1)]" />
+        <div className="relative mx-auto max-w-[1240px] px-5 py-16 sm:px-8 sm:py-24 lg:px-10 lg:py-28">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent"><Sparkles size={14} />Redrive knowledge centre <span className="text-white/25">/</span> {page.eyebrow}</div>
+          <h1 className="mt-7 max-w-4xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">{page.title}</h1>
+          <p className="mt-6 max-w-3xl text-base leading-8 text-white/68 sm:text-xl sm:leading-9">{page.intro}</p>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <span className="rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-white/80">{page.sections.length} detailed topics</span>
+            <span className="rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-white/80">Plain-language guidance</span>
+            {page.lastUpdated && <span className="rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-xs font-semibold text-accent">Updated {page.lastUpdated}</span>}
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-[1120px] gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[240px_1fr] lg:px-10">
-        <aside className="h-fit rounded-xl border border-hairline-soft bg-white p-5 lg:sticky lg:top-32">
-          <div className="flex items-center gap-2 text-sm font-semibold text-ink"><CircleHelp size={18} /> On this page</div>
-          <nav className="mt-4 flex flex-col gap-1">
+      <section className="mx-auto max-w-[1240px] px-5 py-10 sm:px-8 sm:py-16 lg:px-10">
+        <div className="mb-8 grid overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_14px_45px_rgba(24,54,58,0.06)] sm:grid-cols-3">
+          <Metric value={String(page.sections.length)} label="Topics explained" icon={<BookOpen size={18} />} />
+          <Metric value={String(practicalItemCount)} label="Practical checkpoints" icon={<Check size={18} />} />
+          <Metric value={String(authorityLinkCount)} label="Official references" icon={<ExternalLink size={18} />} />
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12">
+        <aside className="h-fit overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_12px_38px_rgba(24,54,58,0.05)] lg:sticky lg:top-28">
+          <div className="bg-gradient-to-br from-primary to-secondary p-5 text-white"><div className="flex items-center gap-2 text-sm font-semibold"><CircleHelp size={18} /> In this guide</div><p className="mt-2 text-xs leading-5 text-white/70">Jump directly to the answer you need.</p></div>
+          <nav className="flex max-h-[58vh] flex-col overflow-y-auto p-3">
             {page.sections.map((section, index) => (
-              <a key={section.heading} href={`#section-${index}`} className="rounded-lg px-3 py-2 text-sm text-muted transition hover:bg-surface-soft hover:text-ink">{section.heading}</a>
+              <a key={section.heading} href={`#section-${index}`} className="group flex items-start gap-3 rounded-xl px-3 py-3 text-sm text-muted transition hover:bg-surface-soft hover:text-ink"><span className="mt-0.5 text-[10px] font-bold tabular-nums text-primary/60">{String(index + 1).padStart(2, "0")}</span><span className="leading-5">{section.heading}</span></a>
             ))}
           </nav>
+          <div className="border-t border-hairline-soft p-4"><Link href="/help-centre" className="flex items-center justify-between rounded-xl bg-ink px-4 py-3 text-xs font-semibold text-white">Need more help? <ArrowRight size={14} /></Link></div>
         </aside>
 
-        <div className="max-w-3xl">
+        <div className="min-w-0">
           {page.sections.map((section, index) => (
-            <article key={section.heading} id={`section-${index}`} className="scroll-mt-32 border-b border-hairline-soft py-8 first:pt-0 last:border-0">
-              <h2 className="text-xl font-semibold text-ink sm:text-2xl">{section.heading}</h2>
-              <p className="mt-3 text-[15px] leading-7 text-body sm:text-base">{section.body}</p>
+            <article key={section.heading} id={`section-${index}`} className="mb-5 scroll-mt-28 rounded-2xl border border-hairline-soft bg-white p-6 shadow-[0_10px_34px_rgba(24,54,58,0.045)] sm:p-8">
+              <div className="flex items-start gap-4 sm:gap-5"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-strong text-xs font-bold tabular-nums text-primary">{String(index + 1).padStart(2, "0")}</span><div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{page.eyebrow}</p><h2 className="mt-1.5 text-xl font-semibold tracking-tight text-ink sm:text-2xl">{section.heading}</h2></div></div>
+              <p className="mt-5 text-[15px] leading-8 text-body sm:text-base">{section.body}</p>
               {section.items && (
-                <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {section.items.map((item) => <li key={item} className="flex gap-3 text-sm leading-6 text-body"><span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary"><Check size={13} strokeWidth={3} /></span>{item}</li>)}
+                <ul className="mt-6 grid gap-3 rounded-xl border border-hairline-soft bg-surface-soft/55 p-4 sm:grid-cols-2 sm:p-5">
+                  {section.items.map((item) => <li key={item} className="flex gap-3 text-sm leading-6 text-body"><span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-sm"><Check size={12} strokeWidth={3} /></span>{item}</li>)}
                 </ul>
               )}
               {section.links && (
-                <div className="mt-5 flex flex-wrap gap-3">
+                <div className="mt-6 flex flex-wrap gap-3 border-t border-hairline-soft pt-5">
                   {section.links.map((link) => (
-                    <a key={link.href} href={link.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-hairline-soft px-3 py-2 text-xs font-semibold text-primary transition hover:border-primary hover:bg-surface-soft">
-                      {link.label}<ArrowRight size={13} />
+                    <a key={link.href} href={link.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-hairline-soft bg-white px-4 py-2.5 text-xs font-semibold text-primary transition hover:border-primary hover:bg-surface-soft">
+                      {link.label}<ExternalLink size={13} />
                     </a>
                   ))}
                 </div>
               )}
             </article>
           ))}
-          {page.note && <div className={`mt-6 flex gap-3 rounded-xl p-5 text-sm leading-6 ${slug === "about" ? "border border-accent/30 bg-accent-soft/60 text-ink" : "bg-surface-soft text-body"}`}>{slug === "about" ? <Quote className="mt-0.5 shrink-0 text-accent-active" size={20} /> : <ShieldCheck className="mt-0.5 shrink-0 text-primary" size={20} />}{page.note}</div>}
-          <div className="mt-10 grid gap-3 border-t border-hairline-soft pt-8 sm:grid-cols-3">
-            <Link href="/help-centre" className="rounded-xl border border-hairline-soft p-4 text-sm font-semibold text-ink transition hover:border-primary">Browse help articles</Link>
-            <Link href="/blog" className="rounded-xl border border-hairline-soft p-4 text-sm font-semibold text-ink transition hover:border-primary">Read the journal</Link>
-            <Link href="/newsroom" className="rounded-xl border border-hairline-soft p-4 text-sm font-semibold text-ink transition hover:border-primary">See product news</Link>
+          {page.note && <div className={`mt-7 flex gap-4 rounded-2xl p-6 text-sm leading-7 sm:p-7 ${slug === "about" ? "border border-accent/35 bg-gradient-to-br from-accent-soft to-white text-ink" : "border border-primary/15 bg-gradient-to-br from-primary/[0.07] to-white text-body"}`}>{slug === "about" ? <Quote className="mt-0.5 shrink-0 text-accent-active" size={24} /> : <ShieldCheck className="mt-0.5 shrink-0 text-primary" size={24} />}<div><p className="mb-1 text-xs font-bold uppercase tracking-[0.14em] text-primary">Important context</p>{page.note}</div></div>}
+          <div className="mt-12">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Continue exploring</p><h2 className="mt-2 text-2xl font-semibold text-ink">More useful Redrive resources</h2>
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            <ResourceLink href="/help-centre" title="Help Centre" copy="Step-by-step answers for accounts, bookings and hosting." icon={<CircleHelp size={19} />} />
+            <ResourceLink href="/blog" title="Travel journal" copy="Practical ideas for safer, better shared-vehicle journeys." icon={<BookOpen size={19} />} />
+            <ResourceLink href="/newsroom" title="Newsroom" copy="See the latest product, privacy and trust improvements." icon={<FileText size={19} />} />
           </div>
-          <Link href="/" className="mt-10 inline-flex items-center gap-2 text-sm font-semibold text-ink hover:underline">Back to Redrive <ArrowRight size={16} /></Link>
+          </div>
+        </div>
         </div>
       </section>
     </main>
   );
+}
+
+function Metric({ value, label, icon }: { value: string; label: string; icon: React.ReactNode }) {
+  return <div className="flex items-center gap-4 border-b border-hairline-soft p-5 last:border-0 sm:border-b-0 sm:border-r sm:last:border-r-0 sm:p-6"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-strong text-primary">{icon}</span><div><p className="text-xl font-semibold text-ink">{value}</p><p className="text-xs text-muted">{label}</p></div></div>;
+}
+
+function ResourceLink({ href, title, copy, icon }: { href: string; title: string; copy: string; icon: React.ReactNode }) {
+  return <Link href={href} className="group rounded-2xl border border-hairline-soft bg-white p-5 shadow-[0_8px_28px_rgba(24,54,58,0.04)] transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-card"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-strong text-primary">{icon}</span><h3 className="mt-5 font-semibold text-ink">{title}</h3><p className="mt-2 text-xs leading-5 text-muted">{copy}</p><span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">Explore <ArrowRight size={13} className="transition group-hover:translate-x-1" /></span></Link>;
 }

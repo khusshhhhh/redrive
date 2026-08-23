@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
+import { normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
 
 async function POSTHandler(request: NextRequest) {
   try {
@@ -44,6 +45,7 @@ async function POSTHandler(request: NextRequest) {
       cleaningFeeOption,
       cleaningFeeAmount,
       returnCleaningFeeAmount,
+      cancellationPolicy,
     } = body;
 
     const parsedFuelEconomy = fuelEconomy ? parseFloat(fuelEconomy) : null; // ✅ Ensure float or null
@@ -142,6 +144,7 @@ async function POSTHandler(request: NextRequest) {
         cleaningFeeOption: cleaningFeeOption ?? null,
         cleaningFeeAmount: parsedCleaningFeeAmount,
         returnCleaningFeeAmount: parsedReturnCleaningFeeAmount,
+        cancellationPolicy: normalizeCancellationPolicy(cancellationPolicy),
         createdAt: new Date(),
       },
     });

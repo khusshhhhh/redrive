@@ -19,6 +19,7 @@ import ListingMap from "./ListingMap";
 import RatingDisplay from "./RatingDisplay";
 import useLoginModal from "@/app/hooks/useLoginModal";
 import HostCard from "./HostCard";
+import CancellationPolicyDisplay from "./CancellationPolicyDisplay";
 
 interface ListingInfoProps {
     listingId: string;
@@ -43,6 +44,7 @@ interface ListingInfoProps {
     amenities?: string[];
     fuelEconomy?: number | null;
     driveChain?: string | null;
+    cancellationPolicy?: string | null;
 }
 
 interface ReviewSummary {
@@ -67,7 +69,8 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
     address,
     amenities,
     fuelEconomy,
-    driveChain
+    driveChain,
+    cancellationPolicy,
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ average: 0, count: 0 });
@@ -137,6 +140,9 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
         <div className="flex flex-col gap-8">
             <RatingDisplay rating={reviewSummary.average} reviewCount={reviewSummary.count} />
             {reviewSummary.count > 0 && <hr className="border-hairline-soft" />}
+
+            <CancellationPolicyDisplay value={cancellationPolicy} />
+            <hr className="border-hairline-soft" />
 
             {/* Basic Details */}
             <div className="flex flex-col gap-6">
