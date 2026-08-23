@@ -4,11 +4,33 @@ import ClientOnly from "@/app/components/ClientOnly";
 import EmptyState from "@/app/components/EmptyState";
 import ListingClient from "./ListingClient";
 import getReservationDateRanges from "@/app/actions/getReservationDateRanges";
+import type { Metadata } from "next";
+import { buildSeoMetadata } from "@/app/libs/seo";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const ListingPage = async ({ params }: { params: any }) => {
+type ListingPageProps = { params: Promise<{ listingId: string }> };
+
+export async function generateMetadata({ params }: ListingPageProps): Promise<Metadata> {
+    const { listingId } = await params;
+    const listing = await getListingById({ listingId });
+    if (!listing) return { title: "Vehicle not found", robots: { index: false, follow: false } };
+
+    const location = [listing.suburb, listing.state].filter(Boolean).join(", ");
+    const description = `${listing.title} in ${location || "Australia"}. ${listing.description}`.replace(/\s+/g, " ").trim().slice(0, 158);
+
+    return buildSeoMetadata({
+        title: `${listing.title} — ${listing.category} in ${location || "Australia"}`,
+        description,
+        path: `/listings/${listing.id}`,
+        image: listing.imageSrcs?.[0],
+        imageAlt: `${listing.title}, a ${listing.category.toLowerCase()} available through Redrive in ${location || "Australia"}`,
+        keywords: [`${listing.category} hire`, `${listing.category} hire ${listing.suburb}`, `vehicle hire ${listing.state}`],
+        category: listing.category,
+    });
+}
+
+const ListingPage = async ({ params }: ListingPageProps) => {
     // Await params to ensure they are resolved before use
-    const resolvedParams = await Promise.resolve(params);
+    const resolvedParams = await params;
 
     if (!resolvedParams || !resolvedParams.listingId) {
         return (

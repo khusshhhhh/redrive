@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import { notificationService } from "@/app/services/notificationService";
+import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 
 async function POSTHandler(request: Request) {
   try {
@@ -11,10 +12,21 @@ async function POSTHandler(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { listingId, rating, text } = await request.json();
+    const rateLimit = await consumeRateLimits([
+      { scope: "review-submit-user", identifier: currentUser.id, limit: 10, windowMs: 60 * 60_000 },
+      { scope: "review-submit-ip", identifier: getClientIp(request), limit: 25, windowMs: 60 * 60_000 },
+    ]);
+    if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
 
-    // Validate input
-    if (!listingId || !rating || !text || text.split(" ").length > 100) {
+    const contentLength = Number(request.headers.get("content-length") || 0);
+    if (contentLength > 16_384) return NextResponse.json({ error: "Review is too large" }, { status: 413 });
+
+    const body = await request.json();
+    const listingId = typeof body.listingId === "string" ? body.listingId : "";
+    const rating = Number(body.rating);
+    const text = typeof body.text === "string" ? body.text.trim() : "";
+
+    if (!/^[a-f\d]{24}$/i.test(listingId) || !Number.isInteger(rating) || rating < 1 || rating > 5 || text.length < 3 || text.length > 2_000) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
@@ -27,6 +39,7 @@ async function POSTHandler(request: Request) {
       where: {
         userId: currentUser.id,
         listingId: listingId,
+        status: "COMPLETED",
         endDate: { lte: oneDayAgo }, // Ensures the review can be left only after one day
       },
     });
@@ -82,6 +95,8 @@ async function POSTHandler(request: Request) {
       console.error("Error sending review notification:", notificationError);
       // Don't fail the review creation if notification fails
     }
+
+    await writeAuditEvent({ request, actorUserId: currentUser.id, action: "REVIEW_CREATED", targetType: "Review", targetId: review.id, metadata: { listingId, rating } });
 
     return NextResponse.json(review, { status: 201 });
   } catch (error) {

@@ -129,7 +129,7 @@ const ListingPhotoManager: React.FC<ListingPhotoManagerProps> = ({ images, onCha
               const index = offset + 1;
               return (
                 <div key={`${src}-${index}`} className="group overflow-hidden rounded-md border border-hairline-soft bg-white">
-                  <div className="relative aspect-square"><Image src={src} alt={`Secondary listing photo ${index}`} fill sizes="(max-width: 640px) 50vw, 220px" className="object-cover" /></div>
+                  <div className="relative aspect-square"><Image src={src} alt={`Secondary listing photo ${index + 1}`} fill sizes="(max-width: 640px) 50vw, 220px" className="object-cover" /></div>
                   <div className="grid grid-cols-[1fr_44px] border-t border-hairline-soft">
                     <button type="button" onClick={() => makeMain(index)} className="flex min-h-11 items-center justify-center gap-1.5 px-2 text-xs font-semibold text-ink hover:bg-surface-soft"><IconStar size={15} />Make main</button>
                     <button type="button" onClick={() => removePhoto(index)} aria-label={`Remove secondary photo ${index}`} className="flex min-h-11 items-center justify-center border-l border-hairline-soft text-error hover:bg-red-50"><IconX size={18} /></button>

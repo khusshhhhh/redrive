@@ -64,6 +64,8 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
             <li><Link href="/about" className="hover:underline hover:text-ink">About</Link></li>
             <li><Link href="/careers" className="hover:underline hover:text-ink">Careers</Link></li>
             <li><Link href="/safety" className="hover:underline hover:text-ink">Trust and safety</Link></li>
+            <li><Link href="/community-standards" className="hover:underline hover:text-ink">Community standards</Link></li>
+            <li><Link href="/data-security" className="hover:underline hover:text-ink">Data security</Link></li>
             <li className="border-t border-hairline-soft pt-3"><Link href="/admin/login" className="text-xs text-muted hover:text-ink hover:underline">Admin</Link></li>
           </ul>
         </div>
@@ -73,9 +75,9 @@ const Footer: React.FC<FooterProps> = ({ currentUser }) => {
         <div className="max-w-[1280px] mx-auto px-4 md:px-10 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-caption-sm text-muted">
           <span>© {new Date().getFullYear()} Redrive. Built for Australian journeys.</span>
           <div className="flex gap-4">
-            <Link href="/favorites" className="hover:underline">Favourites</Link>
-            <Link href="/trips" className="hover:underline">Trips</Link>
-            <Link href="/messages" className="hover:underline">Messages</Link>
+            <Link href="/privacy" className="hover:underline">Privacy</Link>
+            <Link href="/terms" className="hover:underline">Terms</Link>
+            <Link href="/account-deletion" className="hover:underline">Account deletion</Link>
           </div>
         </div>
       </div>

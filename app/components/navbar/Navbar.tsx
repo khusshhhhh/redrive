@@ -59,14 +59,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
               <Logo />
             </div>
             <div className="col-start-2 row-start-1 flex min-w-0 justify-center md:col-span-1 md:col-start-auto md:row-start-auto">
-              <div className={`max-w-fit transition-[max-width] duration-300 ease-out motion-reduce:transition-none ${pathname === "/" && !isScrolled ? "md:w-full md:max-w-[600px]" : "md:max-w-[480px]"}`}>
+              <div className={`max-w-fit transition-[max-width,transform] duration-300 ease-out motion-reduce:transition-none ${pathname === "/" && !isScrolled ? "md:w-full md:max-w-[540px] xl:-translate-x-6" : "md:max-w-[440px]"}`}>
                 <Suspense fallback={<SearchFallback />}>
                   <Search compact={isScrolled} isHome={pathname === "/"} />
                 </Suspense>
               </div>
             </div>
             <div className="col-start-3 row-start-1 shrink-0 md:col-start-auto md:row-start-auto md:justify-self-end">
-              <UserMenu currentUser={currentUser} />
+              <UserMenu currentUser={currentUser} prominent={pathname === "/" && !isScrolled} />
             </div>
           </div>
         </Container>

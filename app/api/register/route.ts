@@ -11,6 +11,7 @@ import {
 } from "@/app/libs/emailVerification";
 import {
   isValidAustralianMobile,
+  isAtLeast18,
   isValidDateOfBirth,
   normalizeAustralianMobile,
 } from "@/app/libs/profileValidation";
@@ -45,6 +46,10 @@ async function GETHandler(request: Request) {
 
 async function POSTHandler(request: Request) {
   try {
+    const contentLength = Number(request.headers.get("content-length") || 0);
+    if (contentLength > 32_768) {
+      return NextResponse.json({ error: "Signup request is too large" }, { status: 413 });
+    }
     let body;
 
     try {
@@ -85,6 +90,13 @@ async function POSTHandler(request: Request) {
       );
     }
 
+    if (email.length > 254 || name.length > 100 || password.length > 128 ||
+      body.streetAddress.trim().length > 180 || body.suburb.trim().length > 100 ||
+      body.state.trim().length > 30 || String(body.postcode || "").length > 10 ||
+      String(body.hobbies || "").length > 1_000 || String(body.dreamDestinations || "").length > 1_000) {
+      return NextResponse.json({ error: "Signup details contain an oversized value" }, { status: 400 });
+    }
+
     if (!isValidAustralianMobile(number)) {
       return NextResponse.json(
         { error: "Enter a valid Australian mobile number" },
@@ -92,9 +104,9 @@ async function POSTHandler(request: Request) {
       );
     }
 
-    if (!isValidDateOfBirth(dateOfBirth)) {
+    if (!isValidDateOfBirth(dateOfBirth) || !isAtLeast18(dateOfBirth)) {
       return NextResponse.json(
-        { error: "Enter a valid date of birth" },
+        { error: "You must be at least 18 to create a Redrive account" },
         { status: 400 }
       );
     }
@@ -159,7 +171,7 @@ async function POSTHandler(request: Request) {
     }
     console.error("❌ Error registering user:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to create account" },
+      { error: "Unable to create account" },
       { status: 500 }
     );
   }

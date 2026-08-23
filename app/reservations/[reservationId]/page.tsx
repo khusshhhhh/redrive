@@ -267,7 +267,7 @@ export default function ReservationDetails() {
                 <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center">
                   <Image
                     src={reservation.user.image || "/images/placeholder.png"}
-                    alt=""
+                    alt={`${reservation.user.name || "Redrive guest"} profile photo`}
                     width={72}
                     height={72}
                     className="h-18 w-18 rounded-full object-cover"

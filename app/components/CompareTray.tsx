@@ -29,7 +29,7 @@ const CompareTray = () => {
         <div className="flex min-w-0 flex-1 gap-2">
           {vehicles.map((vehicle) => (
             <div key={vehicle.id} className="flex min-w-0 flex-1 items-center gap-2 rounded-sm bg-surface-soft p-1.5">
-              <Image src={vehicle.imageSrc} alt="" width={36} height={36} className="h-9 w-9 shrink-0 rounded-sm object-cover" />
+              <Image src={vehicle.imageSrc} alt={`${vehicle.title} thumbnail`} width={36} height={36} className="h-9 w-9 shrink-0 rounded-sm object-cover" />
               <span className="hidden truncate text-xs font-medium text-ink sm:block">{vehicle.title}</span>
               <button type="button" onClick={() => remove(vehicle.id)} aria-label={`Remove ${vehicle.title} from comparison`} className="ml-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><IconX size={15} /></button>
             </div>

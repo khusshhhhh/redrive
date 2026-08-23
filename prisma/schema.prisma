@@ -8,32 +8,36 @@ datasource db {
 }
 
 model User {
-  id                       String    @id @default(auto()) @map("_id") @db.ObjectId
-  name                     String?
-  email                    String?   @unique
-  emailVerified            DateTime?
-  verificationCodeHash     String?
-  verificationCodeExpires  DateTime?
-  verificationCodeSentAt   DateTime?
-  verificationAttempts     Int       @default(0)
-  verificationRequired     Boolean?
-  loginOtpEnabled          Boolean   @default(false)
-  loginOtpCodeHash         String?
-  loginOtpCodeExpires      DateTime?
-  loginOtpCodeSentAt       DateTime?
-  loginOtpAttempts         Int       @default(0)
-  number                   String?
-  dateOfBirth              String?
-  image                    String?
-  hashedPassword           String?
-  passwordChangedAt        DateTime?
-  createdAt                DateTime  @default(now())
-  updatedAt                DateTime  @updatedAt
-  lastActiveAt             DateTime?
-  favoriteIds              String[]  @db.ObjectId
-  stripeConnectedAccountId String?   @unique
-  stripeDetailsSubmitted   Boolean   @default(false)
-  stripePayoutsEnabled     Boolean   @default(false)
+  id                         String    @id @default(auto()) @map("_id") @db.ObjectId
+  name                       String?
+  email                      String?   @unique
+  emailVerified              DateTime?
+  verificationCodeHash       String?
+  verificationCodeExpires    DateTime?
+  verificationCodeSentAt     DateTime?
+  verificationAttempts       Int       @default(0)
+  verificationRequired       Boolean?
+  loginOtpEnabled            Boolean   @default(false)
+  loginOtpCodeHash           String?
+  loginOtpCodeExpires        DateTime?
+  loginOtpCodeSentAt         DateTime?
+  loginOtpAttempts           Int       @default(0)
+  accountDeletionCodeHash    String?
+  accountDeletionCodeExpires DateTime?
+  accountDeletionCodeSentAt  DateTime?
+  accountDeletionAttempts    Int       @default(0)
+  number                     String?
+  dateOfBirth                String?
+  image                      String?
+  hashedPassword             String?
+  passwordChangedAt          DateTime?
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+  lastActiveAt               DateTime?
+  favoriteIds                String[]  @db.ObjectId
+  stripeConnectedAccountId   String?   @unique
+  stripeDetailsSubmitted     Boolean   @default(false)
+  stripePayoutsEnabled       Boolean   @default(false)
 
   streetAddress     String?
   suburb            String?
@@ -252,34 +256,34 @@ model RateLimitBucket {
 // environment/route/method/hour tuple, so atomic upserts do not depend on a
 // separately-created MongoDB unique index.
 model ApiMetricBucket {
-  id                 String   @id @map("_id") @db.ObjectId
-  key                String
-  environment        String
-  route              String
-  method             String
-  region             String?
-  windowStart        DateTime
-  expiresAt          DateTime
-  requestCount       Int      @default(0)
-  sampleCount        Int      @default(0)
-  successCount       Int      @default(0)
-  redirectCount      Int      @default(0)
-  clientErrorCount   Int      @default(0)
-  serverErrorCount   Int      @default(0)
-  rateLimitedCount   Int      @default(0)
-  unauthorisedCount  Int      @default(0)
-  totalDurationMs    Float    @default(0)
-  totalCpuMs         Float    @default(0)
-  totalMemoryMb      Float    @default(0)
-  totalRequestBytes  Float    @default(0)
-  durationLt100      Int      @default(0)
-  durationLt500      Int      @default(0)
-  durationLt1000     Int      @default(0)
-  durationLt3000     Int      @default(0)
-  durationGte3000    Int      @default(0)
-  coldStartCount     Int      @default(0)
-  lastStatus         Int?
-  lastSeenAt         DateTime @updatedAt
+  id                String   @id @map("_id") @db.ObjectId
+  key               String
+  environment       String
+  route             String
+  method            String
+  region            String?
+  windowStart       DateTime
+  expiresAt         DateTime
+  requestCount      Int      @default(0)
+  sampleCount       Int      @default(0)
+  successCount      Int      @default(0)
+  redirectCount     Int      @default(0)
+  clientErrorCount  Int      @default(0)
+  serverErrorCount  Int      @default(0)
+  rateLimitedCount  Int      @default(0)
+  unauthorisedCount Int      @default(0)
+  totalDurationMs   Float    @default(0)
+  totalCpuMs        Float    @default(0)
+  totalMemoryMb     Float    @default(0)
+  totalRequestBytes Float    @default(0)
+  durationLt100     Int      @default(0)
+  durationLt500     Int      @default(0)
+  durationLt1000    Int      @default(0)
+  durationLt3000    Int      @default(0)
+  durationGte3000   Int      @default(0)
+  coldStartCount    Int      @default(0)
+  lastStatus        Int?
+  lastSeenAt        DateTime @updatedAt
 
   @@index([environment, windowStart])
   @@index([route, method, windowStart])
@@ -289,17 +293,17 @@ model ApiMetricBucket {
 // Only unexpected server failures are retained as individual events. Request
 // bodies, query strings, user IDs and raw IP addresses are never stored.
 model ApiErrorEvent {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  environment  String
-  route        String
-  method       String
-  region       String?
-  status       Int
-  durationMs   Float
-  errorName    String?
-  requestId    String?
-  createdAt    DateTime @default(now())
-  expiresAt    DateTime
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  environment String
+  route       String
+  method      String
+  region      String?
+  status      Int
+  durationMs  Float
+  errorName   String?
+  requestId   String?
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
 
   @@index([environment, createdAt])
   @@index([expiresAt])

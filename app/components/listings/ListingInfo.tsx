@@ -7,19 +7,18 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { PublicHost, SafeUser } from "@/app/types";
 import { IconType } from "react-icons";
-import Avatar from "../Avatar";
 import { FaCheck, FaGasPump } from "react-icons/fa";
 import { BsCheckLg, BsFillPeopleFill } from "react-icons/bs";
 import { GiCarDoor } from "react-icons/gi";
 import { FaBed } from "react-icons/fa";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { AMENITIES_LIST } from "@/app/hooks/useAmenities";
-import { IconCar4wd, IconDashboard, IconFileDescription, IconFileInfo, IconGasStation, IconGauge, IconLogs, IconMapPin, IconQuestionMark, IconShieldCheckFilled } from "@tabler/icons-react";
+import { IconCar4wd, IconDashboard, IconFileDescription, IconFileInfo, IconGasStation, IconGauge, IconLogs, IconMapPin, IconQuestionMark } from "@tabler/icons-react";
 import { getHostingDuration } from "@/app/helpers/getHostingDuration";
 import ListingMap from "./ListingMap";
 import RatingDisplay from "./RatingDisplay";
-import Button from "../Button";
 import useLoginModal from "@/app/hooks/useLoginModal";
+import HostCard from "./HostCard";
 
 interface ListingInfoProps {
     listingId: string;
@@ -267,52 +266,13 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                 )}
             </div>
 
-            {/* Host card */}
-            <div className="bg-white shadow-card rounded-md border border-hairline-soft p-6 md:p-8 my-4">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
-                    {/* Image Block */}
-                    <div className="col-span-1 md:col-span-2 flex justify-center">
-                        <div className="overflow-hidden relative" style={{ width: 120, height: 120 }}>
-                            <Avatar src={user?.image} size={120} />
-                            <div className="absolute bottom-1 right-1">
-                                {user?.profileVerified === "Y" && (
-                                    <div className="bg-ink text-white rounded-full p-1.5 flex items-center justify-center">
-                                        <IconShieldCheckFilled size={18} />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                    {/* Information Block */}
-                    <div className="col-span-1 md:col-span-3 flex flex-col gap-4">
-                        <div className="flex flex-col gap-0">
-                            <div className="text-body-sm text-muted">Hosted By</div>
-                            <div className="text-title-md font-semibold text-ink">{user?.name}</div>
-                        </div>
-                        <hr className="border-hairline-soft" />
-                        <div className="flex flex-col gap-0">
-                            <div className="text-body-sm text-muted">Lives in</div>
-                            <div className="text-title-md font-semibold text-ink">
-                                {user?.suburb}, {user?.state}
-                            </div>
-                        </div>
-                        <hr className="border-hairline-soft" />
-                        <div className="flex flex-col gap-0">
-                            <div className="text-body-sm text-muted">Hosting since</div>
-                            <div className="text-title-md font-semibold text-ink">{hostingSinceLabel}</div>
-                        </div>
-                        {!isOwnListing && (
-                            <Button
-                                outline
-                                small
-                                label="Contact host"
-                                disabled={contactingHost}
-                                onClick={onContactHost}
-                            />
-                        )}
-                    </div>
-                </div>
-            </div>
+            <HostCard
+                user={user}
+                hostingSinceLabel={hostingSinceLabel}
+                isOwnListing={isOwnListing}
+                contactingHost={contactingHost}
+                onContactHost={onContactHost}
+            />
         </div>
     );
 };

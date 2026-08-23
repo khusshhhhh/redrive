@@ -17,6 +17,51 @@ export type EditorialArticle = {
 
 export const helpArticles: EditorialArticle[] = [
   {
+    slug: "delete-your-account-safely",
+    title: "Delete your Redrive account safely",
+    description: "Understand the permanent deletion process, email confirmation and issues that must be resolved first.",
+    category: "Privacy",
+    audience: "Account & safety",
+    published: "2026-08-23",
+    readTime: "4 min read",
+    sections: [
+      { heading: "Review the consequences", paragraphs: ["Account deletion is permanent. It removes your profile and app-controlled content, including listings, reviews, messages, saved searches and managed documents. A new account created later will not restore that history."] },
+      { heading: "Resolve open commitments", paragraphs: ["Deletion cannot continue during an active booking or trip, an unsettled payment or payout, or an open incident."], items: ["Check Trips and Reservations", "Complete or cancel open requests", "Wait for payments and payouts to settle", "Resolve open incident reviews"] },
+      { heading: "Confirm by email", paragraphs: ["In Profile, open Delete account and request a six-digit code. Enter the code within 10 minutes and type DELETE exactly. Repeated incorrect attempts invalidate the code."] },
+      { heading: "Third-party retention", paragraphs: ["Redrive closes managed payout access and removes managed media where providers permit it. Payment providers and legally required records may remain for a limited retention period under applicable obligations."] },
+    ],
+  },
+  {
+    slug: "recognise-scams-and-suspicious-requests",
+    title: "Recognise scams and suspicious requests",
+    description: "Spot common warning signs around payments, verification codes, identity documents and off-platform contact.",
+    category: "Account security",
+    audience: "Account & safety",
+    published: "2026-08-22",
+    readTime: "4 min read",
+    sections: [
+      { heading: "Protect codes and passwords", paragraphs: ["A legitimate host, guest or support conversation should never require your password or one-time code. Codes are only for the Redrive screen that requested them."], items: ["Never paste an OTP into Messages", "Do not approve an unexpected login", "Reset your password if a code request was not yours"] },
+      { heading: "Question off-platform payment", paragraphs: ["Pressure to pay by bank transfer, gift card, cryptocurrency or an unfamiliar link removes marketplace safeguards. Use only the payment action attached to the Redrive reservation."] },
+      { heading: "Limit identity sharing", paragraphs: ["Upload a driving licence only through Profile. Do not send licence photos, payment cards or unrelated identity documents in chat."] },
+      { heading: "Preserve and report", paragraphs: ["Do not continue engaging with a suspicious request. Keep screenshots and the conversation reference, secure your account, and report the issue through support. For financial loss, also contact your bank and Scamwatch promptly."] },
+    ],
+  },
+  {
+    slug: "understand-your-booking-price",
+    title: "Understand your booking price",
+    description: "Read daily rates, marketplace fees, protection, cleaning amounts and the estimated total before requesting.",
+    category: "Booking",
+    audience: "Guests",
+    published: "2026-08-21",
+    readTime: "4 min read",
+    sections: [
+      { heading: "Start with the dates", paragraphs: ["Redrive calculates chargeable days from the selected pickup and return dates and applies the vehicle’s current daily rate. Minimum and maximum trip rules may affect which dates can be requested."] },
+      { heading: "Read every line", paragraphs: ["The quote can include the base vehicle amount, marketplace or service fees, the selected protection amount and an applicable cleaning amount. Read the total rather than multiplying only the headline daily price."] },
+      { heading: "A request is not yet a paid booking", paragraphs: ["A host may need to approve the request before payment is available. Watch the reservation status and payment instructions rather than assuming submission guarantees the vehicle."] },
+      { heading: "Keep the price record", paragraphs: ["Redrive stores a versioned quote snapshot with the reservation. If something looks wrong, use the itemised reservation details when contacting support."] },
+    ],
+  },
+  {
     slug: "how-booking-requests-work",
     title: "How booking requests work",
     description: "From choosing dates to host approval, understand every stage of a Redrive vehicle booking request.",
@@ -132,6 +177,34 @@ export const helpArticles: EditorialArticle[] = [
 
 export const blogPosts: EditorialArticle[] = [
   {
+    slug: "how-to-evaluate-a-peer-to-peer-host",
+    title: "How to evaluate a host before requesting a vehicle",
+    description: "Use profile context, listing quality, messages and reviews to make a more informed peer-to-peer booking decision.",
+    category: "Trust & safety",
+    published: "2026-08-23",
+    readTime: "6 min read",
+    sections: [
+      { heading: "Start with consistency", paragraphs: ["A useful host profile is consistent with the listing: the location makes sense, vehicle details are specific, photos look current and expectations are written plainly. A badge can add context, but it cannot replace this wider picture."] },
+      { heading: "Read reviews for detail", paragraphs: ["Look beyond the average. Comments about communication, vehicle condition, handover clarity and whether the listing matched reality are often more useful than a score alone."] },
+      { heading: "Ask focused questions", paragraphs: ["Use Redrive Messages to clarify what materially affects your trip."], items: ["Pickup window and meeting area", "Fuel, charging and toll expectations", "Included equipment", "Road or use restrictions", "Unusual controls or dimensions"] },
+      { heading: "Notice pressure", paragraphs: ["Pause if someone pressures you to pay elsewhere, share an OTP, send additional identity documents in chat or ignore a booking restriction. A trustworthy transaction leaves room for clear questions."] },
+    ],
+  },
+  {
+    slug: "privacy-minded-vehicle-sharing",
+    title: "A privacy-minded guide to sharing a vehicle",
+    description: "Practical ways for hosts and guests to exchange enough information for a trip without exposing more than necessary.",
+    category: "Privacy",
+    published: "2026-08-22",
+    readTime: "6 min read",
+    sections: [
+      { heading: "Share in stages", paragraphs: ["A public listing needs a suburb, useful photos and accurate vehicle details—not a home address or registration paperwork. Precise handover information should be shared only when the booking stage and participant justify it."] },
+      { heading: "Use the right channel", paragraphs: ["Profile is the place for licence uploads, the reservation is the place for dates and payment state, and Messages is the place for ordinary coordination. Keeping information in its intended channel supports access controls and clearer records."] },
+      { heading: "Prepare the vehicle digitally", paragraphs: ["Before handover, remove saved home addresses, paired phones, call history and personal account sessions from the vehicle where practical. Hosts should also remove private paperwork and spare keys that are not part of the trip."] },
+      { heading: "Clean up after return", paragraphs: ["Guests should sign out of infotainment services and remove navigation history they added. Hosts should check connected devices and reset temporary access before the next booking."] },
+    ],
+  },
+  {
     slug: "peer-to-peer-vehicle-hire-australia-guide",
     title: "A practical guide to peer-to-peer vehicle hire in Australia",
     description: "Learn how local vehicle sharing works, what to compare and how to prepare for a confident Australian road trip.",
@@ -204,6 +277,85 @@ export const blogPosts: EditorialArticle[] = [
 ];
 
 export const newsroomPosts: EditorialArticle[] = [
+  {
+    slug: "account-deletion-and-privacy-controls",
+    title: "Redrive adds verified, permanent account deletion",
+    description: "A new profile workflow gives account holders a clear, email-verified path to remove app-controlled personal information.",
+    category: "Privacy",
+    published: "2026-08-23",
+    readTime: "4 min read",
+    sections: [
+      { heading: "A deliberate permanent action", paragraphs: ["Account deletion now begins in Profile with a plain-language explanation of what will be removed. A fresh six-digit email code and the typed word DELETE are required before the operation can proceed."] },
+      { heading: "Safe completion checks", paragraphs: ["Deletion is paused when a booking or trip is active, a payment or payout remains unsettled, or an incident is under review. These checks protect the other participant and prevent an account disappearing in the middle of an unresolved obligation."] },
+      { heading: "Deletion reaches beyond the profile row", paragraphs: ["The workflow removes account credentials, licence records, listings, reviews, messages, saved searches, notifications, handover evidence and managed media. It also cleans references in favourites and attempts to close a connected payout account where the payment provider permits it."] },
+      { heading: "Retention is explained honestly", paragraphs: ["Third-party payment providers and legally required business records may have separate retention duties. Redrive’s updated privacy and account-deletion pages explain that distinction rather than promising instant erasure from systems the platform does not control."] },
+    ],
+  },
+  {
+    slug: "richer-host-profiles-and-guest-reviews",
+    title: "Host profiles and reviews now give guests more context",
+    description: "Redesigned listing sections make host experience, verification and guest feedback easier to assess before booking.",
+    category: "Product",
+    published: "2026-08-23",
+    readTime: "3 min read",
+    sections: [
+      { heading: "Useful host context", paragraphs: ["The host panel now presents location, hosting tenure, vehicle count and profile-verification status in one structured view. Guests also see suggested topics to clarify before booking and a direct on-platform message action."] },
+      { heading: "Reviews designed for scanning", paragraphs: ["Guest feedback now includes an average summary, clear reviewer identity and date, star treatment, readable review cards and expandable long comments. Loading, unavailable and no-review states have also been designed rather than left blank."] },
+      { heading: "No shortcut around judgement", paragraphs: ["Badges and averages are context, not guarantees. Redrive continues to encourage guests to read the listing, review the booking terms and ask focused questions before committing."] },
+    ],
+  },
+  {
+    slug: "structured-handover-and-incident-records",
+    title: "Structured handovers create a clearer trip record",
+    description: "Pickup and return reports help guests and hosts record condition, fuel or charge, kilometres and supporting images.",
+    category: "Trust & safety",
+    published: "2026-08-22",
+    readTime: "4 min read",
+    sections: [
+      { heading: "The same process at both ends", paragraphs: ["Redrive supports pickup and return phases with odometer, fuel or charge level, checklist, notes and authenticated media. Using the same structure at both ends makes changes easier to identify."] },
+      { heading: "Shared acknowledgement", paragraphs: ["Trip participants can review and acknowledge submitted reports. Payment release checks can use the return record and open-incident state so a payout is not treated as ready while important questions remain unresolved."] },
+      { heading: "Evidence with boundaries", paragraphs: ["Handover photos are stored as restricted assets and served only after Redrive checks that the viewer participates in the reservation or has authorised administrative access."] },
+    ],
+  },
+  {
+    slug: "transparent-booking-quotes-and-payouts",
+    title: "Booking quotes now preserve the price decision",
+    description: "Itemised quotes, payment states and host payout controls make the financial path easier to follow.",
+    category: "Payments",
+    published: "2026-08-21",
+    readTime: "4 min read",
+    sections: [
+      { heading: "A versioned quote snapshot", paragraphs: ["When a guest requests dates, Redrive calculates the daily price, marketplace and service fees, selected protection amount, cleaning amount and total. The quote snapshot and pricing-policy version are stored with the booking record."] },
+      { heading: "Availability is checked again", paragraphs: ["The reservation service checks trip length, minimum notice, overlapping reservations and owner blocks before it creates a request. This reduces the risk of relying only on an earlier browser calculation."] },
+      { heading: "Payout readiness", paragraphs: ["Hosts can complete payout onboarding through Stripe. Release checks consider payment state, trip end, return acknowledgement and unresolved incidents before funds are treated as ready for transfer."] },
+    ],
+  },
+  {
+    slug: "live-messages-notifications-and-presence",
+    title: "Redrive messaging becomes more responsive",
+    description: "Conversation streaming, unread state, typing presence and trip notifications keep important coordination in one place.",
+    category: "Product",
+    published: "2026-08-20",
+    readTime: "3 min read",
+    sections: [
+      { heading: "Updates without constant refreshing", paragraphs: ["Message and chat streams use server-sent events to deliver new activity. Conversation views support unread counts, read updates, typing indicators and presence information while retaining paginated message history."] },
+      { heading: "Notifications tied to real actions", paragraphs: ["Booking requests, approvals, declines, cancellations, reminders, completed trips, reviews, messages, profile checks and payment events can create in-app notifications with relevant destinations."] },
+      { heading: "Keep sensitive details out", paragraphs: ["A convenient chat is not an identity-document inbox. Redrive guidance continues to direct licence files to the restricted uploader and warns users never to send passwords, payment card details or one-time codes in conversation."] },
+    ],
+  },
+  {
+    slug: "better-discovery-saved-searches-and-comparison",
+    title: "New discovery tools help guests make a considered choice",
+    description: "Saved searches, comparison, recent activity and real-inventory recommendations reduce the need to start over.",
+    category: "Product",
+    published: "2026-08-19",
+    readTime: "3 min read",
+    sections: [
+      { heading: "Return to a useful search", paragraphs: ["Guests can save named filter combinations, choose alert frequency and continue from recent search or viewing activity. Search remains usable without creating a saved search."] },
+      { heading: "Compare facts side by side", paragraphs: ["The comparison view brings selected vehicle facts, estimated pricing and booking context together. It is designed as a decision aid rather than a recommendation that overrides a guest’s own needs."] },
+      { heading: "Recommendations from actual listings", paragraphs: ["Recommendation results are drawn from live marketplace inventory and can consider recently viewed vehicles, dates and broad location. The system avoids inventing vehicles or hiding the filters behind the result."] },
+    ],
+  },
   {
     slug: "safer-booking-readiness-tools",
     title: "Redrive introduces clearer booking-readiness tools",

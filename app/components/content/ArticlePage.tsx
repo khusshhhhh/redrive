@@ -28,7 +28,7 @@ export default function ArticlePage({ article, backHref, backLabel, sectionLabel
 
   return (
     <main className="bg-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
       <article>
         <header className="border-b border-hairline-soft bg-surface-soft/55">
           <div className="mx-auto max-w-[900px] px-5 py-12 sm:px-8 sm:py-20">

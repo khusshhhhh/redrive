@@ -12,6 +12,7 @@ const ListingImages = () => {
     const router = useRouter();
     const { listingId } = useParams();
     const [imageSrcs, setImageSrcs] = useState<string[]>([]);
+    const [listingTitle, setListingTitle] = useState("Vehicle");
     const [isOpen, setIsOpen] = useState(false);
     const [startIndex, setStartIndex] = useState(0);
 
@@ -22,6 +23,7 @@ const ListingImages = () => {
                 const response = await fetch(`/api/listings/${listingId}`);
                 const data = await response.json();
                 setImageSrcs(data.imageSrcs || []);
+                setListingTitle(data.title || "Vehicle");
             } catch (error) {
                 console.error("Error fetching images:", error);
             }
@@ -33,9 +35,11 @@ const ListingImages = () => {
     }, [listingId]);
 
     // Convert images to react-image-gallery format
-    const galleryImages = imageSrcs.map((src) => ({
+    const galleryImages = imageSrcs.map((src, index) => ({
         original: src,
         thumbnail: src,
+        originalAlt: `${listingTitle} vehicle photo ${index + 1}`,
+        thumbnailAlt: `${listingTitle} photo ${index + 1} thumbnail`,
     }));
 
     const openGallery = (index: number) => {
@@ -66,7 +70,7 @@ const ListingImages = () => {
                         onClick={() => openGallery(index)}
                     >
                         <Image
-                            alt={`Listing Image ${index + 1}`}
+                            alt={`${listingTitle} vehicle photo ${index + 1}`}
                             src={src}
                             width={800}
                             height={600}

@@ -13,6 +13,15 @@ import BookingReadiness from "./components/BookingReadiness";
 import RealRecommendations from "./components/RealRecommendations";
 import PurposefulCollections from "./components/PurposefulCollections";
 import { addDays, nextSaturday } from "date-fns";
+import { buildSeoMetadata } from "./libs/seo";
+
+export const metadata = buildSeoMetadata({
+  title: "Peer-to-peer vehicle hire across Australia",
+  description: "Find cars, utes, vans, campervans and other useful vehicles from local Redrive hosts for daily drives, work and Australian road trips.",
+  path: "/",
+  keywords: ["car hire Australia", "ute hire Australia", "campervan hire", "van hire", "peer-to-peer vehicle rental"],
+  imageAlt: "Explore locally hosted vehicles across Australia with Redrive",
+});
 
 interface HomeProps {
   searchParams?: IListingsParams;
@@ -40,7 +49,7 @@ const Home = async ({ searchParams }: HomeProps) => {
 
   return (
       <Container>
-        <div className="space-y-8 pb-8 pt-6 sm:pt-10 lg:space-y-12 lg:pt-12">
+        <div className="space-y-5 pb-8 pt-6 sm:pt-10 lg:space-y-12 lg:pt-12">
           {/* Results Header */}
           {hasFilters && (
             <div>

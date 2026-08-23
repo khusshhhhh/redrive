@@ -126,7 +126,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                 <div className="relative aspect-[3/2] max-h-[420px] overflow-hidden rounded-md md:hidden">
                     <GridImage
                         src={imageSrcs[0] || "/images/placeholder.png"}
-                        alt="Main"
+                        alt={`${title} main vehicle photo`}
                         sizes="100vw"
                         priority
                         onClick={() => setSelectedImage(imageSrcs[0] || "/images/placeholder.png")}
@@ -147,7 +147,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                     <div className="col-span-2 row-span-2">
                         <GridImage
                             src={imageSrcs[0] || "/images/placeholder.png"}
-                            alt="Main"
+                            alt={`${title} main vehicle photo`}
                             sizes="50vw"
                             priority
                             onClick={() => setSelectedImage(imageSrcs[0] || "/images/placeholder.png")}
@@ -158,7 +158,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                         <GridImage
                             key={index}
                             src={src}
-                            alt={`Thumbnail ${index + 2}`}
+                            alt={`${title} vehicle photo ${index + 2}`}
                             sizes="25vw"
                             onClick={() => setSelectedImage(src)}
                         />
@@ -196,7 +196,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                         {/* Full Image Display */}
                         <div className="p-4">
                             <Image
-                                alt="Full Image"
+                                alt={`${title} enlarged vehicle photo`}
                                 src={selectedImage}
                                 width={800}
                                 height={600}
