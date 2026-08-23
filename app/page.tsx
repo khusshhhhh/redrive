@@ -40,7 +40,7 @@ const Home = async ({ searchParams }: HomeProps) => {
 
   return (
       <Container>
-        <div className="space-y-10 pb-8 pt-6 sm:pt-10 lg:space-y-12 lg:pt-12">
+        <div className="space-y-8 pb-8 pt-6 sm:pt-10 lg:space-y-12 lg:pt-12">
           {/* Results Header */}
           {hasFilters && (
             <div>

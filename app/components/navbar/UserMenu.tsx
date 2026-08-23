@@ -79,7 +79,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
       <div className="flex flex-row items-center gap-1 sm:gap-2 md:gap-3">
         <div
           onClick={onRent}
-          className="hidden md:block text-sm font-medium py-3 px-5 bg-primary rounded-full hover:bg-primary-active text-white transition cursor-pointer"
+          className="hidden md:block text-xs font-medium py-3 px-5 bg-primary rounded-full hover:bg-primary-active text-white transition cursor-pointer"
         >
           List your car
         </div>
