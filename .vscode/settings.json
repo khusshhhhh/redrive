@@ -25,5 +25,6 @@
     "commandCenter.foreground": "#e7e7e7",
     "statusBar.debuggingBackground": "#000000",
     "statusBar.debuggingForeground": "#e7e7e7"
-  }
+  },
+  "codeStatsViewer.maxLargestFilesSidebar": 15
 }

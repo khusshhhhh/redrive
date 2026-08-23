@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, BookOpen, Check, CircleHelp, ExternalLink, FileText, Quote, ShieldCheck, Sparkles } from "lucide-react";
 import { buildSeoMetadata } from "@/app/libs/seo";
+import InformationScrollReveal from "@/app/components/motion/InformationScrollReveal";
 
 type Section = { heading: string; body: string; items?: string[]; links?: { label: string; href: string }[] };
 type PageContent = {
@@ -219,12 +220,13 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
   const practicalItemCount = page.sections.reduce((count, section) => count + (section.items?.length || 0), 0);
 
   return (
-    <main className="min-h-[70vh] bg-surface-soft/35">
+    <main className="information-page min-h-[70vh] bg-surface-soft/35">
+      <InformationScrollReveal />
       <section className="relative overflow-hidden bg-ink text-white">
         <div className="absolute -right-24 -top-40 h-[470px] w-[470px] rounded-full border-[72px] border-white/[0.045]" />
         <div className="absolute -bottom-32 right-[22%] h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute right-[9%] top-24 h-4 w-4 rounded-full bg-accent shadow-[0_0_0_12px_rgba(212,167,44,0.1)]" />
-        <div className="relative mx-auto max-w-[1240px] px-5 py-16 sm:px-8 sm:py-24 lg:px-10 lg:py-28">
+        <div data-info-reveal className="relative mx-auto max-w-[1240px] px-5 py-16 sm:px-8 sm:py-24 lg:px-10 lg:py-28">
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent"><Sparkles size={14} />Redrive knowledge centre <span className="text-white/25">/</span> {page.eyebrow}</div>
           <h1 className="mt-7 max-w-4xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">{page.title}</h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-white/68 sm:text-xl sm:leading-9">{page.intro}</p>
@@ -237,14 +239,14 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
       </section>
 
       <section className="mx-auto max-w-[1240px] px-5 py-10 sm:px-8 sm:py-16 lg:px-10">
-        <div className="mb-8 grid overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_14px_45px_rgba(24,54,58,0.06)] sm:grid-cols-3">
+        <div data-info-reveal className="mb-8 grid overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_14px_45px_rgba(24,54,58,0.06)] sm:grid-cols-3">
           <Metric value={String(page.sections.length)} label="Topics explained" icon={<BookOpen size={18} />} />
           <Metric value={String(practicalItemCount)} label="Practical checkpoints" icon={<Check size={18} />} />
           <Metric value={String(authorityLinkCount)} label="Official references" icon={<ExternalLink size={18} />} />
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12">
-        <aside className="h-fit overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_12px_38px_rgba(24,54,58,0.05)] lg:sticky lg:top-28">
+        <aside data-info-reveal className="h-fit overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_12px_38px_rgba(24,54,58,0.05)] lg:sticky lg:top-28">
           <div className="bg-gradient-to-br from-primary to-secondary p-5 text-white"><div className="flex items-center gap-2 text-sm font-semibold"><CircleHelp size={18} /> In this guide</div><p className="mt-2 text-xs leading-5 text-white/70">Jump directly to the answer you need.</p></div>
           <nav className="flex max-h-[58vh] flex-col overflow-y-auto p-3">
             {page.sections.map((section, index) => (
@@ -256,7 +258,7 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
 
         <div className="min-w-0">
           {page.sections.map((section, index) => (
-            <article key={section.heading} id={`section-${index}`} className="mb-5 scroll-mt-28 rounded-2xl border border-hairline-soft bg-white p-6 shadow-[0_10px_34px_rgba(24,54,58,0.045)] sm:p-8">
+            <article data-info-reveal key={section.heading} id={`section-${index}`} className="mb-5 scroll-mt-28 rounded-2xl border border-hairline-soft bg-white p-6 shadow-[0_10px_34px_rgba(24,54,58,0.045)] sm:p-8">
               <div className="flex items-start gap-4 sm:gap-5"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-strong text-xs font-bold tabular-nums text-primary">{String(index + 1).padStart(2, "0")}</span><div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{page.eyebrow}</p><h2 className="mt-1.5 text-xl font-semibold tracking-tight text-ink sm:text-2xl">{section.heading}</h2></div></div>
               <p className="mt-5 text-[15px] leading-8 text-body sm:text-base">{section.body}</p>
               {section.items && (
@@ -275,8 +277,8 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
               )}
             </article>
           ))}
-          {page.note && <div className={`mt-7 flex gap-4 rounded-2xl p-6 text-sm leading-7 sm:p-7 ${slug === "about" ? "border border-accent/35 bg-gradient-to-br from-accent-soft to-white text-ink" : "border border-primary/15 bg-gradient-to-br from-primary/[0.07] to-white text-body"}`}>{slug === "about" ? <Quote className="mt-0.5 shrink-0 text-accent-active" size={24} /> : <ShieldCheck className="mt-0.5 shrink-0 text-primary" size={24} />}<div><p className="mb-1 text-xs font-bold uppercase tracking-[0.14em] text-primary">Important context</p>{page.note}</div></div>}
-          <div className="mt-12">
+          {page.note && <div data-info-reveal className={`mt-7 flex gap-4 rounded-2xl p-6 text-sm leading-7 sm:p-7 ${slug === "about" ? "border border-accent/35 bg-gradient-to-br from-accent-soft to-white text-ink" : "border border-primary/15 bg-gradient-to-br from-primary/[0.07] to-white text-body"}`}>{slug === "about" ? <Quote className="mt-0.5 shrink-0 text-accent-active" size={24} /> : <ShieldCheck className="mt-0.5 shrink-0 text-primary" size={24} />}<div><p className="mb-1 text-xs font-bold uppercase tracking-[0.14em] text-primary">Important context</p>{page.note}</div></div>}
+          <div data-info-reveal className="mt-12">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Continue exploring</p><h2 className="mt-2 text-2xl font-semibold text-ink">More useful Redrive resources</h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             <ResourceLink href="/help-centre" title="Help Centre" copy="Step-by-step answers for accounts, bookings and hosting." icon={<CircleHelp size={19} />} />

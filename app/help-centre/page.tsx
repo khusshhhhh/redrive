@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import HelpCentreClient from "./HelpCentreClient";
 import { buildSeoMetadata } from "@/app/libs/seo";
+import InformationScrollReveal from "@/app/components/motion/InformationScrollReveal";
 
 export const metadata: Metadata = buildSeoMetadata({
   title: "Redrive Help Centre",
@@ -11,5 +12,5 @@ export const metadata: Metadata = buildSeoMetadata({
 });
 
 export default function HelpCentrePage() {
-  return <main className="min-h-[70vh] bg-white"><HelpCentreClient /></main>;
+  return <main className="information-page min-h-[70vh] bg-white"><InformationScrollReveal /><HelpCentreClient /></main>;
 }
