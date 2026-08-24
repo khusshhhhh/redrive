@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ['@redrive/contracts'],
   // Keep native Sharp and its dynamically-loaded libvips binary inside the
   // licence verification function on Linux deployments such as Vercel.
   outputFileTracingRoot: __dirname,

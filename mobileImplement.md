@@ -5,7 +5,7 @@
 **Last validated:** 19 August 2026  
 **Target platforms:** Android and iOS
 
-**Step-by-step companion guide:** [`EXPO_REACT_NATIVE_DEVELOPMENT_AND_STORE_GUIDE.md`](./EXPO_REACT_NATIVE_DEVELOPMENT_AND_STORE_GUIDE.md)
+**Step-by-step companion guide:** [`expoGuide.md`](./expoGuide.md)
 
 ## Executive decision
 

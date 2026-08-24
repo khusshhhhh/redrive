@@ -1,8 +1,6 @@
 import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import jwt from "jsonwebtoken";
 import prisma from "@/app/libs/prismadb";
+import { optionalIdentity } from "@/app/libs/mobile-auth/identity";
 
 export interface AuthUser {
   id: string;
@@ -22,63 +20,18 @@ export async function getCurrentUserEnhanced(
   request?: Request | NextRequest
 ): Promise<AuthUser | null> {
   try {
-    // Method 1: Try NextAuth session first (standard app flow)
-    const session = await getServerSession(authOptions);
-    if (session?.user?.email) {
-      const user = await prisma.user.findUnique({
-        where: { email: session.user.email },
-      });
-
-      if (user) {
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name || "",
-          createdAt: user.createdAt.toISOString(),
-          updatedAt: user.updatedAt.toISOString(),
-          emailVerified: user.emailVerified?.toISOString() || null,
-        };
-      }
-    }
-
-    // Method 2: Try JWT token from Authorization header (for API testing)
-    if (request) {
-      const authHeader = request.headers.get("authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.substring(7);
-
-        try {
-          if (!process.env.NEXTAUTH_SECRET) {
-            throw new Error("NEXTAUTH_SECRET is not configured");
-          }
-          const decoded = jwt.verify(
-            token,
-            process.env.NEXTAUTH_SECRET,
-            { issuer: "redrive", audience: "redrive-api" }
-          ) as { userId: string; email: string; name: string };
-
-          const user = await prisma.user.findUnique({
-            where: { id: decoded.userId },
-          });
-
-          if (user) {
-            return {
-              id: user.id,
-              email: user.email,
-              name: user.name || "",
-              createdAt: user.createdAt.toISOString(),
-              updatedAt: user.updatedAt.toISOString(),
-              emailVerified: user.emailVerified?.toISOString() || null,
-            };
-          }
-        } catch (jwtError) {
-          console.log("JWT verification failed:", jwtError);
-          // Continue to session check if JWT fails
-        }
-      }
-    }
-
-    return null;
+    const identity = request ? await optionalIdentity(request) : await optionalIdentity(new Request("http://localhost"));
+    if (!identity) return null;
+    const user = await prisma.user.findUnique({ where: { id: identity.userId } });
+    if (!user?.email) return null;
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name || "",
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+      emailVerified: user.emailVerified?.toISOString() || null,
+    };
   } catch (error) {
     console.error("Authentication error:", error);
     return null;

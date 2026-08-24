@@ -1,6 +1,8 @@
-# Redrive Environment Variables and Vercel Setup
+# Redrive Environment Variables, Vercel, and Expo/EAS Setup
 
-This guide explains every value in `.env.example`, where to obtain it, how to configure it locally, and how to add it to Vercel.
+This guide explains every value in `.env.example`, where to obtain it, how to
+configure the Next.js and Expo applications locally, and how to scope values in
+Vercel and Expo Application Services (EAS).
 
 > Never paste real secrets into `.env.example`, this document, source code, Git commits, screenshots, or support messages. Put local secrets in `.env.local` or `.env`. Both are ignored by Git in this project.
 
@@ -32,17 +34,51 @@ CLOUDINARY_API_KEY="your-cloudinary-api-key"
 CLOUDINARY_API_SECRET="your-cloudinary-api-secret"
 
 CRON_SECRET="another-long-random-secret"
+
+MOBILE_TOKEN_ISSUER="http://localhost:3000"
+MOBILE_TOKEN_AUDIENCE="redrive-mobile-api"
+MOBILE_ACCESS_TOKEN_KEY_ID="development-2026-08"
+MOBILE_ACCESS_TOKEN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----"
+MOBILE_ACCESS_TOKEN_PUBLIC_KEYS='{"development-2026-08":"-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"}'
+MOBILE_REFRESH_TOKEN_PEPPER="an-independent-random-base64-value"
+MOBILE_ALLOW_AUTH_PREVIEWS="false"
+EXPO_ACCESS_TOKEN=""
 ```
 
 The strings above are examples only. Do not copy them as working credentials.
+The mobile application has its own local file at `apps/mobile/.env.local`:
+
+```dotenv
+EXPO_PUBLIC_APP_ENV=development
+EXPO_PUBLIC_API_ORIGIN=http://localhost:3000
+EXPO_PUBLIC_LINK_HOST=
+EXPO_PUBLIC_EAS_PROJECT_ID=
+EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+EXPO_PUBLIC_SENTRY_DSN=
+EXPO_PUBLIC_GOOGLE_MAPS_IOS_KEY=
+EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_KEY=
+```
+
+Never put `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`,
+`EXPO_ACCESS_TOKEN`, a Stripe secret key, or any other server credential in
+`apps/mobile/.env.local` or in an `EXPO_PUBLIC_` variable.
 
 ## 2. Quick reference
 
 | Variable | Required? | Secret? | Used where |
 |---|---:|---:|---|
 | `DATABASE_URL` | Yes | Yes | Prisma/MongoDB server connection |
-| `NEXTAUTH_SECRET` | Yes | Yes | NextAuth sessions and API JWTs |
+| `NEXTAUTH_SECRET` | Yes | Yes | NextAuth web sessions and disabled legacy API compatibility |
 | `NEXTAUTH_URL` | Yes in production | No | Authentication callback base URL |
+| `NEXT_PUBLIC_SITE_URL` | Yes in production | No | Canonical public web origin |
+| `MOBILE_TOKEN_ISSUER` | Before mobile API rollout | No | Expected mobile access-token issuer |
+| `MOBILE_TOKEN_AUDIENCE` | Before mobile API rollout | No | Expected mobile API audience |
+| `MOBILE_ACCESS_TOKEN_KEY_ID` | Before mobile API rollout | No | Active signing-key identifier written into access-token headers |
+| `MOBILE_ACCESS_TOKEN_PRIVATE_KEY` | Before mobile API rollout | Yes | Signs short-lived mobile access tokens |
+| `MOBILE_ACCESS_TOKEN_PUBLIC_KEYS` | Before mobile API rollout | No | Key-ID map used to verify access tokens during rotation |
+| `MOBILE_REFRESH_TOKEN_PEPPER` | Before mobile API rollout | Yes | Independent keyed hash input for opaque refresh tokens |
+| `MOBILE_ALLOW_AUTH_PREVIEWS` | Local/test only | No | Explicitly permits local verification-code previews; ignored in production |
+| `EXPO_ACCESS_TOKEN` | When authenticated Expo push is enabled | Yes | Server-to-Expo push authentication |
 | `GOOGLE_CLIENT_ID` | For Google sign-in | Usually no | Google OAuth identification |
 | `GOOGLE_CLIENT_SECRET` | For Google sign-in | Yes | Google OAuth server exchange |
 | `SMTP_HOST` | For production email verification | No | SMTP server hostname |
@@ -58,8 +94,329 @@ The strings above are examples only. Do not copy them as working credentials.
 | `CLOUDINARY_API_KEY` | For server upload route | Sensitive | Cloudinary API identification |
 | `CLOUDINARY_API_SECRET` | For server upload route | Yes | Cloudinary signed operations |
 | `CRON_SECRET` | For scheduled notifications | Yes | Protects the cron endpoint |
+| `EXPO_PUBLIC_APP_ENV` | Mobile builds | Public by design | Runtime environment label |
+| `EXPO_PUBLIC_API_ORIGIN` | Mobile builds | Public by design | Versioned mobile API origin |
+| `EXPO_PUBLIC_LINK_HOST` | Signed mobile builds | Public by design | Verified host used for universal/app links |
+| `EXPO_PUBLIC_EAS_PROJECT_ID` | Signed mobile builds | Public by design | Binds the app config to its owner-approved EAS project |
+| `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Mobile payments | Public by design | Identifies the Stripe account to the native SDK |
+| `EXPO_PUBLIC_SENTRY_DSN` | Optional mobile monitoring | Public by design | Native error-reporting destination |
+| `EXPO_PUBLIC_GOOGLE_MAPS_IOS_KEY` | Mobile iOS maps | Public by design | Restricted iOS Maps SDK key |
+| `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_KEY` | Mobile Android maps | Public by design | Restricted Android Maps SDK key |
 
 Anything beginning with `NEXT_PUBLIC_` is included in browser JavaScript. It must not contain a private secret. Browser API keys still need provider-side restrictions.
+
+### Mobile API and Expo environment groups
+
+The mobile names in `.env.example` define the security boundaries used by
+`/api/mobile/v1`. They are not permission to enable `/api/auth/login` or reuse
+`NEXTAUTH_SECRET` for the native client.
+
+- Keep `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`, and
+  `EXPO_ACCESS_TOKEN` server-only. Use independent values in Preview and
+  Production.
+- Store `MOBILE_ACCESS_TOKEN_PUBLIC_KEYS` as a key-ID-to-public-key map. Retain
+  the previous verification key until every token it signed has expired.
+- Set `MOBILE_TOKEN_ISSUER`, `NEXT_PUBLIC_SITE_URL`, and the mobile API origin to
+  deliberately selected origins. Preview uses a stable HTTPS staging origin;
+  Production uses the canonical HTTPS Redrive origin.
+- Treat every `EXPO_PUBLIC_` value as readable from the installed application.
+  Restrict map keys by bundle/application ID and API, use only Stripe
+  publishable keys, and enforce authorization on the backend.
+
+Configure public mobile values in EAS's separate `development`, `preview`, and
+`production` environments after `apps/mobile` is created. Configure server
+values in the corresponding Vercel scope. Preview must use a separate database,
+Stripe test mode, and isolated upload/push resources so it cannot mutate
+production data.
+
+The decision and account-owner gates for this setup are tracked in
+[`MOBILE_FOUNDATION_CHECKLIST.md`](MOBILE_FOUNDATION_CHECKLIST.md).
+
+#### Where each mobile value belongs
+
+| Destination | Values |
+|---|---|
+| Root `.env.local` | All `MOBILE_*` values and optional `EXPO_ACCESS_TOKEN` |
+| `apps/mobile/.env.local` | Only `EXPO_PUBLIC_*` values used by the native app |
+| Vercel Development/Preview/Production | Server-side `MOBILE_*` values and `EXPO_ACCESS_TOKEN`, independently scoped |
+| EAS development/preview/production | The matching `EXPO_PUBLIC_*` values only |
+
+Expo substitutes `EXPO_PUBLIC_*` values into the application bundle. They are
+therefore public even if an EAS dashboard labels them sensitive. Keep private
+keys, peppers, provider secrets, and the Expo push access token on the Next.js
+server. See Expo's [environment-variable guide](https://docs.expo.dev/guides/environment-variables/)
+and [EAS environment guidance](https://docs.expo.dev/eas/environment-variables/).
+
+#### Server-side mobile authentication variables
+
+##### `MOBILE_TOKEN_ISSUER`
+
+The exact origin asserted in access tokens. Use no path, query string, or
+fragment. The implementation removes a trailing slash when loading it.
+
+```dotenv
+# Local server
+MOBILE_TOKEN_ISSUER="http://localhost:3000"
+
+# Stable Preview deployment
+MOBILE_TOKEN_ISSUER="https://preview-api.example.com"
+
+# Production
+MOBILE_TOKEN_ISSUER="https://example.com"
+```
+
+Preview and Production must use stable HTTPS origins. Changing the issuer
+invalidates otherwise valid access tokens issued with the previous value.
+
+##### `MOBILE_TOKEN_AUDIENCE`
+
+Identifies the intended API. Keep the current value unless a deliberate token
+contract migration is being performed:
+
+```dotenv
+MOBILE_TOKEN_AUDIENCE="redrive-mobile-api"
+```
+
+##### `MOBILE_ACCESS_TOKEN_KEY_ID`
+
+The identifier written into the JWT `kid` header. It must exactly match a key
+in `MOBILE_ACCESS_TOKEN_PUBLIC_KEYS`. Give every environment and rotation a
+distinct identifier:
+
+```dotenv
+MOBILE_ACCESS_TOKEN_KEY_ID="preview-2026-08"
+```
+
+##### `MOBILE_ACCESS_TOKEN_PRIVATE_KEY` and `MOBILE_ACCESS_TOKEN_PUBLIC_KEYS`
+
+Redrive signs mobile access tokens with an RSA PKCS#8 private key and verifies
+them using an SPKI public key selected by `kid`. Generate a different key pair
+for Development, Preview, and Production. Run these commands in a protected
+working directory; `*.pem` is ignored by this repository, but the approved
+secret manager should be the long-term source of truth:
+
+```powershell
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out mobile-access-private.pem
+openssl pkey -in mobile-access-private.pem -pubout -out mobile-access-public.pem
+```
+
+PowerShell can produce the correctly escaped public-key JSON for a chosen key
+ID without printing the private key:
+
+```powershell
+$mobileKeyId = "development-2026-08"
+$mobilePublicPem = Get-Content -Raw -LiteralPath .\mobile-access-public.pem
+@{ $mobileKeyId = $mobilePublicPem } | ConvertTo-Json -Compress
+```
+
+Put the complete private PEM, including its BEGIN/END lines, into
+`MOBILE_ACCESS_TOKEN_PRIVATE_KEY`. Store public keys as one valid JSON object;
+newlines inside JSON strings must be represented as `\n`:
+
+```dotenv
+MOBILE_ACCESS_TOKEN_PUBLIC_KEYS='{"preview-2026-08":"-----BEGIN PUBLIC KEY-----\nPUBLIC_KEY_CONTENT\n-----END PUBLIC KEY-----"}'
+```
+
+For rotation:
+
+1. Add the new public key to the JSON map while retaining the old public key.
+2. Deploy the expanded map.
+3. Change the private key and `MOBILE_ACCESS_TOKEN_KEY_ID` to the new pair.
+4. Retain the old public key for longer than the 10-minute access-token lifetime.
+5. Remove the old public key in a later deployment.
+
+Never place the private key in `MOBILE_ACCESS_TOKEN_PUBLIC_KEYS`, EAS, or any
+`EXPO_PUBLIC_` variable.
+
+##### `MOBILE_REFRESH_TOKEN_PEPPER`
+
+An independent server secret used to derive stored refresh-token hashes. Use
+at least 32 random bytes. Generate it without reusing any NextAuth, database,
+rate-limit, signing, Stripe, or cron secret:
+
+```powershell
+$mobilePepperBytes = New-Object byte[] 32
+[Security.Cryptography.RandomNumberGenerator]::Fill($mobilePepperBytes)
+[Convert]::ToBase64String($mobilePepperBytes)
+```
+
+Changing the pepper makes every existing mobile refresh token unusable and
+signs all mobile users out after their in-memory access token expires.
+
+##### `MOBILE_ALLOW_AUTH_PREVIEWS`
+
+Leave this `false` normally. Setting it to `true` allows local/test responses
+to include verification or login-OTP preview codes when email delivery uses its
+development fallback. The server ignores this switch when `NODE_ENV=production`.
+
+```dotenv
+MOBILE_ALLOW_AUTH_PREVIEWS=false
+```
+
+Do not enable it in Vercel Preview or Production merely to work around missing
+SMTP configuration; configure the appropriate email sender instead.
+
+##### `EXPO_ACCESS_TOKEN`
+
+Optional server credential for Expo Push Service enhanced security. Enable
+enhanced push security in the EAS project first, create a personal or preferably
+[limited robot-user access token](https://docs.expo.dev/accounts/programmatic-access/)
+authorized for the owning Expo organization,
+and store it only in Vercel. It is sent by the backend—not by the installed app. Expo
+documents this in [Push Service additional security](https://docs.expo.dev/push-notifications/sending-notifications/#additional-security).
+
+Leave it blank until authenticated push delivery is enabled:
+
+```dotenv
+EXPO_ACCESS_TOKEN=
+```
+
+#### Expo application variables
+
+##### `EXPO_PUBLIC_APP_ENV`
+
+Selects the application identity in `apps/mobile/app.config.ts`. Only these
+values are accepted:
+
+| Value | Display name | Identifier suffix | Scheme |
+|---|---|---|---|
+| `development` | Redrive Development | `.development` | `redrive-development` |
+| `preview` | Redrive Preview | `.preview` | `redrive-preview` |
+| `production` | Redrive | none | `redrive` |
+
+The value must agree with the EAS build environment/profile.
+
+##### `EXPO_PUBLIC_API_ORIGIN`
+
+The origin joined with `/api/mobile/v1` by the mobile request client. Do not add
+that path to the value itself and do not use a trailing endpoint path.
+
+```dotenv
+# iOS simulator or Expo web
+EXPO_PUBLIC_API_ORIGIN=http://localhost:3000
+
+# Android emulator
+EXPO_PUBLIC_API_ORIGIN=http://10.0.2.2:3000
+
+# Physical device on the same trusted LAN (replace with the computer's address)
+EXPO_PUBLIC_API_ORIGIN=http://192.168.1.20:3000
+
+# Signed Preview and Production builds
+EXPO_PUBLIC_API_ORIGIN=https://preview-api.example.com
+EXPO_PUBLIC_API_ORIGIN=https://example.com
+```
+
+The client rejects plain HTTP outside recognised local/private development
+addresses. A physical device cannot use `localhost` to reach the development
+computer.
+
+##### `EXPO_PUBLIC_LINK_HOST`
+
+The host only—without `https://`, a path, port, or trailing slash—used to build
+iOS associated domains and Android verified App Links:
+
+```dotenv
+EXPO_PUBLIC_LINK_HOST=preview.example.com
+```
+
+If omitted, `app.config.ts` derives it from an HTTPS
+`EXPO_PUBLIC_API_ORIGIN`. The domain still needs valid Apple and Android
+association files for every signed application identity. See Expo's
+[linking overview](https://docs.expo.dev/linking/overview/).
+
+##### `EXPO_PUBLIC_EAS_PROJECT_ID`
+
+The UUID of the organization-owned EAS project. Obtain it after running
+`npx eas-cli@latest init` from `apps/mobile`, or view it with
+`npx eas-cli@latest project:info`. This is project metadata, not a secret:
+
+```dotenv
+EXPO_PUBLIC_EAS_PROJECT_ID=00000000-0000-0000-0000-000000000000
+```
+
+Do not use the example UUID. Development, Preview, and Production variants in
+this repository are intended to belong to the same approved EAS project unless
+the owner deliberately chooses a multi-project design.
+
+##### Provider-facing public variables
+
+- `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY`: use only `pk_test_...` in Development
+  and Preview; use the matching `pk_live_...` value only when the Production
+  payment slice is approved. Never use `sk_...` here.
+- `EXPO_PUBLIC_SENTRY_DSN`: optional public DSN for the future mobile monitoring
+  integration. Leave blank until the SDK and redaction policy are implemented.
+- `EXPO_PUBLIC_GOOGLE_MAPS_IOS_KEY`: an iOS Maps SDK key restricted to the
+  approved Apple bundle identifiers and required APIs.
+- `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_KEY`: a separate Android Maps SDK key
+  restricted to the application IDs, signing-certificate fingerprints, and
+  required APIs.
+
+These variables are reserved but their native integrations belong to the
+corresponding Section 9 feature slices. Leaving them blank is safer than adding
+unrestricted or mismatched credentials prematurely.
+
+#### Local setup and validation
+
+1. Copy server examples into the ignored root `.env.local`.
+2. Copy `apps/mobile/.env.example` to `apps/mobile/.env.local` and set only the
+   public mobile values.
+3. Start the Next.js server from the repository root with `npm run dev`.
+4. Start Expo from `apps/mobile` with `npx expo start`.
+5. After changing an Expo public variable, perform a full app reload. Native
+   app-identity or plugin changes require a new development build.
+
+Validate the resolved public config without printing any server secret:
+
+```powershell
+Set-Location apps/mobile
+npx expo config --type public
+npx expo-doctor
+```
+
+#### EAS environment setup
+
+After the owner has initialized and linked the EAS project, create the public
+variables separately under Project settings → Environment variables for
+`development`, `preview`, and `production`. Public bundle values should use
+plain-text visibility because they are extractable from the app regardless of
+dashboard visibility.
+
+Verify each group from `apps/mobile`:
+
+```powershell
+npx eas-cli@latest env:list --environment development
+npx eas-cli@latest env:list --environment preview
+npx eas-cli@latest env:list --environment production
+```
+
+For SDK 55 and later, EAS Update requires an explicit environment. Use the same
+environment that produced the binary:
+
+```powershell
+npx eas-cli@latest update --environment preview
+npx eas-cli@latest update --environment production
+```
+
+Do not pull Preview or Production values over an existing local file without
+reviewing the destination. Expo's [EAS variable management guide](https://docs.expo.dev/eas/environment-variables/manage/)
+documents dashboard creation, `env:list`, and `env:pull`.
+
+#### Environment matrix
+
+| Variable | Development | Preview | Production |
+|---|---|---|---|
+| `MOBILE_TOKEN_ISSUER` | Local origin | Stable Preview HTTPS origin | Canonical Production HTTPS origin |
+| `MOBILE_TOKEN_AUDIENCE` | `redrive-mobile-api` | Same | Same |
+| Signing key ID/pair | Development-only pair | Independent Preview pair | Independent Production pair |
+| Refresh-token pepper | Development-only | Independent Preview secret | Independent Production secret |
+| `MOBILE_ALLOW_AUTH_PREVIEWS` | `false`, temporarily `true` only when intentionally testing fallback | `false` | `false` |
+| `EXPO_ACCESS_TOKEN` | Optional dedicated token | Prefer a separately revocable Preview token | Prefer a separately revocable Production token |
+| `EXPO_PUBLIC_APP_ENV` | `development` | `preview` | `production` |
+| `EXPO_PUBLIC_API_ORIGIN` | Local emulator/LAN origin | Stable Preview HTTPS origin | Canonical Production HTTPS origin |
+| `EXPO_PUBLIC_LINK_HOST` | Usually blank | Preview association host | Production association host |
+| Stripe publishable key | Blank or test | Test | Live only after payment approval |
+| Sentry DSN | Blank or development project | Preview project/environment | Production project/environment |
+| Maps keys | Blank or restricted development keys | Restricted Preview identities | Restricted Production identities |
 
 ## 3. MongoDB Atlas
 
@@ -371,10 +728,19 @@ Recommended initial configuration:
 | Maps/Places | Optional via CLI | Yes if testing those features | Yes |
 | Cloudinary | Optional via CLI | Yes if testing uploads | Yes |
 | Cron secret | Optional | Yes | Yes |
+| Mobile issuer/audience | Local `.env.local` | Stable Preview API identity | Canonical Production API identity |
+| Mobile signing key ID/private/public map | Development-only pair | Independent Preview pair | Independent Production pair |
+| Mobile refresh-token pepper | Development-only secret | Independent Preview secret | Independent Production secret |
+| Expo push access token | When testing secured push | Separate Preview token | Separate Production token |
 
 Use separate Preview and Production databases where practical. Preview deployments can execute mutations, registrations and uploads; pointing every branch at the production database risks contaminating real data.
 
-Use independent secrets for Preview and Production. `NEXTAUTH_SECRET`, `SMTP_PASS`, `CLOUDINARY_API_SECRET`, `DATABASE_URL` and `CRON_SECRET` should be marked sensitive when the Vercel UI offers that option.
+Use independent secrets for Preview and Production. `NEXTAUTH_SECRET`,
+`SMTP_PASS`, `CLOUDINARY_API_SECRET`, `DATABASE_URL`, `CRON_SECRET`,
+`MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`, and
+`EXPO_ACCESS_TOKEN` should be marked sensitive when the Vercel UI offers that
+option. The mobile public-key map is not secret, but it remains server
+configuration and should not be copied into the native application.
 
 ### Production URL ordering
 
@@ -444,7 +810,10 @@ npx prisma db push
 
 If you need the Production value from Vercel without manually copying it, pull into a temporary ignored environment file and review the target carefully before running a schema command. Never run `db push` against production until you have confirmed the database URL identifies the intended cluster and database.
 
-For the current update, `db push` creates the email verification fields and indexes defined in `prisma/schema.prisma`.
+For the current update, `db push` also creates the mobile session, authentication
+challenge, push-token, and idempotency collections/indexes defined in
+`prisma/schema.prisma`. Apply and verify these changes in Preview before
+Production.
 
 ## 12. Recommended setup order
 
@@ -454,10 +823,17 @@ For the current update, `db push` creates the email verification fields and inde
 4. Configure Gmail app password or another SMTP provider.
 5. Enable Google Maps/Places, create two restricted keys, and optionally create a map ID.
 6. Configure the three Cloudinary environment variables; no upload preset is needed.
-7. Run `npx prisma db push` against the intended database.
-8. Add all values to Vercel with correct environment scopes.
-9. Deploy or redeploy.
-10. Complete the verification checklist below.
+7. Generate separate mobile RSA key pairs and refresh-token peppers for
+   Development, Preview, and Production.
+8. Initialize the organization-owned EAS project from `apps/mobile`, then
+   record its project ID.
+9. Configure the server-side mobile values in matching Vercel environments and
+   the public mobile values in matching EAS environments.
+10. Run `npx prisma db push` against the intended Preview database after a
+    backup and target check; validate it before Production.
+11. Deploy or redeploy the backend.
+12. Create a signed Preview build and confirm it uses only Preview providers.
+13. Complete the verification checklist below.
 
 ## 13. Post-deployment checklist
 
@@ -473,6 +849,17 @@ For the current update, `db push` creates the email verification fields and inde
 - [ ] The cron's latest execution returns HTTP 200 rather than 401 or 500.
 - [ ] Preview deployments do not write test data into the production database unless that was an intentional decision.
 - [ ] No real credential is present in Git history or `.env.example`.
+- [ ] `npx expo config --type public` resolves the intended app name, scheme,
+      bundle identifier, Android application ID, API origin, and link host for
+      each EAS environment.
+- [ ] `npx expo-doctor` passes from `apps/mobile`.
+- [ ] Development, Preview, and Production use different mobile signing key
+      pairs and refresh-token peppers.
+- [ ] A signed Preview build talks only to Preview data and providers.
+- [ ] Mobile registration, email verification, login, OTP, refresh, device
+      logout, logout-all, password reset, and killed-app restoration succeed.
+- [ ] No server-only `MOBILE_*` value or `EXPO_ACCESS_TOKEN` appears in the
+      compiled application or Expo public configuration.
 
 ## 14. Troubleshooting
 
@@ -490,6 +877,14 @@ For the current update, `db push` creates the email verification fields and inde
 | Cloudinary widget rejects uploads | Confirm cloud name and the exact unsigned preset name `redrive`; inspect preset file limits/formats. |
 | Cron returns 401 | Confirm `CRON_SECRET` exists in that Vercel environment and redeploy. Do not add `Bearer ` to the stored value. |
 | A variable remains `undefined` | Confirm its Vercel environment scope and redeploy. For local work, restart `npm run dev` after changing `.env.local`. |
+| Mobile API returns `MOBILE_AUTH_UNAVAILABLE` | Confirm the issuer, audience, active key ID, complete PKCS#8 private PEM, valid public-key JSON map, matching public key, and refresh-token pepper exist in that Vercel environment. |
+| Mobile API returns `UNAUTHENTICATED` immediately after login | Check that the signing and verification key pair match and that the deployment has not mixed Preview and Production issuer/audience values. |
+| Android emulator cannot reach `localhost` | Use `http://10.0.2.2:3000` as `EXPO_PUBLIC_API_ORIGIN`; `localhost` points to the emulator itself. |
+| Physical phone cannot reach the local API | Use the development computer's private LAN address, allow the port through the local firewall, and keep both devices on the same trusted network. |
+| Preview build uses the wrong app identity or backend | Confirm the EAS build profile uses `environment: preview`, inspect `eas env:list --environment preview`, then rebuild. Public values are embedded at bundle time. |
+| An EAS Update has wrong or missing public values | Re-run the update with the explicit matching `--environment`; SDK 55 and later require it. |
+| Universal/App Link opens the website instead of the app | Confirm `EXPO_PUBLIC_LINK_HOST`, rebuild the signed binary, publish the correct Apple/Android association files, and verify they include that exact signed app identity. |
+| Expo push requests return `UNAUTHORIZED` | If enhanced push security is enabled, confirm the backend's `EXPO_ACCESS_TOKEN` is active and its Expo user/robot has access to the owning project. EAS environment names do not scope the token automatically. Never move it into the app bundle. |
 
 ## 15. Rotation and incident response
 
