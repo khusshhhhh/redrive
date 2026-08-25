@@ -398,6 +398,81 @@ model UserSession {
   @@index([expiresAt])
 }
 
+// Native app sessions use rotating opaque refresh tokens and independently
+// signed, short-lived access tokens. A row is retained after rotation so reuse
+// of an old refresh token can revoke the complete token family.
+model MobileSession {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String    @db.ObjectId
+  tokenFamilyId    String
+  refreshTokenHash String    @unique
+  deviceId         String
+  deviceName       String?
+  platform         String
+  appVersion       String?
+  lastSeenAt       DateTime  @default(now())
+  expiresAt        DateTime
+  rotatedAt        DateTime?
+  revokedAt        DateTime?
+  revokeReason     String?
+  createdAt        DateTime  @default(now())
+
+  @@index([userId, revokedAt, lastSeenAt])
+  @@index([tokenFamilyId, revokedAt])
+  @@index([expiresAt])
+}
+
+model MobileAuthChallenge {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String    @db.ObjectId
+  purpose    String
+  deviceId   String
+  deviceName String?
+  platform   String
+  appVersion String?
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId, purpose, expiresAt])
+  @@index([expiresAt])
+}
+
+model MobilePushToken {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String    @db.ObjectId
+  token          String    @unique
+  deviceId       String
+  platform       String
+  appEnvironment String
+  lastSeenAt     DateTime  @default(now())
+  disabledAt     DateTime?
+  invalidAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId, deviceId, appEnvironment])
+  @@index([userId, disabledAt, lastSeenAt])
+}
+
+model IdempotencyRecord {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  fingerprint String   @unique
+  actorUserId String   @db.ObjectId
+  scope       String
+  keyHash     String
+  requestHash String
+  status      Int      @default(0)
+  response    Json?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([actorUserId, scope, createdAt])
+  @@index([expiresAt])
+}
+
 model WebAuthnCredential {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   userId       String    @db.ObjectId

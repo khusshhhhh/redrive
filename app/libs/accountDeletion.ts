@@ -284,6 +284,10 @@ export async function permanentlyDeleteAccount(user: DeletionUser) {
     });
     await tx.savedSearch.deleteMany({ where: { userId: user.id } });
     await tx.userSession.deleteMany({ where: { userId: user.id } });
+    await tx.mobileSession.deleteMany({ where: { userId: user.id } });
+    await tx.mobileAuthChallenge.deleteMany({ where: { userId: user.id } });
+    await tx.mobilePushToken.deleteMany({ where: { userId: user.id } });
+    await tx.idempotencyRecord.deleteMany({ where: { actorUserId: user.id } });
     await tx.webAuthnCredential.deleteMany({ where: { userId: user.id } });
     await tx.passwordResetToken.deleteMany({ where: { userId: user.id } });
     await tx.account.deleteMany({ where: { userId: user.id } });

@@ -1,9 +1,17 @@
 # Redrive Expo/React Native Development and Store Release Guide
 
-**Purpose:** step-by-step implementation and release handbook  
-**Companion document:** `MOBILE_APP_IMPLEMENTATION_PLAN.md`  
-**Repository:** current Redrive Next.js/MongoDB application  
-**Last validated:** 19 August 2026  
+**Purpose:** step-by-step implementation and release handbook
+
+**Companion document:** [`mobileImplement.md`](./mobileImplement.md)
+
+**Sections 1–4 execution record:** [`MOBILE_FOUNDATION_CHECKLIST.md`](./MOBILE_FOUNDATION_CHECKLIST.md)
+
+**Sections 5–8 implementation record:** [`MOBILE_SECTIONS_5_8_IMPLEMENTATION.md`](./MOBILE_SECTIONS_5_8_IMPLEMENTATION.md)
+
+**Repository:** current Redrive Next.js/MongoDB application
+
+**Last validated:** 24 August 2026
+
 **Target:** iOS and Android, using the existing Redrive backend
 
 This guide turns the architecture in `MOBILE_APP_IMPLEMENTATION_PLAN.md` into an implementation sequence. Follow it in order. Do not start store submission until the release gates near the end pass.

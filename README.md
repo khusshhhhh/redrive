@@ -185,7 +185,12 @@ Copy [`.env.example`](.env.example) and supply real values locally and in the de
 | `DATABASE_URL` | Yes | MongoDB connection string |
 | `NEXTAUTH_SECRET` | Yes | Signs NextAuth session tokens |
 | `NEXTAUTH_URL` | Production | Canonical URL used by authentication and email links/assets |
+| `NEXT_PUBLIC_SITE_URL` | Production | Canonical public origin for links and payment returns |
 | `RATE_LIMIT_SECRET` | Yes | HMAC key for privacy-preserving rate-limit identifiers |
+| `MOBILE_TOKEN_ISSUER`, `MOBILE_TOKEN_AUDIENCE` | Mobile API rollout | Issuer and audience restrictions for mobile access tokens |
+| `MOBILE_ACCESS_TOKEN_KEY_ID`, `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_ACCESS_TOKEN_PUBLIC_KEYS` | Mobile API rollout | Active key ID and independently rotatable asymmetric mobile signing keys |
+| `MOBILE_REFRESH_TOKEN_PEPPER` | Mobile API rollout | Independent server-only refresh-token hashing secret |
+| `EXPO_ACCESS_TOKEN` | Authenticated push | Server-only Expo push credential |
 | `ADMIN_EMAILS` | Recommended | Comma-separated administrator allow-list |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | For Google login | Google OAuth application |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE` | Production email | SMTP transport configuration |
@@ -199,8 +204,9 @@ Copy [`.env.example`](.env.example) and supply real values locally and in the de
 | `CRON_SECRET` | Production jobs | Protects scheduled notification and security tasks |
 | `RESTORE_TEST_DATABASE_URL` | Restore drills only | Explicit disposable restore target |
 | `ENABLE_LEGACY_API_AUTH` | No | Compatibility endpoint; keep `false` unless documented |
+| `EXPO_PUBLIC_*` mobile values | Mobile builds | Public EAS-scoped API, Stripe, monitoring, and map configuration |
 
-Never commit `.env`, `.env.local`, database URLs, SMTP passwords or Cloudinary secrets. The complete walkthrough is in [`ENVIRONMENT_VARIABLES_GUIDE.md`](ENVIRONMENT_VARIABLES_GUIDE.md).
+Never commit `.env`, `.env.local`, database URLs, signing keys, refresh-token peppers, SMTP passwords or Cloudinary secrets. The complete walkthrough is in [`ENVIRONMENT_VARIABLES_GUIDE.md`](ENVIRONMENT_VARIABLES_GUIDE.md); mobile architecture and provisioning gates are recorded in [`MOBILE_FOUNDATION_CHECKLIST.md`](MOBILE_FOUNDATION_CHECKLIST.md).
 
 ### Email verification behavior
 

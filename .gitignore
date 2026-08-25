@@ -24,6 +24,16 @@
 .DS_Store
 *.pem
 
+# native signing and provider credentials
+*.p8
+*.p12
+*.jks
+*.keystore
+/credentials.json
+/apps/mobile/credentials.json
+/apps/mobile/google-services.json
+/apps/mobile/GoogleService-Info.plist
+
 # debug
 npm-debug.log*
 yarn-debug.log*
