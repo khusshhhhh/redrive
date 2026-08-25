@@ -216,8 +216,6 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
   const { slug } = await params;
   const page = pages[slug];
   if (!page) notFound();
-  const authorityLinkCount = page.sections.reduce((count, section) => count + (section.links?.length || 0), 0);
-  const practicalItemCount = page.sections.reduce((count, section) => count + (section.items?.length || 0), 0);
 
   return (
     <main className="information-page min-h-[70vh] bg-surface-soft/35">
@@ -231,7 +229,6 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
           <h1 className="mt-7 max-w-4xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">{page.title}</h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-white/68 sm:text-xl sm:leading-9">{page.intro}</p>
           <div className="mt-10 flex flex-wrap gap-3">
-            <span className="rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-white/80">{page.sections.length} detailed topics</span>
             <span className="rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-white/80">Plain-language guidance</span>
             {page.lastUpdated && <span className="rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-xs font-semibold text-accent">Updated {page.lastUpdated}</span>}
           </div>
@@ -239,12 +236,6 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
       </section>
 
       <section className="mx-auto max-w-[1240px] px-5 py-10 sm:px-8 sm:py-16 lg:px-10">
-        <div data-info-reveal className="mb-8 grid overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_14px_45px_rgba(24,54,58,0.06)] sm:grid-cols-3">
-          <Metric value={String(page.sections.length)} label="Topics explained" icon={<BookOpen size={18} />} />
-          <Metric value={String(practicalItemCount)} label="Practical checkpoints" icon={<Check size={18} />} />
-          <Metric value={String(authorityLinkCount)} label="Official references" icon={<ExternalLink size={18} />} />
-        </div>
-
         <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12">
         <aside data-info-reveal className="h-fit overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_12px_38px_rgba(24,54,58,0.05)] lg:sticky lg:top-28">
           <div className="bg-gradient-to-br from-primary to-secondary p-5 text-white"><div className="flex items-center gap-2 text-sm font-semibold"><CircleHelp size={18} /> In this guide</div><p className="mt-2 text-xs leading-5 text-white/70">Jump directly to the answer you need.</p></div>
@@ -291,10 +282,6 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
       </section>
     </main>
   );
-}
-
-function Metric({ value, label, icon }: { value: string; label: string; icon: React.ReactNode }) {
-  return <div className="flex items-center gap-4 border-b border-hairline-soft p-5 last:border-0 sm:border-b-0 sm:border-r sm:last:border-r-0 sm:p-6"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-strong text-primary">{icon}</span><div><p className="text-xl font-semibold text-ink">{value}</p><p className="text-xs text-muted">{label}</p></div></div>;
 }
 
 function ResourceLink({ href, title, copy, icon }: { href: string; title: string; copy: string; icon: React.ReactNode }) {
