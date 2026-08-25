@@ -45,7 +45,9 @@ const nextConfig = {
       },
     ],
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60,
+    // Listing uploads use versioned Cloudinary URLs, so optimised derivatives
+    // can remain cached for a day without serving a replaced image forever.
+    minimumCacheTTL: 86400,
   },
   compress: true,
   poweredByHeader: false,

@@ -8,12 +8,12 @@ import ListingCard from "./components/listings/ListingCard";
 import RecentlyViewed from "./components/RecentlyViewed";
 import ContinueWhereYouLeftOff from "./components/ContinueWhereYouLeftOff";
 import SavedSearchManager from "./components/SavedSearchManager";
-import { differenceInCalendarDays } from "date-fns";
+import { addDays, differenceInCalendarDays, nextSaturday, startOfDay } from "date-fns";
 import BookingReadiness from "./components/BookingReadiness";
 import RealRecommendations from "./components/RealRecommendations";
 import PurposefulCollections from "./components/PurposefulCollections";
-import { addDays, nextSaturday } from "date-fns";
 import { buildSeoMetadata } from "./libs/seo";
+import { toListingCardData } from "./libs/listingCardData";
 
 export const metadata = buildSeoMetadata({
   title: "Peer-to-peer vehicle hire across Australia",
@@ -32,7 +32,7 @@ const Home = async ({ searchParams }: HomeProps) => {
   const resolvedSearchParams = await Promise.resolve(searchParams);
   const params: IListingsParams = resolvedSearchParams ? { ...resolvedSearchParams } : {};
   const hasFilters = Object.values(params).some(value => value !== undefined && value !== '');
-  const today = new Date();
+  const today = startOfDay(new Date());
   const weekendStart = nextSaturday(today);
   const weekendEnd = addDays(weekendStart, 1);
 
@@ -100,8 +100,8 @@ const Home = async ({ searchParams }: HomeProps) => {
                   <ListingCard
                     currentUser={currentUser}
                     key={listing.id}
-                    data={listing}
-                    priority={index < 2}
+                    data={toListingCardData(listing)}
+                    priority={hasFilters && index < 2}
                     tripDays={tripDays}
                   />
                 ))}

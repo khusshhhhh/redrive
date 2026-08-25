@@ -1,9 +1,9 @@
 'use client';
 
-import { SafeListing, SafeUser, SafeReservation } from "@/app/types";
+import { SafeUser, SafeReservation } from "@/app/types";
+import type { ListingCardData } from "@/app/libs/listingCardData";
 import { useRouter } from "next/navigation";
-import React, { useCallback, useMemo, memo, useState } from "react";
-import { format } from 'date-fns';
+import React, { useCallback, useMemo, memo } from "react";
 import Image from "next/image";
 import HeartButton from "../HeartButton";
 import ListingCardButton from "../ListingCardButton";
@@ -11,8 +11,14 @@ import { IconArrowsExchange, IconRosetteDiscountCheck, IconStar } from "@tabler/
 import useCompareVehicles from "@/app/hooks/useCompareVehicles";
 import toast from "react-hot-toast";
 
+const reservationDateFormatter = new Intl.DateTimeFormat("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+});
+
 interface ListingCardProps {
-    data: SafeListing;
+    data: ListingCardData;
     reservation?: SafeReservation;
     onAction?: (id: string) => void;
     disabled?: boolean;
@@ -39,7 +45,6 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
     tripDays = null,
 }) => {
     const router = useRouter();
-    const [imageLoaded, setImageLoaded] = useState(false);
     const { toggle, includes } = useCompareVehicles();
     const isCompared = includes(data.id);
 
@@ -65,7 +70,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
         }
         const start = new Date(reservation.startDate);
         const end = new Date(reservation.endDate);
-        return `${format(start, 'PP')} - ${format(end, 'PP')}`;
+        return `${reservationDateFormatter.format(start)} – ${reservationDateFormatter.format(end)}`;
     }, [reservation]);
 
     // Use the first image from the array, or a fallback image if none exists.
@@ -92,16 +97,14 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
             className="group col-span-1 cursor-pointer rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
         >
             <div className="flex w-full flex-col gap-2">
-                <div className="relative aspect-square w-full overflow-hidden rounded-md shadow-none transition-shadow group-hover:shadow-card">
-                    {!imageLoaded && <div className="absolute inset-0 shimmer" />}
+                <div className="relative aspect-square w-full overflow-hidden rounded-md bg-surface-soft shadow-none transition-shadow group-hover:shadow-card">
                     <Image
                         fill
                         priority={priority}
-                        sizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 17vw"
+                        sizes="(max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 17vw"
                         alt={`${data.title}, a ${data.category.toLowerCase()} available in ${data.suburb}, ${data.state}`}
                         src={imageUrl}
-                        onLoad={() => setImageLoaded(true)}
-                        className={`object-cover h-full w-full group-hover:scale-105 transition-transform duration-500 motion-reduce:transform-none motion-reduce:transition-none ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
                     />
                     {/* ✅ Show badge dynamically if it exists */}
                     {data.badgeValue && (

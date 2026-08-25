@@ -4,6 +4,8 @@ import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
 import { normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
+import { revalidateTag } from "next/cache";
+import { PUBLIC_LISTINGS_CACHE_TAG } from "@/app/actions/getListings";
 
 async function POSTHandler(request: NextRequest) {
   try {
@@ -149,6 +151,7 @@ async function POSTHandler(request: NextRequest) {
       },
     });
 
+    revalidateTag(PUBLIC_LISTINGS_CACHE_TAG);
 
     return NextResponse.json(listing, { status: 201 });
   } catch (error) {

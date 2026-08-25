@@ -2,6 +2,7 @@ import Heading from "./Heading";
 import ListingCard from "./listings/ListingCard";
 import HorizontalScroller from "./HorizontalScroller";
 import { SafeListing, SafeUser } from "../types";
+import { toListingCardData } from "../libs/listingCardData";
 
 interface FavoriteListingsProps {
   listings: SafeListing[];
@@ -27,7 +28,7 @@ const FavoriteListings: React.FC<FavoriteListingsProps> = ({
       >
         {listings.map((listing) => (
           <div key={listing.id} className="w-[calc((100vw-3.25rem)/2)] min-w-[148px] max-w-[220px] shrink-0 snap-start sm:w-[220px]">
-            <ListingCard currentUser={currentUser} data={listing} />
+            <ListingCard currentUser={currentUser} data={toListingCardData(listing)} />
           </div>
         ))}
       </HorizontalScroller>

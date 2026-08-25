@@ -6,6 +6,8 @@ import { executeIdempotent } from "@/app/libs/mobile-api/idempotency";
 import { mobileError, mobileJson, parseMobileJson } from "@/app/libs/mobile-api/responses";
 import prisma from "@/app/libs/prismadb";
 import { writeAuditEvent } from "@/app/libs/security";
+import { revalidateTag } from "next/cache";
+import { PUBLIC_LISTINGS_CACHE_TAG } from "@/app/actions/getListings";
 
 type Context = { params: Promise<{ listingId: string }> };
 
@@ -36,6 +38,7 @@ async function POSTHandler(request: Request, context: Context) {
   if (new Date(parsed.data.endDate) < new Date(parsed.data.startDate)) return mobileError(request, 400, "INVALID_DATE_RANGE", "The block end date must not be before its start.");
   return executeIdempotent({ request, actorUserId: auth.identity.userId, scope: `listing:${listingId}:availability`, payload: parsed.data, handler: async () => {
     const block = await prisma.availabilityBlock.create({ data: { listingId, startDate: new Date(parsed.data.startDate), endDate: new Date(parsed.data.endDate), type: "OWNER_BLOCK", reason: parsed.data.reason || null } });
+    revalidateTag(PUBLIC_LISTINGS_CACHE_TAG);
     await writeAuditEvent({ request, actorUserId: auth.identity.userId, action: "AVAILABILITY_BLOCK_CREATED", targetType: "Listing", targetId: listingId });
     return { status: 201, body: { id: block.id, startDate: block.startDate.toISOString(), endDate: block.endDate.toISOString(), type: block.type, reason: block.reason } };
   } });
@@ -52,6 +55,7 @@ async function DELETEHandler(request: Request, context: Context) {
   const block = await prisma.availabilityBlock.findUnique({ where: { id: blockId } });
   if (!block || block.listingId !== listingId) return mobileError(request, 404, "BLOCK_NOT_FOUND", "That availability block was not found.");
   await prisma.availabilityBlock.delete({ where: { id: block.id } });
+  revalidateTag(PUBLIC_LISTINGS_CACHE_TAG);
   await writeAuditEvent({ request, actorUserId: auth.identity.userId, action: "AVAILABILITY_BLOCK_REMOVED", targetType: "Listing", targetId: listingId });
   return mobileJson(request, { deleted: true });
 }

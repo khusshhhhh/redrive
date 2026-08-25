@@ -1,4 +1,7 @@
 import prisma from "@/app/libs/prismadb";
+import { unstable_cache } from "next/cache";
+
+export const PUBLIC_LISTINGS_CACHE_TAG = "public-listings";
 
 export interface IListingsParams {
   userId?: string;
@@ -14,7 +17,21 @@ export interface IListingsParams {
   maxPrice?: number | string;
 }
 
+const getCachedPublicListings = unstable_cache(
+  async (params: IListingsParams) => getListingsFromDatabase(params),
+  ["public-listings-v1"],
+  { revalidate: 15, tags: [PUBLIC_LISTINGS_CACHE_TAG] },
+);
+
 export default async function getListings(params: IListingsParams) {
+  // Owner-management pages must always see their latest records. Public
+  // discovery can tolerate at most 15 seconds of staleness; booking writes
+  // still revalidate availability against MongoDB before committing.
+  if (params?.userId) return getListingsFromDatabase(params);
+  return getCachedPublicListings(params || {});
+}
+
+async function getListingsFromDatabase(params: IListingsParams) {
   try {
     const {
       userId,

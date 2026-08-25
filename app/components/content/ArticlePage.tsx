@@ -3,7 +3,6 @@ import { ArrowLeft, Check, Clock3 } from "lucide-react";
 
 import type { EditorialArticle } from "@/app/content/editorial";
 import { siteUrl } from "@/app/libs/siteUrl";
-import InformationScrollReveal from "@/app/components/motion/InformationScrollReveal";
 
 interface ArticlePageProps {
   article: EditorialArticle;
@@ -29,7 +28,6 @@ export default function ArticlePage({ article, backHref, backLabel, sectionLabel
 
   return (
     <main className="information-page bg-white">
-      <InformationScrollReveal />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
       <article>
         <header className="border-b border-hairline-soft bg-surface-soft/55">

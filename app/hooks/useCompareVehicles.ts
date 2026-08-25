@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { SafeListing } from "../types";
+import type { ListingCardData } from "../libs/listingCardData";
 
 const MAX_COMPARE = 3;
 
@@ -16,7 +16,7 @@ export interface CompareVehicle {
 
 interface CompareState {
   vehicles: CompareVehicle[];
-  toggle: (listing: SafeListing) => "added" | "removed" | "full";
+  toggle: (listing: ListingCardData) => "added" | "removed" | "full";
   remove: (id: string) => void;
   clear: () => void;
 }

@@ -3,7 +3,6 @@ import { ArrowRight, Clock3 } from "lucide-react";
 import type { CSSProperties } from "react";
 
 import type { EditorialArticle } from "@/app/content/editorial";
-import InformationScrollReveal from "@/app/components/motion/InformationScrollReveal";
 
 interface EditorialIndexProps {
   eyebrow: string;
@@ -18,7 +17,6 @@ export default function EditorialIndex({ eyebrow, title, intro, baseHref, articl
   const [featured, ...rest] = articles;
   return (
     <main className="information-page bg-white">
-      <InformationScrollReveal />
       <section className="border-b border-hairline-soft bg-surface-soft/50">
         <div data-info-reveal className="mx-auto max-w-[1120px] px-5 py-14 sm:px-8 sm:py-20 lg:px-10">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
