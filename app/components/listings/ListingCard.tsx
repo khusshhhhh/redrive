@@ -98,7 +98,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                         fill
                         priority={priority}
                         sizes="(max-width: 639px) 100vw, (max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 17vw"
-                        alt="Listing"
+                        alt={`${data.title}, a ${data.category.toLowerCase()} available in ${data.suburb}, ${data.state}`}
                         src={imageUrl}
                         onLoad={() => setImageLoaded(true)}
                         className={`object-cover h-full w-full group-hover:scale-105 transition-transform duration-500 motion-reduce:transform-none motion-reduce:transition-none ${imageLoaded ? "opacity-100" : "opacity-0"}`}

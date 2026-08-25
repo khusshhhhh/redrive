@@ -256,7 +256,7 @@ export default function HandoverPanel({
               <img
                 key={item.id || item.publicId}
                 src={item.url}
-                alt="Handover condition"
+                alt={`${item.category || "Vehicle condition"} evidence from this handover`}
                 className="aspect-square w-full rounded-sm object-cover"
               />
             ))}
@@ -425,7 +425,7 @@ export default function HandoverPanel({
                   >
                     <img
                       src={item.previewUrl || item.url}
-                      alt="New handover evidence"
+                      alt={`New handover evidence photo ${index + 1}`}
                       className="aspect-square w-full rounded-sm object-cover"
                     />
                   </button>

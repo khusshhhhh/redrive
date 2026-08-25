@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import prisma from "@/app/libs/prismadb";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { notificationService } from "@/app/services/notificationService";
-import { writeAuditEvent } from "@/app/libs/security";
+import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 
 const passwordIsStrong = (password: string) =>
   password.length >= 8 &&
@@ -23,6 +23,12 @@ async function getAuthenticatedUser() {
 async function PATCHHandler(request: Request) {
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const rateLimit = await consumeRateLimits([
+    { scope: "security-setting-user", identifier: user.id, limit: 8, windowMs: 60 * 60_000 },
+    { scope: "security-setting-ip", identifier: getClientIp(request), limit: 20, windowMs: 60 * 60_000 },
+  ]);
+  if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
 
   const { loginOtpEnabled } = await request.json();
   if (typeof loginOtpEnabled !== "boolean") {
@@ -60,12 +66,18 @@ async function PATCHHandler(request: Request) {
     writeAuditEvent({ request, actorUserId: user.id, action: loginOtpEnabled ? "LOGIN_OTP_ENABLED" : "LOGIN_OTP_DISABLED", targetType: "User", targetId: user.id }),
   ]).catch((error) => console.error("Security setting notification failed", error));
 
-  return NextResponse.json({ loginOtpEnabled });
+  return NextResponse.json({ loginOtpEnabled }, { headers: { "Cache-Control": "private, no-store" } });
 }
 
 async function PUTHandler(request: Request) {
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const rateLimit = await consumeRateLimits([
+    { scope: "password-change-user", identifier: user.id, limit: 5, windowMs: 60 * 60_000 },
+    { scope: "password-change-ip", identifier: getClientIp(request), limit: 12, windowMs: 60 * 60_000 },
+  ]);
+  if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
   if (!user.hashedPassword) {
     return NextResponse.json({ error: "This account uses Google sign-in and does not have a password" }, { status: 400 });
   }
@@ -94,7 +106,7 @@ async function PUTHandler(request: Request) {
     writeAuditEvent({ request, actorUserId: user.id, action: "PASSWORD_CHANGED", targetType: "User", targetId: user.id }),
   ]).catch((error) => console.error("Password-change notification failed", error));
 
-  return NextResponse.json({ changed: true });
+  return NextResponse.json({ changed: true }, { headers: { "Cache-Control": "private, no-store" } });
 }
 
 export const PATCH = monitorApiRoute("/api/profile/security", PATCHHandler, "PATCH");

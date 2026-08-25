@@ -1,12 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <rect width="48" height="48" fill="#FFFFFF"/>
-  <!-- Lowercase r traced from the Manrope variable font used by the app. -->
-  <path
-    d="M140 0L140 1080L218 1080L218 822L192 856Q209 900 235 938Q261 976 286 1000Q330 1043 390.5 1065.5Q451 1088 512 1091.5Q573 1095 620 1080L620 1000Q553 1015 478 1005.5Q403 996 338 936Q281 883 257.5 814Q234 745 229 671.5Q224 598 224 532L224 0Z"
-    transform="translate(13 40) scale(.0292 -.0292)"
-    fill="#087985"
-    stroke="#087985"
-    stroke-width="70"
-    stroke-linejoin="round"
-  />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Redrive">
+  <rect width="64" height="64" rx="16" fill="#0B3338"/>
+  <!-- A winding road narrowing toward a gold destination. -->
+  <path d="M9 64C17 50 24 42 24 31C24 19 31 9 44 0H61C43 14 39 23 40 33C41 45 35 55 29 64Z" fill="#fff"/>
+  <path d="M22 58C29 47 33 39 32 30C31 21 36 14 45 7" fill="none" stroke="#0B3338" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 6"/>
+  <circle cx="49" cy="13" r="7" fill="#D4A72C" stroke="#0B3338" stroke-width="3"/>
 </svg>

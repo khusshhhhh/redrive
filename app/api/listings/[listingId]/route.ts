@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
+import { normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
 
 /**
  * ✅ GET: Fetch a specific listing by ID (Includes state, suburb, amenities, images, and rego details)
@@ -100,6 +101,7 @@ async function PUTHandler(
       cleaningFeeOption,
       cleaningFeeAmount,
       returnCleaningFeeAmount,
+      cancellationPolicy,
     } = body;
 
     // Validate required fields
@@ -163,6 +165,7 @@ async function PUTHandler(
         cleaningFeeOption: cleaningFeeOption ?? null,
         cleaningFeeAmount: cleaningFeeAmount ? parseInt(cleaningFeeAmount, 10) : null,
         returnCleaningFeeAmount: returnCleaningFeeAmount ? parseInt(returnCleaningFeeAmount, 10) : null,
+        cancellationPolicy: normalizeCancellationPolicy(cancellationPolicy),
       },
     });
 

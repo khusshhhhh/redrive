@@ -40,11 +40,13 @@ import Button from "@/app/components/Button";
 import type { SafeUser } from "@/app/types";
 import {
   isValidAustralianMobile,
+  isAtLeast18,
   isValidDateOfBirth,
 } from "@/app/libs/profileValidation";
 import PayoutSettings from "@/app/components/payments/PayoutSettings";
 import EmailVerification from "@/app/components/profile/EmailVerification";
 import LicenseVerificationPanel from "@/app/components/profile/LicenseVerificationPanel";
+import DeleteAccountPanel from "@/app/components/profile/DeleteAccountPanel";
 
 interface ProfileFormData {
   name: string;
@@ -286,9 +288,11 @@ export default function ProfileClient({
       });
       toast.success("Profile saved");
       router.refresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        error.response?.data?.error || "We couldn’t save your changes",
+        axios.isAxiosError<{ error?: string }>(error)
+          ? error.response?.data?.error || "We couldn’t save your changes"
+          : "We couldn’t save your changes",
       );
     } finally {
       setIsSaving(false);
@@ -305,10 +309,12 @@ export default function ProfileClient({
       toast.success(
         next ? "Login verification enabled" : "Login verification disabled",
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       setLoginOtpEnabled(!next);
       toast.error(
-        error.response?.data?.error || "Security setting could not be changed",
+        axios.isAxiosError<{ error?: string }>(error)
+          ? error.response?.data?.error || "Security setting could not be changed"
+          : "Security setting could not be changed",
       );
     } finally {
       setIsUpdatingOtp(false);
@@ -326,9 +332,11 @@ export default function ProfileClient({
       passwordForm.reset();
       setShowPasswordForm(false);
       toast.success("Password updated");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        error.response?.data?.error || "Password could not be updated",
+        axios.isAxiosError<{ error?: string }>(error)
+          ? error.response?.data?.error || "Password could not be updated"
+          : "Password could not be updated",
       );
     } finally {
       setIsChangingPassword(false);
@@ -381,7 +389,7 @@ export default function ProfileClient({
                 <div className="h-full w-full overflow-hidden rounded-full border border-hairline bg-surface-soft">
                   <img
                     src={image}
-                    alt={name || "Profile"}
+                    alt={`${name || "Your"} profile photo`}
                     width={112}
                     height={112}
                     decoding="async"
@@ -439,6 +447,7 @@ export default function ProfileClient({
                 ["verification", "Verification"],
                 ["payouts", "Host payouts"],
                 ["security", "Login & security"],
+                ["danger-zone", "Delete account"],
               ].map(([href, label]) => (
                 <a
                   key={href}
@@ -498,8 +507,8 @@ export default function ProfileClient({
                       {...register("dateOfBirth", {
                         validate: (value) =>
                           !value ||
-                          isValidDateOfBirth(value) ||
-                          "Enter a valid date of birth",
+                          (isValidDateOfBirth(value) && isAtLeast18(value)) ||
+                          "Account holders must be at least 18",
                       })}
                       aria-invalid={Boolean(errors.dateOfBirth)}
                       className={`h-12 w-full rounded-sm border bg-white px-4 text-base text-ink outline-none transition ${errors.dateOfBirth ? "border-error focus:border-error focus:ring-1 focus:ring-error" : "border-hairline focus:border-ink focus:ring-1 focus:ring-ink"}`}
@@ -823,6 +832,8 @@ export default function ProfileClient({
                 </div>
               </div>
             </SectionCard>
+
+            <DeleteAccountPanel />
 
             <div className="flex items-center gap-3 rounded-md bg-ink p-5 text-white sm:p-6">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10">

@@ -18,6 +18,7 @@ export async function releaseReservationPayment(
       reservation: {
         select: {
           endDate: true,
+          status: true,
           userId: true,
           listing: { select: { userId: true, title: true } },
         },
@@ -33,13 +34,19 @@ export async function releaseReservationPayment(
   if (payment.status === "RELEASED" && payment.stripeTransferId) {
     return { released: true, transferId: payment.stripeTransferId };
   }
-  if (payment.status !== "PAID_HELD" || !payment.stripeChargeId) {
+  const isCancellationPayout = payment.status === "CANCELLATION_PAYOUT_PENDING"
+    && payment.reservation.status === "CANCELLED"
+    && Boolean(payment.cancellationPayoutAmount);
+  if ((!isCancellationPayout && payment.status !== "PAID_HELD") || !payment.stripeChargeId) {
     return {
       released: false,
       reason: "The renter payment is not ready for release",
     };
   }
-  if (payment.reservation.endDate.getTime() > Date.now()) {
+  if (isCancellationPayout && payment.cancellationPayoutDueAt && payment.cancellationPayoutDueAt.getTime() > Date.now()) {
+    return { released: false, reason: "The cancellation payout is not due yet" };
+  }
+  if (!isCancellationPayout && payment.reservation.endDate.getTime() > Date.now()) {
     return { released: false, reason: "The booking period has not finished" };
   }
   if (
@@ -49,7 +56,7 @@ export async function releaseReservationPayment(
     return { released: false, reason: "The owner payout account is not ready" };
   }
 
-  const [returnReport, openIncident] = await Promise.all([
+  const [returnReport, openIncident] = isCancellationPayout ? [null, null] : await Promise.all([
     prisma.handoverReport.findUnique({
       where: { reservationId_phase: { reservationId, phase: "RETURN" } },
       select: { status: true, acknowledgedByIds: true },
@@ -69,25 +76,25 @@ export async function releaseReservationPayment(
     requiredAcknowledgements.every((id) =>
       returnReport.acknowledgedByIds.includes(id),
     );
-  if (!mutuallyAgreed)
+  if (!isCancellationPayout && !mutuallyAgreed)
     return {
       released: false,
       reason: "Both parties must agree to the return handover",
     };
-  if (openIncident)
+  if (!isCancellationPayout && openIncident)
     return { released: false, reason: "An incident is still under review" };
 
   try {
     const transfer = await getStripe().transfers.create(
       {
-        amount: payment.ownerAmount,
+        amount: isCancellationPayout ? payment.cancellationPayoutAmount! : payment.ownerAmount,
         currency: payment.currency,
         destination: payment.owner.stripeConnectedAccountId,
         source_transaction: payment.stripeChargeId,
         transfer_group: `reservation_${reservationId}`,
         metadata: { reservationId, paymentId: payment.id },
       },
-      { idempotencyKey: `reservation-${reservationId}-owner-release` },
+      { idempotencyKey: `reservation-${reservationId}-${isCancellationPayout ? "cancellation" : "owner"}-release` },
     );
 
     await prisma.$transaction([
@@ -100,14 +107,17 @@ export async function releaseReservationPayment(
           failureMessage: null,
         },
       }),
-      prisma.reservation.update({
+      ...(isCancellationPayout ? [prisma.reservation.update({
+        where: { id: reservationId },
+        data: { paymentStatus: "RELEASED" },
+      })] : [prisma.reservation.update({
         where: { id: reservationId },
         data: {
           status: "COMPLETED",
           paymentStatus: "RELEASED",
           completedAt: new Date(),
         },
-      }),
+      })]),
       prisma.auditEvent.create({
         data: {
           actorUserId: payment.ownerId,
@@ -116,26 +126,25 @@ export async function releaseReservationPayment(
           targetId: reservationId,
           metadata: {
             transferId: transfer.id,
-            amount: payment.ownerAmount,
+            amount: isCancellationPayout ? payment.cancellationPayoutAmount! : payment.ownerAmount,
             currency: payment.currency,
           },
         },
       }),
     ]);
     try {
-      await Promise.all([
-        notificationService.notifyPaymentReceived(
+      const notifications = [notificationService.notifyPaymentReceived(
           payment.ownerId,
-          payment.ownerAmount / 100,
+          (isCancellationPayout ? payment.cancellationPayoutAmount! : payment.ownerAmount) / 100,
           payment.reservation.listing.title,
           reservationId,
-        ),
-        notificationService.notifyBookingCompleted(
+        )];
+      if (!isCancellationPayout) notifications.push(notificationService.notifyBookingCompleted(
           payment.renterId,
           payment.reservation.listing.title,
           reservationId,
-        ),
-      ]);
+        ));
+      await Promise.all(notifications);
     } catch (error) {
       console.error("Payout notifications failed", error);
     }

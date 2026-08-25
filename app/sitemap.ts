@@ -10,7 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteUrl}/help-centre`, lastModified: updated, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteUrl}/blog`, lastModified: updated, changeFrequency: "weekly", priority: 0.8 },
     { url: `${siteUrl}/newsroom`, lastModified: updated, changeFrequency: "weekly", priority: 0.7 },
-    ...["safety", "cancellation-options", "vehicle-protection", "hosting-resources", "about", "careers"].map((path) => ({
+    ...["safety", "cancellation-options", "vehicle-protection", "hosting-resources", "about", "careers", "privacy", "terms", "community-standards", "data-security", "account-deletion"].map((path) => ({
       url: `${siteUrl}/${path}`,
       lastModified: updated,
       changeFrequency: "monthly" as const,

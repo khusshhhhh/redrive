@@ -15,9 +15,10 @@ import Modal from "@/app/components/modals/Modal";
 
 interface UserMenuProps {
   currentUser?: SafeUser | null;
+  prominent?: boolean;
 }
 
-const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
+const UserMenu: React.FC<UserMenuProps> = ({ currentUser, prominent = false }) => {
   const router = useRouter();
   const registerModal = useRegisterModal();
   const loginModal = useLoginModal();
@@ -77,12 +78,13 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
   return (
     <div className="relative z-50" ref={menuRef}>
       <div className="flex flex-row items-center gap-1 sm:gap-2 md:gap-3">
-        <div
+        <button
+          type="button"
           onClick={onRent}
-          className="hidden md:block text-sm font-medium py-3 px-5 bg-primary rounded-full hover:bg-primary-active text-white transition cursor-pointer"
+          className={`hidden shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-primary px-5 text-xs font-medium text-white outline-none transition-[height,background-color] hover:bg-primary-active focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:inline-flex ${prominent ? "h-[52px]" : "h-11"}`}
         >
           List your car
-        </div>
+        </button>
         {currentUser && <NotificationBell />}
         <button
           type="button"
@@ -95,7 +97,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
           <IconMenu3 className="hidden md:block" size={18} />
           <div>
             {currentUser?.image ? (
-              <Avatar src={currentUser.image} />
+              <Avatar src={currentUser.image} alt={`${currentUser.name || "Your"} profile photo`} />
             ) : (
               <IconUserCircle className="text-muted" size={30} />
             )}
@@ -103,9 +105,16 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
         </button>
       </div>
 
-      {isOpen && (
-        <div className="absolute right-0 top-12 w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-md border border-hairline-soft bg-white text-sm shadow-card md:w-56">
-          <div className="flex flex-col cursor-pointer">
+      <div
+        className={`absolute right-0 top-12 w-[min(18rem,calc(100vw-2rem))] origin-top overflow-hidden rounded-md border border-hairline-soft bg-white text-sm shadow-card transition-[transform,opacity,visibility] duration-200 motion-reduce:transition-none md:w-56 ${
+          isOpen
+            ? "visible scale-y-100 opacity-100 ease-out"
+            : "invisible pointer-events-none scale-y-0 opacity-0 ease-in"
+        }`}
+        aria-hidden={!isOpen}
+        inert={!isOpen}
+      >
+        <div className="flex flex-col cursor-pointer">
             {currentUser && (
               <div
                 onClick={() => { router.push("/profile"); closeMenu(); }}
@@ -138,9 +147,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
                 <MenuItem onClick={() => { registerModal.onOpen(); closeMenu(); }} label="Sign Up" icon={<IconClipboardPlus size={18} className="text-ink" />} />
               </>
             )}
-          </div>
         </div>
-      )}
+      </div>
       <Modal
         compact
         centered

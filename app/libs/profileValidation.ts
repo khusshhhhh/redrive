@@ -30,3 +30,12 @@ export function isValidDateOfBirth(value: string) {
     date <= today &&
     year >= oldestYear;
 }
+
+export function isAtLeast18(value: string) {
+  if (!isValidDateOfBirth(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const today = new Date();
+  const eighteenthBirthday = new Date(Date.UTC(year + 18, month - 1, day));
+  const todayUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  return eighteenthBirthday <= todayUtc;
+}

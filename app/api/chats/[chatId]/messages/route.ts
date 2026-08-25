@@ -5,8 +5,20 @@ import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import { notificationService } from "@/app/services/notificationService";
 import { toSafeMessage, toSafeChatUser } from "@/app/libs/chatSerializers";
+import { consumeRateLimits, getClientIp, tooManyRequests } from "@/app/libs/security";
 
 const PAGE_SIZE = 30;
+
+function validChatImage(value: unknown) {
+  if (value === null || value === undefined || value === "") return true;
+  if (typeof value !== "string" || value.length > 2_048) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname === "res.cloudinary.com" && url.pathname.includes("/redrive/chat/");
+  } catch {
+    return false;
+  }
+}
 
 // GET: paginated message history, newest page first.
 // ?before=<messageId> to load older messages (infinite-scroll-up).
@@ -21,6 +33,7 @@ async function GETHandler(
     }
 
     const { chatId } = await params;
+    if (!/^[a-f\d]{24}$/i.test(chatId)) return NextResponse.json({ error: "Not found" }, { status: 404 });
     const chat = await prisma.chat.findUnique({ where: { id: chatId } });
     if (!chat || !chat.participantIds.includes(currentUser.id)) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -29,7 +42,9 @@ async function GETHandler(
     const beforeId = request.nextUrl.searchParams.get("before");
     let cursorDate: Date | undefined;
     if (beforeId) {
-      const cursorMessage = await prisma.message.findUnique({ where: { id: beforeId } });
+      if (!/^[a-f\d]{24}$/i.test(beforeId)) return NextResponse.json({ error: "Invalid message cursor" }, { status: 400 });
+      const cursorMessage = await prisma.message.findFirst({ where: { id: beforeId, chatId } });
+      if (!cursorMessage) return NextResponse.json({ error: "Invalid message cursor" }, { status: 400 });
       cursorDate = cursorMessage?.createdAt;
     }
 
@@ -57,7 +72,7 @@ async function GETHandler(
       messages: messages.reverse().map(toSafeMessage),
       hasMore,
       otherUser,
-    });
+    }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     console.error("GET /api/chats/[chatId]/messages error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -75,10 +90,22 @@ async function POSTHandler(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const rateLimit = await consumeRateLimits([
+      { scope: "message-send-user", identifier: currentUser.id, limit: 60, windowMs: 60_000 },
+      { scope: "message-send-ip", identifier: getClientIp(request), limit: 120, windowMs: 60_000 },
+    ]);
+    if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
+
     const { chatId } = await params;
-    const { text, imageUrl } = await request.json();
+    if (!/^[a-f\d]{24}$/i.test(chatId)) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const contentLength = Number(request.headers.get("content-length") || 0);
+    if (contentLength > 16_384) return NextResponse.json({ error: "Message is too large" }, { status: 413 });
+    const { text, imageUrl } = await request.json().catch(() => ({}));
 
     const trimmedText = typeof text === "string" ? text.trim() : "";
+    if (trimmedText.length > 2_000 || !validChatImage(imageUrl)) {
+      return NextResponse.json({ error: "Message contains an invalid or oversized value" }, { status: 400 });
+    }
     if (!trimmedText && !imageUrl) {
       return NextResponse.json({ error: "Message is empty" }, { status: 400 });
     }

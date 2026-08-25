@@ -12,6 +12,7 @@ import { CalendarDays, ChevronLeft, Clock3, Info, MapPin, MessageCircle, Send, S
 import Container from "@/app/components/Container";
 import Button from "@/app/components/Button";
 import InlineRetry from "@/app/components/InlineRetry";
+import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
 
 const serviceFeeFor = (total: number) => total <= 200 ? 10 : total <= 400 ? 25 : total <= 800 ? 40 : total <= 1200 ? 60 : total <= 2000 ? 80 : 100;
 const money = (value: number) => `AU$${value.toLocaleString("en-AU")}`;
@@ -91,7 +92,7 @@ export default function ConfirmReservation() {
               <section className="overflow-hidden rounded-md border border-hairline-soft bg-white">
                 <div className="grid sm:grid-cols-[240px_1fr]">
                   <div className="relative min-h-56"><Image src={listing.imageSrcs?.[0] || "/images/placeholder.png"} alt={listing.title} fill priority className="object-cover" /></div>
-                  <div className="p-5 sm:p-6"><span className="text-xs font-semibold uppercase tracking-wider text-primary">{listing.category}</span><h2 className="mt-2 text-xl font-semibold text-ink">{listing.title}</h2><p className="mt-2 flex items-center gap-1.5 text-sm text-muted"><MapPin size={15} />{listing.suburb}, {listing.state}</p><div className="mt-5 flex items-center gap-3 border-t border-hairline-soft pt-5"><Image src={host?.image || "/images/placeholder.png"} alt="" width={44} height={44} className="h-11 w-11 rounded-full object-cover" /><div><p className="text-xs text-muted">Hosted by</p><p className="font-semibold text-ink">{host?.name || "Redrive host"}</p></div></div></div>
+                  <div className="p-5 sm:p-6"><span className="text-xs font-semibold uppercase tracking-wider text-primary">{listing.category}</span><h2 className="mt-2 text-xl font-semibold text-ink">{listing.title}</h2><p className="mt-2 flex items-center gap-1.5 text-sm text-muted"><MapPin size={15} />{listing.suburb}, {listing.state}</p><div className="mt-5 flex items-center gap-3 border-t border-hairline-soft pt-5"><Image src={host?.image || "/images/placeholder.png"} alt={`${host?.name || "Redrive host"} profile photo`} width={44} height={44} className="h-11 w-11 rounded-full object-cover" /><div><p className="text-xs text-muted">Hosted by</p><p className="font-semibold text-ink">{host?.name || "Redrive host"}</p></div></div></div>
                 </div>
               </section>
 
@@ -99,6 +100,8 @@ export default function ConfirmReservation() {
                 <SectionTitle icon={<CalendarDays size={19} />} title="Your trip" subtitle={`${bookingDays} day${bookingDays === 1 ? "" : "s"} reserved`} />
                 <div className="mt-6 grid gap-4 sm:grid-cols-2"><DateBlock label="Pickup" value={startDate!} /><DateBlock label="Return" value={endDate!} /></div>
               </section>
+
+              <CancellationPolicyDisplay value={listing.cancellationPolicy} />
 
               <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
                 <SectionTitle icon={<ShieldCheck size={19} />} title="Protection selection" subtitle="Review the cover selected on the listing page." />

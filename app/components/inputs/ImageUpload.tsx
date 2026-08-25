@@ -12,6 +12,7 @@ interface ImageUploadProps {
   value: string;
   triggerUpload?: boolean;
   folder?: UploadFolder;
+  previewAlt?: string;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -19,6 +20,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   value,
   triggerUpload = false,
   folder = "listings",
+  previewAlt,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const openedAutomatically = useRef(false);
@@ -75,7 +77,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         <span className="text-xs">JPG, PNG or WebP · up to 10 MB</span>
         {value && (
           <span className="absolute inset-0">
-            <Image alt="Uploaded image" fill sizes="(max-width: 768px) 100vw, 520px" className="object-cover" src={value} />
+            <Image alt={previewAlt || `Uploaded ${folder === "registrations" ? "vehicle registration document" : folder === "profiles" ? "profile photo" : "vehicle photo"} preview`} fill sizes="(max-width: 768px) 100vw, 520px" className="object-cover" src={value} />
             <span className="absolute inset-x-0 bottom-0 bg-black/60 px-3 py-2 text-sm font-medium text-white">{uploading ? "Uploading…" : "Click to replace"}</span>
           </span>
         )}

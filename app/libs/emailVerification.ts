@@ -249,6 +249,38 @@ export async function sendLoginOtpEmail(email: string, code: string, recipientNa
   return { delivered: true };
 }
 
+export async function sendAccountDeletionOtpEmail(email: string, code: string, recipientName?: string | null) {
+  assertSafeRecipient(email);
+  const transport = getEmailTransport();
+
+  if (!transport) {
+    if (process.env.NODE_ENV !== "production") {
+      console.info(`[Redrive] Account deletion code for ${email}: ${code}`);
+      return { delivered: false, previewCode: code };
+    }
+    throw new Error("Email delivery is not configured");
+  }
+
+  await transport.transporter.sendMail({
+    from: process.env.EMAIL_FROM || `Redrive <${transport.user}>`,
+    to: email,
+    disableFileAccess: true,
+    disableUrlAccess: true,
+    subject: `${code} confirms your Redrive account deletion`,
+    text: `Your Redrive account deletion code is ${code}. It expires in ${CODE_TTL_MINUTES} minutes. Deleting your account is permanent. If you did not request this, do not share the code and secure your account.`,
+    html: buildCodeEmail({
+      code,
+      eyebrow: "Permanent account action",
+      title: "Confirm account deletion",
+      introduction: "Use this code only if you intend to permanently delete your Redrive account and app-controlled personal information.",
+      securityMessage: "If you did not request account deletion, do not enter this code. Change your password and review your account security.",
+      recipientName,
+    }),
+  });
+
+  return { delivered: true };
+}
+
 export async function sendPasswordResetEmail(email: string, resetUrl: string) {
   assertSafeRecipient(email);
   const transport = getEmailTransport();

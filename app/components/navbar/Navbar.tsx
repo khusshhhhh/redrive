@@ -54,19 +54,19 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
     <header ref={headerRef} className={`fixed inset-x-0 top-0 z-30 w-full border-b bg-white/95 backdrop-blur-md transition-[box-shadow,border-color] duration-300 ${isScrolled ? "border-hairline shadow-[0_8px_24px_rgba(24,54,58,0.08)]" : "border-hairline-soft shadow-none"}`}>
       <div className={`transition-[padding] duration-300 ${isScrolled ? "py-2" : "py-2.5 sm:py-3"}`}>
         <Container>
-          <div className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2.5 md:grid-cols-[auto_1fr_auto] md:gap-x-3">
+          <div className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2.5 md:grid-cols-[auto_1fr_auto] md:gap-x-3 xl:grid-cols-[1fr_auto_1fr]">
             <div className="shrink-0">
               <Logo />
             </div>
-            <div className={`min-w-0 md:col-span-1 md:col-start-auto md:row-start-auto md:flex md:justify-center ${pathname === "/" && !isScrolled ? "col-span-3 col-start-1 row-start-2 mt-2" : "col-start-2 row-start-1 flex justify-center"}`}>
-              <div className={`w-full transition-[max-width] duration-300 ease-out motion-reduce:transition-none ${pathname === "/" && !isScrolled ? "max-w-none md:max-w-[720px]" : "max-w-fit md:max-w-[500px]"}`}>
+            <div className="col-start-2 row-start-1 flex min-w-0 justify-center md:col-span-1 md:col-start-auto md:row-start-auto">
+              <div className={`max-w-fit transition-[max-width,transform] duration-300 ease-out motion-reduce:transition-none ${pathname === "/" && !isScrolled ? "md:w-full md:max-w-[540px] xl:-translate-x-6" : "md:max-w-[440px]"}`}>
                 <Suspense fallback={<SearchFallback />}>
                   <Search compact={isScrolled} isHome={pathname === "/"} />
                 </Suspense>
               </div>
             </div>
-            <div className="col-start-3 row-start-1 shrink-0 md:col-start-auto md:row-start-auto">
-              <UserMenu currentUser={currentUser} />
+            <div className="col-start-3 row-start-1 shrink-0 md:col-start-auto md:row-start-auto md:justify-self-end">
+              <UserMenu currentUser={currentUser} prominent={pathname === "/" && !isScrolled} />
             </div>
           </div>
         </Container>

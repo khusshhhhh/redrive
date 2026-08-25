@@ -13,8 +13,10 @@ async function GETHandler(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const candidates = await prisma.payment.findMany({
     where: {
-      status: "PAID_HELD",
-      reservation: { endDate: { lte: new Date() } },
+      OR: [
+        { status: "PAID_HELD", reservation: { endDate: { lte: new Date() } } },
+        { status: "CANCELLATION_PAYOUT_PENDING", cancellationPayoutDueAt: { lte: new Date() } },
+      ],
     },
     select: { reservationId: true },
     take: 100,

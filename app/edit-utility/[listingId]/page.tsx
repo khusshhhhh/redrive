@@ -20,6 +20,8 @@ import { AMENITIES_LIST } from "@/app/hooks/useAmenities";
 import StateSelector, { states as AU_STATES } from "@/app/components/inputs/StateSelector";
 import SuburbSelector from "@/app/components/inputs/SuburbSelector";
 import DateSelector from "@/app/components/inputs/DateSelector";
+import CancellationPolicySelector from "@/app/components/listings/CancellationPolicySelector";
+import { ArrowLeft, BadgeCheck, CarFront, Eye, ShieldCheck, Sparkles } from "lucide-react";
 
 interface Listing {
     id: string;
@@ -44,6 +46,7 @@ interface Listing {
     cleaningFeeOption?: string;
     cleaningFeeAmount?: number;
     returnCleaningFeeAmount?: number;
+    cancellationPolicy?: string;
 }
 
 const EditUtilityPage = () => {
@@ -62,6 +65,7 @@ const EditUtilityPage = () => {
     const [cleaningFeeOption, setCleaningFeeOption] = useState('NO');
     const [cleaningFeeAmount, setCleaningFeeAmount] = useState('');
     const [returnCleaningFeeAmount, setReturnCleaningFeeAmount] = useState('');
+    const [cancellationPolicy, setCancellationPolicy] = useState('MODERATE');
 
     const {
         register,
@@ -92,6 +96,7 @@ const EditUtilityPage = () => {
             cleaningFeeOption: 'NO',
             cleaningFeeAmount: '',
             returnCleaningFeeAmount: '',
+            cancellationPolicy: 'MODERATE',
         },
     });
 
@@ -120,6 +125,7 @@ const EditUtilityPage = () => {
                 setValue("cleaningFeeOption", data.cleaningFeeOption || 'NO');
                 setValue("cleaningFeeAmount", data.cleaningFeeAmount || '');
                 setValue("returnCleaningFeeAmount", data.returnCleaningFeeAmount || '');
+                setValue("cancellationPolicy", data.cancellationPolicy || 'MODERATE');
 
                 // Load images and registration details
                 setListingImages(data.imageSrcs || []);
@@ -131,6 +137,7 @@ const EditUtilityPage = () => {
                 setCleaningFeeOption(data.cleaningFeeOption || 'NO');
                 setCleaningFeeAmount(data.cleaningFeeAmount ? String(data.cleaningFeeAmount) : '');
                 setReturnCleaningFeeAmount(data.returnCleaningFeeAmount ? String(data.returnCleaningFeeAmount) : '');
+                setCancellationPolicy(data.cancellationPolicy || 'MODERATE');
 
                 setSelectedState({ value: data.state, label: data.state });
                 setSelectedSuburb({ value: data.suburb, label: data.suburb });
@@ -178,9 +185,10 @@ const EditUtilityPage = () => {
                 regoEndDate,
                 regoImage,
                 // ✅ submit cleaning fee values from the form data
-                cleaningFeeOption: data.cleaningFeeOption,
-                cleaningFeeAmount: data.cleaningFeeAmount || null,
-                returnCleaningFeeAmount: data.returnCleaningFeeAmount || null,
+                cleaningFeeOption,
+                cleaningFeeAmount: cleaningFeeAmount || null,
+                returnCleaningFeeAmount: returnCleaningFeeAmount || null,
+                cancellationPolicy,
             });
             toast.success("Utility updated successfully!");
             router.push("/properties");
@@ -193,14 +201,42 @@ const EditUtilityPage = () => {
     };
 
     return (
-        <main className="bg-surface-soft/35 px-4 py-6 sm:py-10">
-        <div className="mx-auto max-w-3xl rounded-md border border-hairline-soft bg-white p-4 shadow-card sm:p-6 md:p-8">
-            <div className="mb-8 border-b border-hairline-soft pb-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Hosting</p>
-                <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Edit your utility</h1>
-                <p className="mt-2 text-sm leading-6 text-muted">Keep your photos and vehicle details clear and current for guests.</p>
-            </div>
-            <form onSubmit={handleSubmit(onSubmit)}>
+        <main className="min-h-screen bg-surface-soft/45 px-4 py-6 sm:px-6 sm:py-10">
+        <div className="mx-auto max-w-[1240px]">
+            <button type="button" onClick={() => router.back()} className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-muted transition hover:text-ink"><ArrowLeft size={17} />Back to hosting</button>
+            <header className="relative mb-7 overflow-hidden rounded-2xl bg-ink px-6 py-8 text-white shadow-[0_24px_70px_rgba(11,51,56,0.2)] sm:px-9 sm:py-10">
+                <div className="absolute -right-16 -top-24 h-72 w-72 rounded-full border-[42px] border-white/[0.05]" />
+                <div className="absolute bottom-0 right-36 h-24 w-24 rounded-full bg-accent/20 blur-2xl" />
+                <div className="relative max-w-3xl">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.07] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-accent"><Sparkles size={14} />Host studio</span>
+                    <h1 className="mt-5 text-3xl font-semibold tracking-tight sm:text-5xl">Make every detail booking-ready.</h1>
+                    <p className="mt-4 max-w-2xl text-sm leading-7 text-white/65 sm:text-base">Update the information guests use to compare, trust and book your vehicle. Your changes appear on the live listing after saving.</p>
+                </div>
+            </header>
+
+            <div className="grid items-start gap-6 lg:grid-cols-[270px_minmax(0,1fr)]">
+                <aside className="space-y-4 lg:sticky lg:top-28">
+                    <div className="overflow-hidden rounded-xl border border-hairline-soft bg-white shadow-card">
+                        <div className="relative aspect-[16/10] bg-surface-strong">
+                            {listingImages[0] ? <img src={listingImages[0]} alt={`${watch("title") || "Your vehicle"} listing preview`} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-primary"><CarFront size={38} /></div>}
+                            <span className="absolute bottom-3 left-3 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-ink shadow-sm">Live preview</span>
+                        </div>
+                        <div className="p-5">
+                            <p className="line-clamp-2 font-semibold text-ink">{watch("title") || "Your listing title"}</p>
+                            <p className="mt-1 text-xs text-muted">{selectedSuburb?.value || "Suburb"}, {selectedState?.value || "State"}</p>
+                            <p className="mt-4 text-lg font-semibold text-ink">AU${watch("price") || 0}<span className="text-xs font-normal text-muted"> / day</span></p>
+                        </div>
+                    </div>
+                    <div className="rounded-xl border border-hairline-soft bg-white p-5">
+                        <p className="flex items-center gap-2 text-sm font-semibold text-ink"><BadgeCheck size={17} className="text-primary" />Publishing checklist</p>
+                        <ul className="mt-4 space-y-3 text-xs leading-5 text-muted">
+                            <li className="flex gap-2"><Eye size={15} className="mt-0.5 shrink-0 text-primary" />Use clear, current photos and an accurate title.</li>
+                            <li className="flex gap-2"><ShieldCheck size={15} className="mt-0.5 shrink-0 text-primary" />Keep registration and cancellation terms current.</li>
+                        </ul>
+                    </div>
+                </aside>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 [&>div:not(:last-child)]:rounded-xl [&>div:not(:last-child)]:border [&>div:not(:last-child)]:border-hairline-soft [&>div:not(:last-child)]:bg-white [&>div:not(:last-child)]:p-5 [&>div:not(:last-child)]:shadow-[0_8px_28px_rgba(24,54,58,0.045)] sm:[&>div:not(:last-child)]:p-7">
                 {/* Title */}
                 <div className="mb-8">
                     <Input id="title" label="Listing title" placeholder="e.g. Powerful ute in Adelaide" register={register} errors={errors} required />
@@ -446,24 +482,34 @@ const EditUtilityPage = () => {
                     )}
                 </div>
 
+                <div className="mb-8">
+                    <div className="mb-5">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-primary">Booking terms</p>
+                        <h2 className="mt-2 text-xl font-semibold text-ink">Cancellation policy</h2>
+                        <p className="mt-2 text-sm leading-6 text-muted">Choose how much flexibility guests receive. Existing reservations keep the policy captured when they booked.</p>
+                    </div>
+                    <CancellationPolicySelector value={cancellationPolicy} onChange={setCancellationPolicy} disabled={loading} />
+                </div>
+
                 {/* Submit and Go Back Buttons */}
-                <div className="flex flex-col gap-3 border-t border-hairline-soft pt-6 sm:flex-row">
+                <div className="sticky bottom-3 z-10 flex flex-col gap-3 rounded-xl border border-hairline bg-white/95 p-4 shadow-[0_18px_55px_rgba(11,51,56,0.16)] backdrop-blur sm:flex-row">
                     <button
                         type="submit"
                         className="w-full bg-primary text-white font-semibold px-6 py-4 rounded-sm hover:bg-primary-active transition-all disabled:opacity-50"
                         disabled={loading}
                     >
-                        {loading ? "Updating..." : "Update Utility"}
+                        {loading ? "Saving changes…" : "Save listing changes"}
                     </button>
                     <button
                         type="button"
                         className="border border-ink hover:bg-ink hover:text-white w-full bg-white text-ink font-semibold px-6 py-4 rounded-sm transition-all disabled:opacity-50"
                         onClick={() => router.back()}
                     >
-                        Go Back
+                        Discard and go back
                     </button>
                 </div>
             </form>
+            </div>
         </div>
         </main>
     );

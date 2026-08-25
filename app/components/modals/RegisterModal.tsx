@@ -10,7 +10,7 @@ import { CarFront, Check, Heart, LogIn, Mail, MailCheck, MapPin, ShieldCheck, Sm
 
 import useRegisterModal from "@/app/hooks/useRegisterModal";
 import useLoginModal from "@/app/hooks/useLoginModal";
-import { isValidAustralianMobile, isValidDateOfBirth } from "@/app/libs/profileValidation";
+import { isAtLeast18, isValidAustralianMobile, isValidDateOfBirth } from "@/app/libs/profileValidation";
 import Input from "../inputs/Input";
 import AddressAutocomplete, { type ParsedAddress } from "../inputs/AddressAutocomplete";
 import PasswordField, { isStrongPassword } from "../inputs/PasswordField";
@@ -91,9 +91,9 @@ const RegisterModal = () => {
           setError("email", { type: "duplicate", message: "Email already registered" });
           return;
         }
-      } catch (error: any) {
-        if (error.response?.status === 400) {
-          setError("email", { type: "validate", message: error.response.data.error });
+      } catch (error: unknown) {
+        if (axios.isAxiosError<{ error?: string }>(error) && error.response?.status === 400) {
+          setError("email", { type: "validate", message: error.response.data.error || "Enter a valid email address" });
           return;
         }
         // The final POST performs the same check, so a temporary availability
@@ -122,13 +122,13 @@ const RegisterModal = () => {
       setPreviewCode(response.data.previewCode || "");
       setStage("verify");
       toast.success("Verification code sent");
-    } catch (error: any) {
-      if (error.response?.status === 409 && error.response?.data?.code === "EMAIL_ALREADY_REGISTERED") {
+    } catch (error: unknown) {
+      if (axios.isAxiosError<{ code?: string; emailVerified?: boolean; error?: string }>(error) && error.response?.status === 409 && error.response?.data?.code === "EMAIL_ALREADY_REGISTERED") {
         const email = data.email.trim().toLowerCase();
         setExistingEmailNotice({ email, verified: !!error.response.data.emailVerified });
         setError("email", { type: "duplicate", message: "Email already registered" });
         setStage("account");
-      } else toast.error(error.response?.data?.error || "Unable to create account");
+      } else toast.error(axios.isAxiosError<{ error?: string }>(error) ? error.response?.data?.error || "Unable to create account" : "Unable to create account");
     } finally { setIsLoading(false); }
   };
 
@@ -155,8 +155,8 @@ const RegisterModal = () => {
     setIsLoading(true);
     try {
       await axios.post("/api/auth/verify-email", { email: verificationEmail, code: verificationCode });
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Unable to verify email");
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ error?: string }>(error) ? error.response?.data?.error || "Unable to verify email" : "Unable to verify email");
       setIsLoading(false);
       return;
     }
@@ -182,7 +182,7 @@ const RegisterModal = () => {
     try {
       const response = await axios.post("/api/auth/resend-verification", { email: verificationEmail });
       setPreviewCode(response.data.previewCode || ""); setVerificationCode(""); toast.success("A new code was sent");
-    } catch (error: any) { toast.error(error.response?.data?.error || "Unable to resend code"); }
+    } catch (error: unknown) { toast.error(axios.isAxiosError<{ error?: string }>(error) ? error.response?.data?.error || "Unable to resend code" : "Unable to resend code"); }
     finally { setIsLoading(false); }
   };
 
@@ -202,8 +202,8 @@ const RegisterModal = () => {
       setExistingEmailNotice(null);
       setStage("verify");
       toast.success("A new verification code was sent");
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Unable to send a verification code");
+    } catch (error: unknown) {
+      toast.error(axios.isAxiosError<{ error?: string }>(error) ? error.response?.data?.error || "Unable to send a verification code" : "Unable to send a verification code");
     } finally { setIsLoading(false); }
   };
 
@@ -211,7 +211,7 @@ const RegisterModal = () => {
 
   const accountContent = <div className="space-y-4"><SignupJourney step={1} /><StepProgress current={1} /><Input id="name" label="Full name" disabled={isLoading} register={register} errors={errors} required /><Input id="email" type="email" label="Email address" disabled={isLoading} register={register} errors={errors} required validate={(value: string) => /^\S+@\S+\.\S+$/.test(value.trim()) || "Enter a valid email address"} onChange={() => { if (existingEmailNotice) { setExistingEmailNotice(null); clearErrors("email"); } }} />{existingEmailNotice && <div role="status" className="rounded-xl border border-hairline bg-surface-soft p-4"><div className="flex gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-primary"><MailCheck size={18} /></span><div><p className="text-sm font-semibold text-ink">{existingEmailNotice.verified ? "You already have a Redrive account" : "Your signup is already in progress"}</p><p className="mt-1 text-xs leading-5 text-muted">{existingEmailNotice.verified ? `${existingEmailNotice.email} is already registered. Sign in with your existing password to continue.` : `We found an unverified signup for ${existingEmailNotice.email}. Send a new verification code to continue safely.`}</p><button type="button" onClick={existingEmailNotice.verified ? toggle : continueExistingVerification} className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline">{existingEmailNotice.verified ? <LogIn size={14} /> : <Mail size={14} />}{existingEmailNotice.verified ? "Sign in instead" : "Send verification code"}</button></div></div></div>}<PasswordField id="password" label="Create a password" autoComplete="new-password" errors={errors} disabled={isLoading} register={register} valueForStrength={password || ""} showRequirements validate={(value: string) => isStrongPassword(value) || "Complete all password requirements"} /><PasswordField id="confirmPassword" label="Confirm password" autoComplete="new-password" disabled={isLoading} register={register} errors={errors} validate={(value: string) => value === password || "Passwords do not match"} /></div>;
 
-  const profileContent = <div className="space-y-4"><SignupJourney step={2} /><StepProgress current={2} /><SignupImagePicker label="Profile picture (optional)" description="Help hosts recognise you at handover." value={profileImage} onChange={setProfileImage} variant="avatar" /><Input id="number" type="tel" label="Australian mobile number" disabled={isLoading} register={register} errors={errors} required validate={(value: string) => isValidAustralianMobile(value) || "Enter a valid Australian mobile number"} /><p className="flex gap-2 text-xs leading-5 text-muted"><Smartphone size={14} className="mt-0.5 shrink-0" />We save your number securely. SMS ownership verification needs a delivery provider and is not enabled yet.</p><div><label htmlFor="signup-date-of-birth" className="mb-2 block text-xs font-semibold text-ink">Date of birth</label><input id="signup-date-of-birth" type="date" max={new Date().toISOString().slice(0, 10)} {...register("dateOfBirth", { required: "Enter your date of birth", validate: (value: string) => isValidDateOfBirth(value) || "Enter a valid date of birth" })} className={`h-14 w-full rounded-sm border bg-white px-4 text-sm text-ink outline-none focus:ring-1 focus:ring-ink ${errors.dateOfBirth ? "border-error" : "border-hairline focus:border-ink"}`} />{errors.dateOfBirth && <p className="mt-1 text-xs text-error">{String(errors.dateOfBirth.message || "Enter your date of birth")}</p>}</div><AddressAutocomplete id="streetAddress" label="Number & street address" disabled={isLoading} required register={register} setValue={setValue} errors={errors} onSelect={onAddressSelect} /><div className="grid gap-3 sm:grid-cols-2"><div><label className="mb-2 block text-xs font-semibold text-ink">Suburb</label><SuburbSelector state={selectedState?.value} value={selectedSuburb || undefined} allowAllStates onChange={selectSuburb} /></div><div><label className="mb-2 block text-xs font-semibold text-ink">State</label><StateSelector value={selectedState} onChange={selectState} /></div></div><input type="hidden" {...register("suburb", { required: true })} /><input type="hidden" {...register("state", { required: true })} />{(errors.suburb || errors.state) && <p className="text-xs text-error">Choose your suburb and state.</p>}<input type="hidden" {...register("postcode")} /></div>;
+  const profileContent = <div className="space-y-4"><SignupJourney step={2} /><StepProgress current={2} /><SignupImagePicker label="Profile picture (optional)" description="Help hosts recognise you at handover." value={profileImage} onChange={setProfileImage} variant="avatar" /><Input id="number" type="tel" label="Australian mobile number" disabled={isLoading} register={register} errors={errors} required validate={(value: string) => isValidAustralianMobile(value) || "Enter a valid Australian mobile number"} /><p className="flex gap-2 text-xs leading-5 text-muted"><Smartphone size={14} className="mt-0.5 shrink-0" />We save your number securely. SMS ownership verification needs a delivery provider and is not enabled yet.</p><div><label htmlFor="signup-date-of-birth" className="mb-2 block text-xs font-semibold text-ink">Date of birth</label><input id="signup-date-of-birth" type="date" max={new Date().toISOString().slice(0, 10)} {...register("dateOfBirth", { required: "Enter your date of birth", validate: (value: string) => (isValidDateOfBirth(value) && isAtLeast18(value)) || "You must be at least 18" })} className={`h-14 w-full rounded-sm border bg-white px-4 text-sm text-ink outline-none focus:ring-1 focus:ring-ink ${errors.dateOfBirth ? "border-error" : "border-hairline focus:border-ink"}`} />{errors.dateOfBirth && <p className="mt-1 text-xs text-error">{String(errors.dateOfBirth.message || "Enter your date of birth")}</p>}</div><AddressAutocomplete id="streetAddress" label="Number & street address" disabled={isLoading} required register={register} setValue={setValue} errors={errors} onSelect={onAddressSelect} /><div className="grid gap-3 sm:grid-cols-2"><div><label className="mb-2 block text-xs font-semibold text-ink">Suburb</label><SuburbSelector state={selectedState?.value} value={selectedSuburb || undefined} allowAllStates onChange={selectSuburb} /></div><div><label className="mb-2 block text-xs font-semibold text-ink">State</label><StateSelector value={selectedState} onChange={selectState} /></div></div><input type="hidden" {...register("suburb", { required: true })} /><input type="hidden" {...register("state", { required: true })} />{(errors.suburb || errors.state) && <p className="text-xs text-error">Choose your suburb and state.</p>}<input type="hidden" {...register("postcode")} /></div>;
 
   const aboutContent = <div className="space-y-4"><SignupJourney step={3} /><StepProgress current={3} /><Input id="hobbies" label="Hobbies, separated by commas" disabled={isLoading} register={register} errors={errors} /><Input id="dreamDestinations" label="Dream destinations, separated by commas" disabled={isLoading} register={register} errors={errors} /><div className="flex gap-3 rounded-sm border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-900"><ShieldCheck size={17} className="mt-0.5 shrink-0" /><span>After signup, open Profile to photograph both sides of your Australian driver licence. Booking remains locked until its details and expiry match your profile.</span></div></div>;
 

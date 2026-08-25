@@ -26,6 +26,7 @@ import {
 import Container from "@/app/components/Container";
 import type { SafeReservation, SafeUser } from "@/app/types";
 import HandoverPanel from "@/app/components/reservations/HandoverPanel";
+import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
 
 const statusCopy: Record<
   string,
@@ -267,7 +268,7 @@ export default function ReservationDetails() {
                 <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center">
                   <Image
                     src={reservation.user.image || "/images/placeholder.png"}
-                    alt=""
+                    alt={`${reservation.user.name || "Redrive guest"} profile photo`}
                     width={72}
                     height={72}
                     className="h-18 w-18 rounded-full object-cover"
@@ -308,6 +309,7 @@ export default function ReservationDetails() {
             </div>
 
             <aside className="space-y-5 lg:sticky lg:top-32">
+              <CancellationPolicyDisplay value={reservation.cancellationPolicy} compact />
               <section className="rounded-md border border-hairline-soft bg-white p-6 shadow-card">
                 <SectionHeading
                   icon={<CircleDollarSign size={19} />}

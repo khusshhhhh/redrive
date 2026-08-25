@@ -99,7 +99,7 @@ export default function ChatSidebar({ activeChatId, className = "" }: ChatSideba
               className={`flex w-full items-center gap-3 rounded-sm p-3 text-left transition ${active ? "bg-surface-strong" : "hover:bg-surface-soft"}`}
             >
               <span className="relative shrink-0">
-                <Image src={chat.otherUser?.image || "/images/placeholder.png"} alt="" width={48} height={48} className="h-12 w-12 rounded-full object-cover" />
+                <Image src={chat.otherUser?.image || "/images/placeholder.png"} alt={`${chat.otherUser?.name || "Conversation member"} profile photo`} width={48} height={48} className="h-12 w-12 rounded-full object-cover" />
                 {online && <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-green-500" />}
               </span>
               <span className="min-w-0 flex-1">

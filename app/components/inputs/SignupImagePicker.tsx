@@ -63,7 +63,7 @@ const SignupImagePicker: React.FC<SignupImagePickerProps> = ({
           className={`relative flex shrink-0 items-center justify-center overflow-hidden border border-dashed border-hairline bg-surface-soft text-primary transition hover:border-primary ${variant === "avatar" ? "h-20 w-20 rounded-full" : "h-20 w-24 rounded-sm"}`}
           aria-label={`Choose ${label.toLowerCase()}`}
         >
-          {preview ? <Image src={preview} alt="Selected preview" fill unoptimized className="object-cover" /> : variant === "avatar" ? <Camera size={23} /> : <FileBadge2 size={24} />}
+          {preview ? <Image src={preview} alt={variant === "avatar" ? "Selected profile photo preview" : "Selected document preview"} fill unoptimized className="object-cover" /> : variant === "avatar" ? <Camera size={23} /> : <FileBadge2 size={24} />}
         </button>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-ink">{label}</p>

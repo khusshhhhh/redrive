@@ -3,6 +3,7 @@ import { ArrowLeft, Check, Clock3 } from "lucide-react";
 
 import type { EditorialArticle } from "@/app/content/editorial";
 import { siteUrl } from "@/app/libs/siteUrl";
+import InformationScrollReveal from "@/app/components/motion/InformationScrollReveal";
 
 interface ArticlePageProps {
   article: EditorialArticle;
@@ -27,11 +28,12 @@ export default function ArticlePage({ article, backHref, backLabel, sectionLabel
   };
 
   return (
-    <main className="bg-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+    <main className="information-page bg-white">
+      <InformationScrollReveal />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
       <article>
         <header className="border-b border-hairline-soft bg-surface-soft/55">
-          <div className="mx-auto max-w-[900px] px-5 py-12 sm:px-8 sm:py-20">
+          <div data-info-reveal className="mx-auto max-w-[900px] px-5 py-12 sm:px-8 sm:py-20">
             <Link href={backHref} className="inline-flex items-center gap-2 text-sm font-semibold text-muted transition hover:text-ink"><ArrowLeft size={16} />{backLabel}</Link>
             <p className="mt-10 text-xs font-semibold uppercase tracking-[0.18em] text-primary">{sectionLabel} · {article.category}</p>
             <h1 className="mt-4 text-3xl font-semibold leading-[1.14] tracking-tight text-ink sm:text-5xl">{article.title}</h1>
@@ -45,7 +47,7 @@ export default function ArticlePage({ article, backHref, backLabel, sectionLabel
         </header>
 
         <div className="mx-auto grid max-w-[1080px] gap-12 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[220px_minmax(0,720px)]">
-          <aside className="h-fit lg:sticky lg:top-32">
+          <aside data-info-reveal className="h-fit lg:sticky lg:top-32">
             <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted">In this article</p>
             <nav className="mt-4 flex flex-col border-l border-hairline-soft">
               {article.sections.map((section, index) => <a key={section.heading} href={`#article-section-${index}`} className="border-l-2 border-transparent py-2 pl-4 text-sm leading-5 text-muted transition hover:border-primary hover:text-ink">{section.heading}</a>)}
@@ -54,7 +56,7 @@ export default function ArticlePage({ article, backHref, backLabel, sectionLabel
 
           <div>
             {article.sections.map((section, index) => (
-              <section key={section.heading} id={`article-section-${index}`} className="scroll-mt-32 border-b border-hairline-soft py-9 first:pt-0 last:border-0">
+              <section data-info-reveal key={section.heading} id={`article-section-${index}`} className="scroll-mt-32 border-b border-hairline-soft py-9 first:pt-0 last:border-0">
                 <h2 className="text-2xl font-semibold tracking-tight text-ink">{section.heading}</h2>
                 <div className="mt-4 space-y-4">
                   {section.paragraphs.map((paragraph) => <p key={paragraph} className="text-[15px] leading-7 text-body sm:text-base sm:leading-8">{paragraph}</p>)}
