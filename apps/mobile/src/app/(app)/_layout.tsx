@@ -16,6 +16,10 @@ export default function ProtectedLayout() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="reservation/[reservationId]" options={{ title: "Trip details" }} />
       <Stack.Screen name="chat/[chatId]" options={{ title: "Conversation" }} />
+      <Stack.Screen name="booking/[listingId]" options={{ title: "Request booking" }} />
+      <Stack.Screen name="profile/security" options={{ title: "Security" }} />
+      <Stack.Screen name="profile/notifications" options={{ title: "Notifications" }} />
+      <Stack.Screen name="profile/delete-account" options={{ title: "Delete account" }} />
     </Stack>
   );
 }

@@ -8,9 +8,11 @@
 
 **Sections 5–8 implementation record:** [`MOBILE_SECTIONS_5_8_IMPLEMENTATION.md`](./MOBILE_SECTIONS_5_8_IMPLEMENTATION.md)
 
+**Sections 9–13 implementation record:** [`MOBILE_SECTIONS_9_13_IMPLEMENTATION.md`](./MOBILE_SECTIONS_9_13_IMPLEMENTATION.md)
+
 **Repository:** current Redrive Next.js/MongoDB application
 
-**Last validated:** 24 August 2026
+**Last validated:** 25 August 2026
 
 **Target:** iOS and Android, using the existing Redrive backend
 
@@ -577,6 +579,10 @@ hide splash after the route decision
 Protected route groups should render only after bootstrap finishes. A navigation guard is user experience, not authorization; the backend remains authoritative.
 
 ## 9. Develop screens in vertical slices
+
+> **Execution record:** repository implementation status, commands, completed
+> controls, and deliberately open device/provider gates are maintained in
+> [`MOBILE_SECTIONS_9_13_IMPLEMENTATION.md`](./MOBILE_SECTIONS_9_13_IMPLEMENTATION.md).
 
 For each slice, finish API contract, loading/empty/error/offline states, accessibility, tests, analytics redaction, and real-device checks before moving on.
 

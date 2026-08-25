@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from 'react-native';
 
 import { AppProviders } from "@/providers/app-providers";
+import { NotificationNavigation } from "@/components/notification-navigation";
 
 void SplashScreen.preventAutoHideAsync();
 SplashScreen.setOptions({ duration: 250, fade: true });
@@ -14,6 +15,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AppProviders>
+        <NotificationNavigation />
         <Stack screenOptions={{ headerBackTitle: "Back" }}>
           <Stack.Screen name="(public)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />

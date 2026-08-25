@@ -86,6 +86,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     extra: {
       appEnvironment: variant,
       apiOrigin: process.env.EXPO_PUBLIC_API_ORIGIN,
+      linkHost,
       ...(projectId ? { eas: { projectId } } : {}),
     },
   };

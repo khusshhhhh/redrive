@@ -4,8 +4,10 @@
 node_modules/
 
 # Expo
+.expo
 .expo/
 dist/
+dist-web/
 web-build/
 expo-env.d.ts
 

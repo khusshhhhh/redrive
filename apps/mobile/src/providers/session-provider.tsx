@@ -20,6 +20,7 @@ type SessionContextValue = {
   verifyLoginOtp: (challengeId: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
+  clearLocalSession: () => Promise<void>;
 };
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -156,7 +157,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     }
   }, [clearSession]);
 
-  const value = useMemo(() => ({ status, user, login, verifyLoginOtp, logout, logoutAll }), [status, user, login, verifyLoginOtp, logout, logoutAll]);
+  const value = useMemo(() => ({ status, user, login, verifyLoginOtp, logout, logoutAll, clearLocalSession: clearSession }), [status, user, login, verifyLoginOtp, logout, logoutAll, clearSession]);
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 

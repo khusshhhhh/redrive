@@ -5,6 +5,7 @@ import { optionalIdentity } from "@/app/libs/mobile-auth/identity";
 import { mobileAuthErrorResponse } from "@/app/libs/mobile-auth/route-utils";
 import { revokeMobileSessionByRefreshToken, revokeMobileTokenFamily } from "@/app/libs/mobile-auth/sessions";
 import { mobileJson, mobileUnexpectedError, parseMobileJson } from "@/app/libs/mobile-api/responses";
+import prisma from "@/app/libs/prismadb";
 import { writeAuditEvent } from "@/app/libs/security";
 
 async function POSTHandler(request: Request) {
@@ -17,7 +18,10 @@ async function POSTHandler(request: Request) {
       : identity?.method === "mobile-access-token" && identity.tokenFamilyId
         ? (await revokeMobileTokenFamily(identity.tokenFamilyId, "LOGOUT"), { userId: identity.userId, id: identity.sessionId })
         : null;
-    if (revoked) await writeAuditEvent({ request, actorUserId: revoked.userId, action: "MOBILE_LOGOUT", targetType: "MobileSession", targetId: revoked.id });
+    if (revoked) {
+      if ("deviceId" in revoked && revoked.deviceId) await prisma.mobilePushToken.updateMany({ where: { userId: revoked.userId, deviceId: revoked.deviceId, disabledAt: null }, data: { disabledAt: new Date() } });
+      await writeAuditEvent({ request, actorUserId: revoked.userId, action: "MOBILE_LOGOUT", targetType: "MobileSession", targetId: revoked.id });
+    }
     return mobileJson(request, { loggedOut: true });
   } catch (error) {
     return mobileAuthErrorResponse(request, error) || mobileUnexpectedError(request, error, "Mobile logout failed");

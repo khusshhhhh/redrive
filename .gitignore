@@ -16,6 +16,9 @@
 # next.js
 /.next/
 /out/
+/apps/mobile/.expo/
+.expo
+.expo/
 
 # production
 /build
