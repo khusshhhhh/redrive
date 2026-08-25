@@ -1,5 +1,7 @@
 import crypto from "crypto";
 import prisma from "@/app/libs/prismadb";
+import { getRedis, redisEnabled, redisKeyPrefix } from "@/app/libs/redis";
+import { consumeRedisRateLimits } from "@/app/libs/redisRateLimit";
 
 type RateLimitRule = {
   scope: string;
@@ -9,6 +11,8 @@ type RateLimitRule = {
 };
 
 const secret = () => process.env.RATE_LIMIT_SECRET || process.env.NEXTAUTH_SECRET || "redrive-development-only";
+const REDIS_RETRY_COOLDOWN_MS = 5_000;
+let redisRetryAfter = 0;
 
 export function securityHash(value: string) {
   return crypto.createHmac("sha256", secret()).update(value).digest("hex");
@@ -21,6 +25,32 @@ export function getClientIp(request: Request) {
 }
 
 export async function consumeRateLimits(rules: RateLimitRule[]) {
+  if (redisEnabled() && Date.now() >= redisRetryAfter) {
+    try {
+      const client = await getRedis();
+      const result = await consumeRedisRateLimits({
+        client,
+        keyPrefix: redisKeyPrefix(),
+        rules: rules.map((rule) => ({
+          scope: rule.scope,
+          identifierHash: securityHash(rule.identifier.toLowerCase()),
+          limit: rule.limit,
+          windowMs: rule.windowMs,
+        })),
+      });
+      redisRetryAfter = 0;
+      return result;
+    } catch (error) {
+      redisRetryAfter = Date.now() + REDIS_RETRY_COOLDOWN_MS;
+      const message = error instanceof Error ? error.message : "Unknown Redis error";
+      console.error("Redis rate limiting unavailable; using MongoDB fallback:", message);
+    }
+  }
+
+  return consumeMongoRateLimits(rules);
+}
+
+async function consumeMongoRateLimits(rules: RateLimitRule[]) {
   const now = Date.now();
 
   for (const rule of rules) {
