@@ -3,13 +3,19 @@
 import { getSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
+import {
+  clearBrowserActivity,
+  readBrowserActivity,
+  recordBrowserActivity,
+  WEB_ACTIVITY_STORAGE_KEY,
+} from "@/app/libs/browserSessionActivity";
 
-const ACTIVITY_STORAGE_KEY = "redrive:web-session:last-activity";
 const SERVER_TOUCH_THROTTLE_MS = 60_000;
+const SESSION_BOOTSTRAP_RETRY_MS = 1_000;
+const SESSION_BOOTSTRAP_MAX_RETRIES = 3;
 
 function storedActivity() {
-  const value = Number(window.localStorage.getItem(ACTIVITY_STORAGE_KEY));
-  return Number.isFinite(value) && value > 0 ? value : 0;
+  return readBrowserActivity(window.localStorage);
 }
 
 export default function IdleSessionGuard({
@@ -32,12 +38,14 @@ export default function IdleSessionGuard({
     let disposed = false;
     let logoutStarted = false;
     let lastServerTouch = 0;
+    let bootstrapRetries = 0;
     let timeout: number | undefined;
+    let bootstrapRetryTimeout: number | undefined;
 
     const logoutForInactivity = async () => {
       if (disposed || logoutStarted) return;
       logoutStarted = true;
-      window.localStorage.removeItem(ACTIVITY_STORAGE_KEY);
+      clearBrowserActivity(window.localStorage);
       await signOut({ callbackUrl: "/?session=inactive" });
     };
 
@@ -58,7 +66,7 @@ export default function IdleSessionGuard({
     const touchServer = async (force = false) => {
       if (!isAuthenticated || disposed || logoutStarted) return;
       const now = Date.now();
-      window.localStorage.setItem(ACTIVITY_STORAGE_KEY, String(now));
+      recordBrowserActivity(window.localStorage, now);
       scheduleLogout();
       if (!force && now - lastServerTouch < SERVER_TOUCH_THROTTLE_MS) return;
       lastServerTouch = now;
@@ -68,7 +76,44 @@ export default function IdleSessionGuard({
           credentials: "same-origin",
           headers: { "Cache-Control": "no-store" },
         });
-        if (response.status === 401) await logoutForInactivity();
+        if (response.ok) {
+          bootstrapRetries = 0;
+          return;
+        }
+        if (response.status === 409) {
+          lastServerTouch = 0;
+          if (bootstrapRetries < SESSION_BOOTSTRAP_MAX_RETRIES) {
+            bootstrapRetries += 1;
+            if (bootstrapRetryTimeout) window.clearTimeout(bootstrapRetryTimeout);
+            bootstrapRetryTimeout = window.setTimeout(
+              () => void touchServer(true),
+              SESSION_BOOTSTRAP_RETRY_MS,
+            );
+          }
+          return;
+        }
+        if (response.status === 401) {
+          // The credentials callback and the first activity request can overlap
+          // while the refreshed JWT cookie is being committed. Never destroy a
+          // freshly authenticated session solely because that touch raced it.
+          const session = await getSession().catch(() => null);
+          const sessionIsValid = Boolean(
+            session?.user?.email && !session.sessionInvalidReason,
+          );
+          if (!sessionIsValid) {
+            await logoutForInactivity();
+            return;
+          }
+          lastServerTouch = 0;
+          if (bootstrapRetries < SESSION_BOOTSTRAP_MAX_RETRIES) {
+            bootstrapRetries += 1;
+            if (bootstrapRetryTimeout) window.clearTimeout(bootstrapRetryTimeout);
+            bootstrapRetryTimeout = window.setTimeout(
+              () => void touchServer(true),
+              SESSION_BOOTSTRAP_RETRY_MS,
+            );
+          }
+        }
       } catch {
         // A temporary network failure must not destroy a valid local session.
         // The next activity or authenticated request will retry validation.
@@ -87,14 +132,17 @@ export default function IdleSessionGuard({
 
     const onActivity = () => void touchServer();
     const onStorage = (event: StorageEvent) => {
-      if (event.key === ACTIVITY_STORAGE_KEY) scheduleLogout();
+      if (event.key === WEB_ACTIVITY_STORAGE_KEY) scheduleLogout();
     };
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") void verifyThenTouch();
     };
 
-    void verifyThenTouch();
     if (isAuthenticated) {
+      // Authentication itself is activity. Reset synchronously before any
+      // asynchronous session bootstrap request can race with an old timestamp.
+      recordBrowserActivity(window.localStorage);
+      scheduleLogout();
       window.addEventListener("pointerdown", onActivity, { passive: true });
       window.addEventListener("keydown", onActivity);
       window.addEventListener("wheel", onActivity, { passive: true });
@@ -103,10 +151,12 @@ export default function IdleSessionGuard({
       window.addEventListener("storage", onStorage);
       document.addEventListener("visibilitychange", onVisibilityChange);
     }
+    void verifyThenTouch();
 
     return () => {
       disposed = true;
       if (timeout) window.clearTimeout(timeout);
+      if (bootstrapRetryTimeout) window.clearTimeout(bootstrapRetryTimeout);
       window.removeEventListener("pointerdown", onActivity);
       window.removeEventListener("keydown", onActivity);
       window.removeEventListener("wheel", onActivity);

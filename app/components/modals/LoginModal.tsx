@@ -14,6 +14,7 @@ import Input from "../inputs/Input";
 import PasswordField from "../inputs/PasswordField";
 import Button from "../Button";
 import Modal from "./Modal";
+import { recordBrowserActivity } from "@/app/libs/browserSessionActivity";
 
 type LoginStage = "credentials" | "otp";
 
@@ -32,6 +33,10 @@ const LoginModal = () => {
   });
 
   const finishLogin = () => {
+    // A successful sign-in starts a new inactivity window. Do this before the
+    // route refresh mounts the authenticated session guard so an old browser
+    // timestamp can never be applied to the new session.
+    recordBrowserActivity(window.localStorage);
     toast.success("Welcome back");
     router.refresh();
     loginModal.onClose();
