@@ -12,6 +12,7 @@ import { Manrope } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import { siteUrl } from "./libs/siteUrl";
 import CompareTray from "./components/CompareTray";
+import favicon from "./favicon.png";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -64,8 +65,8 @@ export const metadata: Metadata = {
     images: [{ url: "/opengraph-image", alt: "Redrive — useful vehicles shared locally across Australia" }],
   },
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml", sizes: "any" }],
-    shortcut: "/icon.svg",
+    icon: [{ url: favicon.src, type: "image/png", sizes: "200x200" }],
+    shortcut: [{ url: favicon.src, type: "image/png", sizes: "200x200" }],
     apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }],
   },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Redrive" },
@@ -111,7 +112,7 @@ export default async function RootLayout({
                   "@id": `${siteUrl}/#organization`,
                   name: "Redrive",
                   url: siteUrl,
-                  logo: `${siteUrl}/icon.svg`,
+                  logo: new URL(favicon.src, siteUrl).toString(),
                   founder: { "@type": "Person", name: "Khush Patel" },
                   areaServed: { "@type": "Country", name: "Australia" },
                 },

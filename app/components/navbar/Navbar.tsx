@@ -14,6 +14,9 @@ interface NavbarProps {
   currentUser?: SafeUser | null;
 }
 
+const HEADER_COLLAPSE_SCROLL_Y = 48;
+const HEADER_EXPAND_SCROLL_Y = 8;
+
 const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
   const pathname = usePathname(); // ✅ Now inside Client Component
   const [isScrolled, setIsScrolled] = useState(false);
@@ -22,7 +25,22 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
 
   useEffect(() => {
     const desktopQuery = window.matchMedia("(min-width: 768px)");
-    const updateHeader = () => setIsScrolled(desktopQuery.matches && window.scrollY > 18);
+    const updateHeader = () => {
+      if (!desktopQuery.matches) {
+        setIsScrolled(false);
+        return;
+      }
+
+      // The header and its layout spacer become shorter in compact mode. Using
+      // one threshold lets that height change push scrollY back across the same
+      // boundary, causing the two header states to flicker. Hysteresis keeps the
+      // current state stable until the user has clearly scrolled the other way.
+      setIsScrolled((current) =>
+        current
+          ? window.scrollY > HEADER_EXPAND_SCROLL_Y
+          : window.scrollY > HEADER_COLLAPSE_SCROLL_Y,
+      );
+    };
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
     desktopQuery.addEventListener("change", updateHeader);
