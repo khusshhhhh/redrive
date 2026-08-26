@@ -13,7 +13,7 @@ import {
   sanitizeImage,
   validateImageUploadMetadata,
 } from "@/app/libs/uploadSecurity";
-import { readLicenceImages } from "@/app/libs/googleVision";
+import { LicenceOcrError, readLicenceImages } from "@/app/libs/googleVision";
 import {
   AU_ISSUERS,
   analyzeAustralianLicense,
@@ -232,6 +232,20 @@ async function POSTHandler(request: Request) {
   } catch (error) {
     if (error instanceof UploadValidationError) {
       return noStore({ error: error.message }, { status: error.status });
+    }
+    if (error instanceof LicenceOcrError) {
+      console.error("Licence OCR provider failure", {
+        code: error.code,
+        providerStatus: error.providerStatus,
+        providerReason: error.providerReason,
+      });
+      const imageRejected = error.code === "OCR_IMAGE_REJECTED";
+      return noStore({
+        error: imageRejected
+          ? "The licence images could not be read. Check that both sides are sharp, complete and free of glare."
+          : "Licence checking is temporarily unavailable. Your images were not rejected; please try again later.",
+        code: error.code,
+      }, { status: imageRejected ? 422 : 503 });
     }
     console.error("Licence analysis failed", error);
     const message = error instanceof Error && error.message === "Licence OCR is not configured"

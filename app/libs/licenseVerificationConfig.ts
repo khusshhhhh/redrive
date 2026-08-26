@@ -18,10 +18,20 @@ function isPresent(value?: string) {
   return Boolean(value?.trim());
 }
 
+export function isGoogleApiKey(value?: string) {
+  return /^AIza[0-9A-Za-z_-]{35}$/.test(value?.trim() || "");
+}
+
 export function missingLicenceConfiguration(
   environment: LicenceEnvironment = process.env,
 ) {
   const missing: string[] = providerVariables.filter((name) => !isPresent(environment[name]));
+  if (
+    isPresent(environment.GOOGLE_CLOUD_VISION_API_KEY) &&
+    !isGoogleApiKey(environment.GOOGLE_CLOUD_VISION_API_KEY)
+  ) {
+    missing.push("GOOGLE_CLOUD_VISION_API_KEY_INVALID");
+  }
   const hasEncryptionKey = isPresent(environment.LICENSE_DATA_ENCRYPTION_KEY);
   const hasHmacKey = isPresent(environment.LICENSE_DATA_HMAC_KEY);
   const canUseDevelopmentFallback =

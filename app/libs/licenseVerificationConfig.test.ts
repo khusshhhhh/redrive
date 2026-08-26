@@ -8,7 +8,7 @@ const configuredProduction = {
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: "cloud",
   CLOUDINARY_API_KEY: "key",
   CLOUDINARY_API_SECRET: "secret",
-  GOOGLE_CLOUD_VISION_API_KEY: "vision",
+  GOOGLE_CLOUD_VISION_API_KEY: `AIza${"a".repeat(35)}`,
   LICENSE_DATA_ENCRYPTION_KEY: "encryption",
   LICENSE_DATA_HMAC_KEY: "hmac",
 };
@@ -22,6 +22,13 @@ test("licence configuration reports the exact misspelled HMAC variable case", ()
   delete environment.LICENSE_DATA_HMAC_KEY;
   environment.LICENSE_DATA_HMAC_KE = "misspelled";
   assert.deepEqual(missingLicenceConfiguration(environment), ["LICENSE_DATA_HMAC_KEY"]);
+});
+
+test("licence configuration rejects a placeholder Vision value", () => {
+  assert.deepEqual(missingLicenceConfiguration({
+    ...configuredProduction,
+    GOOGLE_CLOUD_VISION_API_KEY: "replace-me",
+  }), ["GOOGLE_CLOUD_VISION_API_KEY_INVALID"]);
 });
 
 test("licence configuration permits the documented development fallback", () => {
