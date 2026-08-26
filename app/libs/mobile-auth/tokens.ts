@@ -66,5 +66,16 @@ export async function verifyMobileAccessToken(token: string) {
     throw new MobileAccessTokenError();
   }
 
+  // A protected native request represents real app use. Throttle the durable
+  // activity write so normal navigation keeps the session alive without
+  // writing to MongoDB on every request.
+  const activityCutoff = new Date(Date.now() - 60_000);
+  if (session.lastSeenAt < activityCutoff) {
+    await prisma.mobileSession.updateMany({
+      where: { id: session.id, revokedAt: null, lastSeenAt: { lt: activityCutoff } },
+      data: { lastSeenAt: new Date() },
+    });
+  }
+
   return { userId: user.id, sessionId: session.id, tokenFamilyId: session.tokenFamilyId };
 }

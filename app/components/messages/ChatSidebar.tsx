@@ -54,10 +54,12 @@ export default function ChatSidebar({ activeChatId, className = "" }: ChatSideba
 
   return (
     <aside className={`min-h-0 flex-col border-r border-hairline-soft bg-white ${className}`}>
-      <div className="border-b border-hairline-soft p-5">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Messages</h1>
-        <p className="mt-1 text-sm text-muted">Your conversations in one place</p>
-        <label className="mt-4 flex h-11 items-center gap-2 rounded-full bg-surface-soft px-4 text-muted">
+      <div className="shrink-0 border-b border-hairline-soft px-4 py-4 sm:px-5 sm:py-5">
+        <div className="flex items-end justify-between gap-4">
+          <div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Inbox</p><h1 className="mt-1 text-2xl font-semibold tracking-tight text-ink">Messages</h1></div>
+          {chats && !unauthorized && <span className="pb-1 text-xs font-medium text-muted">{chats.length} conversation{chats.length === 1 ? "" : "s"}</span>}
+        </div>
+        <label className="mt-4 flex h-11 items-center gap-2 rounded-full border border-hairline-soft bg-surface-soft/70 px-4 text-muted transition focus-within:border-primary focus-within:bg-white focus-within:ring-1 focus-within:ring-primary">
           <Search size={16} aria-hidden="true" />
           <input
             value={query}
@@ -68,7 +70,7 @@ export default function ChatSidebar({ activeChatId, className = "" }: ChatSideba
         </label>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-2">
+      <div className="chat-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain p-2" aria-label="Conversations">
         {!chats && Array.from({ length: 5 }).map((_, index) => (
           <div key={index} className="flex items-center gap-3 p-3">
             <div className="skeleton-wave h-12 w-12 shrink-0 rounded-full" />
@@ -96,7 +98,7 @@ export default function ChatSidebar({ activeChatId, className = "" }: ChatSideba
             <button
               key={chat.id}
               onClick={() => router.push(`/messages/${chat.id}`)}
-              className={`flex w-full items-center gap-3 rounded-sm p-3 text-left transition ${active ? "bg-surface-strong" : "hover:bg-surface-soft"}`}
+              className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${active ? "bg-surface-strong shadow-[inset_3px_0_0_#087985]" : "hover:bg-surface-soft"}`}
             >
               <span className="relative shrink-0">
                 <Image src={chat.otherUser?.image || "/images/placeholder.png"} alt={`${chat.otherUser?.name || "Conversation member"} profile photo`} width={48} height={48} className="h-12 w-12 rounded-full object-cover" />

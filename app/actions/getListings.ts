@@ -1,5 +1,6 @@
 import prisma from "@/app/libs/prismadb";
-import { unstable_cache } from "next/cache";
+import { revalidateTag, unstable_cache } from "next/cache";
+import { BoundedMemoryCache } from "@/app/libs/memoryCache";
 
 export const PUBLIC_LISTINGS_CACHE_TAG = "public-listings";
 
@@ -23,12 +24,43 @@ const getCachedPublicListings = unstable_cache(
   { revalidate: 15, tags: [PUBLIC_LISTINGS_CACHE_TAG] },
 );
 
+type PublicListings = Awaited<ReturnType<typeof getListingsFromDatabase>>;
+
+// Five seconds is long enough to collapse repeated hot requests inside one
+// warm function instance while keeping availability changes tightly bounded.
+// The shared Next data cache below remains useful across instances.
+const publicListingsMemoryCache = new BoundedMemoryCache<PublicListings>({
+  maxEntries: 50,
+  ttlMs: 5_000,
+});
+
+function publicListingsMemoryKey(params: IListingsParams) {
+  const normalized = Object.fromEntries(
+    Object.entries(params || {})
+      .filter(([, value]) => value !== undefined && value !== "")
+      .sort(([left], [right]) => left.localeCompare(right)),
+  );
+  return JSON.stringify(normalized);
+}
+
 export default async function getListings(params: IListingsParams) {
   // Owner-management pages must always see their latest records. Public
   // discovery can tolerate at most 15 seconds of staleness; booking writes
   // still revalidate availability against MongoDB before committing.
   if (params?.userId) return getListingsFromDatabase(params);
-  return getCachedPublicListings(params || {});
+  const publicParams = params || {};
+  const memoryKey = publicListingsMemoryKey(publicParams);
+  const memoryHit = publicListingsMemoryCache.get(memoryKey);
+  if (memoryHit !== undefined) return memoryHit;
+
+  const listings = await getCachedPublicListings(publicParams);
+  publicListingsMemoryCache.set(memoryKey, listings);
+  return listings;
+}
+
+export function invalidatePublicListingsCache() {
+  publicListingsMemoryCache.clear();
+  revalidateTag(PUBLIC_LISTINGS_CACHE_TAG);
 }
 
 async function getListingsFromDatabase(params: IListingsParams) {

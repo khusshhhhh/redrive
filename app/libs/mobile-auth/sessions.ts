@@ -70,6 +70,11 @@ export async function rotateMobileSession(rawToken: string, request?: Request) {
     throw new MobileSessionError("REFRESH_TOKEN_REUSED", "This session was revoked for your security. Sign in again.");
   }
   if (current.revokedAt) throw new MobileSessionError("SESSION_REVOKED", "Your session was revoked. Sign in again.");
+  if (Date.now() - current.lastSeenAt.getTime() >= mobileAuthConfig().sessionIdleTimeoutMs) {
+    await revokeMobileTokenFamily(current.tokenFamilyId, "IDLE_TIMEOUT");
+    await writeAuditEvent({ request, actorUserId: current.userId, action: "MOBILE_SESSION_IDLE_TIMEOUT", targetType: "MobileSession", targetId: current.id });
+    throw new MobileSessionError("SESSION_IDLE_TIMEOUT", "You were signed out after being inactive. Sign in again.");
+  }
   if (current.expiresAt.getTime() <= Date.now()) {
     await revokeMobileTokenFamily(current.tokenFamilyId, "EXPIRED");
     throw new MobileSessionError("REFRESH_TOKEN_EXPIRED", "Your session has expired. Sign in again.");

@@ -170,7 +170,7 @@ Why it helps:
 
 Implementation notes:
 
-- Use a shared store such as Redis-compatible Upstash in production; an in-memory counter is not reliable across serverless instances.
+- Keep MongoDB rate-limit buckets as the shared cross-instance authority; use bounded process memory only to reject obvious bursts earlier.
 - Hash email/IP keys before storage and keep short retention periods.
 - Add admin metrics for blocked attempts without logging passwords, OTPs or full session tokens.
 - Only introduce a CAPTCHA after suspicious behaviour; do not make every legitimate user solve one.

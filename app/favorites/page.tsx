@@ -1,36 +1,15 @@
-import EmptyState from "../components/EmptyState";
-import ClientOnly from "../components/ClientOnly";
-
 import getCurrentUser from "../actions/getCurrentUser";
 import getFavoriteListings from "../actions/getFavoriteListings";
+import { toListingCardData } from "../libs/listingCardData";
 import FavoritesClient from "./FavoritesClient";
 
-const ListingPage = async () => {
-    const listings = await getFavoriteListings();
-    const currentUser = await getCurrentUser();
+const FavoritesPage = async () => {
+    const [listings, currentUser] = await Promise.all([
+        getFavoriteListings(),
+        getCurrentUser(),
+    ]);
 
-    if (listings.length == 0) {
-        return (
-            <ClientOnly>
-                <EmptyState
-                    title="No favorites found"
-                    subtitle="Save vehicles while exploring and they will appear here."
-                    actionLabel="Explore vehicles"
-                    actionHref="/"
-                />
-            </ClientOnly>
-        );
-    }
+    return <FavoritesClient listings={listings.map(toListingCardData)} currentUser={currentUser} />;
+};
 
-    return (
-        <ClientOnly>
-            <FavoritesClient
-                listings={listings}
-                currentUser={currentUser}
-            />
-        </ClientOnly>
-    );
-
-}
-
-export default ListingPage;
+export default FavoritesPage;

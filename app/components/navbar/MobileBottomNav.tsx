@@ -37,6 +37,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ currentUser }) => {
     "/admin",
     "/forgot-password",
     "/reset-password",
+    "/messages",
   ].some((route) => pathname.startsWith(route));
 
   if (hideOnFocusedFlow) return null;

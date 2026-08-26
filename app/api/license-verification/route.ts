@@ -36,6 +36,7 @@ import {
   tooManyRequests,
   writeAuditEvent,
 } from "@/app/libs/security";
+import { missingLicenceConfiguration } from "@/app/libs/licenseVerificationConfig";
 
 export const runtime = "nodejs";
 
@@ -72,20 +73,6 @@ async function deleteLicenceAsset(publicId?: string | null) {
   }).catch((error) => console.error("Old licence asset cleanup failed", error));
 }
 
-function isConfigured() {
-  const dataProtectionConfigured = Boolean(
-    process.env.LICENSE_DATA_ENCRYPTION_KEY &&
-    process.env.LICENSE_DATA_HMAC_KEY,
-  ) || (process.env.NODE_ENV !== "production" && Boolean(process.env.NEXTAUTH_SECRET));
-  return Boolean(
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME &&
-    process.env.CLOUDINARY_API_KEY &&
-    process.env.CLOUDINARY_API_SECRET &&
-    process.env.GOOGLE_CLOUD_VISION_API_KEY &&
-    dataProtectionConfigured,
-  );
-}
-
 function noStore<T>(body: T, init?: ResponseInit) {
   return NextResponse.json(body, {
     ...init,
@@ -97,7 +84,16 @@ async function POSTHandler(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) return noStore({ error: "Authentication required" }, { status: 401 });
-    if (!isConfigured()) return noStore({ error: "Licence checking is not configured" }, { status: 503 });
+    const missingConfiguration = missingLicenceConfiguration();
+    if (missingConfiguration.length) {
+      console.error("Licence checking configuration is incomplete", {
+        missing: missingConfiguration,
+      });
+      return noStore({
+        error: "Licence checking is temporarily unavailable. Please try again shortly.",
+        code: "LICENSE_CHECK_UNAVAILABLE",
+      }, { status: 503 });
+    }
 
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email },

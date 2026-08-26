@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import prisma from "@/app/libs/prismadb";
-import { getRedis, redisEnabled, redisKeyPrefix } from "@/app/libs/redis";
-import { consumeRedisRateLimits } from "@/app/libs/redisRateLimit";
+import { BoundedMemoryCache } from "@/app/libs/memoryCache";
+import { consumeMemoryRateLimits } from "@/app/libs/memoryRateLimit";
 
 type RateLimitRule = {
   scope: string;
@@ -11,8 +11,10 @@ type RateLimitRule = {
 };
 
 const secret = () => process.env.RATE_LIMIT_SECRET || process.env.NEXTAUTH_SECRET || "redrive-development-only";
-const REDIS_RETRY_COOLDOWN_MS = 5_000;
-let redisRetryAfter = 0;
+// This cache is an early-rejection optimisation only. MongoDB remains the
+// shared authority across serverless instances, so eviction/restarts cannot
+// weaken the real limit. 10,000 integer counters keeps memory use bounded.
+const localRateLimitCache = new BoundedMemoryCache<number>({ maxEntries: 10_000, ttlMs: 60 * 60_000 });
 
 export function securityHash(value: string) {
   return crypto.createHmac("sha256", secret()).update(value).digest("hex");
@@ -25,34 +27,20 @@ export function getClientIp(request: Request) {
 }
 
 export async function consumeRateLimits(rules: RateLimitRule[]) {
-  if (redisEnabled() && Date.now() >= redisRetryAfter) {
-    try {
-      const client = await getRedis();
-      const result = await consumeRedisRateLimits({
-        client,
-        keyPrefix: redisKeyPrefix(),
-        rules: rules.map((rule) => ({
-          scope: rule.scope,
-          identifierHash: securityHash(rule.identifier.toLowerCase()),
-          limit: rule.limit,
-          windowMs: rule.windowMs,
-        })),
-      });
-      redisRetryAfter = 0;
-      return result;
-    } catch (error) {
-      redisRetryAfter = Date.now() + REDIS_RETRY_COOLDOWN_MS;
-      const message = error instanceof Error ? error.message : "Unknown Redis error";
-      console.error("Redis rate limiting unavailable; using MongoDB fallback:", message);
-    }
-  }
+  const now = Date.now();
+  const hashedRules = rules.map((rule) => ({
+    scope: rule.scope,
+    identifierHash: securityHash(rule.identifier.toLowerCase()),
+    limit: rule.limit,
+    windowMs: rule.windowMs,
+  }));
+  const localResult = consumeMemoryRateLimits({ cache: localRateLimitCache, rules: hashedRules, now });
+  if (!localResult.allowed) return localResult;
 
-  return consumeMongoRateLimits(rules);
+  return consumeMongoRateLimits(rules, now);
 }
 
-async function consumeMongoRateLimits(rules: RateLimitRule[]) {
-  const now = Date.now();
-
+async function consumeMongoRateLimits(rules: RateLimitRule[], now: number) {
   for (const rule of rules) {
     const windowStart = Math.floor(now / rule.windowMs) * rule.windowMs;
     const key = `${rule.scope}:${securityHash(rule.identifier.toLowerCase())}:${windowStart}`;

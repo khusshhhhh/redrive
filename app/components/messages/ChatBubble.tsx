@@ -19,10 +19,10 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, isOwn, otherUserId, pe
   return (
     <div className={`flex items-end gap-1 ${isOwn ? "justify-end" : "justify-start"}`}>
       <div
-        className={`px-3 py-2 rounded-2xl max-w-[80%] sm:max-w-xs animate-pop ${
+        className={`max-w-[86%] rounded-2xl px-3.5 py-2.5 text-[14px] leading-5 shadow-[0_1px_2px_rgba(24,54,58,0.08)] sm:max-w-[70%] ${
           isOwn
-            ? "bg-primary text-white rounded-br-sm"
-            : "bg-surface-soft text-ink rounded-bl-sm"
+            ? "rounded-br-sm bg-primary text-white"
+            : "rounded-bl-sm border border-hairline-soft bg-white text-ink"
         } ${pending ? "opacity-60" : ""}`}
       >
         {message.imageUrl && (

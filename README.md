@@ -187,7 +187,7 @@ Copy [`.env.example`](.env.example) and supply real values locally and in the de
 | `NEXTAUTH_URL` | Production | Canonical URL used by authentication and email links/assets |
 | `NEXT_PUBLIC_SITE_URL` | Production | Canonical public origin for links and payment returns |
 | `RATE_LIMIT_SECRET` | Yes | HMAC key for privacy-preserving rate-limit identifiers |
-| `REDIS_ENABLED`, `REDIS_URL`, `REDIS_KEY_PREFIX` | Recommended | Optional distributed rate limiting with MongoDB fallback; see [`guides/redis.md`](guides/redis.md) |
+| `SESSION_IDLE_TIMEOUT_MINUTES` | Recommended | Web and native inactivity timeout; defaults to 60 minutes |
 | `MOBILE_TOKEN_ISSUER`, `MOBILE_TOKEN_AUDIENCE` | Mobile API rollout | Issuer and audience restrictions for mobile access tokens |
 | `MOBILE_ACCESS_TOKEN_KEY_ID`, `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_ACCESS_TOKEN_PUBLIC_KEYS` | Mobile API rollout | Active key ID and independently rotatable asymmetric mobile signing keys |
 | `MOBILE_REFRESH_TOKEN_PEPPER` | Mobile API rollout | Independent server-only refresh-token hashing secret |
@@ -207,7 +207,7 @@ Copy [`.env.example`](.env.example) and supply real values locally and in the de
 | `ENABLE_LEGACY_API_AUTH` | No | Compatibility endpoint; keep `false` unless documented |
 | `EXPO_PUBLIC_*` mobile values | Mobile builds | Public EAS-scoped API, Stripe, monitoring, and map configuration |
 
-Never commit `.env`, `.env.local`, database URLs, signing keys, refresh-token peppers, SMTP passwords or Cloudinary secrets. The complete walkthrough is in [`ENVIRONMENT_VARIABLES_GUIDE.md`](ENVIRONMENT_VARIABLES_GUIDE.md); mobile architecture and provisioning gates are recorded in [`MOBILE_FOUNDATION_CHECKLIST.md`](MOBILE_FOUNDATION_CHECKLIST.md).
+Never commit `.env`, `.env.local`, database URLs, signing keys, refresh-token peppers, SMTP passwords or Cloudinary secrets. The complete walkthrough is in [`ENVIRONMENT_VARIABLES_GUIDE.md`](ENVIRONMENT_VARIABLES_GUIDE.md); session expiry is described in [`guides/session-timeouts.md`](guides/session-timeouts.md); the rate-limit and cache design is in [`guides/cache-and-rate-limiting.md`](guides/cache-and-rate-limiting.md); mobile architecture and provisioning gates are recorded in [`MOBILE_FOUNDATION_CHECKLIST.md`](MOBILE_FOUNDATION_CHECKLIST.md).
 
 ### Email verification behavior
 

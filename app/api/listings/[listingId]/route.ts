@@ -4,8 +4,7 @@ import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
-import { revalidateTag } from "next/cache";
-import { PUBLIC_LISTINGS_CACHE_TAG } from "@/app/actions/getListings";
+import { invalidatePublicListingsCache } from "@/app/actions/getListings";
 
 /**
  * ✅ GET: Fetch a specific listing by ID (Includes state, suburb, amenities, images, and rego details)
@@ -171,7 +170,7 @@ async function PUTHandler(
       },
     });
 
-    revalidateTag(PUBLIC_LISTINGS_CACHE_TAG);
+    invalidatePublicListingsCache();
     return NextResponse.json(updatedListing, { status: 200 });
   } catch (error) {
     return NextResponse.json(
@@ -228,7 +227,7 @@ async function DELETEHandler(
       where: { id: listingId },
     });
 
-    revalidateTag(PUBLIC_LISTINGS_CACHE_TAG);
+    invalidatePublicListingsCache();
 
 
     return NextResponse.json({

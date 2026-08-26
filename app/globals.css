@@ -282,6 +282,25 @@ textarea::placeholder {
   html { scroll-behavior: auto; }
 }
 
+/* Messaging owns the available app viewport. Only its conversation panes
+   scroll, matching the stable desktop/mobile behaviour of focused chat apps. */
+.chat-canvas {
+  background-color: #f1f8f5;
+  background-image:
+    radial-gradient(circle at 18% 20%, rgb(8 121 133 / 5%) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 82% 72%, rgb(57 113 90 / 5%) 0 1px, transparent 1.5px);
+  background-size: 34px 34px, 42px 42px;
+}
+
+.chat-scrollbar {
+  scrollbar-color: rgb(116 139 133 / 45%) transparent;
+  scrollbar-width: thin;
+}
+
+.chat-scrollbar::-webkit-scrollbar { width: 6px; }
+.chat-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.chat-scrollbar::-webkit-scrollbar-thumb { border-radius: 999px; background: rgb(116 139 133 / 40%); }
+
 /* Toasts arrive like tiny trip updates: a route marker, a distinct status
    voice, and enough motion to feel alive without getting in the way. */
 @keyframes toastArrive {

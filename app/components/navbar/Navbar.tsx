@@ -54,7 +54,11 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
     if (!headerRef.current) return;
 
     const updateHeight = () => {
-      setHeaderHeight(headerRef.current?.getBoundingClientRect().height ?? 0);
+      const nextHeight = headerRef.current?.getBoundingClientRect().height ?? 0;
+      setHeaderHeight(nextHeight);
+      if (nextHeight) {
+        document.documentElement.style.setProperty("--app-header-height", `${nextHeight}px`);
+      }
     };
     updateHeight();
 

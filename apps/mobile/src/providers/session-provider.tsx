@@ -5,9 +5,10 @@ import * as Device from "expo-device";
 import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type PropsWithChildren } from "react";
-import { Platform } from "react-native";
+import { AppState, Platform } from "react-native";
 
 import { apiRequest, configureSessionAdapter, setAccessToken } from "@/services/api/client";
+import { ApiError } from "@/services/api/errors";
 import { clearPendingRevocation, clearStoredSession, getOrCreateDeviceId, readPendingRevocation, readStoredSession, storePendingRevocation, storeSession } from "@/services/auth/secure-session";
 
 type SessionStatus = "bootstrapping" | "anonymous" | "authenticated";
@@ -40,6 +41,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [status, setStatus] = useState<SessionStatus>("bootstrapping");
   const [user, setUser] = useState<MobileUser | null>(null);
   const refreshTokenRef = useRef<string | null>(null);
+  const refreshPromiseRef = useRef<Promise<boolean> | null>(null);
 
   const clearSession = useCallback(async () => {
     refreshTokenRef.current = null;
@@ -58,17 +60,27 @@ export function SessionProvider({ children }: PropsWithChildren) {
     await storeSession(session.refreshToken, session.sessionId);
   }, []);
 
-  const refresh = useCallback(async () => {
-    const stored = refreshTokenRef.current || (await readStoredSession())?.refreshToken;
-    if (!stored) return false;
-    try {
-      const session = await apiRequest<MobileSessionResponse>("/auth/refresh", { method: "POST", body: { refreshToken: stored }, authenticated: false, allowRefresh: false });
-      await applySession(session);
-      return true;
-    } catch {
-      await clearSession();
-      return false;
-    }
+  const refresh = useCallback((preserveOnTemporaryFailure = false) => {
+    if (refreshPromiseRef.current) return refreshPromiseRef.current;
+    const operation = (async () => {
+      const stored = refreshTokenRef.current || (await readStoredSession())?.refreshToken;
+      if (!stored) return false;
+      try {
+        const session = await apiRequest<MobileSessionResponse>("/auth/refresh", { method: "POST", body: { refreshToken: stored }, authenticated: false, allowRefresh: false });
+        await applySession(session);
+        return true;
+      } catch (error) {
+        if (!preserveOnTemporaryFailure || (error instanceof ApiError && error.status === 401)) {
+          await clearSession();
+        }
+        return false;
+      }
+    })();
+    refreshPromiseRef.current = operation;
+    void operation.finally(() => {
+      if (refreshPromiseRef.current === operation) refreshPromiseRef.current = null;
+    });
+    return operation;
   }, [applySession, clearSession]);
 
   useEffect(() => {
@@ -120,6 +132,20 @@ export function SessionProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     if (status !== "bootstrapping") SplashScreen.hide();
   }, [status]);
+
+  useEffect(() => {
+    let previousState = AppState.currentState;
+    const subscription = AppState.addEventListener("change", (nextState) => {
+      const returningToForeground = previousState !== "active" && nextState === "active";
+      previousState = nextState;
+      if (returningToForeground && status === "authenticated") {
+        void refresh(true).then((restored) => {
+          if (!restored && !refreshTokenRef.current) router.replace("/(auth)/login");
+        });
+      }
+    });
+    return () => subscription.remove();
+  }, [refresh, status]);
 
   const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
     const result = await apiRequest<MobileSessionResponse | { code: "LOGIN_OTP_REQUIRED"; challengeId: string; expiresAt: string; previewCode?: string }>("/auth/login", { method: "POST", body: { email, password, device: await deviceMetadata() }, authenticated: false, allowRefresh: false });

@@ -5,6 +5,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { consumeRateLimits, writeAuditEvent } from "@/app/libs/security";
 import { monitorPagesApiRoute } from "@/app/libs/apiMonitoring";
+import { sessionIdleTimeoutMs, WEB_SESSION_ABSOLUTE_MAX_AGE_SECONDS } from "@/app/libs/sessionPolicy";
+import { createWebSession, revokeWebSession, validateWebSession } from "@/app/libs/webSessions";
 
 import prisma from "@/app/libs/prismadb";
 import {
@@ -132,6 +134,51 @@ export const authOptions: AuthOptions = {
   debug: false,
   session: {
     strategy: "jwt",
+    maxAge: WEB_SESSION_ABSOLUTE_MAX_AGE_SECONDS,
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (token.sessionInvalidReason) return token;
+      const userId = String(user?.id || token.sub || "");
+      if (!userId) {
+        token.sessionInvalidReason = "SESSION_NOT_FOUND";
+        return token;
+      }
+
+      if (user) {
+        const session = await createWebSession(userId);
+        token.webSessionId = session.id;
+      } else if (!token.webSessionId) {
+        // Sessions issued before this policy do not have a durable row. Preserve
+        // only recently issued sessions; older cookies must sign in again.
+        const issuedAt = typeof token.iat === "number" ? token.iat * 1_000 : 0;
+        if (!issuedAt || Date.now() - issuedAt >= sessionIdleTimeoutMs()) {
+          token.sessionInvalidReason = "IDLE_TIMEOUT";
+          return token;
+        }
+        const session = await createWebSession(userId);
+        token.webSessionId = session.id;
+      }
+
+      token.sessionInvalidReason = await validateWebSession(token.webSessionId, userId) || undefined;
+      return token;
+    },
+    async session({ session, token }) {
+      if (token.sessionInvalidReason) {
+        session.user = undefined;
+        session.expires = new Date(0).toISOString();
+        session.sessionInvalidReason = token.sessionInvalidReason;
+        return session;
+      }
+      if (session.user && token.sub) session.user.id = token.sub;
+      session.webSessionId = token.webSessionId;
+      return session;
+    },
+  },
+  events: {
+    async signOut({ token }) {
+      if (token?.webSessionId) await revokeWebSession(token.webSessionId);
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

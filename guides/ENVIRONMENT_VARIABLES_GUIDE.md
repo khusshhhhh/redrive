@@ -16,9 +16,7 @@ DATABASE_URL="mongodb+srv://redrive_app:URL_ENCODED_PASSWORD@cluster0.example.mo
 NEXTAUTH_SECRET="a-long-random-secret-generated-for-this-project"
 NEXTAUTH_URL="http://localhost:3000"
 RATE_LIMIT_SECRET="an-independent-hmac-secret"
-REDIS_ENABLED="false"
-REDIS_URL="rediss://default:password@redis.example.com:6379"
-REDIS_KEY_PREFIX="redrive:development"
+SESSION_IDLE_TIMEOUT_MINUTES="60"
 GOOGLE_CLIENT_ID="123456789-example.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="GOCSPX-example"
 
@@ -76,9 +74,7 @@ Never put `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`,
 | `NEXTAUTH_URL` | Yes in production | No | Authentication callback base URL |
 | `NEXT_PUBLIC_SITE_URL` | Yes in production | No | Canonical public web origin |
 | `RATE_LIMIT_SECRET` | Yes | Yes | HMAC key for privacy-safe rate-limit identifiers |
-| `REDIS_ENABLED` | No | No | Enables Redis-backed distributed rate limits when exactly `true` |
-| `REDIS_URL` | When Redis is enabled | Yes | Server-only Redis connection URL; use TLS in production |
-| `REDIS_KEY_PREFIX` | When Redis is enabled | No | Environment-specific namespace for Redis keys |
+| `SESSION_IDLE_TIMEOUT_MINUTES` | Recommended | No | Revokes web and native sessions after inactivity; defaults to 60 minutes |
 | `MOBILE_TOKEN_ISSUER` | Before mobile API rollout | No | Expected mobile access-token issuer |
 | `MOBILE_TOKEN_AUDIENCE` | Before mobile API rollout | No | Expected mobile API audience |
 | `MOBILE_ACCESS_TOKEN_KEY_ID` | Before mobile API rollout | No | Active signing-key identifier written into access-token headers |
@@ -509,6 +505,22 @@ NEXTAUTH_URL="https://your-project.vercel.app"
 
 Do not put `/api/auth/callback/google` into `NEXTAUTH_URL`; that path is added by NextAuth.
 
+### `SESSION_IDLE_TIMEOUT_MINUTES`
+
+This controls the inactivity timeout for web and native sessions. The default is
+60 minutes. Values from 15 minutes through 10,080 minutes (seven days) are
+accepted; missing or invalid values safely use the 60-minute default.
+
+```dotenv
+SESSION_IDLE_TIMEOUT_MINUTES="60"
+```
+
+Web activity is recorded only from real browser interaction, not notification
+or presence polling. Native sessions are checked when their short-lived access
+token refreshes and whenever the app returns to the foreground. Web sessions
+also have a seven-day absolute lifetime, even if continuously active. See
+[`session-timeouts.md`](session-timeouts.md) for the complete behaviour.
+
 ### `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
 
 These values power the **Continue with Google** button. They are unrelated to the Google Maps API keys.
@@ -673,36 +685,7 @@ The route accepts JPG, PNG, and WebP images up to 5 MB and stores them under `re
 
 Official reference: [Cloudinary authenticated uploads](https://cloudinary.com/documentation/upload_images#authenticated_requests).
 
-## 8. Redis distributed rate limiting
-
-Redis-backed rate limiting is optional and disabled by default. When it is
-disabled, or when Redis is temporarily unavailable, Redrive uses the existing
-MongoDB rate-limit buckets. This makes rollout reversible without weakening the
-existing protection.
-
-Provision a separate managed Redis resource for Preview and Production. Keep it
-in a region close to both the Vercel functions and MongoDB, require encryption
-in transit, and copy the provider's complete TLS connection string into the
-server-only `REDIS_URL` variable:
-
-```dotenv
-REDIS_ENABLED="true"
-REDIS_URL="rediss://default:provider-password@provider-host:6379"
-REDIS_KEY_PREFIX="redrive:preview"
-```
-
-Use `redrive:production` for Production. The prefix is defence in depth and
-does not replace separate resources or credentials. Never put these values in
-EAS or an `EXPO_PUBLIC_`/`NEXT_PUBLIC_` variable. Redis keys contain HMACed
-identifiers rather than raw IP addresses or emails.
-
-Deploy first with `REDIS_ENABLED=false`, confirm the variables are scoped to the
-correct environment, then enable Preview and test successful and rejected login
-attempts. Check logs for `Redis rate limiting unavailable`; that message means
-the MongoDB fallback was used. See [`redis.md`](redis.md) for the architecture,
-outage policy, and later phases.
-
-## 9. Scheduled notification secret
+## 8. Scheduled notification secret
 
 ### `CRON_SECRET`
 
@@ -732,7 +715,7 @@ Vercel cron expressions use UTC, so this means 09:00 UTC every day. Adelaide's l
 
 Official reference: [Vercel cron job security](https://vercel.com/docs/cron-jobs/manage-cron-jobs#securing-cron-jobs).
 
-## 10. Add variables to Vercel using the dashboard
+## 9. Add variables to Vercel using the dashboard
 
 ### First deployment
 
@@ -764,7 +747,6 @@ Recommended initial configuration:
 | SMTP | Optional; local fallback exists | Yes for end-to-end testing | Yes |
 | Maps/Places | Optional via CLI | Yes if testing those features | Yes |
 | Cloudinary | Optional via CLI | Yes if testing uploads | Yes |
-| Redis rate limiting | Disabled or local Redis | Separate Preview resource | Separate Production resource |
 | Cron secret | Optional | Yes | Yes |
 | Mobile issuer/audience | Local `.env.local` | Stable Preview API identity | Canonical Production API identity |
 | Mobile signing key ID/private/public map | Development-only pair | Independent Preview pair | Independent Production pair |
@@ -775,7 +757,6 @@ Use separate Preview and Production databases where practical. Preview deploymen
 
 Use independent secrets for Preview and Production. `NEXTAUTH_SECRET`,
 `SMTP_PASS`, `CLOUDINARY_API_SECRET`, `DATABASE_URL`, `CRON_SECRET`,
-`REDIS_URL`,
 `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`, and
 `EXPO_ACCESS_TOKEN` should be marked sensitive when the Vercel UI offers that
 option. The mobile public-key map is not secret, but it remains server
@@ -798,7 +779,7 @@ Changing a Vercel environment variable does not modify an already-built deployme
 
 Official references: [Vercel environment variables](https://vercel.com/docs/environment-variables), [Vercel environments](https://vercel.com/docs/deployments/environments), and [adding variables in the dashboard](https://vercel.com/kb/guide/how-to-add-vercel-environment-variables).
 
-## 11. Add variables using the Vercel CLI
+## 10. Add variables using the Vercel CLI
 
 Install and link the CLI:
 
@@ -837,7 +818,7 @@ Deploy to production:
 vercel --prod
 ```
 
-## 12. Apply the database schema before production use
+## 11. Apply the database schema before production use
 
 The package build generates Prisma Client but intentionally does not run `prisma db push`. Apply schema changes explicitly from a trusted local machine.
 
@@ -854,7 +835,7 @@ challenge, push-token, and idempotency collections/indexes defined in
 `prisma/schema.prisma`. Apply and verify these changes in Preview before
 Production.
 
-## 13. Recommended setup order
+## 12. Recommended setup order
 
 1. Create MongoDB Atlas and set `DATABASE_URL`.
 2. Generate `NEXTAUTH_SECRET` and `CRON_SECRET` separately.
@@ -862,21 +843,19 @@ Production.
 4. Configure Gmail app password or another SMTP provider.
 5. Enable Google Maps/Places, create two restricted keys, and optionally create a map ID.
 6. Configure the three Cloudinary environment variables; no upload preset is needed.
-7. Provision isolated Preview and Production Redis resources, deploy with
-   `REDIS_ENABLED=false`, and validate connectivity in Preview before enabling it.
-8. Generate separate mobile RSA key pairs and refresh-token peppers for
+7. Generate separate mobile RSA key pairs and refresh-token peppers for
    Development, Preview, and Production.
-9. Initialize the organization-owned EAS project from `apps/mobile`, then
+8. Initialize the organization-owned EAS project from `apps/mobile`, then
    record its project ID.
-10. Configure the server-side mobile values in matching Vercel environments and
-   the public mobile values in matching EAS environments.
-11. Run `npx prisma db push` against the intended Preview database after a
+9. Configure the server-side mobile values in matching Vercel environments and
+    the public mobile values in matching EAS environments.
+10. Run `npx prisma db push` against the intended Preview database after a
     backup and target check; validate it before Production.
-12. Deploy or redeploy the backend.
-13. Create a signed Preview build and confirm it uses only Preview providers.
-14. Complete the verification checklist below.
+11. Deploy or redeploy the backend.
+12. Create a signed Preview build and confirm it uses only Preview providers.
+13. Complete the verification checklist below.
 
-## 14. Post-deployment checklist
+## 13. Post-deployment checklist
 
 - [ ] The homepage and listing data load without a Prisma connection error.
 - [ ] A new email/password account receives a six-digit email.
@@ -889,9 +868,9 @@ Production.
 - [ ] Vercel shows `/api/cron/notifications` under Cron Jobs.
 - [ ] The cron's latest execution returns HTTP 200 rather than 401 or 500.
 - [ ] Preview deployments do not write test data into the production database unless that was an intentional decision.
-- [ ] Preview and Production have isolated Redis resources, TLS URLs, and key prefixes.
-- [ ] Redis rate limits reject above-limit requests and expose `Retry-After`.
-- [ ] A controlled Redis connection failure uses MongoDB rate-limit buckets.
+- [ ] Rate limits reject above-limit requests and expose `Retry-After`.
+- [ ] The security maintenance job removes expired MongoDB rate-limit buckets.
+- [ ] Public listing changes invalidate cached discovery results.
 - [ ] No real credential is present in Git history or `.env.example`.
 - [ ] `npx expo config --type public` resolves the intended app name, scheme,
       bundle identifier, Android application ID, API origin, and link host for
@@ -905,7 +884,7 @@ Production.
 - [ ] No server-only `MOBILE_*` value or `EXPO_ACCESS_TOKEN` appears in the
       compiled application or Expo public configuration.
 
-## 15. Troubleshooting
+## 14. Troubleshooting
 
 | Symptom | What to check |
 |---|---|
@@ -920,7 +899,6 @@ Production.
 | Places requests fail | Confirm the server key, enabled Places API, billing, API restriction and quota. Check Vercel function logs. |
 | Cloudinary widget rejects uploads | Confirm cloud name and the exact unsigned preset name `redrive`; inspect preset file limits/formats. |
 | Cron returns 401 | Confirm `CRON_SECRET` exists in that Vercel environment and redeploy. Do not add `Bearer ` to the stored value. |
-| Redis falls back to MongoDB | Confirm `REDIS_ENABLED=true`, the TLS `REDIS_URL`, provider network access, credentials, and environment scope. Redeploy after changes. |
 | A variable remains `undefined` | Confirm its Vercel environment scope and redeploy. For local work, restart `npm run dev` after changing `.env.local`. |
 | Mobile API returns `MOBILE_AUTH_UNAVAILABLE` | Confirm the issuer, audience, active key ID, complete PKCS#8 private PEM, valid public-key JSON map, matching public key, and refresh-token pepper exist in that Vercel environment. |
 | Mobile API returns `UNAUTHENTICATED` immediately after login | Check that the signing and verification key pair match and that the deployment has not mixed Preview and Production issuer/audience values. |
@@ -931,7 +909,7 @@ Production.
 | Universal/App Link opens the website instead of the app | Confirm `EXPO_PUBLIC_LINK_HOST`, rebuild the signed binary, publish the correct Apple/Android association files, and verify they include that exact signed app identity. |
 | Expo push requests return `UNAUTHORIZED` | If enhanced push security is enabled, confirm the backend's `EXPO_ACCESS_TOKEN` is active and its Expo user/robot has access to the owning project. EAS environment names do not scope the token automatically. Never move it into the app bundle. |
 
-## 16. Rotation and incident response
+## 15. Rotation and incident response
 
 If a secret is accidentally committed or shared, deleting it from the current file is not sufficient. Treat it as compromised:
 

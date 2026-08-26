@@ -3,6 +3,7 @@ import { ArrowLeft, Check, Clock3 } from "lucide-react";
 
 import type { EditorialArticle } from "@/app/content/editorial";
 import { siteUrl } from "@/app/libs/siteUrl";
+import InformationNav from "./InformationNav";
 
 interface ArticlePageProps {
   article: EditorialArticle;
@@ -29,9 +30,10 @@ export default function ArticlePage({ article, backHref, backLabel, sectionLabel
   return (
     <main className="information-page bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
+      <InformationNav activeHref={backHref} />
       <article>
         <header className="border-b border-hairline-soft bg-surface-soft/55">
-          <div data-info-reveal className="mx-auto max-w-[900px] px-5 py-12 sm:px-8 sm:py-20">
+          <div data-info-reveal className="mx-auto max-w-[1000px] px-5 py-14 sm:px-8 sm:py-20">
             <Link href={backHref} className="inline-flex items-center gap-2 text-sm font-semibold text-muted transition hover:text-ink"><ArrowLeft size={16} />{backLabel}</Link>
             <p className="mt-10 text-xs font-semibold uppercase tracking-[0.18em] text-primary">{sectionLabel} · {article.category}</p>
             <h1 className="mt-4 text-3xl font-semibold leading-[1.14] tracking-tight text-ink sm:text-5xl">{article.title}</h1>
@@ -44,7 +46,7 @@ export default function ArticlePage({ article, backHref, backLabel, sectionLabel
           </div>
         </header>
 
-        <div className="mx-auto grid max-w-[1080px] gap-12 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[220px_minmax(0,720px)]">
+        <div className="mx-auto grid max-w-[1120px] gap-12 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[240px_minmax(0,760px)]">
           <aside data-info-reveal className="h-fit lg:sticky lg:top-32">
             <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted">In this article</p>
             <nav className="mt-4 flex flex-col border-l border-hairline-soft">
@@ -59,7 +61,7 @@ export default function ArticlePage({ article, backHref, backLabel, sectionLabel
                 <div className="mt-4 space-y-4">
                   {section.paragraphs.map((paragraph) => <p key={paragraph} className="text-[15px] leading-7 text-body sm:text-base sm:leading-8">{paragraph}</p>)}
                 </div>
-                {section.items && <ul className="mt-6 grid gap-3 rounded-md bg-surface-soft/65 p-5 sm:grid-cols-2 sm:p-6">{section.items.map((item) => <li key={item} className="flex gap-3 text-sm leading-6 text-body"><span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-primary"><Check size={12} strokeWidth={3} /></span>{item}</li>)}</ul>}
+                {section.items && <ul className="mt-6 grid gap-3 rounded-2xl border border-hairline-soft bg-surface-soft/65 p-5 sm:grid-cols-2 sm:p-6">{section.items.map((item) => <li key={item} className="flex gap-3 text-sm leading-6 text-body"><span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-primary"><Check size={12} strokeWidth={3} /></span>{item}</li>)}</ul>}
               </section>
             ))}
           </div>

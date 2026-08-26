@@ -4,15 +4,15 @@ import ToasterProvider from "./providers/ToasterProvider";
 import getCurrentUser from "./actions/getCurrentUser";
 import DataPreloader from "./providers/DataPreloader";
 import LazyModals from "./providers/LazyModals";
-import Footer from "./components/Footer";
-import MobileBottomNav from "./components/navbar/MobileBottomNav";
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Manrope } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import { siteUrl } from "./libs/siteUrl";
-import CompareTray from "./components/CompareTray";
+import AppShell from "./components/AppShell";
 import favicon from "./favicon.png";
+import IdleSessionGuard from "./components/auth/IdleSessionGuard";
+import { sessionIdleTimeoutMs } from "./libs/sessionPolicy";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -130,14 +130,12 @@ export default async function RootLayout({
         />
       </head>
       <body className={`${manrope.variable} bg-white text-ink`}>
+        <IdleSessionGuard isAuthenticated={!!currentUser} idleTimeoutMs={sessionIdleTimeoutMs()} />
         <DataPreloader isAuthenticated={!!currentUser} />
         <ToasterProvider />
         <LazyModals />
         <Navbar currentUser={currentUser} />
-        <main className="app-content min-h-screen pb-20 md:pb-0">{children}</main>
-        <Footer currentUser={currentUser} />
-        <MobileBottomNav currentUser={currentUser} />
-        <CompareTray />
+        <AppShell currentUser={currentUser}>{children}</AppShell>
         <Analytics />
         <SpeedInsights />
       </body>

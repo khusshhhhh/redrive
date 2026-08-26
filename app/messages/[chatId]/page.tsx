@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
-import Container from "@/app/components/Container";
 import { SafeChatUser, SafeMessage } from "@/app/types";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -299,24 +298,22 @@ const ChatPage = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6 px-4 py-6">
-        <div className="h-6 shimmer rounded w-1/3" />
-        <div className="h-20 shimmer rounded" />
+      <div className="mx-auto flex h-full min-h-0 max-w-[1440px] overflow-hidden border-x border-hairline-soft bg-white">
+        <div className="hidden w-[380px] shrink-0 border-r border-hairline-soft p-5 md:block"><div className="skeleton-wave h-7 w-32 rounded" /><div className="skeleton-wave mt-5 h-11 rounded-full" /></div>
+        <div className="flex min-w-0 flex-1 flex-col"><div className="flex h-[72px] items-center gap-3 border-b border-hairline-soft px-4"><div className="skeleton-wave h-11 w-11 rounded-full" /><div className="skeleton-wave h-5 w-40 rounded" /></div><div className="chat-canvas flex-1 p-6"><div className="skeleton-wave ml-auto h-16 w-48 rounded-2xl" /><div className="skeleton-wave mt-4 h-20 w-56 rounded-2xl" /></div></div>
       </div>
     );
   }
 
-  if (loadError) return <Container><div className="py-8"><InlineRetry title="Conversation unavailable" message="Your messages are still safe. Check your connection and try loading the conversation again." onRetry={() => setReloadKey((value) => value + 1)} /></div></Container>;
+  if (loadError) return <div className="mx-auto flex h-full max-w-[1440px] items-center justify-center border-x border-hairline-soft bg-white p-6"><div className="w-full max-w-xl"><InlineRetry title="Conversation unavailable" message="Your messages are still safe. Check your connection and try loading the conversation again." onRetry={() => setReloadKey((value) => value + 1)} /></div></div>;
 
   const online = isOnline(otherUser?.lastActiveAt);
 
   return (
-    <Container>
-      <div className="py-3 sm:py-8">
-        <div className="-mx-4 flex h-[calc(100dvh-6.75rem)] min-h-[420px] max-w-[1280px] overflow-hidden border-y border-hairline-soft bg-white sm:mx-auto sm:h-[calc(100dvh-8rem)] sm:rounded-md sm:border sm:shadow-card md:min-h-[560px]">
-          <ChatSidebar activeChatId={chatId} className="hidden w-[340px] md:flex" />
-          <section className="flex min-w-0 flex-1 flex-col bg-surface-soft/30">
-            <header className="flex h-[76px] shrink-0 items-center gap-3 border-b border-hairline-soft bg-white px-4 sm:px-6">
+    <div className="mx-auto flex h-full min-h-0 max-w-[1440px] overflow-hidden border-x border-hairline-soft bg-white shadow-[0_18px_60px_rgba(24,54,58,0.08)]">
+          <ChatSidebar activeChatId={chatId} className="hidden w-[380px] md:flex" />
+          <section className="flex min-w-0 flex-1 flex-col">
+            <header className="flex h-[72px] shrink-0 items-center gap-3 border-b border-hairline-soft bg-white/95 px-3 backdrop-blur sm:px-6">
               <button onClick={() => router.push("/messages")} className="rounded-full p-2 text-ink hover:bg-surface-soft md:hidden" aria-label="Back to conversations"><IconArrowLeft size={20} /></button>
               <div className="relative shrink-0">
                 <Image src={otherUser?.image || "/images/placeholder.png"} alt={`${otherUser?.name || "Conversation member"} profile photo`} width={44} height={44} className="h-11 w-11 rounded-full object-cover" />
@@ -328,7 +325,7 @@ const ChatPage = () => {
               </div>
             </header>
 
-            <div ref={scrollRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3 sm:p-6">
+            <div ref={scrollRef} className="chat-canvas chat-scrollbar min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-3 sm:p-6" aria-label="Message history" aria-live="polite">
               {hasMore && <button onClick={loadOlder} disabled={loadingOlder} className="mx-auto block rounded-full bg-white px-4 py-2 text-xs font-medium text-ink shadow-sm disabled:opacity-50">{loadingOlder ? "Loading…" : "Load older messages"}</button>}
               {messages.map((message, index) => {
                 const previous = messages[index - 1];
@@ -355,9 +352,7 @@ const ChatPage = () => {
               </div>
             </footer>
           </section>
-        </div>
-      </div>
-    </Container>
+    </div>
   );
 };
 

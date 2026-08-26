@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, BookOpen, Check, CircleHelp, ExternalLink, FileText, Quote, ShieldCheck, Sparkles } from "lucide-react";
 import { buildSeoMetadata } from "@/app/libs/seo";
+import InformationNav from "@/app/components/content/InformationNav";
 
 type Section = { heading: string; body: string; items?: string[]; links?: { label: string; href: string }[] };
 type PageContent = {
@@ -218,6 +219,7 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
 
   return (
     <main className="information-page min-h-[70vh] bg-surface-soft/35">
+      <InformationNav activeHref={`/${slug}`} />
       <section className="relative overflow-hidden bg-ink text-white">
         <div className="absolute -right-24 -top-40 h-[470px] w-[470px] rounded-full border-[72px] border-white/[0.045]" />
         <div className="absolute -bottom-32 right-[22%] h-72 w-72 rounded-full bg-primary/20 blur-3xl" />

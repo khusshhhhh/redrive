@@ -1,3 +1,5 @@
+import { sessionIdleTimeoutMs } from "@/app/libs/sessionPolicy";
+
 export class MobileAuthConfigurationError extends Error {
   constructor(message: string) {
     super(message);
@@ -49,6 +51,7 @@ export function mobileAuthConfig() {
     refreshTokenPepper: required("MOBILE_REFRESH_TOKEN_PEPPER"),
     accessTokenTtlSeconds: 10 * 60,
     refreshTokenTtlMs: 30 * 24 * 60 * 60_000,
+    sessionIdleTimeoutMs: sessionIdleTimeoutMs(),
   };
 }
 
