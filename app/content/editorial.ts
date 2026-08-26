@@ -294,6 +294,50 @@ export const blogPosts: EditorialArticle[] = [
 
 export const newsroomPosts: EditorialArticle[] = [
   {
+    slug: "focused-favourites-messages-and-information-pages",
+    title: "Favourites, Messages and information pages receive a focused redesign",
+    description: "Redrive's everyday pages now share a calmer Coast and Country design, with a fixed messaging workspace and clearer paths through saved vehicles and support content.",
+    category: "Product",
+    published: "2026-08-26",
+    readTime: "4 min read",
+    sections: [
+      { heading: "A clearer place for saved vehicles", paragraphs: ["The redesigned Favourites page gives saved vehicles more breathing room, makes the total easy to understand and provides a useful route back to discovery when the collection is empty. Listing cards retain the pricing and vehicle details guests need to continue comparing options."] },
+      { heading: "Messages stay within the conversation", paragraphs: ["Messages now use the available app viewport instead of extending the full document. The conversation list and active message thread scroll independently, while the composer remains available and the ordinary website footer stays out of the workspace."], items: ["No page-level scrolling inside Messages", "Independent conversation and message history scrolling", "A cleaner desktop and mobile reading hierarchy"] },
+      { heading: "Information is easier to navigate", paragraphs: ["Help, newsroom and other information pages now use consistent section navigation, clearer article structure and improved spacing. The Help Centre also makes the route from a question to the relevant guidance easier to follow."] },
+      { heading: "Small details make navigation steadier", paragraphs: ["The main header now uses a more stable scroll transition to prevent flicker around its compact state. Redrive's browser icon has also been refreshed so the active brand is easier to recognise in tabs and saved links."] },
+    ],
+  },
+  {
+    slug: "automatic-inactivity-timeouts-for-safer-sessions",
+    title: "Automatic inactivity timeouts add a safer session lifecycle",
+    description: "Web and mobile sessions now close after extended inactivity, while a fresh sign-in reliably starts a new activity window.",
+    category: "Account security",
+    audience: "Account & safety",
+    published: "2026-08-26",
+    readTime: "4 min read",
+    sections: [
+      { heading: "Inactive accounts no longer stay open indefinitely", paragraphs: ["Redrive now signs an account out after 60 minutes without meaningful activity by default. This reduces the chance that an unattended or shared device continues to provide access days later."] },
+      { heading: "Real activity keeps the session current", paragraphs: ["Pointer, keyboard, touch and scrolling activity can refresh the web session. Background polling and an untouched open tab do not count, and activity is coordinated across tabs in the same browser so one inactive tab does not interrupt another tab that is in use."] },
+      { heading: "Fresh sign-ins start cleanly", paragraphs: ["The sign-in flow now establishes the new activity window before ordinary inactivity checks resume. This prevents an old browser activity timestamp from incorrectly ending a session immediately after a successful login."] },
+      { heading: "Web and mobile follow the same principle", paragraphs: ["Web sessions also have a seven-day absolute limit. On mobile, returning from the background triggers a session check, and an expired session clears protected account state before returning to sign-in."], items: ["60-minute default inactivity window", "Seven-day absolute web-session limit", "Immediate check when the mobile app returns"] },
+    ],
+  },
+  {
+    slug: "resilient-traffic-controls-and-clearer-licence-checks",
+    title: "Traffic safeguards and licence checks now fail more clearly",
+    description: "Redrive has simplified its request-protection stack and improved the distinction between an unreadable document and an unavailable verification provider.",
+    category: "Trust & safety",
+    audience: "Account & safety",
+    published: "2026-08-26",
+    readTime: "4 min read",
+    sections: [
+      { heading: "Rate limits no longer depend on Redis", paragraphs: ["Redis has been removed from the application. Sensitive request limits use privacy-safe identifiers, a bounded local burst check and MongoDB as the shared authority, so protection remains consistent across deployed app instances without an additional cache service."] },
+      { heading: "Small caches stay within safe boundaries", paragraphs: ["Short-lived, size-limited memory and framework caches now help anonymous vehicle discovery without turning cached data into a booking decision. Private account, licence, payment, message and exact-location information stays outside these caches, and availability writes invalidate public discovery results."] },
+      { heading: "Clear images are not blamed for provider failures", paragraphs: ["Licence verification now separates configuration, permission, disabled-service, rate-limit and timeout failures from an image that genuinely cannot be read. Provider problems return a temporary-service response instead of incorrectly asking the guest to upload clearer images."] },
+      { heading: "Production activation remains explicit", paragraphs: ["Automated licence text extraction still requires an enabled Google Cloud Vision API and a valid production API key. If that provider is not active, Redrive reports the service as unavailable; it does not claim that the document was verified or silently weaken the licence requirement."] },
+    ],
+  },
+  {
     slug: "listing-level-cancellation-controls-and-clear-refunds",
     title: "Listing-level cancellation controls bring clearer refund outcomes",
     description: "Hosts can now choose a policy per vehicle while guests see exact terms before they request and before they cancel.",
