@@ -21,7 +21,7 @@ const NotificationBell = () => {
     markAsRead,
     markAllAsRead,
     deleteNotification,
-  } = useNotifications({ autoRefresh: true, refreshInterval: 10000 });
+  } = useNotifications({ autoRefresh: true, detailedRefresh: isOpen });
 
   const toggleNotifications = () => {
     const nextOpen = !isOpen;

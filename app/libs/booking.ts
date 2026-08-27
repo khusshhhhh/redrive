@@ -1,6 +1,6 @@
 export const PRICING_POLICY_VERSION = "2026-08-17";
 
-export const insuranceDailyRates: Record<string, number> = {
+const insuranceDailyRates: Record<string, number> = {
   "No Insurance": 0,
   "Risk Taker": 20,
   "Happy Driver": 40,
@@ -15,7 +15,7 @@ export function calculateServiceFee(basePrice: number) {
   return 100;
 }
 
-export function inclusiveDays(startDate: Date, endDate: Date) {
+function inclusiveDays(startDate: Date, endDate: Date) {
   return Math.floor((Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate())
     - Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate())) / 86_400_000) + 1;
 }

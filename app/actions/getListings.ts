@@ -2,7 +2,7 @@ import prisma from "@/app/libs/prismadb";
 import { revalidateTag, unstable_cache } from "next/cache";
 import { BoundedMemoryCache } from "@/app/libs/memoryCache";
 
-export const PUBLIC_LISTINGS_CACHE_TAG = "public-listings";
+const PUBLIC_LISTINGS_CACHE_TAG = "public-listings";
 
 export interface IListingsParams {
   userId?: string;

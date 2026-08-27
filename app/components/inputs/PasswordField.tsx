@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check, Eye, EyeOff } from "lucide-react";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
 
-export const getPasswordChecks = (value = "") => [
+const getPasswordChecks = (value = "") => [
   { label: "8+ characters", valid: value.length >= 8 },
   { label: "Uppercase", valid: /[A-Z]/.test(value) },
   { label: "Lowercase", valid: /[a-z]/.test(value) },

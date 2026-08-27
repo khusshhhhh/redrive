@@ -18,7 +18,7 @@ function isPresent(value?: string) {
   return Boolean(value?.trim());
 }
 
-export function isGoogleApiKey(value?: string) {
+function isGoogleApiKey(value?: string) {
   return /^AIza[0-9A-Za-z_-]{35}$/.test(value?.trim() || "");
 }
 

@@ -68,16 +68,3 @@ export function renterIdentityCheck(user: LicenceBearingUser): RenterIdentityChe
     unmetReason,
   };
 }
-
-export const RENTER_IDENTITY_SELECT = {
-  licenseStatus: true,
-  licenseExpiresAt: true,
-  licenseExpiryDate: true,
-  licenseIssuerState: true,
-  licenseHolderName: true,
-  licenseNumberLast4: true,
-  licenseNameMatches: true,
-  licenseDobMatches: true,
-  licenseVerifiedAt: true,
-  licenseRejectionReason: true,
-} as const;

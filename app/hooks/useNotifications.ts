@@ -20,11 +20,14 @@ interface NotificationResponse {
 interface UseNotificationsProps {
   autoRefresh?: boolean;
   refreshInterval?: number;
+  /** While the panel is open the poll fetches rows; closed, it fetches a count. */
+  detailedRefresh?: boolean;
 }
 
-export const useNotifications = ({ 
-  autoRefresh = false, 
-  refreshInterval = 30000 
+export const useNotifications = ({
+  autoRefresh = false,
+  refreshInterval = 60000,
+  detailedRefresh = false,
 }: UseNotificationsProps = {}) => {
   const [notifications, setNotifications] = useState<SafeNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -39,10 +42,11 @@ export const useNotifications = ({
     unreadOnly = false,
     limit = 20,
     offset = 0,
-    append = false
+    append = false,
+    countOnly = false,
   ) => {
     try {
-      if (!hasLoadedRef.current) setLoading(true);
+      if (!hasLoadedRef.current && !countOnly) setLoading(true);
       setError(null);
 
       const params = new URLSearchParams({
@@ -53,20 +57,27 @@ export const useNotifications = ({
       if (unreadOnly) {
         params.append("unread", "true");
       }
+      if (countOnly) {
+        params.append("countOnly", "true");
+      }
 
       const response = await axios.get(`/api/notifications?${params}`);
       const data: NotificationResponse = response.data;
 
-      if (append) {
-        setNotifications(prev => [...prev, ...data.notifications]);
-      } else {
-        setNotifications(data.notifications);
+      // A count-only reply carries no rows, so the list already on screen has
+      // to be left alone rather than replaced with an empty one.
+      if (!countOnly) {
+        if (append) {
+          setNotifications(prev => [...prev, ...data.notifications]);
+        } else {
+          setNotifications(data.notifications);
+        }
+        setTotalCount(data.totalCount);
+        setHasMore(data.hasMore);
+        hasLoadedRef.current = true;
       }
 
       setUnreadCount(data.unreadCount);
-      setTotalCount(data.totalCount);
-      setHasMore(data.hasMore);
-      hasLoadedRef.current = true;
     } catch (error) {
       console.error("Error fetching notifications:", error);
       setError(getErrorMessage(error, "Failed to fetch notifications"));
@@ -229,29 +240,51 @@ export const useNotifications = ({
     fetchNotifications();
   }, [fetchNotifications]);
 
-  // Auto refresh
+  // Auto refresh. A background tab has nobody looking at the badge, so the
+  // timer stops while the page is hidden and catches up on the way back.
   useEffect(() => {
     if (!autoRefresh) return;
 
-    const interval = setInterval(() => {
-      fetchNotifications();
-    }, refreshInterval);
+    let interval: number | undefined;
+    let lastPoll = 0;
 
-    return () => clearInterval(interval);
-  }, [autoRefresh, refreshInterval, fetchNotifications]);
-
-  useEffect(() => {
-    if (!autoRefresh) return;
-    const refreshWhenVisible = () => {
-      if (document.visibilityState === "visible") void fetchNotifications();
+    const pollCount = () => {
+      lastPoll = Date.now();
+      void fetchNotifications(false, 20, 0, false, !detailedRefresh);
     };
-    window.addEventListener("focus", refreshWhenVisible);
-    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    const start = () => {
+      if (interval) return;
+      interval = window.setInterval(pollCount, refreshInterval);
+    };
+
+    const stop = () => {
+      if (!interval) return;
+      window.clearInterval(interval);
+      interval = undefined;
+    };
+
+    // focus and visibilitychange both fire when a tab is brought forward, so
+    // the second one within a second is dropped rather than polled twice.
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") {
+        stop();
+        return;
+      }
+      if (Date.now() - lastPoll >= 1_000) pollCount();
+      start();
+    };
+
+    if (document.visibilityState === "visible") start();
+    window.addEventListener("focus", onVisible);
+    document.addEventListener("visibilitychange", onVisible);
+
     return () => {
-      window.removeEventListener("focus", refreshWhenVisible);
-      document.removeEventListener("visibilitychange", refreshWhenVisible);
+      stop();
+      window.removeEventListener("focus", onVisible);
+      document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [autoRefresh, fetchNotifications]);
+  }, [autoRefresh, refreshInterval, detailedRefresh, fetchNotifications]);
 
   useEffect(() => {
     const refreshFromAppEvent = () => void fetchNotifications();

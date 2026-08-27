@@ -3,7 +3,9 @@
 import { useEffect } from "react";
 import axios from "axios";
 
-const HEARTBEAT_INTERVAL_MS = 25000;
+// Online status is shown as a rough "active now" state, so a minute of
+// granularity is plenty. At 25s this was the app's second-busiest route.
+const HEARTBEAT_INTERVAL_MS = 60000;
 
 /**
  * Sends a lightweight "I'm active" heartbeat while the app is open, so

@@ -36,7 +36,7 @@ export async function optionalIdentity(request: Request): Promise<RequestIdentit
   return user ? { userId: user.id, method: "web-session" } : null;
 }
 
-export async function requireIdentity(request: Request) {
+async function requireIdentity(request: Request) {
   const identity = await optionalIdentity(request);
   if (!identity) throw new IdentityRequiredError();
   return identity;
