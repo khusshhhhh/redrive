@@ -835,7 +835,7 @@ export default function ProfileClient({
 
             <DeleteAccountPanel />
 
-            <div className="flex items-center gap-3 rounded-md bg-ink p-5 text-white sm:p-6">
+            <div className="flex items-center gap-3 rounded-md bg-graphite p-5 text-white sm:p-6">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10">
                 <Sparkles size={19} />
               </div>

@@ -101,7 +101,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser, prominent = false }) =
         <button
           type="button"
           onClick={onRent}
-          className={`hidden shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-primary px-5 text-xs font-medium text-white outline-none transition-[height,background-color] hover:bg-primary-active focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:inline-flex ${prominent ? "h-[52px]" : "h-11"}`}
+          className={`hidden shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-graphite px-5 text-xs font-medium text-white outline-none transition hover:brightness-110 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:inline-flex ${prominent ? "h-[52px]" : "h-11"}`}
         >
           List your car
         </button>
@@ -148,9 +148,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser, prominent = false }) =
             type="button"
             role="menuitem"
             onClick={() => go("/profile")}
-            className="group relative flex w-full items-center gap-3 overflow-hidden rounded-t-xl border-b border-hairline-soft bg-surface-soft/60 px-4 py-4 text-left outline-none transition-colors hover:bg-surface-soft focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/60"
+            className="group relative flex w-full items-center gap-3 overflow-hidden rounded-t-xl border-b border-hairline-soft bg-mist px-4 py-4 text-left outline-none transition hover:brightness-[0.97] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/60"
           >
-            <span className="relative shrink-0 rounded-full p-[2px] ring-1 ring-border-strong">
+            <span className="relative shrink-0 rounded-full bg-ash-ring p-[2px]">
               {currentUser.image ? (
                 <Avatar src={currentUser.image} size={40} alt={`${currentUser.name || "Your"} profile photo`} />
               ) : (
@@ -166,7 +166,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser, prominent = false }) =
             </span>
           </button>
         ) : (
-          <div className="rounded-t-xl border-b border-hairline-soft bg-surface-soft/60 px-4 py-4">
+          <div className="rounded-t-xl border-b border-hairline-soft bg-mist px-4 py-4">
             <p className="text-sm font-semibold text-ink">Welcome to Redrive</p>
             <p className="mt-0.5 text-xs text-muted">Sign in to book, list and message hosts.</p>
           </div>

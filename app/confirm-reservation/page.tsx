@@ -200,7 +200,7 @@ export default function ConfirmReservation() {
                 <div className="mt-6"><Button label="Send booking request" disabled={!identityVerified} loading={submitting} loadingLabel="Sending request" onClick={confirmBooking} /></div>
                 <p className="mt-3 text-center text-[11px] leading-5 text-muted">By requesting, you agree to Redrive’s booking and cancellation terms.</p>
               </section>
-              <div className="flex gap-3 rounded-md bg-ink p-5 text-white"><Clock3 size={19} className="mt-0.5 shrink-0 text-primary" /><div><p className="text-sm font-semibold">No charge yet</p><p className="mt-1 text-xs leading-5 text-white/70">The host must approve this request before the booking is confirmed.</p></div></div>
+              <div className="flex gap-3 rounded-md bg-graphite p-5 text-white"><Clock3 size={19} className="mt-0.5 shrink-0 text-primary" /><div><p className="text-sm font-semibold">No charge yet</p><p className="mt-1 text-xs leading-5 text-white/70">The host must approve this request before the booking is confirmed.</p></div></div>
               <div className="flex items-center justify-center gap-2 text-xs text-muted"><MessageCircle size={14} /> Questions? Message the host after requesting.</div>
             </aside>
           </div>

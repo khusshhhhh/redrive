@@ -21,7 +21,7 @@ export default function Footer({ currentUser }: FooterProps) {
   };
 
   return (
-    <footer className="mb-20 mt-16 overflow-hidden bg-ink text-white md:mb-0">
+    <footer className="mb-20 mt-16 overflow-hidden bg-graphite text-white md:mb-0">
       <div className="border-b border-white/10 bg-gradient-to-r from-primary/20 via-transparent to-accent/10">
         <div className="mx-auto flex max-w-[1280px] flex-col gap-6 px-5 py-9 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-10">
           <div>

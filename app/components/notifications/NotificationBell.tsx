@@ -1,7 +1,27 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Bell, Check, CheckCheck, Trash2 } from "lucide-react";
+import {
+  Bell,
+  Check,
+  CheckCheck,
+  Trash2,
+  FileText,
+  CircleCheck,
+  CircleX,
+  Ban,
+  AlarmClock,
+  Flag,
+  Star,
+  MessageSquare,
+  Heart,
+  PencilLine,
+  ShieldCheck,
+  Wallet,
+  CreditCard,
+  TriangleAlert,
+  type LucideIcon,
+} from "lucide-react";
 import { useNotifications } from "@/app/hooks/useNotifications";
 import { useRouter } from "next/navigation";
 import { SafeNotification, NotificationType } from "@/app/types";
@@ -41,65 +61,41 @@ const NotificationBell = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Get notification icon based on type
-  const getNotificationIcon = (type: NotificationType) => {
+  // Monochrome line icon per notification type.
+  const getNotificationIcon = (type: NotificationType): LucideIcon => {
     switch (type) {
       case NotificationType.BOOKING_REQUEST:
-        return "📝";
+        return FileText;
       case NotificationType.BOOKING_APPROVED:
-        return "✅";
+      case NotificationType.PROFILE_VERIFIED:
+        return CircleCheck;
       case NotificationType.BOOKING_DECLINED:
-        return "❌";
+        return CircleX;
       case NotificationType.BOOKING_CANCELLED:
-        return "🚫";
+        return Ban;
       case NotificationType.BOOKING_REMINDER:
-        return "⏰";
+        return AlarmClock;
       case NotificationType.BOOKING_COMPLETED:
-        return "🏁";
+        return Flag;
       case NotificationType.REVIEW_RECEIVED:
-        return "⭐";
+        return Star;
       case NotificationType.REVIEW_REMINDER:
-        return "📝";
-      case NotificationType.MESSAGE_RECEIVED:
-        return "💬";
-      case NotificationType.LISTING_FAVORITED:
-        return "❤️";
       case NotificationType.LISTING_UPDATED:
-        return "📝";
-      case NotificationType.PROFILE_VERIFIED:
-        return "✅";
-      case NotificationType.PAYMENT_RECEIVED:
-        return "💰";
-      case NotificationType.PAYMENT_REQUIRED:
-        return "💳";
-      case NotificationType.SYSTEM_UPDATE:
-        return "🔔";
-      case NotificationType.SECURITY_ALERT:
-        return "⚠️";
-      default:
-        return "🔔";
-    }
-  };
-
-  // Get notification color based on type
-  const getNotificationColor = (type: NotificationType) => {
-    switch (type) {
-      case NotificationType.BOOKING_APPROVED:
-      case NotificationType.PAYMENT_RECEIVED:
-      case NotificationType.PROFILE_VERIFIED:
-        return "text-green-600";
-      case NotificationType.BOOKING_DECLINED:
-      case NotificationType.BOOKING_CANCELLED:
-      case NotificationType.SECURITY_ALERT:
-        return "text-red-600";
-      case NotificationType.BOOKING_REMINDER:
-      case NotificationType.PAYMENT_REQUIRED:
-        return "text-yellow-600";
-      case NotificationType.REVIEW_RECEIVED:
+        return PencilLine;
+      case NotificationType.MESSAGE_RECEIVED:
+        return MessageSquare;
       case NotificationType.LISTING_FAVORITED:
-        return "text-ink";
+        return Heart;
+      case NotificationType.PAYMENT_RECEIVED:
+        return Wallet;
+      case NotificationType.PAYMENT_REQUIRED:
+        return CreditCard;
+      case NotificationType.SECURITY_ALERT:
+        return TriangleAlert;
+      case NotificationType.SYSTEM_UPDATE:
+        return ShieldCheck;
       default:
-        return "text-muted";
+        return Bell;
     }
   };
 
@@ -193,9 +189,20 @@ const NotificationBell = () => {
                   >
                     <div className="flex items-start gap-3">
                       {/* Icon */}
-                      <div className={`flex-shrink-0 text-lg ${getNotificationColor(notification.type)}`}>
-                        {getNotificationIcon(notification.type)}
-                      </div>
+                      {(() => {
+                        const Icon = getNotificationIcon(notification.type);
+                        return (
+                          <span
+                            className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border bg-white ${
+                              notification.read
+                                ? "border-hairline text-muted"
+                                : "border-border-strong text-ink"
+                            }`}
+                          >
+                            <Icon size={17} aria-hidden="true" />
+                          </span>
+                        );
+                      })()}
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">

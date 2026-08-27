@@ -204,7 +204,7 @@ const EditUtilityPage = () => {
         <main className="min-h-screen bg-surface-soft/45 px-4 py-6 sm:px-6 sm:py-10">
         <div className="mx-auto max-w-[1240px]">
             <button type="button" onClick={() => router.back()} className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-muted transition hover:text-ink"><ArrowLeft size={17} />Back to hosting</button>
-            <header className="relative mb-7 overflow-hidden rounded-2xl bg-ink px-6 py-8 text-white shadow-[0_24px_70px_rgba(22, 22, 22,0.2)] sm:px-9 sm:py-10">
+            <header className="relative mb-7 overflow-hidden rounded-2xl bg-graphite px-6 py-8 text-white shadow-[0_24px_70px_rgba(59,59,59,0.2)] sm:px-9 sm:py-10">
                 <div className="absolute -right-16 -top-24 h-72 w-72 rounded-full border-[42px] border-white/[0.05]" />
                 <div className="absolute bottom-0 right-36 h-24 w-24 rounded-full bg-accent/20 blur-2xl" />
                 <div className="relative max-w-3xl">

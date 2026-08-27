@@ -234,7 +234,7 @@ function StepProgress({ current }: { current: number }) { return <div className=
 function SignupJourney({ step }: { step: number }) {
   const copy = step === 1 ? "Create your Redrive identity" : step === 2 ? "Set your pickup-ready details" : "Build trust before your first trip";
   const Icon = step === 1 ? UserRound : step === 2 ? MapPin : Heart;
-  return <div className="relative overflow-hidden rounded-md bg-ink px-4 py-4 text-white"><div className="flex items-center justify-between gap-4"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10"><Icon size={18} /></span><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">Step {step} of 3</p><p className="mt-0.5 text-sm font-semibold">{copy}</p></div></div><div className="signup-drive text-accent"><CarFront size={30} /></div></div><div className="signup-road mt-3 h-0.5 w-full opacity-60" /></div>;
+  return <div className="relative overflow-hidden rounded-md bg-graphite px-4 py-4 text-white"><div className="flex items-center justify-between gap-4"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10"><Icon size={18} /></span><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">Step {step} of 3</p><p className="mt-0.5 text-sm font-semibold">{copy}</p></div></div><div className="signup-drive text-accent"><CarFront size={30} /></div></div><div className="signup-road mt-3 h-0.5 w-full opacity-60" /></div>;
 }
 
 export default RegisterModal;

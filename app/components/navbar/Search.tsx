@@ -82,28 +82,28 @@ const Search = ({ compact = false, isHome = false }: SearchProps) => {
         tabIndex={0}
         onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); searchModal.onOpen(); } }}
         aria-label={`Search vehicles. ${locationLabel}, ${durationLabel}, ${guestLabel}`}
-        className={`hidden min-w-0 cursor-pointer rounded-full border border-hairline bg-white text-ink shadow-card outline-none transition-[width,height,box-shadow] duration-300 ease-out hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 motion-reduce:transition-none md:block ${isHome && !compact ? "h-[52px] w-[min(540px,42vw)]" : "h-11 w-[min(440px,38vw)]"}`}
+        className={`hidden min-w-0 cursor-pointer rounded-full border border-hairline bg-white text-ink shadow-card outline-none transition-[width,height,box-shadow] duration-300 ease-out hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 motion-reduce:transition-none md:block ${isHome && !compact ? "h-[52px] w-[min(620px,46vw)]" : "h-11 w-[min(520px,42vw)]"}`}
       >
         <div className="grid h-full min-w-0 grid-cols-3 items-center">
           {/* Selected Location */}
-          <div className="min-w-0 px-4 transition-[padding] duration-300">
+          <div className="min-w-0 pl-7 pr-5 transition-[padding] duration-300">
             {isHome && !compact && <div className="mb-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">Where</div>}
             <div className={`truncate font-medium ${isHome && !compact ? "text-sm" : "text-[13px]"}`}>{locationLabel}</div>
           </div>
 
           {/* Date Range */}
-          <div className={`min-w-0 border-x border-hairline px-4 text-left font-medium ${isHome && !compact ? "text-sm" : "text-[13px]"}`}>
+          <div className={`min-w-0 border-x border-hairline px-6 text-left font-medium ${isHome && !compact ? "text-sm" : "text-[13px]"}`}>
             {isHome && !compact && <div className="mb-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">When</div>}
             <div className="truncate">{durationLabel}</div>
           </div>
 
           {/* Guest Count */}
-          <div className={`relative min-w-0 pl-4 font-medium ${isHome && !compact ? "pr-12 text-sm" : "pr-11 text-[13px]"}`}>
+          <div className={`relative min-w-0 pl-6 font-medium ${isHome && !compact ? "pr-16 text-sm" : "pr-14 text-[13px]"}`}>
             <div className="min-w-0">
               {isHome && !compact && <div className="mb-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">Who</div>}
               <div className="truncate">{guestLabel}</div>
             </div>
-            <div className={`absolute right-2 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full bg-primary text-white transition-[width,height] duration-300 ${isHome && !compact ? "h-9 w-9" : "h-8 w-8"}`}>
+            <div className={`absolute right-2.5 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full bg-graphite text-white transition-[width,height] duration-300 ${isHome && !compact ? "h-9 w-9" : "h-8 w-8"}`}>
               <BiSearch size={isHome && !compact ? 20 : 18} />
             </div>
           </div>

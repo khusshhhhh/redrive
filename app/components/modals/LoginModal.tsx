@@ -160,7 +160,7 @@ const LoginModal = () => {
 
 function LoginJourney() {
   return (
-    <div className="relative overflow-hidden rounded-md bg-ink px-5 py-4 text-white">
+    <div className="relative overflow-hidden rounded-md bg-graphite px-5 py-4 text-white">
       <div className="flex items-center justify-between gap-5">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">

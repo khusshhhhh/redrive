@@ -356,7 +356,7 @@ export default function ReservationDetails() {
                 </div>
               </section>
 
-              <section className="rounded-md bg-ink p-5 text-white">
+              <section className="rounded-md bg-graphite p-5 text-white">
                 <div className="flex gap-3">
                   <Clock3 size={20} className="mt-0.5 shrink-0 text-primary" />
                   <div>

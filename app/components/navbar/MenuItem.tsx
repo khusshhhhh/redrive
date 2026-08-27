@@ -37,7 +37,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
       style={{ animationDelay: `${40 + index * 26}ms` }}
       className={`group menu-item-in relative flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/60 ${
         isCta
-          ? "bg-primary text-white hover:bg-primary-active"
+          ? "bg-graphite text-white shadow-sm hover:brightness-110"
           : isDanger
             ? "text-error hover:bg-error/5"
             : "text-ink hover:bg-surface-soft"

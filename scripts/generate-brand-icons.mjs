@@ -4,7 +4,13 @@ import sharp from "sharp";
 
 const svg = Buffer.from(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="16" fill="#3B3B3B"/>
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B3B3B"/>
+      <stop offset="1" stop-color="#636363"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#tile)"/>
   <path d="M9 64C17 50 24 42 24 31C24 19 31 9 44 0H61C43 14 39 23 40 33C41 45 35 55 29 64Z" fill="#F4F4F4"/>
   <path d="M22 58C29 47 33 39 32 30C31 21 36 14 45 7" fill="none" stroke="#3B3B3B" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 6"/>
   <circle cx="49" cy="13" r="7" fill="#B5B5B5" stroke="#3B3B3B" stroke-width="3"/>

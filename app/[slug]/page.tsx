@@ -220,7 +220,7 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
   return (
     <main className="information-page min-h-[70vh] bg-surface-soft/35">
       <InformationNav activeHref={`/${slug}`} />
-      <section className="relative overflow-hidden bg-ink text-white">
+      <section className="relative overflow-hidden bg-graphite text-white">
         <div className="absolute -right-24 -top-40 h-[470px] w-[470px] rounded-full border-[72px] border-white/[0.045]" />
         <div className="absolute -bottom-32 right-[22%] h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute right-[9%] top-24 h-4 w-4 rounded-full bg-accent shadow-[0_0_0_12px_rgba(212,167,44,0.1)]" />
@@ -244,7 +244,7 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
               <a key={section.heading} href={`#section-${index}`} className="group flex items-start gap-3 rounded-xl px-3 py-3 text-sm text-muted transition hover:bg-surface-soft hover:text-ink"><span className="mt-0.5 text-[10px] font-bold tabular-nums text-primary/60">{String(index + 1).padStart(2, "0")}</span><span className="leading-5">{section.heading}</span></a>
             ))}
           </nav>
-          <div className="border-t border-hairline-soft p-4"><Link href="/help-centre" className="flex items-center justify-between rounded-xl bg-ink px-4 py-3 text-xs font-semibold text-white">Need more help? <ArrowRight size={14} /></Link></div>
+          <div className="border-t border-hairline-soft p-4"><Link href="/help-centre" className="flex items-center justify-between rounded-xl bg-graphite px-4 py-3 text-xs font-semibold text-white">Need more help? <ArrowRight size={14} /></Link></div>
         </aside>
 
         <div className="min-w-0">

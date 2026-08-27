@@ -40,6 +40,14 @@ const config: Config = {
         "favorite-active": "#2E2E2E",
         "favorite-soft": "#EDEDED",
       },
+      backgroundImage: {
+        // Monochrome gradients drawn from the four source greys.
+        graphite: "linear-gradient(135deg, #3B3B3B 0%, #636363 100%)",
+        "graphite-vivid": "linear-gradient(135deg, #2E2E2E 0%, #636363 100%)",
+        mist: "linear-gradient(160deg, #F4F4F4 0%, #E4E4E4 100%)",
+        "mist-strong": "linear-gradient(160deg, #E7E7E7 0%, #D9D9D9 100%)",
+        "ash-ring": "linear-gradient(135deg, #B5B5B5 0%, #636363 100%)",
+      },
       borderRadius: {
         none: "0px",
         xs: "4px",

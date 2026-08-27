@@ -23,7 +23,7 @@ export default function HelpCentreClient() {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-ink text-white">
+      <section className="relative overflow-hidden bg-graphite text-white">
         <div className="absolute -right-24 -top-36 h-96 w-96 rounded-full border-[58px] border-white/[0.045]" />
         <div className="absolute -bottom-32 right-[25%] h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
         <div data-info-reveal className="relative mx-auto max-w-[1240px] px-5 py-16 sm:px-8 sm:py-24 lg:px-10">
