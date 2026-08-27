@@ -27,6 +27,7 @@ import Container from "@/app/components/Container";
 import type { SafeReservation, SafeUser } from "@/app/types";
 import HandoverPanel from "@/app/components/reservations/HandoverPanel";
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
+import RenterIdentityCard from "@/app/components/reservations/RenterIdentityCard";
 
 const statusCopy: Record<
   string,
@@ -299,6 +300,13 @@ export default function ReservationDetails() {
                   </button>
                 </div>
               </section>
+              {reservation.renterIdentity && (
+                <RenterIdentityCard
+                  identity={reservation.renterIdentity}
+                  viewerIsOwner={isHost}
+                  renterFirstName={reservation.user.name?.split(" ")[0] || "This guest"}
+                />
+              )}
               {currentUser && (
                 <HandoverPanel
                   reservation={reservation}

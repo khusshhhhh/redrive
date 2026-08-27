@@ -119,7 +119,18 @@ function statusTone(status: string) {
   return "border-amber-200 bg-amber-50 text-amber-900";
 }
 
-export default function LicenseVerificationPanel({ user }: { user: SafeUser }) {
+export default function LicenseVerificationPanel({
+  user,
+  context = "PROFILE",
+  onVerified,
+}: {
+  user: SafeUser;
+  // The same check runs in two places: from the profile, where someone chooses
+  // to get it out of the way early, and inside a booking request, where it is
+  // the last thing standing between them and sending it.
+  context?: "PROFILE" | "BOOKING";
+  onVerified?: () => void;
+}) {
   const router = useRouter();
   const [front, setFront] = useState<File | null>(null);
   const [back, setBack] = useState<File | null>(null);
@@ -140,12 +151,20 @@ export default function LicenseVerificationPanel({ user }: { user: SafeUser }) {
   });
 
   const statusMessage = useMemo(() => {
-    if (result.licenseStatus === "VERIFIED") return "The document appears to be a current Australian driver licence and its name and date of birth match your Redrive profile.";
-    if (result.licenseStatus === "DETAILS_MISMATCH") return result.licenseRejectionReason || "The licence details do not match your Redrive profile.";
+    if (result.licenseStatus === "VERIFIED") return "This is a current Australian driver licence, and the first name and date of birth on it match this account.";
+    if (result.licenseStatus === "DETAILS_MISMATCH") return result.licenseRejectionReason || "The licence details do not match this account.";
     if (result.licenseStatus === "EXPIRED") return result.licenseRejectionReason || "This licence has expired.";
-    if (result.licenseStatus === "NEEDS_CONFIRMATION") return "Review the extracted details below before completing the check.";
-    return "Upload clear photos of the front and back to check the document.";
-  }, [result]);
+    if (result.licenseStatus === "NEEDS_CONFIRMATION") return "Review the details read from the card below to finish the check.";
+    return context === "BOOKING"
+      ? "Photograph both sides of your Australian driver licence. Redrive checks that it is current and that the first name and date of birth match this account."
+      : "Upload clear photos of the front and back to check the document.";
+  }, [result, context]);
+
+  const bannerTitle = result.licenseStatus === "VERIFIED"
+    ? "Identity verified"
+    : context === "BOOKING"
+      ? "Identity check required"
+      : "Licence not checked yet";
 
   const analyse = async () => {
     if (!front || !back) {
@@ -186,7 +205,8 @@ export default function LicenseVerificationPanel({ user }: { user: SafeUser }) {
       setFields(null);
       setFront(null);
       setBack(null);
-      toast.success(data.licenseStatus === "VERIFIED" ? "Licence details checked" : "Licence check completed");
+      toast.success(data.licenseStatus === "VERIFIED" ? "Identity verified" : "Licence check completed");
+      if (data.licenseStatus === "VERIFIED") onVerified?.();
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Licence details could not be saved");
@@ -200,7 +220,7 @@ export default function LicenseVerificationPanel({ user }: { user: SafeUser }) {
       <div className={`flex gap-3 rounded-sm border p-4 text-sm leading-6 ${statusTone(result.licenseStatus)}`}>
         {result.licenseStatus === "VERIFIED" ? <CheckCircle2 size={19} className="mt-0.5 shrink-0" /> : <AlertTriangle size={19} className="mt-0.5 shrink-0" />}
         <div>
-          <p className="font-semibold">{result.licenseStatus === "VERIFIED" ? "Licence details checked" : "Booking remains locked"}</p>
+          <p className="font-semibold">{bannerTitle}</p>
           <p>{statusMessage}</p>
         </div>
       </div>
@@ -251,7 +271,7 @@ export default function LicenseVerificationPanel({ user }: { user: SafeUser }) {
         </div>
       )}
 
-      <p className="text-xs leading-5 text-muted">This automated check reads the document, checks its format and expiry, and compares its name and date of birth with your Redrive profile. It does not query a government issuer or confirm suspension, licence class, authenticity, or that the uploader is the cardholder.</p>
+      <p className="text-xs leading-5 text-muted">This automated check reads the document, checks its format and expiry, and compares the first name and date of birth on it with the ones on this account. It does not query a government issuer or confirm suspension, licence class, authenticity, or that the uploader is the cardholder.</p>
     </div>
   );
 }

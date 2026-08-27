@@ -6,6 +6,8 @@ import {
   NotificationType,
 } from "@prisma/client";
 
+import type { RenterIdentityCheck } from "@/app/libs/bookingIdentity";
+
 export type SafeListing = Omit<
   Listing,
   | "createdAt"
@@ -73,6 +75,7 @@ export type SafeReservation = Omit<
   paidAt?: string | null;
   completedAt?: string | null;
   paymentDueAt?: string | null;
+  renterIdentity?: RenterIdentityCheck;
 };
 
 export type SafeUser = Pick<

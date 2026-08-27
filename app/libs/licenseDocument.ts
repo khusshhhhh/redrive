@@ -478,21 +478,16 @@ function nameTokens(value: string) {
     .filter(Boolean);
 }
 
-function tokenMatches(left: string, right: string) {
-  return left === right || (left.length === 1 && right.startsWith(left)) || (right.length === 1 && left.startsWith(right));
-}
-
-export function licenseNameMatchesProfile(profileName: string, givenNames: string, familyName: string) {
+// Identity is confirmed against the two values the account holder typed when
+// they registered: their first name and their date of birth. The family name is
+// deliberately not compared, because a licence routinely carries a married,
+// hyphenated or transliterated surname that the profile never repeats, and a
+// mismatch there used to block people who were exactly who they said they were.
+export function licenseFirstNameMatchesProfile(profileName: string, givenNames: string) {
   const profile = nameTokens(profileName);
   const given = nameTokens(givenNames);
-  const family = nameTokens(familyName);
-  if (!profile.length || !given.length || !family.length) return false;
-
-  const firstMatches = tokenMatches(profile[0], given[0]);
-  const familyMatches = family.some((familyToken) => profile.some((profileToken) => tokenMatches(profileToken, familyToken)));
-  const document = [...given, ...family];
-  const profileCovered = profile.every((profileToken) => document.some((documentToken) => tokenMatches(profileToken, documentToken)));
-  return firstMatches && familyMatches && profileCovered;
+  if (!profile.length || !given.length) return false;
+  return profile[0] === given[0];
 }
 
 export function isValidLicenseDate(value: string) {

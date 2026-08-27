@@ -80,7 +80,7 @@ export default function EmailVerification({
           <p className="text-sm font-semibold">Email verified</p>
           <p className="mt-1 break-all text-xs leading-5 text-emerald-900/75">{email}</p>
           <p className="mt-2 text-xs leading-5 text-emerald-900/75">
-            Your email is confirmed and this booking-readiness step is complete.
+            Your email is confirmed.
           </p>
         </div>
       </div>

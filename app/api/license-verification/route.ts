@@ -19,7 +19,7 @@ import {
   analyzeAustralianLicense,
   isValidLicenseDate,
   licenseExpiryInstant,
-  licenseNameMatchesProfile,
+  licenseFirstNameMatchesProfile,
   normalizeDocumentNumber,
   todayForIssuer,
   type AustralianIssuer,
@@ -374,7 +374,7 @@ async function PATCHHandler(request: Request) {
     }
 
     const issuer = issuerState as AustralianIssuer;
-    const nameMatches = licenseNameMatchesProfile(user.name || "", givenNames, familyName);
+    const nameMatches = licenseFirstNameMatchesProfile(user.name || "", givenNames);
     const dobMatches = Boolean(user.dateOfBirth && user.dateOfBirth === dateOfBirth);
     const expired = expiryDate < todayForIssuer(issuer);
     const numberHash = hashLicenseValue(`${issuer}|${licenseNumber}`);
@@ -397,11 +397,11 @@ async function PATCHHandler(request: Request) {
       : duplicate
         ? "These licence details are already associated with another account."
         : !nameMatches && !dobMatches
-          ? "The licence name and date of birth do not match the Redrive profile."
+          ? "The first name and date of birth on the licence do not match the ones on this account."
           : !nameMatches
-            ? "The licence name does not match the Redrive profile."
+            ? "The first name on the licence does not match the one on this account."
             : !dobMatches
-              ? "The licence date of birth does not match the Redrive profile."
+              ? "The date of birth on the licence does not match the one on this account."
               : null;
 
     const updated = await prisma.user.update({

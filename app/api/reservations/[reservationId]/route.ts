@@ -7,6 +7,7 @@ import { notificationService } from "@/app/services/notificationService";
 import { writeAuditEvent } from "@/app/libs/security";
 import { getStripe } from "@/app/libs/stripe";
 import { calculateCancellationOutcome } from "@/app/libs/cancellationPolicy";
+import { renterIdentityCheck } from "@/app/libs/bookingIdentity";
 
 // ✅ GET: Fetch reservation details with user included
 async function GETHandler(
@@ -48,9 +49,15 @@ async function GETHandler(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    // Both parties to a booking may see the identity result: the renter is
+    // looking at their own licence, and the owner has to review who is asking
+    // for their vehicle before approving. Nobody else can reach this route.
+    const identityCheck = renterIdentityCheck(reservation.user);
+
     // ✅ Ensure response matches SafeReservation format
     const safeReservation = {
       ...reservation,
+      renterIdentity: identityCheck,
       createdAt: reservation.createdAt.toISOString(),
       startDate: reservation.startDate.toISOString(),
       endDate: reservation.endDate.toISOString(),

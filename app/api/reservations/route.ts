@@ -27,7 +27,7 @@ async function POSTHandler(request: NextRequest) {
       return NextResponse.json({ error: "Verify your email before requesting a booking.", code: "EMAIL_VERIFICATION_REQUIRED" }, { status: 403 });
     }
     if (!hasCurrentVerifiedLicense(renter?.licenseStatus, renter?.licenseExpiresAt)) {
-      return NextResponse.json({ error: "A checked, current Australian driver licence is required before requesting a booking.", code: "LICENSE_NOT_VERIFIED" }, { status: 403 });
+      return NextResponse.json({ error: "Complete the identity check on this page before sending the request.", code: "LICENSE_NOT_VERIFIED" }, { status: 403 });
     }
 
     const body = await request.json();

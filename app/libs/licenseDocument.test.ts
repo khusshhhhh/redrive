@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   analyzeAustralianLicense,
   licenseExpiryInstant,
-  licenseNameMatchesProfile,
+  licenseFirstNameMatchesProfile,
 } from "./licenseDocument";
 
 test("classifies an Australian driver licence and extracts labelled fields", () => {
@@ -41,11 +41,23 @@ test("does not classify unrelated OCR text", () => {
   assert.equal(result.isAustralianDriverLicense, false);
 });
 
-test("matches an account name while allowing an omitted middle name or initial", () => {
-  assert.equal(licenseNameMatchesProfile("John Smith", "John Peter", "Smith"), true);
-  assert.equal(licenseNameMatchesProfile("John P Smith", "John Peter", "Smith"), true);
-  assert.equal(licenseNameMatchesProfile("Jane Smith", "John Peter", "Smith"), false);
-  assert.equal(licenseNameMatchesProfile("John Jones", "John Peter", "Smith"), false);
+test("matches on the account first name alone, whatever surname the licence carries", () => {
+  // The family name is deliberately not compared: a married, hyphenated or
+  // transliterated surname on the card is not evidence of a different person.
+  assert.equal(licenseFirstNameMatchesProfile("John Smith", "John Peter"), true);
+  assert.equal(licenseFirstNameMatchesProfile("John Jones", "John Peter"), true);
+  assert.equal(licenseFirstNameMatchesProfile("john smith", "JOHN"), true);
+  assert.equal(licenseFirstNameMatchesProfile("José Garcia", "JOSE"), true);
+  assert.equal(licenseFirstNameMatchesProfile("Jane Smith", "John Peter"), false);
+  assert.equal(licenseFirstNameMatchesProfile("", "John"), false);
+  assert.equal(licenseFirstNameMatchesProfile("John Smith", ""), false);
+});
+
+test("does not accept a bare initial as a first name match", () => {
+  // The first name is now the only name signal, so a single letter must not
+  // stand in for every name that happens to begin with it.
+  assert.equal(licenseFirstNameMatchesProfile("J Smith", "John"), false);
+  assert.equal(licenseFirstNameMatchesProfile("John Smith", "J"), false);
 });
 
 test("converts the printed expiry day to the end of the issuer's local day", () => {

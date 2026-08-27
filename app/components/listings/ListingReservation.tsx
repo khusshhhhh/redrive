@@ -6,11 +6,10 @@ import Button from '../Button';
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
 import { useRouter } from 'next/navigation';
 import { SafeListing, SafeUser } from '@/app/types';
-import { Info, ShieldAlert } from "lucide-react";
+import { Info } from "lucide-react";
 import { Card, CardContent } from "../CardContent";
 import { useState } from 'react';
 import toast from "@/app/libs/toast";
-import { hasCurrentVerifiedLicense } from '@/app/libs/licenseVerification';
 
 const calculateServiceFee = (totalPrice: number): number => {
     if (totalPrice <= 200) return 10;
@@ -61,7 +60,6 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     const dayCount = differenceInCalendarDays(dateRange.endDate, dateRange.startDate) + 1;
     const router = useRouter();
     const [infoPopup, setInfoPopup] = useState<string | null>(null);
-    const licenceReady = currentUser ? hasCurrentVerifiedLicense(currentUser.licenseStatus, currentUser.licenseExpiresAt) : false;
 
     const upfrontCleaningFee = listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0;
     const returnCleaningFee = listing.cleaningFeeOption === 'UPON_RETURNING' ? (listing.returnCleaningFeeAmount || 0) : 0;
@@ -167,12 +165,6 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
             </div>
             <hr className="border-hairline-soft" />
             <div className="p-4">
-                {currentUser && !licenceReady && (
-                    <div className="mb-4 flex gap-3 rounded-sm border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-900">
-                        <ShieldAlert size={18} className="mt-0.5 shrink-0" />
-                        <span><strong>Licence check required.</strong> Check a current Australian driver licence from Profile before requesting this vehicle.</span>
-                    </div>
-                )}
                 <Button
                     disabled={disabled}
                     label="Continue"
@@ -184,11 +176,6 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                         if (!currentUser.emailVerified) {
                             toast.error("Verify your email before booking");
                             router.push("/profile#email-verification");
-                            return;
-                        }
-                        if (!licenceReady) {
-                            toast.error("Check your current Australian driver licence before booking");
-                            router.push("/profile#verification");
                             return;
                         }
                         if (!listing?.id) {

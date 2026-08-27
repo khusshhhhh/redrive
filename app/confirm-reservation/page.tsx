@@ -7,12 +7,15 @@ import axios from "axios";
 import Image from "next/image";
 import { differenceInCalendarDays, format } from "date-fns";
 import { toast } from "@/app/libs/toast";
-import { CalendarDays, ChevronLeft, Clock3, Info, MapPin, MessageCircle, Send, ShieldCheck, Sparkles } from "lucide-react";
+import { BadgeCheck, CalendarDays, ChevronLeft, Clock3, IdCard, Info, MapPin, MessageCircle, Send, ShieldCheck, Sparkles } from "lucide-react";
 
 import Container from "@/app/components/Container";
 import Button from "@/app/components/Button";
 import InlineRetry from "@/app/components/InlineRetry";
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
+import LicenseVerificationPanel from "@/app/components/profile/LicenseVerificationPanel";
+import { hasCurrentVerifiedLicense } from "@/app/libs/licenseVerification";
+import type { SafeUser } from "@/app/types";
 
 const serviceFeeFor = (total: number) => total <= 200 ? 10 : total <= 400 ? 25 : total <= 800 ? 40 : total <= 1200 ? 60 : total <= 2000 ? 80 : 100;
 const money = (value: number) => `AU$${value.toLocaleString("en-AU")}`;
@@ -28,6 +31,7 @@ export default function ConfirmReservation() {
   const insuranceFee = Number(params.get("insuranceFee") || 0);
 
   const [listing, setListing] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<SafeUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
@@ -36,12 +40,26 @@ export default function ConfirmReservation() {
 
   useEffect(() => {
     if (!listingId) { setLoading(false); return; }
-    axios.get(`/api/listings/${listingId}`)
-      .then((response) => setListing(response.data))
-      .then(() => setLoadError(false))
+    // The identity check lives on this screen, so the viewer's licence state has
+    // to arrive with the listing rather than being fetched once it is needed.
+    Promise.all([
+      axios.get(`/api/listings/${listingId}`),
+      // A signed-out visitor still gets to read the request they were building,
+      // so a missing session must not read as a failure to load the booking.
+      axios.get("/api/auth/user").catch(() => null),
+    ])
+      .then(([listingResponse, userResponse]) => {
+        setListing(listingResponse.data);
+        setCurrentUser(userResponse?.data ?? null);
+        setLoadError(false);
+      })
       .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
   }, [listingId, reloadKey]);
+
+  const refreshUser = () => {
+    axios.get("/api/auth/user").then((response) => setCurrentUser(response.data)).catch(() => undefined);
+  };
 
   const totals = useMemo(() => {
     const serviceFee = serviceFeeFor(basePrice);
@@ -52,10 +70,16 @@ export default function ConfirmReservation() {
 
   const bookingDays = startDate && endDate ? Math.max(1, differenceInCalendarDays(new Date(endDate), new Date(startDate)) + 1) : 0;
   const validRequest = listingId && startDate && endDate && basePrice > 0;
+  const identityVerified = hasCurrentVerifiedLicense(currentUser?.licenseStatus, currentUser?.licenseExpiresAt);
 
   const confirmBooking = async () => {
     if (!validRequest) {
       toast.error("This booking request is incomplete");
+      return;
+    }
+    if (!identityVerified) {
+      toast.error("Complete the identity check to send this request");
+      document.getElementById("identity-check")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
     setSubmitting(true);
@@ -68,8 +92,9 @@ export default function ConfirmReservation() {
       if (error.response?.data?.code === "EMAIL_VERIFICATION_REQUIRED") {
         router.push("/profile#email-verification");
       }
-      if (error.response?.data?.code === "LICENSE_REQUIRED") {
-        router.push("/profile#verification");
+      if (error.response?.data?.code === "LICENSE_NOT_VERIFIED") {
+        refreshUser();
+        document.getElementById("identity-check")?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     } finally { setSubmitting(false); }
   };
@@ -126,6 +151,32 @@ export default function ConfirmReservation() {
                 <p className="mt-2 text-xs leading-5 text-muted">This will be attached to your booking request. Avoid sharing payment or identity details.</p>
               </section>
 
+              <section id="identity-check" className="scroll-mt-28 rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+                <SectionTitle
+                  icon={identityVerified ? <BadgeCheck size={19} /> : <IdCard size={19} />}
+                  title="Identity check"
+                  subtitle={identityVerified ? "Your licence is checked and shared with the host for this request." : "Hosts only receive requests from drivers with a checked licence."}
+                />
+                {identityVerified && currentUser ? (
+                  <div className="mt-6 rounded-sm border border-emerald-200 bg-emerald-50 p-5">
+                    <p className="flex items-center gap-2 text-sm font-semibold text-emerald-900"><BadgeCheck size={17} /> Licence verified</p>
+                    <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                      <div><dt className="text-xs text-emerald-800/80">Name on licence</dt><dd className="mt-0.5 font-semibold text-emerald-900">{currentUser.licenseHolderName || currentUser.name}</dd></div>
+                      <div><dt className="text-xs text-emerald-800/80">Issuer and expiry</dt><dd className="mt-0.5 font-semibold text-emerald-900">{currentUser.licenseIssuerState} · {currentUser.licenseExpiryDate}</dd></div>
+                    </dl>
+                    <p className="mt-4 text-xs leading-5 text-emerald-900/80">The host sees these details and the first-name and date-of-birth match when reviewing your request. Your licence photos are never shared.</p>
+                  </div>
+                ) : currentUser ? (
+                  <div className="mt-6">
+                    <LicenseVerificationPanel user={currentUser} context="BOOKING" onVerified={refreshUser} />
+                  </div>
+                ) : (
+                  <p className="mt-6 rounded-sm border border-hairline bg-surface-soft p-4 text-sm leading-6 text-muted">
+                    Sign in to verify your licence and send this request.
+                  </p>
+                )}
+              </section>
+
               <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
                 <SectionTitle icon={<Sparkles size={19} />} title="What happens next" subtitle="This sends a request—it does not instantly confirm the booking." />
                 <div className="mt-6 space-y-4">
@@ -140,7 +191,13 @@ export default function ConfirmReservation() {
               <section className="rounded-md border border-hairline-soft bg-white p-6 shadow-card">
                 <h2 className="text-lg font-semibold text-ink">Price details</h2>
                 <div className="mt-5 space-y-3 text-sm"><PriceRow label={`Vehicle hire · ${bookingDays} days`} value={basePrice} /><PriceRow label="Service fee" value={totals.serviceFee} /><PriceRow label="Redrive fee" value={totals.redriveFee} /><PriceRow label={`Protection · ${insuranceType}`} value={insuranceFee} />{totals.cleaningFee > 0 && <PriceRow label="Cleaning fee" value={totals.cleaningFee} />}{listing.cleaningFeeOption === "UPON_RETURNING" && <div className="flex gap-2 rounded-sm bg-surface-soft p-3 text-xs leading-5 text-muted"><Info size={15} className="mt-0.5 shrink-0" />A {money(Number(listing.returnCleaningFeeAmount || 0))} cleaning fee may be charged after return.</div>}<div className="border-t border-hairline-soft pt-4"><div className="flex items-center justify-between text-lg font-semibold text-ink"><span>Total</span><span>{money(totals.total)}</span></div><p className="mt-1 text-xs text-muted">AUD · final request total</p></div></div>
-                <div className="mt-6"><Button label="Send booking request" loading={submitting} loadingLabel="Sending request" onClick={confirmBooking} /></div>
+                {!identityVerified && (
+                  <p className="mt-6 flex gap-2 rounded-sm border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900">
+                    <IdCard size={15} className="mt-0.5 shrink-0" />
+                    Complete the identity check to send this request.
+                  </p>
+                )}
+                <div className="mt-6"><Button label="Send booking request" disabled={!identityVerified} loading={submitting} loadingLabel="Sending request" onClick={confirmBooking} /></div>
                 <p className="mt-3 text-center text-[11px] leading-5 text-muted">By requesting, you agree to Redrive’s booking and cancellation terms.</p>
               </section>
               <div className="flex gap-3 rounded-md bg-ink p-5 text-white"><Clock3 size={19} className="mt-0.5 shrink-0 text-primary" /><div><p className="text-sm font-semibold">No charge yet</p><p className="mt-1 text-xs leading-5 text-white/70">The host must approve this request before the booking is confirmed.</p></div></div>

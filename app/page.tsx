@@ -9,7 +9,6 @@ import RecentlyViewed from "./components/RecentlyViewed";
 import ContinueWhereYouLeftOff from "./components/ContinueWhereYouLeftOff";
 import SavedSearchManager from "./components/SavedSearchManager";
 import { addDays, differenceInCalendarDays, nextSaturday, startOfDay } from "date-fns";
-import BookingReadiness from "./components/BookingReadiness";
 import RealRecommendations from "./components/RealRecommendations";
 import PurposefulCollections from "./components/PurposefulCollections";
 import { buildSeoMetadata } from "./libs/seo";
@@ -65,7 +64,6 @@ const Home = async ({ searchParams }: HomeProps) => {
           )}
 
           {currentUser && <SavedSearchManager currentFilters={params} hasFilters={hasFilters} />}
-          {currentUser && <BookingReadiness currentUser={currentUser} />}
 
           {/* Main Content */}
           {listings.length === 0 ? (
