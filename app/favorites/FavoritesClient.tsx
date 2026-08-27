@@ -25,6 +25,11 @@ interface FavoritesClientProps {
 
 type SortOption = "saved" | "price-low" | "price-high" | "name";
 
+// Matches the column ladder below, so each card fetches an image sized for the
+// width it actually renders at rather than the denser browse grid's width.
+const FAVOURITE_CARD_SIZES =
+  "(max-width: 639px) 100vw, (max-width: 767px) 50vw, (max-width: 1279px) 33vw, (max-width: 1535px) 25vw, 20vw";
+
 export default function FavoritesClient({ listings, currentUser }: FavoritesClientProps) {
   const loginModal = useLoginModal();
   const [query, setQuery] = useState("");
@@ -163,11 +168,30 @@ export default function FavoritesClient({ listings, currentUser }: FavoritesClie
             </div>
 
             {visibleListings.length ? (
-              <div className="mt-6 grid grid-cols-1 gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <ul
+                role="list"
+                className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 xl:grid-cols-4 xl:gap-6 2xl:grid-cols-5"
+              >
                 {visibleListings.map((listing, index) => (
-                  <ListingCard key={listing.id} currentUser={currentUser} data={listing} priority={index < 4} />
+                  <li
+                    key={listing.id}
+                    // Cells stretch to the tallest card in their row, so the
+                    // borders line up even when one vehicle carries an extra
+                    // line of detail.
+                    className="favourite-cell rounded-lg border border-hairline-soft bg-white p-3 transition duration-200 hover:-translate-y-1 hover:border-border-strong hover:shadow-card focus-within:border-border-strong focus-within:shadow-card"
+                    // The stagger is capped so a long shortlist still finishes
+                    // arriving promptly instead of trickling in for seconds.
+                    style={{ animationDelay: `${Math.min(index, 11) * 45}ms` }}
+                  >
+                    <ListingCard
+                      currentUser={currentUser}
+                      data={listing}
+                      priority={index < 4}
+                      sizes={FAVOURITE_CARD_SIZES}
+                    />
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
               <div className="mt-8 flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-border-strong bg-surface-soft px-6 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-primary"><IconSearch size={22} /></div>

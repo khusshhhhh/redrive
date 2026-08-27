@@ -204,7 +204,7 @@ const EditUtilityPage = () => {
         <main className="min-h-screen bg-surface-soft/45 px-4 py-6 sm:px-6 sm:py-10">
         <div className="mx-auto max-w-[1240px]">
             <button type="button" onClick={() => router.back()} className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-muted transition hover:text-ink"><ArrowLeft size={17} />Back to hosting</button>
-            <header className="relative mb-7 overflow-hidden rounded-2xl bg-ink px-6 py-8 text-white shadow-[0_24px_70px_rgba(11,51,56,0.2)] sm:px-9 sm:py-10">
+            <header className="relative mb-7 overflow-hidden rounded-2xl bg-ink px-6 py-8 text-white shadow-[0_24px_70px_rgba(22, 22, 22,0.2)] sm:px-9 sm:py-10">
                 <div className="absolute -right-16 -top-24 h-72 w-72 rounded-full border-[42px] border-white/[0.05]" />
                 <div className="absolute bottom-0 right-36 h-24 w-24 rounded-full bg-accent/20 blur-2xl" />
                 <div className="relative max-w-3xl">
@@ -236,7 +236,7 @@ const EditUtilityPage = () => {
                     </div>
                 </aside>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 [&>div:not(:last-child)]:rounded-xl [&>div:not(:last-child)]:border [&>div:not(:last-child)]:border-hairline-soft [&>div:not(:last-child)]:bg-white [&>div:not(:last-child)]:p-5 [&>div:not(:last-child)]:shadow-[0_8px_28px_rgba(24,54,58,0.045)] sm:[&>div:not(:last-child)]:p-7">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 [&>div:not(:last-child)]:rounded-xl [&>div:not(:last-child)]:border [&>div:not(:last-child)]:border-hairline-soft [&>div:not(:last-child)]:bg-white [&>div:not(:last-child)]:p-5 [&>div:not(:last-child)]:shadow-[0_8px_28px_rgba(22, 22, 22,0.045)] sm:[&>div:not(:last-child)]:p-7">
                 {/* Title */}
                 <div className="mb-8">
                     <Input id="title" label="Listing title" placeholder="e.g. Powerful ute in Adelaide" register={register} errors={errors} required />
@@ -492,7 +492,7 @@ const EditUtilityPage = () => {
                 </div>
 
                 {/* Submit and Go Back Buttons */}
-                <div className="sticky bottom-3 z-10 flex flex-col gap-3 rounded-xl border border-hairline bg-white/95 p-4 shadow-[0_18px_55px_rgba(11,51,56,0.16)] backdrop-blur sm:flex-row">
+                <div className="sticky bottom-3 z-10 flex flex-col gap-3 rounded-xl border border-hairline bg-white/95 p-4 shadow-[0_18px_55px_rgba(22, 22, 22,0.16)] backdrop-blur sm:flex-row">
                     <button
                         type="submit"
                         className="w-full bg-primary text-white font-semibold px-6 py-4 rounded-sm hover:bg-primary-active transition-all disabled:opacity-50"

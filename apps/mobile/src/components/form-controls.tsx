@@ -8,7 +8,7 @@ export function Heading({ children, detail }: { children: ReactNode; detail?: Re
 }
 
 export function Field({ label, error, ...props }: TextInputProps & { label: string; error?: string }) {
-  return <View style={styles.field}><Text style={styles.label}>{label}</Text><TextInput placeholderTextColor="#80918E" style={[styles.input, error ? styles.inputError : null]} autoCapitalize="none" {...props} />{error ? <Text style={styles.error}>{error}</Text> : null}</View>;
+  return <View style={styles.field}><Text style={styles.label}>{label}</Text><TextInput placeholderTextColor="#8F877F" style={[styles.input, error ? styles.inputError : null]} autoCapitalize="none" {...props} />{error ? <Text style={styles.error}>{error}</Text> : null}</View>;
 }
 
 export function PrimaryButton({ title, onPress, loading, disabled, tone = "primary" }: { title: string; onPress: () => void; loading?: boolean; disabled?: boolean; tone?: "primary" | "danger" | "neutral" }) {

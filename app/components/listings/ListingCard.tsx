@@ -29,7 +29,11 @@ interface ListingCardProps {
     priority?: boolean;
     compact?: boolean;
     tripDays?: number | null;
+    /** Image sizes hint. Override it when a grid runs at a different density. */
+    sizes?: string;
 }
+
+const DEFAULT_CARD_SIZES = "(max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 17vw";
 
 const ListingCard: React.FC<ListingCardProps> = memo(({
     data,
@@ -43,6 +47,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
     priority = false,
     compact = false,
     tripDays = null,
+    sizes = DEFAULT_CARD_SIZES,
 }) => {
     const router = useRouter();
     const { toggle, includes } = useCompareVehicles();
@@ -101,7 +106,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                     <Image
                         fill
                         priority={priority}
-                        sizes="(max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 17vw"
+                        sizes={sizes}
                         alt={`${data.title}, a ${data.category.toLowerCase()} available in ${data.suburb}, ${data.state}`}
                         src={imageUrl}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"

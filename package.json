@@ -49,6 +49,7 @@
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
     "date-fns": "^4.1.0",
+    "flicker-dot": "^0.1.4",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.477.0",

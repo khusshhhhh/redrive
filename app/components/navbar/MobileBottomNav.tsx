@@ -48,7 +48,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ currentUser }) => {
   return (
     <nav
       aria-label="Primary mobile navigation"
-      className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-white/95 px-2 pt-1.5 shadow-[0_-8px_28px_rgba(24,54,58,0.08)] backdrop-blur-md md:hidden"
+      className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-white/95 px-2 pt-1.5 shadow-[0_-8px_28px_rgba(22, 22, 22,0.08)] backdrop-blur-md md:hidden"
     >
       <div className="mx-auto grid max-w-lg grid-cols-5">
         {items.map((item) => {

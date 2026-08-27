@@ -13,7 +13,7 @@ export default function AdminShell({ children, adminName, adminEmail }: { childr
     { href: "/admin#users", label: "Users", icon: Users },
     { href: "/admin/monitoring", label: "API monitoring", icon: RadioTower },
   ];
-  return <div className="min-h-screen bg-[#f6f8f7] lg:grid lg:grid-cols-[248px_1fr]">
+  return <div className="min-h-screen bg-[#f7f6f3] lg:grid lg:grid-cols-[248px_1fr]">
     <aside className="border-b border-white/10 bg-ink px-5 py-5 text-white lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r">
       <div className="flex items-center justify-between lg:block">
         <Link href="/admin" className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary"><ShieldCheck size={20} /></span><span><strong className="block text-sm">Redrive Admin</strong><small className="text-white/50">Operations centre</small></span></Link>

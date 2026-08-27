@@ -719,7 +719,7 @@ export default function ProfileClient({
                       aria-describedby="login-verification-description login-verification-status"
                       disabled={isUpdatingOtp || !hasPassword}
                       onClick={updateLoginOtp}
-                      className={`group relative h-9 w-[4.25rem] overflow-hidden rounded-full border p-1 transition-all duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${loginOtpEnabled ? "border-primary bg-primary shadow-[0_0_0_4px_rgba(8,121,133,0.10)]" : "border-hairline bg-surface-strong"} disabled:cursor-not-allowed disabled:opacity-50`}
+                      className={`group relative h-9 w-[4.25rem] overflow-hidden rounded-full border p-1 transition-all duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${loginOtpEnabled ? "border-primary bg-primary shadow-[0_0_0_4px_rgba(113, 0, 20,0.10)]" : "border-hairline bg-surface-strong"} disabled:cursor-not-allowed disabled:opacity-50`}
                     >
                       <span
                         aria-hidden="true"

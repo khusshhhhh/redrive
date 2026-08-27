@@ -1,13 +1,13 @@
 export const colors = {
-  primary: "#087985",
-  primaryPressed: "#05636D",
-  accent: "#E6A85C",
-  background: "#F3FAF8",
+  primary: "#710014",
+  primaryPressed: "#55000F",
+  accent: "#B38F6F",
+  background: "#F2F1ED",
   surface: "#FFFFFF",
-  ink: "#18363A",
-  muted: "#607874",
-  border: "#D7E6E2",
-  danger: "#B42318",
+  ink: "#161616",
+  muted: "#6B645E",
+  border: "#DFDCD5",
+  danger: "#C0281B",
   success: "#18794E",
 } as const;
 

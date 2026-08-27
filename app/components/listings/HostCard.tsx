@@ -34,7 +34,7 @@ const HostCard: React.FC<HostCardProps> = ({
     const isVerified = user.profileVerified === "Y";
 
     return (
-        <section className="relative my-4 overflow-hidden rounded-lg border border-hairline bg-white shadow-[0_16px_40px_rgba(24,54,58,0.09)]" aria-labelledby="host-card-title">
+        <section className="relative my-4 overflow-hidden rounded-lg border border-hairline bg-white shadow-[0_16px_40px_rgba(22, 22, 22,0.09)]" aria-labelledby="host-card-title">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-secondary to-accent" aria-hidden="true" />
 
             <div className="grid md:grid-cols-[220px_1fr]">
@@ -50,7 +50,7 @@ const HostCard: React.FC<HostCardProps> = ({
                         </span>
                     )}
 
-                    <div className="relative rounded-full border-4 border-white shadow-[0_10px_28px_rgba(24,54,58,0.16)]">
+                    <div className="relative rounded-full border-4 border-white shadow-[0_10px_28px_rgba(22, 22, 22,0.16)]">
                         <Avatar src={user.image} size={104} alt={`${user.name || "Redrive host"} profile photo`} />
                         {isVerified && (
                             <span className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-sm" aria-label="Profile verified">

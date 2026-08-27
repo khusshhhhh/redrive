@@ -52,7 +52,7 @@ body {
 /* Examples and hints should support a form value, never compete with it. */
 input::placeholder,
 textarea::placeholder {
-  color: #748b85;
+  color: #8f877f;
   font-size: 0.875rem;
   opacity: 0.72;
 }
@@ -104,13 +104,13 @@ textarea::placeholder {
   display: none;
 }
 
-/* Coast and Country date picker overrides for react-date-range (light mode only). */
+/* Crimson and Sand date picker overrides for react-date-range (light mode only). */
 .rdrCalendarWrapper {
-  color: #18363a;
+  color: #161616;
 }
 
 .rdrDayNumber span {
-  color: #18363a;
+  color: #161616;
 }
 
 .rdrDay:not(.rdrDayPassive) .rdrInRange ~ .rdrDayNumber span,
@@ -121,24 +121,24 @@ textarea::placeholder {
 }
 
 .rdrDayToday .rdrDayNumber span:after {
-  background: #087985;
+  background: #710014;
 }
 
 .rdrInRange, .rdrStartEdge, .rdrEndEdge, .rdrSelected {
-  background: #087985 !important;
+  background: #710014 !important;
 }
 
 .rdrDayHovered:not(.rdrDayPassive) .rdrDayNumber {
-  border-color: #d2e6e0;
+  border-color: #dfdcd5;
 }
 
 .rdrMonthAndYearPickers select {
-  color: #18363a;
+  color: #161616;
 }
 
 .logo-wordmark {
   display: inline-block;
-  color: #087985;
+  color: #710014;
   line-height: 1;
 }
 
@@ -187,11 +187,31 @@ textarea::placeholder {
 
 /* A soft travelling highlight used by every route skeleton. Keeping the
    contrast low avoids the flashing feel of animate-pulse on large screens. */
+/* Saved vehicles arrive as a grid of cards. Each cell fades up a beat after the
+   one before it, so a shortlist reads as one collection settling into place
+   rather than a block of images appearing at once. */
+@keyframes favouriteCellIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.favourite-cell {
+  /* backwards, not both: a forwards-filling animation keeps ownership of
+     transform after it ends, which would silently beat the hover lift. */
+  animation: favouriteCellIn 460ms cubic-bezier(.16, 1, .3, 1) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .favourite-cell {
+    animation: none;
+  }
+}
+
 .shimmer,
 .skeleton-wave {
   position: relative;
   overflow: hidden;
-  background: #edf0f2;
+  background: #e9e7e1;
 }
 
 .shimmer::after,
@@ -285,21 +305,21 @@ textarea::placeholder {
 /* Messaging owns the available app viewport. Only its conversation panes
    scroll, matching the stable desktop/mobile behaviour of focused chat apps. */
 .chat-canvas {
-  background-color: #f1f8f5;
+  background-color: #f2f1ed;
   background-image:
-    radial-gradient(circle at 18% 20%, rgb(8 121 133 / 5%) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 82% 72%, rgb(57 113 90 / 5%) 0 1px, transparent 1.5px);
+    radial-gradient(circle at 18% 20%, rgb(113 0 20 / 5%) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 82% 72%, rgb(138 104 73 / 5%) 0 1px, transparent 1.5px);
   background-size: 34px 34px, 42px 42px;
 }
 
 .chat-scrollbar {
-  scrollbar-color: rgb(116 139 133 / 45%) transparent;
+  scrollbar-color: rgb(143 135 127 / 45%) transparent;
   scrollbar-width: thin;
 }
 
 .chat-scrollbar::-webkit-scrollbar { width: 6px; }
 .chat-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.chat-scrollbar::-webkit-scrollbar-thumb { border-radius: 999px; background: rgb(116 139 133 / 40%); }
+.chat-scrollbar::-webkit-scrollbar-thumb { border-radius: 999px; background: rgb(143 135 127 / 40%); }
 
 /* Toasts arrive like tiny trip updates: a route marker, a distinct status
    voice, and enough motion to feel alive without getting in the way. */
@@ -328,20 +348,20 @@ textarea::placeholder {
 }
 
 .redrive-toast {
-  --toast-accent: #087985;
-  --toast-soft: #e1f0ea;
+  --toast-accent: #710014;
+  --toast-soft: #e7e5de;
   position: relative;
   display: flex;
   width: min(390px, calc(100vw - 24px));
   align-items: flex-start;
   gap: .8rem;
   overflow: hidden;
-  border: 1px solid rgb(210 230 224 / 90%);
+  border: 1px solid rgb(223 220 213 / 90%);
   border-radius: 18px;
   background: rgb(255 255 255 / 96%);
   padding: .9rem .85rem .85rem;
-  color: #18363a;
-  box-shadow: 0 18px 50px rgb(24 54 58 / 16%), 0 2px 8px rgb(24 54 58 / 8%);
+  color: #161616;
+  box-shadow: 0 18px 50px rgb(22 22 22 / 16%), 0 2px 8px rgb(22 22 22 / 8%);
   backdrop-filter: blur(18px);
 }
 
@@ -350,9 +370,9 @@ textarea::placeholder {
 .redrive-toast:not(.redrive-toast--loading) { cursor: pointer; }
 .redrive-toast--visible { animation: toastArrive 460ms cubic-bezier(.16, 1, .3, 1) both; }
 .redrive-toast--hidden { animation: toastLeave 180ms ease-in both; }
-.redrive-toast--error { --toast-accent: #b42318; --toast-soft: #fff0ed; }
-.redrive-toast--loading { --toast-accent: #d39a12; --toast-soft: #fff4cf; }
-.redrive-toast--custom { --toast-accent: #39715a; --toast-soft: #e2efe8; }
+.redrive-toast--error { --toast-accent: #c0281b; --toast-soft: #fbedeb; }
+.redrive-toast--loading { --toast-accent: #b38f6f; --toast-soft: #f5ece1; }
+.redrive-toast--custom { --toast-accent: #8a6849; --toast-soft: #f0e7dd; }
 
 .redrive-toast__route {
   position: absolute;
@@ -421,7 +441,7 @@ textarea::placeholder {
 .redrive-toast__message {
   margin-top: .22rem;
   overflow-wrap: anywhere;
-  color: #18363a;
+  color: #161616;
   font-size: 14px;
   font-weight: 650;
   line-height: 1.4;
@@ -435,11 +455,11 @@ textarea::placeholder {
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  color: #748b85;
+  color: #8f877f;
   transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
-.redrive-toast__close:hover { background: #f1f8f5; color: #18363a; transform: rotate(5deg); }
+.redrive-toast__close:hover { background: #f2f1ed; color: #161616; transform: rotate(5deg); }
 .redrive-toast__close:focus-visible { outline: 2px solid var(--toast-accent); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {

@@ -237,7 +237,7 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
 
       <section className="mx-auto max-w-[1240px] px-5 py-10 sm:px-8 sm:py-16 lg:px-10">
         <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12">
-        <aside data-info-reveal className="h-fit overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_12px_38px_rgba(24,54,58,0.05)] lg:sticky lg:top-28">
+        <aside data-info-reveal className="h-fit overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_12px_38px_rgba(22, 22, 22,0.05)] lg:sticky lg:top-28">
           <div className="bg-gradient-to-br from-primary to-secondary p-5 text-white"><div className="flex items-center gap-2 text-sm font-semibold"><CircleHelp size={18} /> In this guide</div><p className="mt-2 text-xs leading-5 text-white/70">Jump directly to the answer you need.</p></div>
           <nav className="flex max-h-[58vh] flex-col overflow-y-auto p-3">
             {page.sections.map((section, index) => (
@@ -249,7 +249,7 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
 
         <div className="min-w-0">
           {page.sections.map((section, index) => (
-            <article data-info-reveal key={section.heading} id={`section-${index}`} className="mb-5 scroll-mt-28 rounded-2xl border border-hairline-soft bg-white p-6 shadow-[0_10px_34px_rgba(24,54,58,0.045)] sm:p-8">
+            <article data-info-reveal key={section.heading} id={`section-${index}`} className="mb-5 scroll-mt-28 rounded-2xl border border-hairline-soft bg-white p-6 shadow-[0_10px_34px_rgba(22, 22, 22,0.045)] sm:p-8">
               <div className="flex items-start gap-4 sm:gap-5"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-strong text-xs font-bold tabular-nums text-primary">{String(index + 1).padStart(2, "0")}</span><div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{page.eyebrow}</p><h2 className="mt-1.5 text-xl font-semibold tracking-tight text-ink sm:text-2xl">{section.heading}</h2></div></div>
               <p className="mt-5 text-[15px] leading-8 text-body sm:text-base">{section.body}</p>
               {section.items && (
@@ -285,5 +285,5 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
 }
 
 function ResourceLink({ href, title, copy, icon }: { href: string; title: string; copy: string; icon: React.ReactNode }) {
-  return <Link href={href} className="group rounded-2xl border border-hairline-soft bg-white p-5 shadow-[0_8px_28px_rgba(24,54,58,0.04)] transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-card"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-strong text-primary">{icon}</span><h3 className="mt-5 font-semibold text-ink">{title}</h3><p className="mt-2 text-xs leading-5 text-muted">{copy}</p><span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">Explore <ArrowRight size={13} className="transition group-hover:translate-x-1" /></span></Link>;
+  return <Link href={href} className="group rounded-2xl border border-hairline-soft bg-white p-5 shadow-[0_8px_28px_rgba(22, 22, 22,0.04)] transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-card"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-strong text-primary">{icon}</span><h3 className="mt-5 font-semibold text-ink">{title}</h3><p className="mt-2 text-xs leading-5 text-muted">{copy}</p><span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">Explore <ArrowRight size={13} className="transition group-hover:translate-x-1" /></span></Link>;
 }

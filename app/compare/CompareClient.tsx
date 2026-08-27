@@ -69,7 +69,7 @@ const CompareClient = ({ vehicles, tripDays }: { vehicles: ComparisonVehicle[]; 
 
       <div className={`grid gap-2.5 lg:hidden ${displayedVehicles.length === 2 ? "grid-cols-2" : "grid-cols-3"}`} aria-label="Vehicles being compared">
         {displayedVehicles.map((vehicle, index) => (
-          <article key={vehicle.id} className="min-w-0 overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_8px_28px_rgba(24,54,58,0.06)]">
+          <article key={vehicle.id} className="min-w-0 overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_8px_28px_rgba(22, 22, 22,0.06)]">
             <div className="relative aspect-[4/3] bg-surface-soft">
               <Image src={vehicle.imageSrc} alt={`${vehicle.title} available in ${vehicle.suburb}, ${vehicle.state}`} fill sizes={displayedVehicles.length === 2 ? "50vw" : "34vw"} className="object-cover" />
               <span className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink/80 text-[10px] font-bold text-white backdrop-blur-sm">{index + 1}</span>
@@ -86,7 +86,7 @@ const CompareClient = ({ vehicles, tripDays }: { vehicles: ComparisonVehicle[]; 
 
       <div className="mt-6 space-y-4 lg:hidden">
         {groups.map((group) => (
-          <section key={group.title} className="overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_8px_28px_rgba(24,54,58,0.045)]">
+          <section key={group.title} className="overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_8px_28px_rgba(22, 22, 22,0.045)]">
             <div className="border-b border-hairline-soft bg-surface-soft/65 px-4 py-3.5">
               <h2 className="text-sm font-semibold text-ink">{group.title}</h2>
               <p className="mt-0.5 text-[11px] text-muted">{group.copy}</p>
@@ -106,7 +106,7 @@ const CompareClient = ({ vehicles, tripDays }: { vehicles: ComparisonVehicle[]; 
         ))}
       </div>
 
-      <div className="hidden overflow-x-auto rounded-2xl border border-hairline shadow-[0_12px_38px_rgba(24,54,58,0.05)] lg:block">
+      <div className="hidden overflow-x-auto rounded-2xl border border-hairline shadow-[0_12px_38px_rgba(22, 22, 22,0.05)] lg:block">
         <table className="w-full min-w-[760px] border-collapse text-left">
           <thead><tr className="bg-surface-soft"><th className="sticky left-0 z-10 w-44 bg-surface-soft p-4 text-xs font-semibold uppercase tracking-wider text-muted">Compare</th>{displayedVehicles.map((vehicle) => <th key={vehicle.id} className="min-w-[230px] p-4 align-top"><div className="relative aspect-[3/2] overflow-hidden rounded-xl"><Image src={vehicle.imageSrc} alt={`${vehicle.title} available in ${vehicle.suburb}, ${vehicle.state}`} fill sizes="280px" className="object-cover" /></div><div className="mt-3 flex items-start justify-between gap-2"><div><Link href={`/listings/${vehicle.id}`} className="font-semibold text-ink hover:underline">{vehicle.title}</Link><p className="mt-1 text-xs font-normal text-muted">{vehicle.suburb}, {vehicle.state}</p></div><button type="button" onClick={() => handleRemove(vehicle.id)} aria-label={`Remove ${vehicle.title}`} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><IconX size={17} /></button></div></th>)}</tr></thead>
           <tbody>{rows.map(([label, value]) => <tr key={label} className="border-t border-hairline-soft"><th className="sticky left-0 z-10 bg-white p-4 text-sm font-semibold text-ink">{label}</th>{displayedVehicles.map((vehicle) => <td key={vehicle.id} className="p-4 text-sm text-muted">{renderValue(label, vehicle, value(vehicle))}</td>)}</tr>)}</tbody>

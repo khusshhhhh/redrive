@@ -310,7 +310,7 @@ const ChatPage = () => {
   const online = isOnline(otherUser?.lastActiveAt);
 
   return (
-    <div className="mx-auto flex h-full min-h-0 max-w-[1440px] overflow-hidden border-x border-hairline-soft bg-white shadow-[0_18px_60px_rgba(24,54,58,0.08)]">
+    <div className="mx-auto flex h-full min-h-0 max-w-[1440px] overflow-hidden border-x border-hairline-soft bg-white shadow-[0_18px_60px_rgba(22, 22, 22,0.08)]">
           <ChatSidebar activeChatId={chatId} className="hidden w-[380px] md:flex" />
           <section className="flex min-w-0 flex-1 flex-col">
             <header className="flex h-[72px] shrink-0 items-center gap-3 border-b border-hairline-soft bg-white/95 px-3 backdrop-blur sm:px-6">

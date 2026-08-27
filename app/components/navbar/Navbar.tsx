@@ -73,7 +73,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
 
   return (
     <>
-    <header ref={headerRef} className={`fixed inset-x-0 top-0 z-30 w-full border-b bg-white/95 backdrop-blur-md transition-[box-shadow,border-color] duration-300 ${isScrolled ? "border-hairline shadow-[0_8px_24px_rgba(24,54,58,0.08)]" : "border-hairline-soft shadow-none"}`}>
+    <header ref={headerRef} className={`fixed inset-x-0 top-0 z-30 w-full border-b bg-white/95 backdrop-blur-md transition-[box-shadow,border-color] duration-300 ${isScrolled ? "border-hairline shadow-[0_8px_24px_rgba(22, 22, 22,0.08)]" : "border-hairline-soft shadow-none"}`}>
       <div className={`transition-[padding] duration-300 ${isScrolled ? "py-2" : "py-2.5 sm:py-3"}`}>
         <Container>
           <div className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2.5 md:grid-cols-[auto_1fr_auto] md:gap-x-3 xl:grid-cols-[1fr_auto_1fr]">

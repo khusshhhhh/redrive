@@ -24,7 +24,7 @@ export default function CancellationPolicySelector({ value, onChange, disabled }
             disabled={disabled}
             aria-pressed={active}
             onClick={() => onChange(policy.key)}
-            className={`group relative rounded-xl border p-5 text-left transition disabled:cursor-not-allowed disabled:opacity-60 ${active ? "border-primary bg-primary/[0.055] shadow-[0_10px_30px_rgba(8,121,133,0.08)]" : "border-hairline-soft bg-white hover:border-primary/45 hover:bg-surface-soft/45"}`}
+            className={`group relative rounded-xl border p-5 text-left transition disabled:cursor-not-allowed disabled:opacity-60 ${active ? "border-primary bg-primary/[0.055] shadow-[0_10px_30px_rgba(113, 0, 20,0.08)]" : "border-hairline-soft bg-white hover:border-primary/45 hover:bg-surface-soft/45"}`}
           >
             <div className="flex items-start gap-4">
               <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${active ? "bg-primary text-white" : "bg-surface-strong text-primary"}`}>

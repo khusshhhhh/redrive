@@ -19,7 +19,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, isOwn, otherUserId, pe
   return (
     <div className={`flex items-end gap-1 ${isOwn ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[86%] rounded-2xl px-3.5 py-2.5 text-[14px] leading-5 shadow-[0_1px_2px_rgba(24,54,58,0.08)] sm:max-w-[70%] ${
+        className={`max-w-[86%] rounded-2xl px-3.5 py-2.5 text-[14px] leading-5 shadow-[0_1px_2px_rgba(22, 22, 22,0.08)] sm:max-w-[70%] ${
           isOwn
             ? "rounded-br-sm bg-primary text-white"
             : "rounded-bl-sm border border-hairline-soft bg-white text-ink"

@@ -217,7 +217,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                 </div>
             </div>
             {!isOwner && (
-                <div className="fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-white/95 px-4 pt-3 shadow-[0_-8px_24px_rgba(24,54,58,0.10)] backdrop-blur md:hidden" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+                <div className="fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-white/95 px-4 pt-3 shadow-[0_-8px_24px_rgba(22, 22, 22,0.10)] backdrop-blur md:hidden" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
                     <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
                         <div className="min-w-0"><div className="text-base font-semibold text-ink">AU${Math.round(totalFees)} <span className="text-xs font-normal text-muted">estimated total</span></div><div className="truncate text-xs text-muted">AU${listing.price}/day · {listing.suburb}, {listing.state}</div></div>
                         <button type="button" onClick={scrollToBooking} className="h-12 shrink-0 rounded-full bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-active focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">Check availability</button>

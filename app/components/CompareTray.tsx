@@ -23,7 +23,7 @@ const CompareTray = () => {
   };
 
   return (
-    <aside className="fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 mx-auto max-w-2xl rounded-md border border-hairline bg-white/95 p-3 shadow-[0_12px_40px_rgba(24,54,58,0.22)] backdrop-blur-md md:bottom-5" aria-label="Vehicle comparison tray">
+    <aside className="fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 mx-auto max-w-2xl rounded-md border border-hairline bg-white/95 p-3 shadow-[0_12px_40px_rgba(22, 22, 22,0.22)] backdrop-blur-md md:bottom-5" aria-label="Vehicle comparison tray">
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="hidden text-sm font-semibold text-ink sm:block">Compare</div>
         <div className="flex min-w-0 flex-1 gap-2">

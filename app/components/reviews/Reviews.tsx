@@ -23,7 +23,7 @@ const ReviewCard = ({ review }: { review: Review }) => {
     const filledStars = Math.round(review.rating);
 
     return (
-        <article className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-hairline bg-white p-5 shadow-[0_10px_30px_rgba(24,54,58,0.07)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[0_16px_36px_rgba(24,54,58,0.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6">
+        <article className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-hairline bg-white p-5 shadow-[0_10px_30px_rgba(22, 22, 22,0.07)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[0_16px_36px_rgba(22, 22, 22,0.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6">
             <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-accent via-accent/60 to-transparent" aria-hidden="true" />
             <span className="pointer-events-none absolute bottom-1 right-5 font-serif text-8xl leading-none text-surface-strong/70" aria-hidden="true">&ldquo;</span>
 

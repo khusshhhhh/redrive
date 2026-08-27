@@ -30,7 +30,7 @@ export default function EditorialIndex({ eyebrow, title, intro, baseHref, articl
 
       <div className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
         {featured && (
-          <Link data-info-reveal href={`${baseHref}/${featured.slug}`} className="group grid overflow-hidden rounded-2xl bg-ink text-white shadow-[0_20px_60px_rgba(24,54,58,0.15)] md:grid-cols-[1.1fr_.9fr]">
+          <Link data-info-reveal href={`${baseHref}/${featured.slug}`} className="group grid overflow-hidden rounded-2xl bg-ink text-white shadow-[0_20px_60px_rgba(22, 22, 22,0.15)] md:grid-cols-[1.1fr_.9fr]">
             <div className="p-7 sm:p-10">
               <p className="text-xs font-semibold uppercase tracking-[0.17em] text-accent">{featuredLabel} · {featured.category}</p>
               <h2 className="mt-4 text-2xl font-semibold leading-tight sm:text-4xl">{featured.title}</h2>
@@ -55,7 +55,7 @@ export default function EditorialIndex({ eyebrow, title, intro, baseHref, articl
         </div>
         <div className="mt-7 grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
           {rest.map((article, index) => (
-            <Link data-info-reveal style={{ "--info-reveal-delay": `${(index % 3) * 90}ms` } as CSSProperties} key={article.slug} href={`${baseHref}/${article.slug}`} className="group rounded-2xl border border-hairline-soft bg-white p-5 shadow-[0_8px_28px_rgba(24,54,58,0.035)] transition hover:-translate-y-1 hover:border-primary/35 hover:shadow-card">
+            <Link data-info-reveal style={{ "--info-reveal-delay": `${(index % 3) * 90}ms` } as CSSProperties} key={article.slug} href={`${baseHref}/${article.slug}`} className="group rounded-2xl border border-hairline-soft bg-white p-5 shadow-[0_8px_28px_rgba(22, 22, 22,0.035)] transition hover:-translate-y-1 hover:border-primary/35 hover:shadow-card">
               <div className="flex items-center justify-between gap-3"><span className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">{article.category}</span><time dateTime={article.published} className="text-xs text-muted">{formatDate(article.published)}</time></div>
               <h3 className="mt-4 text-xl font-semibold leading-snug text-ink group-hover:underline">{article.title}</h3>
               <p className="mt-3 text-sm leading-6 text-muted">{article.description}</p>

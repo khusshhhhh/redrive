@@ -57,7 +57,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       package: `au.com.redrive.app${suffix}`,
       blockedPermissions: ["android.permission.RECORD_AUDIO"],
       adaptiveIcon: {
-        backgroundColor: "#F3FAF8",
+        backgroundColor: "#F2F1ED",
         foregroundImage: "./assets/images/android-icon-foreground.png",
         backgroundImage: "./assets/images/android-icon-background.png",
         monochromeImage: "./assets/images/android-icon-monochrome.png",
@@ -76,7 +76,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "expo-router",
       ["expo-secure-store", { configureAndroidBackup: true }],
       "expo-notifications",
-      ["expo-splash-screen", { backgroundColor: "#F3FAF8", image: "./assets/images/splash-icon.png", imageWidth: 120, resizeMode: "contain" }],
+      ["expo-splash-screen", { backgroundColor: "#F2F1ED", image: "./assets/images/splash-icon.png", imageWidth: 120, resizeMode: "contain" }],
       ["expo-image-picker", {
         photosPermission: "Allow Redrive to select photos you choose to upload.",
         cameraPermission: "Allow Redrive to take photos you choose to upload.",

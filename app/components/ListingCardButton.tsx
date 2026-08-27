@@ -38,7 +38,7 @@ const ListingCardButton: React.FC<ListingCardButtonProps> = ({ label, onClick, d
                 {loading && (
                     <DotLoader
                         size="sm"
-                        color={variant === "primary" ? "#18363A" : "#B42318"}
+                        color={variant === "primary" ? "#161616" : "#C0281B"}
                     />
                 )}
                 {loading ? "Loading..." : label}

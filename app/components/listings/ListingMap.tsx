@@ -52,7 +52,7 @@ const ListingMap: React.FC<ListingMapProps> = ({ suburb, state }) => {
           {
             featureType: "all",
             elementType: "labels.text.fill",
-            stylers: [{ color: "#4b5557" }],
+            stylers: [{ color: "#4a4542" }],
           },
           {
             featureType: "all",
@@ -94,7 +94,7 @@ const ListingMap: React.FC<ListingMapProps> = ({ suburb, state }) => {
           {
             featureType: "water",
             elementType: "geometry",
-            stylers: [{ color: "#d9ddde" }],
+            stylers: [{ color: "#dcd9d3" }],
           },
         ],
       });
@@ -105,10 +105,10 @@ const ListingMap: React.FC<ListingMapProps> = ({ suburb, state }) => {
         center,
         radius: 550,
         clickable: false,
-        strokeColor: "#087985",
+        strokeColor: "#710014",
         strokeOpacity: 0.9,
         strokeWeight: 2,
-        fillColor: "#087985",
+        fillColor: "#710014",
         fillOpacity: 0.14,
       });
       setStatus("ready");

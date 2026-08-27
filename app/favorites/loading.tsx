@@ -1,23 +1,40 @@
 import Container from "../components/Container";
+import FlickerLoader from "../components/FlickerLoader";
 
 export default function FavoritesLoading() {
   return (
-    <Container>
-      <div className="pb-16 pt-5 sm:pt-8">
-        <div className="rounded-xl border border-hairline bg-surface-soft px-5 py-8 sm:px-10 sm:py-11">
-          <div className="h-7 w-44 rounded-full shimmer" />
-          <div className="mt-6 h-11 max-w-2xl rounded-md shimmer" />
-          <div className="mt-3 h-5 max-w-xl rounded shimmer" />
+    <main className="min-h-[70vh] pb-16 sm:pb-20">
+      <Container>
+        {/* The hero keeps its shape while the shortlist loads, so the page does
+            not jump the moment the saved vehicles arrive. */}
+        <section className="relative mt-5 overflow-hidden rounded-xl border border-hairline bg-surface-soft px-5 py-7 sm:mt-8 sm:px-8 sm:py-10 lg:px-12">
+          <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-secondary-soft/80" aria-hidden="true" />
+          <div className="pointer-events-none absolute -bottom-24 right-1/4 h-48 w-48 rounded-full bg-accent-soft/70" aria-hidden="true" />
+          <div className="relative grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_auto]">
+            <div className="max-w-3xl">
+              <div className="h-8 w-52 rounded-full shimmer" />
+              <div className="mt-5 h-10 max-w-xl rounded-md shimmer sm:h-12" />
+              <div className="mt-4 h-5 max-w-lg rounded shimmer" />
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:flex">
+              <div className="h-20 min-w-32 rounded-lg shimmer" />
+              <div className="h-20 min-w-32 rounded-lg shimmer" />
+            </div>
+          </div>
+        </section>
+
+        <div
+          className="flex min-h-[420px] flex-col items-center justify-center px-6 py-16"
+          role="status"
+          aria-live="polite"
+        >
+          <FlickerLoader
+            size={56}
+            label="Gathering your saved vehicles"
+            sublabel="Bringing your shortlist together."
+          />
         </div>
-        <div className="mt-12 flex items-end justify-between border-b border-hairline pb-6">
-          <div className="space-y-3"><div className="h-6 w-48 rounded shimmer" /><div className="h-4 w-72 max-w-[70vw] rounded shimmer" /></div>
-          <div className="hidden h-11 w-40 rounded-full shimmer sm:block" />
-        </div>
-        <div className="mt-6 h-20 rounded-lg border border-hairline shimmer" />
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, index) => <div key={index} className="aspect-square rounded-md shimmer" />)}
-        </div>
-      </div>
-    </Container>
+      </Container>
+    </main>
   );
 }

@@ -52,7 +52,7 @@ export default function HelpCentreClient() {
           <div className="mt-7 grid gap-4 md:grid-cols-2">
             {results.map((article, index) => (
               <div data-info-reveal style={{ "--info-reveal-delay": `${(index % 2) * 90}ms` } as CSSProperties} key={article.slug}>
-                <Link href={`/help-centre/${article.slug}`} className="group block h-full rounded-2xl border border-hairline-soft bg-white p-5 shadow-[0_8px_28px_rgba(24,54,58,0.035)] transition hover:-translate-y-1 hover:border-primary/35 hover:shadow-card sm:p-6">
+                <Link href={`/help-centre/${article.slug}`} className="group block h-full rounded-2xl border border-hairline-soft bg-white p-5 shadow-[0_8px_28px_rgba(22, 22, 22,0.035)] transition hover:-translate-y-1 hover:border-primary/35 hover:shadow-card sm:p-6">
                   <div className="flex items-start justify-between gap-4"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-soft text-primary"><BookOpen size={18} /></span><span className="rounded-full bg-surface-soft px-3 py-1 text-[11px] font-semibold text-muted">{article.audience}</span></div>
                   <h3 className="mt-5 text-lg font-semibold text-ink group-hover:underline">{article.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-muted">{article.description}</p>
