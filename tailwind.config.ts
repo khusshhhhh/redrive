@@ -9,36 +9,36 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Crimson and Sand. Four source colours carry the identity --
-        // Crimson Depth #710014, Warm Sand #B38F6F, Soft Pearl #F2F1ED and
-        // Obsidian Black #161616 -- and every token below is derived from
-        // them, holding the contrast ratios the previous palette had.
-        primary: "#710014",
-        "primary-active": "#55000F",
-        "primary-disabled": "#C9A7AD",
-        secondary: "#8A6849",
-        "secondary-active": "#6E5239",
-        "secondary-soft": "#F0E7DD",
-        accent: "#B38F6F",
-        "accent-active": "#8A6849",
-        "accent-soft": "#F5ECE1",
-        ink: "#161616",
-        body: "#332F2C",
-        muted: "#6B645E",
-        "muted-soft": "#8F877F",
-        hairline: "#DFDCD5",
-        "hairline-soft": "#EBE8E2",
-        "border-strong": "#C6C0B6",
-        "surface-soft": "#F2F1ED",
-        "surface-strong": "#E7E5DE",
+        // Monochrome. Four source greys carry the identity --
+        // Mist #D9D9D9, Ash #B5B5B5, Slate #636363 and Graphite #3B3B3B --
+        // and every token below is derived from them, holding the contrast
+        // ratios the previous palette had.
+        primary: "#3B3B3B",
+        "primary-active": "#2E2E2E",
+        "primary-disabled": "#B5B5B5",
+        secondary: "#636363",
+        "secondary-active": "#3B3B3B",
+        "secondary-soft": "#EDEDED",
+        accent: "#B5B5B5",
+        "accent-active": "#636363",
+        "accent-soft": "#EDEDED",
+        ink: "#3B3B3B",
+        body: "#3B3B3B",
+        muted: "#636363",
+        "muted-soft": "#8A8A8A",
+        hairline: "#D9D9D9",
+        "hairline-soft": "#E7E7E7",
+        "border-strong": "#B5B5B5",
+        "surface-soft": "#F4F4F4",
+        "surface-strong": "#E4E4E4",
         error: "#C0281B",
         "error-hover": "#9B1F15",
-        "legal-link": "#710014",
-        luxe: "#8A6849",
-        plus: "#B38F6F",
-        favorite: "#A3121F",
-        "favorite-active": "#7C0D18",
-        "favorite-soft": "#F9EAEB",
+        "legal-link": "#3B3B3B",
+        luxe: "#636363",
+        plus: "#B5B5B5",
+        favorite: "#3B3B3B",
+        "favorite-active": "#2E2E2E",
+        "favorite-soft": "#EDEDED",
       },
       borderRadius: {
         none: "0px",

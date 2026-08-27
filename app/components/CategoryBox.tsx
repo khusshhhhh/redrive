@@ -70,7 +70,7 @@ const CategoryBox: React.FC<CategoryBoxProps> = ({
         `}
         >
             <span className={`flex items-center justify-center text-current transition-[width,height] duration-300 ${compact ? "h-5 w-6 sm:h-6 sm:w-6 [&_svg]:h-5 [&_svg]:w-5 sm:[&_svg]:h-6 sm:[&_svg]:w-6" : "h-7 w-7 sm:h-8 sm:w-8 [&_svg]:h-7 [&_svg]:w-7 sm:[&_svg]:h-8 sm:[&_svg]:w-8"}`}>
-                {isPending ? <DotLoader size="sm" color="#710014" /> : <Icon aria-hidden="true" />}
+                {isPending ? <DotLoader size="sm" color="#3B3B3B" /> : <Icon aria-hidden="true" />}
             </span>
             <div className={`max-w-full truncate font-semibold transition-[font-size] duration-300 ${compact ? "text-[9px] sm:text-[10px] lg:text-xs" : "text-[11px] sm:text-xs lg:text-sm"}`}>{label}</div>
         </button>

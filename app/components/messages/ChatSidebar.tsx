@@ -98,7 +98,7 @@ export default function ChatSidebar({ activeChatId, className = "" }: ChatSideba
             <button
               key={chat.id}
               onClick={() => router.push(`/messages/${chat.id}`)}
-              className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${active ? "bg-surface-strong shadow-[inset_3px_0_0_#710014]" : "hover:bg-surface-soft"}`}
+              className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${active ? "bg-surface-strong shadow-[inset_3px_0_0_#3B3B3B]" : "hover:bg-surface-soft"}`}
             >
               <span className="relative shrink-0">
                 <Image src={chat.otherUser?.image || "/images/placeholder.png"} alt={`${chat.otherUser?.name || "Conversation member"} profile photo`} width={48} height={48} className="h-12 w-12 rounded-full object-cover" />

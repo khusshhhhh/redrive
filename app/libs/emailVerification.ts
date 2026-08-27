@@ -113,25 +113,25 @@ function buildCodeEmail({
       }
     </style>
   </head>
-  <body style="margin:0;padding:0;background:#edeae4;color:#161616;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-text-size-adjust:100%;">
+  <body style="margin:0;padding:0;background:#EDEDED;color:#3B3B3B;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-text-size-adjust:100%;">
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${code} is your Redrive code. It expires in ${CODE_TTL_MINUTES} minutes.</div>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#edeae4;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#EDEDED;">
       <tr>
         <td align="center" style="padding:28px 12px;">
-          <table role="presentation" class="email-shell" width="600" cellspacing="0" cellpadding="0" border="0" style="width:600px;max-width:600px;background:#ffffff;border:1px solid #dfdcd5;border-radius:22px;overflow:hidden;box-shadow:0 10px 30px rgba(22, 22, 22,.08);">
+          <table role="presentation" class="email-shell" width="600" cellspacing="0" cellpadding="0" border="0" style="width:600px;max-width:600px;background:#ffffff;border:1px solid #D9D9D9;border-radius:22px;overflow:hidden;box-shadow:0 10px 30px rgba(22, 22, 22,.08);">
             <tr>
-              <td class="content-pad" style="padding:24px 36px;background:#ffffff;border-bottom:1px solid #ebe8e2;">
+              <td class="content-pad" style="padding:24px 36px;background:#ffffff;border-bottom:1px solid #E7E7E7;">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
                     <td>
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                         <tr>
-                          <td width="42" height="42" align="center" valign="middle" style="width:42px;height:42px;border-radius:13px;background:#710014;color:#ffffff;font-size:24px;font-weight:700;line-height:42px;">R</td>
-                          <td style="padding-left:12px;font-size:25px;font-weight:700;letter-spacing:-1px;color:#161616;">redrive<span style="color:#b38f6f;">.</span></td>
+                          <td width="42" height="42" align="center" valign="middle" style="width:42px;height:42px;border-radius:13px;background:#3B3B3B;color:#ffffff;font-size:24px;font-weight:700;line-height:42px;">R</td>
+                          <td style="padding-left:12px;font-size:25px;font-weight:700;letter-spacing:-1px;color:#3B3B3B;">redrive<span style="color:#B5B5B5;">.</span></td>
                         </tr>
                       </table>
                     </td>
-                    ${helpUrl ? `<td class="hide-mobile" align="right"><a href="${helpUrl}" style="font-size:13px;font-weight:700;color:#6b645e;text-decoration:none;">Help centre</a></td>` : ""}
+                    ${helpUrl ? `<td class="hide-mobile" align="right"><a href="${helpUrl}" style="font-size:13px;font-weight:700;color:#636363;text-decoration:none;">Help centre</a></td>` : ""}
                   </tr>
                 </table>
               </td>
@@ -139,31 +139,31 @@ function buildCodeEmail({
             ${heroUrl ? `<tr><td class="hero-pad" style="padding:24px 24px 0;"><img src="${heroUrl}" width="552" alt="A Redrive journey along the South Australian coast" style="display:block;width:100%;max-width:552px;height:auto;border:0;border-radius:16px;"></td></tr>` : ""}
             <tr>
               <td class="content-pad" style="padding:34px 44px 12px;">
-                <div style="font-size:12px;line-height:18px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#710014;">${eyebrow}</div>
-                <h1 class="email-title" style="margin:10px 0 0;font-size:38px;line-height:44px;letter-spacing:-1.4px;color:#161616;">${title}</h1>
-                <p style="margin:20px 0 0;font-size:16px;line-height:26px;font-weight:700;color:#161616;">${greeting}</p>
-                <p style="margin:8px 0 0;font-size:16px;line-height:26px;color:#6b645e;">${introduction}</p>
+                <div style="font-size:12px;line-height:18px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#3B3B3B;">${eyebrow}</div>
+                <h1 class="email-title" style="margin:10px 0 0;font-size:38px;line-height:44px;letter-spacing:-1.4px;color:#3B3B3B;">${title}</h1>
+                <p style="margin:20px 0 0;font-size:16px;line-height:26px;font-weight:700;color:#3B3B3B;">${greeting}</p>
+                <p style="margin:8px 0 0;font-size:16px;line-height:26px;color:#636363;">${introduction}</p>
               </td>
             </tr>
             <tr>
               <td class="content-pad" style="padding:20px 44px 8px;">
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f2f1ed;border:1px solid #dfdcd5;border-top:4px solid #b38f6f;border-radius:14px;">
-                  <tr><td align="center" style="padding:18px 12px 4px;font-size:11px;line-height:16px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:#6b645e;">Your verification code</td></tr>
-                  <tr><td class="code" align="center" style="padding:4px 8px 18px;font-size:42px;line-height:52px;font-weight:800;letter-spacing:11px;color:#710014;font-family:'Courier New',monospace;">${code}</td></tr>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#F4F4F4;border:1px solid #D9D9D9;border-top:4px solid #B5B5B5;border-radius:14px;">
+                  <tr><td align="center" style="padding:18px 12px 4px;font-size:11px;line-height:16px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:#636363;">Your verification code</td></tr>
+                  <tr><td class="code" align="center" style="padding:4px 8px 18px;font-size:42px;line-height:52px;font-weight:800;letter-spacing:11px;color:#3B3B3B;font-family:'Courier New',monospace;">${code}</td></tr>
                 </table>
-                <p style="margin:14px 0 0;text-align:center;font-size:13px;line-height:20px;color:#6b645e;">Enter this code in Redrive. It expires in <strong style="color:#161616;">${CODE_TTL_MINUTES} minutes</strong>.</p>
+                <p style="margin:14px 0 0;text-align:center;font-size:13px;line-height:20px;color:#636363;">Enter this code in Redrive. It expires in <strong style="color:#3B3B3B;">${CODE_TTL_MINUTES} minutes</strong>.</p>
               </td>
             </tr>
-            ${appUrl ? `<tr><td align="center" class="content-pad" style="padding:22px 44px 8px;"><a href="${appUrl}" style="display:inline-block;min-width:178px;padding:14px 24px;border-radius:999px;background:#710014;color:#ffffff;font-size:14px;line-height:20px;font-weight:700;text-align:center;text-decoration:none;">Open Redrive</a></td></tr>` : ""}
+            ${appUrl ? `<tr><td align="center" class="content-pad" style="padding:22px 44px 8px;"><a href="${appUrl}" style="display:inline-block;min-width:178px;padding:14px 24px;border-radius:999px;background:#3B3B3B;color:#ffffff;font-size:14px;line-height:20px;font-weight:700;text-align:center;text-decoration:none;">Open Redrive</a></td></tr>` : ""}
             <tr>
               <td class="content-pad" style="padding:26px 44px 34px;">
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top:1px solid #ebe8e2;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top:1px solid #E7E7E7;">
                   <tr>
                     <td style="padding-top:22px;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                         <tr>
-                          <td width="34" height="34" align="center" valign="middle" style="width:34px;height:34px;border-radius:50%;background:#f2f1ed;color:#710014;font-size:17px;line-height:34px;">&#128737;</td>
-                          <td style="padding-left:12px;font-size:13px;line-height:20px;color:#6b645e;">${securityMessage}<br><strong style="color:#161616;">Never share this code with anyone.</strong></td>
+                          <td width="34" height="34" align="center" valign="middle" style="width:34px;height:34px;border-radius:50%;background:#F4F4F4;color:#3B3B3B;font-size:17px;line-height:34px;">&#128737;</td>
+                          <td style="padding-left:12px;font-size:13px;line-height:20px;color:#636363;">${securityMessage}<br><strong style="color:#3B3B3B;">Never share this code with anyone.</strong></td>
                         </tr>
                       </table>
                     </td>
@@ -172,12 +172,12 @@ function buildCodeEmail({
               </td>
             </tr>
             <tr>
-              <td align="center" style="padding:22px 28px;background:#161616;color:#c6c0b6;font-size:12px;line-height:19px;">
-                Sent securely by Redrive<br><span style="color:#8f877f;">Explore Australia with confidence.</span>
+              <td align="center" style="padding:22px 28px;background:#3B3B3B;color:#B5B5B5;font-size:12px;line-height:19px;">
+                Sent securely by Redrive<br><span style="color:#8A8A8A;">Explore Australia with confidence.</span>
               </td>
             </tr>
           </table>
-          <p style="margin:18px 0 0;font-size:11px;line-height:18px;color:#8f877f;">This is an automated security email. Please do not reply.</p>
+          <p style="margin:18px 0 0;font-size:11px;line-height:18px;color:#8A8A8A;">This is an automated security email. Please do not reply.</p>
         </td>
       </tr>
     </table>
@@ -299,7 +299,7 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
     disableUrlAccess: true,
     subject: "Reset your Redrive password",
     text: `Use this secure link within 30 minutes to reset your Redrive password: ${resetUrl}. If you did not request this, ignore this email.`,
-    html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:32px;color:#161616"><div style="font-size:22px;font-weight:700;margin-bottom:28px;color:#710014">Redrive</div><h1 style="font-size:24px;margin:0 0 12px">Reset your password</h1><p style="color:#6B645E;line-height:1.6">This secure link expires in 30 minutes and can only be used once.</p><p style="margin:28px 0"><a href="${resetUrl}" style="display:inline-block;background:#710014;color:white;text-decoration:none;padding:14px 22px;border-radius:8px;font-weight:700">Choose a new password</a></p><p style="font-size:13px;color:#8F877F">If you did not request this, ignore this email. Your password has not changed.</p></div>`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:32px;color:#3B3B3B"><div style="font-size:22px;font-weight:700;margin-bottom:28px;color:#3B3B3B">Redrive</div><h1 style="font-size:24px;margin:0 0 12px">Reset your password</h1><p style="color:#636363;line-height:1.6">This secure link expires in 30 minutes and can only be used once.</p><p style="margin:28px 0"><a href="${resetUrl}" style="display:inline-block;background:#3B3B3B;color:white;text-decoration:none;padding:14px 22px;border-radius:8px;font-weight:700">Choose a new password</a></p><p style="font-size:13px;color:#8A8A8A">If you did not request this, ignore this email. Your password has not changed.</p></div>`,
   });
   return { delivered: true };
 }
