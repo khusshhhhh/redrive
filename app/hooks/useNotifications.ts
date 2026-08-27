@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import { SafeNotification } from "@/app/types";
-import { toast } from "react-hot-toast";
+import { toast } from "@/app/libs/toast";
 
 const getErrorMessage = (error: unknown, fallback: string): string => {
   if (axios.isAxiosError(error)) {

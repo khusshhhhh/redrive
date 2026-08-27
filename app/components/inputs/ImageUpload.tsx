@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import { TbPhotoPlus } from "react-icons/tb";
 
 export type UploadFolder = "profiles" | "registrations" | "listings" | "chat";

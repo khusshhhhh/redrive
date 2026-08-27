@@ -10,7 +10,7 @@ import useLoginModal from "@/app/hooks/useLoginModal";
 import { useRouter } from "next/navigation";
 import { differenceInCalendarDays, eachDayOfInterval } from "date-fns";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import ListingReservation from "@/app/components/listings/ListingReservation";
 import { Range } from "react-date-range";
 import Reviews from "@/app/components/reviews/Reviews";

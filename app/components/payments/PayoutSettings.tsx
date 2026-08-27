@@ -9,7 +9,7 @@ import {
   RefreshCw,
   ShieldCheck,
 } from "lucide-react";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 
 type PayoutStatus = {
   connected: boolean;

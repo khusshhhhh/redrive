@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Check, MailCheck, RefreshCw, ShieldCheck } from "lucide-react";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 
 interface EmailVerificationProps {
   email: string;

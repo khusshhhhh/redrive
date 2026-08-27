@@ -5,7 +5,7 @@ import axios from "axios";
 import Image from "next/image";
 import { SafeChatUser, SafeMessage } from "@/app/types";
 import { useParams, useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import { IconSend, IconArrowLeft, IconPaperclip, IconX } from "@tabler/icons-react";
 import { format, isSameDay, isToday, isYesterday } from "date-fns";
 import ChatBubble from "@/app/components/messages/ChatBubble";

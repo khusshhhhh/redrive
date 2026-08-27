@@ -4,7 +4,7 @@
 import { useMemo, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import axios from "axios";
-import { toast } from "react-hot-toast";
+import { toast } from "@/app/libs/toast";
 import { useRouter } from "next/navigation";
 import {
   BadgeCheck,

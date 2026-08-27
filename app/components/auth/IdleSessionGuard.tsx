@@ -2,7 +2,7 @@
 
 import { getSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import {
   clearBrowserActivity,
   readBrowserActivity,
@@ -13,6 +13,7 @@ import {
 const SERVER_TOUCH_THROTTLE_MS = 60_000;
 const SESSION_BOOTSTRAP_RETRY_MS = 1_000;
 const SESSION_BOOTSTRAP_MAX_RETRIES = 3;
+const VERIFY_THROTTLE_MS = 1_000;
 
 function storedActivity() {
   return readBrowserActivity(window.localStorage);
@@ -39,6 +40,7 @@ export default function IdleSessionGuard({
     let logoutStarted = false;
     let lastServerTouch = 0;
     let bootstrapRetries = 0;
+    let lastVerify = 0;
     let timeout: number | undefined;
     let bootstrapRetryTimeout: number | undefined;
 
@@ -121,6 +123,13 @@ export default function IdleSessionGuard({
     };
 
     const verifyThenTouch = async () => {
+      // Returning to the tab fires both focus and visibilitychange, and each
+      // forced touch skips the throttle. Two pings landing together are wasted
+      // work, so the second one is dropped.
+      const now = Date.now();
+      if (now - lastVerify < VERIFY_THROTTLE_MS) return;
+      lastVerify = now;
+
       const session = await getSession().catch(() => null);
       if (disposed) return;
       if (session?.sessionInvalidReason || (session && !session.user?.email)) {

@@ -4,7 +4,7 @@ import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import qs from "query-string";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import { IconBell, IconBellOff, IconBookmark, IconSearch, IconTrash } from "@tabler/icons-react";
 
 import type { IListingsParams } from "../actions/getListings";

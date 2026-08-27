@@ -9,7 +9,7 @@ import { SafeListing, SafeUser } from '@/app/types';
 import { Info, ShieldAlert } from "lucide-react";
 import { Card, CardContent } from "../CardContent";
 import { useState } from 'react';
-import toast from 'react-hot-toast';
+import toast from "@/app/libs/toast";
 import { hasCurrentVerifiedLicense } from '@/app/libs/licenseVerification';
 
 const calculateServiceFee = (totalPrice: number): number => {

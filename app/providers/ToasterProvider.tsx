@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import toast, { resolveValue, Toaster, type Toast } from 'react-hot-toast';
 
+import { MAX_TOAST_MS } from '@/app/libs/toastDuration';
+
 const toastDetails = {
     success: { eyebrow: 'All set', icon: Check, className: 'redrive-toast--success' },
     error: { eyebrow: 'Quick detour', icon: TriangleAlert, className: 'redrive-toast--error' },
@@ -21,15 +23,26 @@ const toastDetails = {
 function RedriveToast({ item }: { item: Toast }) {
     const details = toastDetails[item.type];
     const Icon = details.icon;
+    // Everything except a loading toast clears itself. The bar counts that time
+    // down so the wait is visible, and pauses with the toast while hovered.
+    const countdown = Number.isFinite(item.duration) ? item.duration : 0;
 
     return (
         <div
             className={`redrive-toast ${details.className} ${item.visible ? 'redrive-toast--visible' : 'redrive-toast--hidden'}`}
             role={item.ariaProps.role}
             aria-live={item.ariaProps['aria-live']}
+            onClick={item.type === 'loading' ? undefined : () => toast.dismiss(item.id)}
         >
             <div className="redrive-toast__route" aria-hidden="true">
-                <span className="redrive-toast__route-dot" />
+                {countdown ? (
+                    <span
+                        className="redrive-toast__route-bar"
+                        style={{ animationDuration: `${Math.min(countdown, MAX_TOAST_MS)}ms` }}
+                    />
+                ) : (
+                    <span className="redrive-toast__route-dot" />
+                )}
             </div>
             <span className="redrive-toast__icon" aria-hidden="true">
                 <Icon size={19} strokeWidth={2.25} />
@@ -57,6 +70,7 @@ const ToasterProvider = () => (
         position="top-center"
         reverseOrder={false}
         gutter={10}
+        containerClassName="redrive-toaster"
         containerStyle={{ top: 18, left: 12, right: 12, zIndex: 9999 }}
         toastOptions={{ duration: 4200, loading: { duration: Infinity } }}
     >

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, CheckCircle2, FileImage, LoaderCircle, ScanLine } from "lucide-react";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 
 import { AU_ISSUERS, type ExtractedLicenseFields } from "@/app/libs/licenseDocument";
 import type { SafeUser } from "@/app/types";

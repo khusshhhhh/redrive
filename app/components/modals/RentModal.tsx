@@ -38,7 +38,7 @@ declare global {
     }
 }
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import { IconX } from "@tabler/icons-react";
 
 

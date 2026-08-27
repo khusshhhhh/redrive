@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import { IconPhotoPlus, IconStar, IconX } from "@tabler/icons-react";
 
 interface ListingPhotoManagerProps {

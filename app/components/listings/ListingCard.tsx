@@ -9,7 +9,7 @@ import HeartButton from "../HeartButton";
 import ListingCardButton from "../ListingCardButton";
 import { IconArrowsExchange, IconRosetteDiscountCheck, IconStar } from "@tabler/icons-react";
 import useCompareVehicles from "@/app/hooks/useCompareVehicles";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 
 const reservationDateFormatter = new Intl.DateTimeFormat("en-AU", {
     day: "numeric",

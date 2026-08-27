@@ -6,7 +6,7 @@ import Image from "next/image";
 import useFavorite from "@/app/hooks/useFavorites";
 import { IoClose } from "react-icons/io5";
 import Heading from "../Heading";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import { IconLayoutGrid, IconShare2, IconHeart, IconHeartFilled } from "@tabler/icons-react";
 
 interface ListingHeadProps {

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Camera, FileBadge2, X } from "lucide-react";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 
 interface SignupImagePickerProps {
   label: string;

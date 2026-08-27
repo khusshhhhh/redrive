@@ -23,6 +23,7 @@ import {
   normalizeDocumentNumber,
   todayForIssuer,
   type AustralianIssuer,
+  type LicenseFieldName,
 } from "@/app/libs/licenseDocument";
 import {
   decryptLicenseValue,
@@ -71,6 +72,21 @@ async function deleteLicenceAsset(publicId?: string | null) {
     type: "authenticated",
     invalidate: true,
   }).catch((error) => console.error("Old licence asset cleanup failed", error));
+}
+
+const FIELD_LABELS: Record<LicenseFieldName, string> = {
+  givenNames: "given name",
+  familyName: "family name",
+  dateOfBirth: "date of birth",
+  expiryDate: "expiry date",
+  licenseNumber: "licence number",
+  cardNumber: "card number",
+};
+
+function listFields(names: LicenseFieldName[]) {
+  const labels = names.map((name) => FIELD_LABELS[name]);
+  if (labels.length < 2) return labels.join("");
+  return `${labels.slice(0, -1).join(", ")} and ${labels[labels.length - 1]}`;
 }
 
 function noStore<T>(body: T, init?: ResponseInit) {
@@ -149,11 +165,34 @@ async function POSTHandler(request: Request) {
         action: "LICENCE_CLASSIFICATION_FAILED",
         targetType: "User",
         targetId: currentUser.id,
-        metadata: { confidence: analysis.confidence },
+        metadata: { confidence: analysis.confidence, reasons: analysis.reasons.join(",") },
       });
       return noStore({
-        error: "These images could not be classified as an Australian driver licence.",
+        error: "These images could not be read as an Australian driver licence. Photograph the front and back of the card itself, filling the frame, with no glare.",
         code: "NOT_AUSTRALIAN_DRIVER_LICENCE",
+        reasons: analysis.reasons,
+      }, { status: 422 });
+    }
+
+    // The document is a licence, so the holder is told which value to
+    // photograph again rather than that their licence was not recognised.
+    if (analysis.missingFields.length) {
+      await writeAuditEvent({
+        request,
+        actorUserId: currentUser.id,
+        action: "LICENCE_FIELDS_UNREADABLE",
+        targetType: "User",
+        targetId: currentUser.id,
+        metadata: {
+          confidence: analysis.confidence,
+          issuer: analysis.fields.issuerState,
+          missingFields: analysis.missingFields.join(","),
+        },
+      });
+      return noStore({
+        error: `This looks like a ${analysis.fields.issuerState} driver licence, but the ${listFields(analysis.missingFields)} could not be read. Retake that side in even light and try again.`,
+        code: "LICENCE_FIELDS_UNREADABLE",
+        missingFields: analysis.missingFields,
         reasons: analysis.reasons,
       }, { status: 422 });
     }

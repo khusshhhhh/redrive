@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios, { AxiosError } from "axios";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import Image from "next/image";
 
 const ReviewPage = () => {

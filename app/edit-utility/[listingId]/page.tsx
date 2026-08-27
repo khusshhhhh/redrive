@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import { useForm, FieldValues } from "react-hook-form";
 import Input from "@/app/components/inputs/Input";
 import AddressAutocomplete, { ParsedAddress } from "@/app/components/inputs/AddressAutocomplete";

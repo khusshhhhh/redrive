@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { ArrowLeft, CarFront, KeyRound, Mail } from "lucide-react";
-import { toast } from "react-hot-toast";
+import { toast } from "@/app/libs/toast";
 import { useRouter } from "next/navigation";
 
 import useRegisterModal from "@/app/hooks/useRegisterModal";

@@ -6,7 +6,7 @@ import Heading from "../components/Heading";
 import { SafeListing, SafeUser } from "../types";
 import { useCallback, useState } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import ListingCard from "../components/listings/ListingCard";
 
 interface PropertiesClientProps {

@@ -5,7 +5,7 @@ import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import { CalendarDays, ChevronRight, MapPin, UsersRound } from "lucide-react";
 
 import Container from "../components/Container";

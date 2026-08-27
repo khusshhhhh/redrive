@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
+import { toast } from "@/app/libs/toast";
 
 import { SafeUser } from "../types";
 import useLoginModal from "./useLoginModal";

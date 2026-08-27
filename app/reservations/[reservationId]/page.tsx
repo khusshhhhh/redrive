@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
 import { differenceInCalendarDays, format } from "date-fns";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import {
   BadgeCheck,
   CalendarDays,

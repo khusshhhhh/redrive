@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
 import { differenceInCalendarDays, format } from "date-fns";
-import { toast } from "react-hot-toast";
+import { toast } from "@/app/libs/toast";
 import { CalendarDays, ChevronLeft, Clock3, Info, MapPin, MessageCircle, Send, ShieldCheck, Sparkles } from "lucide-react";
 
 import Container from "@/app/components/Container";

@@ -4,7 +4,7 @@ import axios from "axios";
 import { signIn } from "next-auth/react";
 import { useCallback, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-import { toast } from "react-hot-toast";
+import { toast } from "@/app/libs/toast";
 import { FcGoogle } from "react-icons/fc";
 import { CarFront, Check, Heart, LogIn, Mail, MailCheck, MapPin, ShieldCheck, Smartphone, UserRound } from "lucide-react";
 

@@ -12,7 +12,7 @@ import {
   ShieldAlert,
   Upload,
 } from "lucide-react";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 
 import type { SafeReservation } from "@/app/types";
 

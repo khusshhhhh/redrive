@@ -6,7 +6,7 @@ import Heading from "../components/Heading";
 import { SafeListing, SafeUser } from "@/app/types";
 import ListingCard from "../components/listings/ListingCard";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast from "@/app/libs/toast";
 import { useState } from "react";
 import DeleteModal from "../components/modals/DeleteModal"; // ✅ Import DeleteModal
 
