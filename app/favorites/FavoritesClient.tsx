@@ -103,7 +103,7 @@ export default function FavoritesClient({ listings, currentUser }: FavoritesClie
             </div>
             <h2 id="signed-out-favourites" className="mt-6 text-display-lg font-semibold text-ink">Sign in to see your favourites</h2>
             <p className="mt-3 max-w-md text-body-sm leading-6 text-muted">Your saved vehicles are kept with your Redrive account so they are available across your devices.</p>
-            <button type="button" onClick={loginModal.onOpen} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-button-sm font-semibold text-white transition hover:bg-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+            <button type="button" onClick={() => loginModal.onOpen()} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-button-sm font-semibold text-white transition hover:bg-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
               Sign in <IconArrowRight size={17} aria-hidden="true" />
             </button>
           </section>

@@ -200,7 +200,7 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             )}
 
             {isOpen && suggestions.length > 0 && (
-                <ul className="absolute z-20 mt-1 w-full bg-white border border-hairline-soft rounded-sm shadow-card max-h-64 overflow-y-auto">
+                <ul className="absolute z-40 mt-1 w-full bg-white border border-hairline rounded-sm shadow-card max-h-64 overflow-y-auto overscroll-contain">
                     {suggestions.map((s, index) => (
                         <li
                             key={s.placeId}

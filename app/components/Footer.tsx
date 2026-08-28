@@ -13,7 +13,7 @@ export default function Footer() {
   const loginModal = useLoginModal();
 
   const onListCar = () => {
-    if (!currentUser) return loginModal.onOpen();
+    if (!currentUser) return loginModal.onOpen("/host");
     router.push("/host");
   };
 

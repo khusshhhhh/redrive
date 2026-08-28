@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowRight, KeyRound, MapPinned, Sparkles } from "lucide-react";
 
 import { categories } from "@/app/components/navbar/Categories";
@@ -8,6 +7,7 @@ import Reveal from "./Reveal";
 import CountUp from "./CountUp";
 import SplitText from "./SplitText";
 import Tilt from "./Tilt";
+import BecomeHostLink from "@/app/components/BecomeHostLink";
 
 /* ── Stats strip ───────────────────────────────────────────────────────── */
 
@@ -138,8 +138,7 @@ export function HostCtaBand() {
             List for free, set your own price and availability, and approve every request. The guided flow takes about
             five minutes.
           </p>
-          <Link
-            href="/host"
+          <BecomeHostLink
             className="group mt-8 inline-flex h-[52px] items-center gap-2 rounded-full bg-white px-7 text-sm font-semibold text-ink transition hover:bg-surface-soft"
           >
             Become a host
@@ -147,7 +146,7 @@ export function HostCtaBand() {
               size={17}
               className="text-ink transition-[transform,color] duration-300 group-hover:translate-x-1.5 group-hover:text-yellow-500"
             />
-          </Link>
+          </BecomeHostLink>
         </div>
       </Reveal>
     </section>

@@ -300,7 +300,7 @@ export default function HostFlow() {
         </p>
         <button
           type="button"
-          onClick={loginModal.onOpen}
+          onClick={() => loginModal.onOpen("/host")}
           className="mt-7 inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-white transition hover:bg-primary-active"
         >
           Sign in to continue <ArrowRight size={17} />

@@ -40,6 +40,8 @@ const LoginModal = () => {
     recordBrowserActivity(window.localStorage);
     toast.success("Welcome back");
     notifyAuthChanged();
+    const redirectTo = loginModal.consumeRedirect();
+    if (redirectTo) router.push(redirectTo);
     router.refresh();
     loginModal.onClose();
     setStage("credentials");
@@ -139,7 +141,7 @@ const LoginModal = () => {
   const footer = stage === "credentials" ? (
     <div className="mx-5 mb-5 mt-0 flex flex-col gap-2 sm:mx-8">
       <div className="relative"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-hairline-soft" /></div><div className="relative flex justify-center"><span className="bg-white px-3 text-[11px] uppercase tracking-widest text-muted-soft">or</span></div></div>
-      <Button small outline label="Continue with Google" icon={FcGoogle} onClick={async () => { await signIn("google"); }} />
+      <Button small outline label="Continue with Google" icon={FcGoogle} onClick={async () => { await signIn("google", { callbackUrl: loginModal.redirectTo || undefined }); }} />
       <p className="text-center text-sm text-muted">New to Redrive? <button type="button" onClick={toggle} className="min-h-11 rounded-xs px-1 font-semibold text-ink underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Create an account</button></p>
     </div>
   ) : undefined;

@@ -62,7 +62,7 @@ const MobileBottomNav: React.FC = () => {
                 key={item.href}
                 type="button"
                 className={classes}
-                onClick={loginModal.onOpen}
+                onClick={() => loginModal.onOpen()}
                 aria-label={`${item.label} — sign in required`}
               >
                 <Icon size={22} stroke={active ? 2 : 1.7} aria-hidden="true" />

@@ -8,6 +8,7 @@ import type { ListingCardData } from "@/app/libs/listingCardData";
 import { BrowserFrame, PhoneFrame } from "./DeviceFrame";
 import { BookingMock, BrowseGridMock } from "./mockups";
 import SplitText from "./SplitText";
+import BecomeHostLink from "@/app/components/BecomeHostLink";
 
 export default function LandingHero({ listings }: { listings: ListingCardData[] }) {
   const scene = useRef<HTMLDivElement>(null);
@@ -57,25 +58,16 @@ export default function LandingHero({ listings }: { listings: ListingCardData[] 
   };
 
   return (
-    <section className="aurora animate-gradient-pan relative isolate overflow-hidden">
-      {/* monochrome 3D wireframe cube, drifting behind the headline */}
-      <div
-        aria-hidden="true"
-        className="scene-3d parallax-slow pointer-events-none absolute right-[3%] top-14 -z-10 hidden opacity-60 lg:block"
-      >
-        <div className="relative h-52 w-52">
-          <div className="hero-cube absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2">
-            <span className="hero-cube__face" style={{ transform: "translateZ(64px)" }} />
-            <span className="hero-cube__face" style={{ transform: "rotateY(180deg) translateZ(64px)" }} />
-            <span className="hero-cube__face" style={{ transform: "rotateY(90deg) translateZ(64px)" }} />
-            <span className="hero-cube__face" style={{ transform: "rotateY(-90deg) translateZ(64px)" }} />
-            <span className="hero-cube__face" style={{ transform: "rotateX(90deg) translateZ(64px)" }} />
-            <span className="hero-cube__face" style={{ transform: "rotateX(-90deg) translateZ(64px)" }} />
-          </div>
-        </div>
+    <section className="aurora animate-gradient-pan relative isolate flex min-h-[100svh] items-center overflow-hidden">
+      {/* monochrome 3D wireframe cubes, drifting behind the headline */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <HeroCube size={128} className="right-[3%] top-14 hidden opacity-60 lg:block" duration={42} />
+        <HeroCube size={72} className="left-[5%] top-[38%] hidden opacity-40 lg:block" duration={33} delay={-12} />
+        <HeroCube size={96} className="right-[10%] bottom-[9%] hidden opacity-30 lg:block" duration={50} delay={-24} />
+        <HeroCube size={56} className="left-[2%] bottom-[16%] hidden opacity-45 xl:block" duration={28} delay={-6} />
       </div>
 
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 pb-16 pt-12 sm:px-8 lg:grid-cols-[1fr_1.05fr] lg:gap-10 lg:pb-24 lg:pt-20">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-5 pb-16 pt-24 sm:px-8 sm:pt-16 lg:grid-cols-[1fr_1.05fr] lg:gap-10 lg:pb-24 lg:pt-20">
         <div className="relative animate-[fadeIn_0.8s_ease-out_both]">
           <span className="inline-flex items-center gap-2 rounded-full border border-yellow-500/40 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-primary backdrop-blur">
             <CarFront size={13} className="text-yellow-500" /> Peer-to-peer vehicle hire · Australia
@@ -101,12 +93,11 @@ export default function LandingHero({ listings }: { listings: ListingCardData[] 
                 className="transition-[transform,color] duration-300 group-hover:translate-x-1.5 group-hover:text-yellow-500"
               />
             </Link>
-            <Link
-              href="/host"
+            <BecomeHostLink
               className="inline-flex h-[52px] items-center gap-2 rounded-full border border-border-strong bg-white/80 px-7 text-sm font-semibold text-ink backdrop-blur transition-[background-color,border-color,transform] duration-300 hover:-translate-y-0.5 hover:border-ink hover:bg-white"
             >
               Become a host
-            </Link>
+            </BecomeHostLink>
           </div>
           <p className="mt-6 text-xs font-medium text-muted-soft">
             No membership fees · Free to list · Cancel a request any time before it&rsquo;s accepted
@@ -146,5 +137,40 @@ export default function LandingHero({ listings }: { listings: ListingCardData[] 
         </div>
       </div>
     </section>
+  );
+}
+
+/** One slowly rotating monochrome wireframe cube, positioned by `className`. */
+function HeroCube({
+  size,
+  className,
+  duration = 42,
+  delay = 0,
+}: {
+  size: number;
+  className?: string;
+  duration?: number;
+  delay?: number;
+}) {
+  const z = size / 2;
+  const faces = [
+    `translateZ(${z}px)`,
+    `rotateY(180deg) translateZ(${z}px)`,
+    `rotateY(90deg) translateZ(${z}px)`,
+    `rotateY(-90deg) translateZ(${z}px)`,
+    `rotateX(90deg) translateZ(${z}px)`,
+    `rotateX(-90deg) translateZ(${z}px)`,
+  ];
+  return (
+    <div className={`scene-3d parallax-slow pointer-events-none absolute ${className ?? ""}`}>
+      <div
+        className="hero-cube relative"
+        style={{ width: size, height: size, animationDuration: `${duration}s`, animationDelay: `${delay}s` }}
+      >
+        {faces.map((transform) => (
+          <span key={transform} className="hero-cube__face" style={{ transform }} />
+        ))}
+      </div>
+    </div>
   );
 }

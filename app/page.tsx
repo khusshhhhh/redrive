@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import getListings from "./actions/getListings";
 import { toListingCardData, type ListingCardData } from "./libs/listingCardData";
 import { buildSeoMetadata } from "./libs/seo";
+import BecomeHostLink from "./components/BecomeHostLink";
 import LandingHero from "./components/landing/LandingHero";
 import FeatureShowcase from "./components/landing/FeatureShowcase";
 import Reveal from "./components/landing/Reveal";
@@ -83,12 +84,11 @@ export default async function Home() {
                   className="transition-[transform,color] duration-300 group-hover:translate-x-1.5 group-hover:text-yellow-500"
                 />
               </Link>
-              <Link
-                href="/host"
+              <BecomeHostLink
                 className="inline-flex h-12 items-center rounded-full border border-border-strong bg-white px-6 text-sm font-semibold text-ink transition-[border-color,transform] duration-300 hover:-translate-y-0.5 hover:border-ink"
               >
                 List your vehicle
-              </Link>
+              </BecomeHostLink>
             </div>
           </div>
         </Reveal>

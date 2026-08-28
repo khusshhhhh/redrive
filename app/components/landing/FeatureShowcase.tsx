@@ -9,6 +9,7 @@ import Tilt from "./Tilt";
 import SplitText from "./SplitText";
 import { BrowserFrame, PhoneFrame } from "./DeviceFrame";
 import { BookingMock, BrowseGridMock, ChatMock, HostStepMock, VerifiedList } from "./mockups";
+import BecomeHostLink from "@/app/components/BecomeHostLink";
 
 interface Row {
   eyebrow: string;
@@ -98,17 +99,20 @@ export default function FeatureShowcase({ listings }: { listings: ListingCardDat
                 </h2>
                 <p className="mt-4 max-w-lg text-[15px] leading-7 text-muted">{row.body}</p>
                 {row.extra && <div className="mt-6">{row.extra}</div>}
-                {row.cta && (
-                  <Link
-                    href={row.cta.href}
-                    className="group mt-7 inline-flex items-center gap-2 text-sm font-semibold text-ink"
-                  >
-                    <span className="hover-underline">{row.cta.label}</span>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border-strong text-ink transition-[transform,color,border-color] duration-300 group-hover:translate-x-1 group-hover:border-yellow-500 group-hover:text-yellow-500">
-                      <ArrowRight size={15} />
-                    </span>
-                  </Link>
-                )}
+                {row.cta && (() => {
+                  const CtaTag = row.cta.href === "/host" ? BecomeHostLink : Link;
+                  return (
+                    <CtaTag
+                      href={row.cta.href}
+                      className="group mt-7 inline-flex items-center gap-2 text-sm font-semibold text-ink"
+                    >
+                      <span className="hover-underline">{row.cta.label}</span>
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border-strong text-ink transition-[transform,color,border-color] duration-300 group-hover:translate-x-1 group-hover:border-yellow-500 group-hover:text-yellow-500">
+                        <ArrowRight size={15} />
+                      </span>
+                    </CtaTag>
+                  );
+                })()}
               </Reveal>
 
               <Reveal from="zoom" delay={80} className={flip ? "lg:order-1" : ""}>

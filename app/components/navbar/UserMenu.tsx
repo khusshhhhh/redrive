@@ -69,7 +69,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ prominent = false }) => {
 
   const onRent = useCallback(() => {
     if (!currentUser) {
-      return loginModal.onOpen();
+      return loginModal.onOpen("/host");
     }
     router.push("/host");
     closeMenu();

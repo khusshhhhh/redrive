@@ -42,5 +42,10 @@ export const selectClassNames: ClassNamesConfig<any, boolean> = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const selectStyles: StylesConfig<any, boolean> = {
     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-    menu: (base) => ({ ...base, zIndex: 9999 }),
+    // `unstyled` strips react-select's own menu background, and when the menu is
+    // portalled to <body> the Tailwind `bg-white` class can lose the specificity
+    // race against emotion's injected styles — leaving a see-through panel that
+    // lets the page behind it bleed through. Pin an opaque background here so it
+    // always wins.
+    menu: (base) => ({ ...base, zIndex: 9999, backgroundColor: "#ffffff" }),
 };
