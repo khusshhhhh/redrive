@@ -1,14 +1,16 @@
-import React from "react";
+import { Skeleton, SkeletonScope } from "../../../components/Skeleton";
 
 const Loading = () => (
-  <div className="mx-auto max-w-screen-2xl space-y-6 px-4 sm:px-6 md:px-10 xl:px-20">
-    <div className="h-8 shimmer rounded w-32" />
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="h-48 shimmer rounded-lg" />
-      ))}
+  <SkeletonScope>
+    <div className="mx-auto max-w-screen-2xl space-y-6 px-4 sm:px-6 md:px-10 xl:px-20" role="status" aria-label="Loading photos">
+      <div className="w-32"><Skeleton height={32} /></div>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} height={192} borderRadius="1.25rem" />
+        ))}
+      </div>
     </div>
-  </div>
+  </SkeletonScope>
 );
 
 export default Loading;

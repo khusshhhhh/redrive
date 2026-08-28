@@ -1,6 +1,7 @@
 'use client';
 
 import { IconAward, IconStarFilled } from "@tabler/icons-react";
+import StarRating from "@/app/components/inputs/StarRating";
 
 interface RatingDisplayProps {
     rating: number;
@@ -12,7 +13,6 @@ const RatingDisplay: React.FC<RatingDisplayProps> = ({ rating, reviewCount }) =>
         return null;
     }
 
-    const filledStars = Math.round(rating);
     const ratingLabel = rating >= 4.8
         ? "Exceptional guest experience"
         : rating >= 4.5
@@ -53,15 +53,7 @@ const RatingDisplay: React.FC<RatingDisplayProps> = ({ rating, reviewCount }) =>
                 </div>
 
                 <div className="flex w-full flex-col items-center border-t border-hairline-soft pt-5 sm:w-auto sm:min-w-36 sm:border-l sm:border-t-0 sm:pl-7 sm:pt-0">
-                    <div className="flex items-center gap-1" aria-hidden="true">
-                        {Array.from({ length: 5 }, (_, index) => (
-                            <IconStarFilled
-                                key={index}
-                                size={18}
-                                className={index < filledStars ? "text-accent" : "text-hairline"}
-                            />
-                        ))}
-                    </div>
+                    <StarRating value={rating} size={18} label="Guest rating" />
                     <span className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted">Guest rating</span>
                 </div>
             </div>

@@ -1,10 +1,11 @@
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { toast } from "@/app/libs/toast";
 
 import { SafeUser } from "../types";
 import useLoginModal from "./useLoginModal";
+import { useOptimisticAction } from "./useOptimisticAction";
 
 interface IUseFavorite {
   listingId: string;
@@ -16,10 +17,9 @@ const useFavorite = ({ listingId, currentUser }: IUseFavorite) => {
   const loginModal = useLoginModal();
 
   const serverFavorite = (currentUser?.favoriteIds || []).includes(listingId);
-  const [hasFavorited, setHasFavorited] = useState(serverFavorite);
-  const [isUpdating, setIsUpdating] = useState(false);
-
-  useEffect(() => setHasFavorited(serverFavorite), [serverFavorite]);
+  const favorite = useOptimisticAction<boolean>(serverFavorite, {
+    onError: () => toast.error("Could not update favourites. Try again."),
+  });
 
   const toggleFavorite = useCallback(
     async (e: React.SyntheticEvent) => {
@@ -28,38 +28,24 @@ const useFavorite = ({ listingId, currentUser }: IUseFavorite) => {
       if (!currentUser) {
         return loginModal.onOpen();
       }
+      if (favorite.pending) return;
 
-      if (isUpdating) return;
-      const nextFavorite = !hasFavorited;
-      setHasFavorited(nextFavorite);
-      setIsUpdating(true);
-      try {
-        let request;
-
-        if (hasFavorited) {
-          request = () => axios.delete(`/api/favorites/${listingId}`);
-        } else {
-          request = () => axios.post(`/api/favorites/${listingId}`);
-        }
-
-        await request();
+      const next = !favorite.value;
+      await favorite.run(next, async () => {
+        await (next
+          ? axios.post(`/api/favorites/${listingId}`)
+          : axios.delete(`/api/favorites/${listingId}`));
         router.refresh();
-        toast.success(nextFavorite ? "Saved to favourites" : "Removed from favourites");
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
-        setHasFavorited(!nextFavorite);
-        toast.error("Could not update favourites. Try again.");
-      } finally {
-        setIsUpdating(false);
-      }
+        toast.success(next ? "Saved to favourites" : "Removed from favourites");
+      });
     },
-    [currentUser, hasFavorited, isUpdating, listingId, loginModal, router]
+    [currentUser, favorite, listingId, loginModal, router],
   );
 
   return {
-    hasFavorited,
+    hasFavorited: favorite.value,
     toggleFavorite,
-    isUpdating,
+    isUpdating: favorite.showPending,
   };
 };
 

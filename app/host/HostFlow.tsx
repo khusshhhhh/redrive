@@ -38,6 +38,7 @@ import Counter from "@/app/components/inputs/Counter";
 import Input from "@/app/components/inputs/Input";
 import TextArea from "@/app/components/inputs/TextArea";
 import YearSelect from "@/app/components/inputs/YearSelect";
+import VehicleMakeModelSelect from "@/app/components/inputs/VehicleMakeModelSelect";
 import FuelSelector from "@/app/components/inputs/FuelSelector";
 import DriveChainSelector from "@/app/components/inputs/DriveChainSelector";
 import ListingPhotoManager from "@/app/components/inputs/ListingPhotoManager";
@@ -85,6 +86,7 @@ export default function HostFlow() {
   const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
   const [selectedSuburb, setSelectedSuburb] = useState<{ value: string; label: string } | null>(null);
   const [address, setAddress] = useState("");
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [imageSrcs, setImageSrcs] = useState<string[]>([]);
   const [regoImage, setRegoImage] = useState("");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
@@ -138,13 +140,14 @@ export default function HostFlow() {
 
   const Map = useMemo(
     () => dynamic(() => import("@/app/components/Map"), { ssr: false }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedState, selectedSuburb],
+    [],
   );
 
   const onAddressSelect = useCallback((result: ParsedAddress) => {
     if (result.state) {
-      const known = AU_STATES.find((s) => s.value === result.state);
+      const known = AU_STATES.find(
+        (s) => s.value === result.state || s.label.toLowerCase() === result.state?.toLowerCase(),
+      );
       setSelectedState(known || { value: result.state, label: result.state });
     }
     if (result.suburb) {
@@ -153,6 +156,15 @@ export default function HostFlow() {
         label: result.postcode ? `${result.suburb}, ${result.postcode}` : result.suburb,
       });
     }
+    if (typeof result.lat === "number" && typeof result.lng === "number") {
+      setCoords({ lat: result.lat, lng: result.lng });
+    }
+  }, []);
+
+  const onAddressManualChange = useCallback((value: string) => {
+    setAddress(value);
+    // A hand-edited address no longer matches the geocoded pin.
+    setCoords(null);
   }, []);
 
   const toggleAmenity = (id: string) =>
@@ -174,8 +186,10 @@ export default function HostFlow() {
           if (!selectedState?.value) return "Select the state.";
           return null;
         case "vehicle": {
-          const ok = await trigger(["company", "modal", "year"]);
-          return ok ? null : "Add the make, model and year.";
+          if (!values.company?.trim()) return "Add the vehicle make.";
+          if (!values.modal?.trim()) return "Add the vehicle model.";
+          const ok = await trigger("year");
+          return ok && values.year ? null : "Add the manufacturing year.";
         }
         case "powertrain":
           if (!values.fuelType) return "Select the fuel type.";
@@ -235,6 +249,8 @@ export default function HostFlow() {
       state: selectedState?.value,
       suburb: selectedSuburb?.value,
       address: address.trim() !== "" ? address : "Unknown",
+      latitude: coords?.lat ?? null,
+      longitude: coords?.lng ?? null,
       cleaningFeeOption: data.cleaningFeeOption,
       cleaningFeeAmount: data.cleaningFeeAmount || null,
       returnCleaningFeeAmount: data.returnCleaningFeeAmount || null,
@@ -253,7 +269,7 @@ export default function HostFlow() {
       toast.error(message || "Something went wrong while publishing. Please try again.");
       setSubmitting(false);
     }
-  }, [address, getValues, imageSrcs, regoImage, router, selectedAmenities, selectedState, selectedSuburb]);
+  }, [address, coords, getValues, imageSrcs, regoImage, router, selectedAmenities, selectedState, selectedSuburb]);
 
   const next = useCallback(async () => {
     const error = await validateStep(currentStep);
@@ -423,8 +439,9 @@ export default function HostFlow() {
             setSelectedState={setSelectedState}
             selectedSuburb={selectedSuburb}
             setSelectedSuburb={setSelectedSuburb}
-            setAddress={setAddress}
+            setAddress={onAddressManualChange}
             onAddressSelect={onAddressSelect}
+            coords={coords}
             MapComponent={Map}
             imageSrcs={imageSrcs}
             setImageSrcs={setImageSrcs}
@@ -509,6 +526,7 @@ interface StepBodyProps {
   setSelectedSuburb: (v: { value: string; label: string } | null) => void;
   setAddress: (v: string) => void;
   onAddressSelect: (r: ParsedAddress) => void;
+  coords: { lat: number; lng: number } | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   MapComponent: any;
   imageSrcs: string[];
@@ -535,6 +553,126 @@ function StepShell({ title, subtitle, children }: { title: string; subtitle?: st
   );
 }
 
+interface LocationStepProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  register: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setValue: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  errors: any;
+  selectedState: { value: string; label: string } | null;
+  setSelectedState: (v: { value: string; label: string } | null) => void;
+  selectedSuburb: { value: string; label: string } | null;
+  setSelectedSuburb: (v: { value: string; label: string } | null) => void;
+  setAddress: (v: string) => void;
+  onAddressSelect: (r: ParsedAddress) => void;
+  coords: { lat: number; lng: number } | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  MapComponent: any;
+}
+
+function LocationStep({
+  register,
+  setValue,
+  errors,
+  selectedState,
+  setSelectedState,
+  selectedSuburb,
+  setSelectedSuburb,
+  setAddress,
+  onAddressSelect,
+  coords,
+  MapComponent,
+}: LocationStepProps) {
+  const areaResolved = Boolean(selectedSuburb?.value && selectedState?.value);
+  const [editingArea, setEditingArea] = useState(false);
+
+  return (
+    <StepShell
+      title="Where is your vehicle kept?"
+      subtitle="Guests only ever see the suburb — the exact address stays private until a booking is confirmed."
+    >
+      <div className="flex flex-col gap-6">
+        <AddressAutocomplete
+          id="address"
+          label="Number & street address"
+          register={register}
+          setValue={setValue}
+          errors={errors}
+          required
+          validate={(value) => value.trim() !== "" || "Address is required"}
+          onManualChange={setAddress}
+          onSelect={onAddressSelect}
+        />
+
+        {areaResolved && !editingArea ? (
+          <div className="flex items-start justify-between gap-4 rounded-sm border border-hairline bg-surface-soft px-4 py-3.5">
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-muted-soft">Suburb &amp; state</p>
+              <p className="mt-0.5 truncate text-sm font-semibold text-ink">
+                {selectedSuburb?.label} · {selectedState?.label}
+              </p>
+              <p className="mt-0.5 text-xs text-muted">Pulled from the address above. Change it if it&rsquo;s not right.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setEditingArea(true)}
+              className="shrink-0 text-xs font-semibold text-primary underline-offset-4 hover:underline"
+            >
+              Change
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-6">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted">Suburb</label>
+              <SuburbSelector
+                portalMenu={false}
+                state={selectedState?.value}
+                value={selectedSuburb ?? undefined}
+                allowAllStates
+                onChange={(selected) => {
+                  setSelectedSuburb(selected);
+                  if (selected.state) {
+                    const state = AU_STATES.find((item) => item.value === selected.state);
+                    if (state) setSelectedState(state);
+                  }
+                }}
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted">State</label>
+              <StateSelector
+                portalMenu={false}
+                value={selectedState ?? undefined}
+                onChange={setSelectedState}
+              />
+            </div>
+            {areaResolved && (
+              <button
+                type="button"
+                onClick={() => setEditingArea(false)}
+                className="self-start text-xs font-semibold text-primary underline-offset-4 hover:underline"
+              >
+                Done
+              </button>
+            )}
+          </div>
+        )}
+
+        <div className="overflow-hidden rounded-md border border-hairline-soft">
+          <MapComponent
+            suburb={selectedSuburb?.value}
+            state={selectedState?.value}
+            latitude={coords?.lat}
+            longitude={coords?.lng}
+          />
+        </div>
+      </div>
+    </StepShell>
+  );
+}
+
 function StepBody(props: StepBodyProps) {
   const {
     step,
@@ -557,6 +695,7 @@ function StepBody(props: StepBodyProps) {
     setSelectedSuburb,
     setAddress,
     onAddressSelect,
+    coords,
     MapComponent,
     imageSrcs,
     setImageSrcs,
@@ -590,43 +729,19 @@ function StepBody(props: StepBodyProps) {
 
     case "location":
       return (
-        <StepShell title="Where is your vehicle kept?" subtitle="Guests only ever see the suburb — the exact address stays private until a booking is confirmed.">
-          <div className="flex flex-col gap-6">
-            <AddressAutocomplete
-              id="address"
-              label="Number & street address"
-              register={register}
-              setValue={setValue}
-              errors={errors}
-              required
-              validate={(value) => value.trim() !== "" || "Address is required"}
-              onManualChange={setAddress}
-              onSelect={onAddressSelect}
-            />
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted">Suburb</label>
-              <SuburbSelector
-                state={selectedState?.value}
-                value={selectedSuburb}
-                allowAllStates
-                onChange={(selected) => {
-                  setSelectedSuburb(selected);
-                  if (selected.state) {
-                    const state = AU_STATES.find((item) => item.value === selected.state);
-                    if (state) setSelectedState(state);
-                  }
-                }}
-              />
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted">State</label>
-              <StateSelector value={selectedState} onChange={setSelectedState} />
-            </div>
-            <div className="overflow-hidden rounded-xl border border-hairline-soft">
-              <MapComponent suburb={selectedSuburb?.value} state={selectedState?.value} />
-            </div>
-          </div>
-        </StepShell>
+        <LocationStep
+          register={register}
+          setValue={setValue}
+          errors={errors}
+          selectedState={selectedState}
+          setSelectedState={setSelectedState}
+          selectedSuburb={selectedSuburb}
+          setSelectedSuburb={setSelectedSuburb}
+          setAddress={setAddress}
+          onAddressSelect={onAddressSelect}
+          coords={coords}
+          MapComponent={MapComponent}
+        />
       );
 
     case "basics":
@@ -646,16 +761,30 @@ function StepBody(props: StepBodyProps) {
         </StepShell>
       );
 
-    case "vehicle":
+    case "vehicle": {
+      const usePicker = category === "Car" || category === "Utes";
       return (
         <StepShell title="What is it, exactly?" subtitle="The make, model and year guests see on your listing.">
-          <div className="grid gap-6 sm:grid-cols-2">
-            <Input id="company" label="Make" placeholder="e.g. Ford" register={register} errors={errors} required />
-            <Input id="modal" label="Model" placeholder="e.g. Ranger Raptor" register={register} errors={errors} required />
-          </div>
+          {usePicker ? (
+            <VehicleMakeModelSelect
+              make={watch("company") || ""}
+              model={watch("modal") || ""}
+              onChange={(make, model) => {
+                setCustom("company", make);
+                setCustom("modal", model);
+              }}
+              disabled={submitting}
+            />
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2">
+              <Input id="company" label="Make" placeholder="e.g. Ford" register={register} errors={errors} required />
+              <Input id="modal" label="Model" placeholder="e.g. Ranger Raptor" register={register} errors={errors} required />
+            </div>
+          )}
           <YearSelect id="year" label="Manufacturing year" setValue={setValue} watch={watch} register={register} errors={errors} required />
         </StepShell>
       );
+    }
 
     case "powertrain":
       return (

@@ -134,7 +134,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                 </div>
                 <div className="flex min-h-10 items-start justify-between gap-2">
                     <div className={`${compact ? "line-clamp-2 text-sm" : "line-clamp-2 text-[15px] sm:text-title-md"} font-semibold leading-5 text-ink`}>{data.title}</div>
-                    {Boolean(data.reviewCount) && <span className="inline-flex shrink-0 items-center gap-1 pt-0.5 text-xs font-semibold text-ink"><IconStar size={14} className="fill-accent text-accent" /> {data.reviewAverage?.toFixed(1)}</span>}
+                    {Boolean(data.reviewCount) && <span className="inline-flex shrink-0 items-center gap-1 pt-0.5 text-xs font-semibold text-ink"><IconStar size={14} className="fill-ink text-ink" /> {data.reviewAverage?.toFixed(1)}</span>}
                 </div>
                 <div className="truncate text-[13px] font-normal text-muted sm:text-body-sm">
                     {reservationDate || data.category} <span aria-hidden="true">·</span> {data.suburb}, {data.state}

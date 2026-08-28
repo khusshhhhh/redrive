@@ -1,12 +1,12 @@
-import React from "react";
+import { Skeleton, SkeletonScope } from "../../components/Skeleton";
 
 const Loading = () => (
-  <div className="max-w-3xl mx-auto p-6 space-y-4">
-    <div className="h-8 shimmer rounded w-1/3 mx-auto" />
-    {Array.from({ length: 20 }).map((_, i) => (
-      <div key={i} className="h-4 shimmer rounded" />
-    ))}
-  </div>
+  <SkeletonScope>
+    <div className="mx-auto max-w-3xl space-y-4 p-6" role="status" aria-label="Loading listing editor">
+      <Skeleton width="33%" height={32} containerClassName="mx-auto block w-1/3 leading-none" />
+      <Skeleton count={18} height={16} />
+    </div>
+  </SkeletonScope>
 );
 
 export default Loading;

@@ -19,9 +19,11 @@ interface StateSelectorProps {
     onChange: (value: { value: string; label: string }) => void;
     onClear?: () => void;
     allowAnywhere?: boolean; // Add this line
+    /** Portal the menu to <body>. Keep on inside modals; off in plain page flow. */
+    portalMenu?: boolean;
 }
 
-const StateSelector: React.FC<StateSelectorProps> = ({ value, onChange, onClear }) => {
+const StateSelector: React.FC<StateSelectorProps> = ({ value, onChange, onClear, portalMenu = true }) => {
     return (
         <div>
             <Select
@@ -39,7 +41,7 @@ const StateSelector: React.FC<StateSelectorProps> = ({ value, onChange, onClear 
                 }}
                 classNames={selectClassNames}
                 styles={selectStyles}
-                menuPortalTarget={typeof window !== "undefined" ? document.body : undefined}
+                menuPortalTarget={portalMenu && typeof window !== "undefined" ? document.body : undefined}
             />
         </div>
     );

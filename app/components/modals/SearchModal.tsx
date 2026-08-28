@@ -11,7 +11,7 @@ import { IconCalendar, IconCar, IconMapPin, IconUsers } from "@tabler/icons-reac
 
 import useSearchModal from "@/app/hooks/useSearchModal";
 import { saveLastSearch } from "@/app/hooks/useLastSearch";
-import Calendar from "../inputs/Calender";
+import DateRangePicker from "../inputs/DateRangePicker";
 import Counter from "../inputs/Counter";
 import StateSelector, { states as AU_STATES } from "../inputs/StateSelector";
 import SuburbSelector, { type SuburbOption } from "../inputs/SuburbSelector";
@@ -155,7 +155,11 @@ const SearchModal = () => {
           <div><p className="mb-3 text-sm font-semibold text-ink">Vehicle type</p><div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">{VEHICLE_TYPES.map((type) => <button key={type} type="button" onClick={() => setCategory(category === type ? "" : type)} aria-pressed={category === type} className={`flex min-h-11 items-center justify-center gap-2 rounded-sm border px-2 text-xs font-semibold outline-none transition focus-visible:ring-2 focus-visible:ring-primary ${category === type ? "border-primary bg-primary text-white" : "border-hairline bg-white text-ink hover:bg-surface-soft"}`}><IconCar size={17} />{type}</button>)}</div></div>
         </section>}
 
-        {show(1) && <section className="space-y-5" aria-labelledby="search-dates-heading"><div><h3 id="search-dates-heading" className="text-xl font-semibold text-ink">Choose your dates</h3><p className="mt-1 text-sm text-muted">Your selections stay here if you close the search.</p></div><Calendar value={dateRange} onChange={(value) => setDateRange(value.selection)} /></section>}
+        {show(1) && <section className="space-y-5" aria-labelledby="search-dates-heading"><div><h3 id="search-dates-heading" className="text-xl font-semibold text-ink">Choose your dates</h3><p className="mt-1 text-sm text-muted">Your selections stay here if you close the search.</p></div><DateRangePicker
+          inline
+          value={{ startDate: dateRange.startDate ?? null, endDate: dateRange.endDate ?? null }}
+          onChange={(v) => setDateRange({ startDate: v.startDate ?? undefined, endDate: v.endDate ?? undefined, key: "selection" })}
+        /></section>}
 
         {show(2) && <section className="space-y-7" aria-labelledby="search-details-heading">
           <div><h3 id="search-details-heading" className="text-xl font-semibold text-ink">Trip details</h3><p className="mt-1 text-sm text-muted">Set capacity and a daily budget.</p></div>

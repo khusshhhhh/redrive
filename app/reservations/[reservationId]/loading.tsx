@@ -1,5 +1,20 @@
-import React from "react";
+import { Skeleton, SkeletonScope } from "../../components/Skeleton";
 
-const Loading = () => <main className="bg-surface-soft/40 px-4 py-10"><div className="mx-auto max-w-[1120px] space-y-6"><div className="skeleton-wave h-9 w-64 rounded" /><div className="grid gap-6 lg:grid-cols-[1fr_340px]"><div className="space-y-6"><div className="skeleton-wave h-96 rounded-md" /><div className="skeleton-wave h-56 rounded-md" /></div><div className="skeleton-wave h-80 rounded-md" /></div></div></main>;
+const Loading = () => (
+  <SkeletonScope>
+    <main className="bg-surface-soft/40 px-4 py-10" role="status" aria-label="Loading reservation">
+      <div className="mx-auto max-w-[1120px] space-y-6">
+        <div className="max-w-sm"><Skeleton height={32} /></div>
+        <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+          <div className="space-y-6">
+            <Skeleton height={384} borderRadius="0.875rem" />
+            <Skeleton height={224} borderRadius="0.875rem" />
+          </div>
+          <Skeleton height={320} borderRadius="0.875rem" />
+        </div>
+      </div>
+    </main>
+  </SkeletonScope>
+);
 
 export default Loading;

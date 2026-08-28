@@ -56,7 +56,11 @@ async function GETHandler(req: Request) {
     const streetNumber = find("street_number");
     const route = find("route");
     const streetAddress = [streetNumber, route].filter(Boolean).join(" ");
-    const suburb = find("locality") || find("sublocality") || find("postal_town");
+    const suburb =
+      find("locality") ||
+      find("sublocality") ||
+      find("postal_town") ||
+      find("administrative_area_level_2");
     const state = find("administrative_area_level_1", true);
     const postcode = find("postal_code");
     const location = data.result?.geometry?.location;

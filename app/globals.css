@@ -371,12 +371,14 @@ textarea::placeholder {
   gap: .8rem;
   overflow: hidden;
   border: 1px solid rgb(223 220 213 / 90%);
-  border-radius: 18px;
+  border-left: 3px solid var(--toast-accent);
+  border-radius: 16px;
   background: rgb(255 255 255 / 96%);
   padding: .9rem .85rem .85rem;
   color: #3B3B3B;
   box-shadow: 0 18px 50px rgb(59 59 59 / 16%), 0 2px 8px rgb(59 59 59 / 8%);
   backdrop-filter: blur(18px);
+  touch-action: pan-y;
 }
 
 /* Tapping anywhere on the toast dismisses it; the close button stays as the
@@ -384,7 +386,10 @@ textarea::placeholder {
 .redrive-toast:not(.redrive-toast--loading) { cursor: pointer; }
 .redrive-toast--visible { animation: toastArrive 460ms cubic-bezier(.16, 1, .3, 1) both; }
 .redrive-toast--hidden { animation: toastLeave 180ms ease-in both; }
+.redrive-toast--success { --toast-accent: #3B3B3B; --toast-soft: #E4E4E4; }
 .redrive-toast--error { --toast-accent: #c0281b; --toast-soft: #fbedeb; }
+.redrive-toast--warning { --toast-accent: #b45309; --toast-soft: #fdf1e3; }
+.redrive-toast--info { --toast-accent: #636363; --toast-soft: #EDEDED; }
 .redrive-toast--loading { --toast-accent: #B5B5B5; --toast-soft: #f5ece1; }
 .redrive-toast--custom { --toast-accent: #636363; --toast-soft: #f0e7dd; }
 
@@ -484,31 +489,45 @@ textarea::placeholder {
 }
 
 /* ── Showcase / marketing surfaces ─────────────────────────────────────────
-   Scroll-reveal: elements start dimmed and shifted, then settle when the
-   IntersectionObserver in <Reveal> adds `.is-revealed`. Transform + opacity
-   only, so it stays cheap on long landing pages. */
-.reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 720ms cubic-bezier(.16, 1, .3, 1), transform 720ms cubic-bezier(.16, 1, .3, 1);
-  transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform;
+   One simple entrance: content fades and lifts in once, on load. No scroll
+   observers or scroll-timeline — <Reveal> just applies `.fade-in`. */
+.fade-in {
+  animation: landingFadeIn 500ms cubic-bezier(.16, 1, .3, 1) both;
 }
-.reveal.is-revealed {
-  opacity: 1;
-  transform: none;
+@keyframes landingFadeIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
 }
-.reveal-left { transform: translateX(-32px); }
-.reveal-right { transform: translateX(32px); }
-.reveal-zoom { transform: scale(.94); }
 
-/* A gradient wash that drifts behind the hero headline. */
+/* Dropdown menu: a quick ~150ms open. Origin is set per-instance (top / bottom)
+   so an edge-flipped menu grows from the trigger either way. */
+.dropdown-menu {
+  animation: dropdownOpen 150ms cubic-bezier(.16, 1, .3, 1) both;
+}
+@keyframes dropdownOpen {
+  from { opacity: 0; transform: scaleY(.96) translateY(-2px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dropdown-menu { animation: none; }
+}
+
+/* Star-rating fill: eases on hover preview; staggers left-to-right on commit
+   (the component sets --star-stagger per star). */
+.star-fill {
+  transition: width 180ms cubic-bezier(.16, 1, .3, 1);
+  transition-delay: var(--star-stagger, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .star-fill { transition: none; }
+}
+
+/* A static gradient wash behind the hero headline. */
 .aurora {
   background-image:
     radial-gradient(42rem 42rem at 12% -10%, rgba(99, 99, 99, 0.16), transparent 60%),
     radial-gradient(38rem 38rem at 108% 8%, rgba(59, 59, 59, 0.14), transparent 55%),
     radial-gradient(30rem 30rem at 50% 120%, rgba(181, 181, 181, 0.22), transparent 60%);
-  background-size: 180% 180%;
 }
 
 /* Edge-fade for the auto-scrolling marquees so chips dissolve at the rim. */
@@ -547,14 +566,13 @@ textarea::placeholder {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1; transform: none; transition: none; }
+  .fade-in { animation: none; }
   .marquee-track { animation: none !important; }
-  .aurora { animation: none !important; }
   .host-step { animation: none; }
   .host-progress-fill { transition: none; }
 }
 
-/* ── Landing: hover choreography + scroll-linked motion ──────────────────── */
+/* ── Landing: a couple of plain hover states ────────────────────────────── */
 
 /* Animated underline that wipes in from the left. Sits on inline links, and
    also triggers from a hovered ancestor marked `.group`. */
@@ -564,7 +582,7 @@ textarea::placeholder {
   background-repeat: no-repeat;
   background-size: 0% 1.5px;
   padding-bottom: 1px;
-  transition: background-size 520ms cubic-bezier(.16, 1, .3, 1);
+  transition: background-size 320ms cubic-bezier(.16, 1, .3, 1);
 }
 .hover-underline:hover,
 a:hover .hover-underline,
@@ -572,120 +590,34 @@ a:hover .hover-underline,
   background-size: 100% 1.5px;
 }
 
-/* Per-word hover lift for the big display headings. Words are wrapped in
-   <span class="hover-word"> by the landing components. */
-.hover-word {
-  display: inline-block;
-  transition: transform 460ms cubic-bezier(.16, 1, .3, 1), color 460ms ease;
-}
-.hover-word:hover {
-  transform: translateY(-0.1em) rotate(-1deg);
-  color: #eab308; /* accent — text-yellow-500 */
-}
-
-/* Smooth, slow hover lift for cards and tiles. */
+/* Plain hover lift for cards and tiles. */
 .lift {
-  transition: transform 560ms cubic-bezier(.16, 1, .3, 1), box-shadow 560ms cubic-bezier(.16, 1, .3, 1),
-    border-color 400ms ease;
-  will-change: transform;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
 }
 .lift:hover {
-  transform: translateY(-8px);
+  transform: translateY(-4px);
 }
 
-/* Pointer-reactive 3D tilt. JS writes --rx / --ry (degrees) and --gx / --gy
-   (glare position) on the `.tilt` element. */
-.tilt {
-  perspective: 1200px;
-}
-.tilt-inner {
-  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transform-style: preserve-3d;
-  transition: transform 400ms cubic-bezier(.16, 1, .3, 1);
-}
-.tilt-glare {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(30rem 30rem at var(--gx, 50%) var(--gy, 0%), rgba(255, 255, 255, 0.5), transparent 45%);
-  transition: opacity 400ms ease;
-}
-.tilt:hover .tilt-glare {
-  opacity: 0.55;
-}
-
-/* Slowly rotating wireframe cube behind the hero headline — a quiet, monochrome
-   3D accent built entirely from transformed div faces. */
+/* Static monochrome wireframe cubes behind the hero headline — a quiet accent
+   built from transformed div faces. No animation. */
 .scene-3d {
   perspective: 900px;
 }
 .hero-cube {
   position: relative;
   transform-style: preserve-3d;
-  animation: cube-spin 42s linear infinite;
+  transform: rotateX(-26deg) rotateY(32deg) rotateZ(2deg);
 }
 .hero-cube__face {
   position: absolute;
   inset: 0;
   border: 1px solid rgba(59, 59, 59, 0.12);
   background: linear-gradient(140deg, rgba(234, 179, 8, 0.07), rgba(59, 59, 59, 0.03));
-  backdrop-filter: blur(1px);
-}
-@keyframes cube-spin {
-  from { transform: rotateX(-26deg) rotateY(0) rotateZ(2deg); }
-  to { transform: rotateX(-26deg) rotateY(360deg) rotateZ(2deg); }
-}
-
-/* Scroll-linked reveal: replaces the IntersectionObserver toggle where the
-   browser supports scroll-driven animations. It scrubs with scroll position,
-   so scrolling back up gently reverses it — the "smooth and slow" feel. The
-   <Reveal> component detects support and skips its observer when this applies. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .reveal {
-      opacity: 0;
-      animation: reveal-scrub linear both;
-      animation-timeline: view();
-      animation-range: entry 4% cover 32%;
-    }
-    .parallax-slow {
-      animation: parallax-drift linear both;
-      animation-timeline: scroll(root);
-      animation-range: 0 70vh;
-    }
-  }
-}
-@keyframes reveal-scrub {
-  to { opacity: 1; transform: none; }
-}
-@keyframes parallax-drift {
-  to { transform: translateY(-46px); }
-}
-
-/* Smooth-scroll: while the RAF scroller in <SmoothScroll> is active it owns the
-   scroll position, so native CSS smooth-scroll must step aside to avoid fighting
-   it. The class is toggled on <html> by the component. */
-html.has-smooth-scroll {
-  scroll-behavior: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hover-word,
   .lift,
-  .tilt-inner,
-  .tilt-glare,
   .hover-underline {
     transition: none;
-  }
-  .hover-word:hover {
-    transform: none;
-  }
-  .hero-cube {
-    animation: none;
-  }
-  .parallax-slow {
-    animation: none;
   }
 }

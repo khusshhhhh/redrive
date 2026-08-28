@@ -8,8 +8,6 @@ import BecomeHostLink from "./components/BecomeHostLink";
 import LandingHero from "./components/landing/LandingHero";
 import FeatureShowcase from "./components/landing/FeatureShowcase";
 import Reveal from "./components/landing/Reveal";
-import SmoothScroll from "./components/landing/SmoothScroll";
-import SplitText from "./components/landing/SplitText";
 import { CategoryMarquee, HostCtaBand, HowItWorks, TrustBar } from "./components/landing/sections";
 
 export const revalidate = 1800;
@@ -54,7 +52,6 @@ export default async function Home() {
 
   return (
     <div className="overflow-x-clip">
-      <SmoothScroll />
       <LandingHero listings={showcase} />
       <TrustBar />
       <FeatureShowcase listings={showcase} />
@@ -66,8 +63,7 @@ export default async function Home() {
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-display-2xl font-extrabold tracking-tight text-ink">
-                <SplitText text="Ready when you are" />
-                <span className="text-yellow-500">.</span>
+                Ready when you are<span className="text-yellow-500">.</span>
               </h2>
               <p className="mt-2 max-w-md text-sm leading-6 text-muted">
                 Browse what&rsquo;s available near you now, or jump straight into listing your own vehicle.

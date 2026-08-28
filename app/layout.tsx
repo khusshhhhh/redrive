@@ -1,4 +1,5 @@
 import "../app/globals.css";
+import "react-loading-skeleton/dist/skeleton.css";
 import Navbar from "./components/navbar/Navbar";
 import ToasterProvider from "./providers/ToasterProvider";
 import CurrentUserProvider from "./providers/CurrentUserProvider";

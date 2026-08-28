@@ -5,6 +5,8 @@ import { formatDistanceToNow } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import Avatar from "../Avatar";
 import { IconChevronDown, IconStarFilled, IconUserCheck } from "@tabler/icons-react";
+import StarRating from "../inputs/StarRating";
+import RatingSummary from "./RatingSummary";
 
 interface Review {
     id: string;
@@ -20,7 +22,6 @@ interface Review {
 const ReviewCard = ({ review }: { review: Review }) => {
     const [expanded, setExpanded] = useState(false);
     const isLong = review.text.length > 180;
-    const filledStars = Math.round(review.rating);
 
     return (
         <article className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-hairline bg-white p-5 shadow-[0_10px_30px_rgba(22, 22, 22,0.07)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[0_16px_36px_rgba(22, 22, 22,0.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6">
@@ -40,20 +41,14 @@ const ReviewCard = ({ review }: { review: Review }) => {
                     </div>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-1 rounded-full border border-accent/35 bg-accent-soft px-2.5 py-1 text-xs font-bold text-ink" aria-label={`${review.rating} out of 5 stars`}>
-                    <IconStarFilled size={14} className="text-accent" aria-hidden="true" />
+                <div className="flex shrink-0 items-center gap-1 rounded-full border border-hairline bg-surface-soft px-2.5 py-1 text-xs font-bold text-ink" aria-label={`${review.rating} out of 5 stars`}>
+                    <IconStarFilled size={14} className="text-ink" aria-hidden="true" />
                     {review.rating.toFixed(1)}
                 </div>
             </header>
 
-            <div className="relative mt-5 flex items-center gap-1" aria-hidden="true">
-                {Array.from({ length: 5 }, (_, index) => (
-                    <IconStarFilled
-                        key={index}
-                        size={15}
-                        className={index < filledStars ? "text-accent" : "text-hairline"}
-                    />
-                ))}
+            <div className="relative mt-5">
+                <StarRating value={review.rating} size={15} label="Guest rating" />
             </div>
 
             <blockquote className={`relative mt-4 flex-1 text-sm leading-6 text-body sm:text-[15px] ${expanded ? "" : "line-clamp-4"}`}>
@@ -107,6 +102,15 @@ const Reviews = ({ listingId }: { listingId: string }) => {
         [reviews]
     );
 
+    const distribution = useMemo(() => {
+        const buckets: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        for (const review of reviews) {
+            const star = Math.min(5, Math.max(1, Math.round(review.rating)));
+            buckets[star] += 1;
+        }
+        return buckets;
+    }, [reviews]);
+
     if (loading) {
         return (
             <section aria-label="Loading guest reviews" className="mt-10">
@@ -133,16 +137,8 @@ const Reviews = ({ listingId }: { listingId: string }) => {
                 </div>
 
                 {reviews.length > 0 && (
-                    <div className="flex items-center gap-3 rounded-md border border-accent/30 bg-white px-4 py-3 shadow-sm">
-                        <span className="text-2xl font-bold tracking-tight text-ink">{averageRating.toFixed(1)}</span>
-                        <div>
-                            <div className="flex items-center gap-0.5" aria-hidden="true">
-                                {Array.from({ length: 5 }, (_, index) => (
-                                    <IconStarFilled key={index} size={14} className={index < Math.round(averageRating) ? "text-accent" : "text-hairline"} />
-                                ))}
-                            </div>
-                            <p className="mt-1 text-[11px] text-muted">{reviews.length} {reviews.length === 1 ? "review" : "reviews"}</p>
-                        </div>
+                    <div className="rounded-md border border-hairline bg-white px-4 py-3.5 shadow-sm sm:min-w-[19rem]">
+                        <RatingSummary average={averageRating} total={reviews.length} distribution={distribution} />
                     </div>
                 )}
             </div>

@@ -18,9 +18,11 @@ interface SuburbSelectorProps {
     onChange: (value: SuburbOption) => void;
     onClear?: () => void;
     allowAllStates?: boolean;
+    /** Portal the menu to <body>. Keep on inside modals; off in plain page flow. */
+    portalMenu?: boolean;
 }
 
-const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onChange, onClear, allowAllStates = false }) => {
+const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onChange, onClear, allowAllStates = false, portalMenu = true }) => {
     const [suburbs, setSuburbs] = useState<SuburbOption[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -78,7 +80,7 @@ const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onCh
                 }}
                 classNames={selectClassNames}
                 styles={selectStyles}
-                menuPortalTarget={typeof window !== "undefined" ? document.body : undefined}
+                menuPortalTarget={portalMenu && typeof window !== "undefined" ? document.body : undefined}
                 isDisabled={(!state && !allowAllStates) || loading}
             />
 

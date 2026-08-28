@@ -1,25 +1,25 @@
-import React from "react";
+import { Skeleton, SkeletonScope } from "../../components/Skeleton";
 
 const Loading = () => (
-  <div className="max-w-[1080px] px-4 mx-auto pt-8 space-y-6">
-    <div className="flex items-center justify-between gap-4">
-      <div className="h-7 shimmer rounded w-1/3" />
-      <div className="h-5 shimmer rounded w-20" />
-    </div>
-    <div className="h-[480px] shimmer rounded-xl" />
-    <div className="grid grid-cols-1 md:grid-cols-3 md:gap-10">
-      <div className="md:col-span-2 space-y-4">
-        <div className="h-6 shimmer rounded w-1/3" />
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-4 shimmer rounded" />
-        ))}
+  <SkeletonScope>
+    <div className="mx-auto max-w-[1080px] space-y-6 px-4 pt-8" role="status" aria-label="Loading vehicle">
+      <div className="flex items-center justify-between gap-4">
+        <div className="w-1/3"><Skeleton height={28} /></div>
+        <div className="w-20"><Skeleton height={20} /></div>
       </div>
-      <div className="md:col-span-1 space-y-4 mt-6 md:mt-0">
-        <div className="h-64 shimmer rounded-md" />
-        <div className="h-10 shimmer rounded-sm" />
+      <Skeleton height={480} borderRadius="1.25rem" />
+      <div className="grid grid-cols-1 md:grid-cols-3 md:gap-10">
+        <div className="space-y-4 md:col-span-2">
+          <div className="w-1/3"><Skeleton height={24} /></div>
+          <Skeleton count={6} height={16} />
+        </div>
+        <div className="mt-6 space-y-4 md:col-span-1 md:mt-0">
+          <Skeleton height={256} borderRadius="0.875rem" />
+          <Skeleton height={40} />
+        </div>
       </div>
     </div>
-  </div>
+  </SkeletonScope>
 );
 
 export default Loading;

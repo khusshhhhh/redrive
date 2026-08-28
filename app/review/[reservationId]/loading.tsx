@@ -1,13 +1,14 @@
-import React from "react";
+import { Skeleton, SkeletonScope } from "../../components/Skeleton";
 
 const Loading = () => (
-  <div className="max-w-lg mx-auto p-6 space-y-4">
-    <div className="h-6 shimmer rounded w-1/2" />
-    <div className="h-40 shimmer rounded" />
-    <div className="h-4 shimmer rounded w-1/3" />
-    <div className="h-4 shimmer rounded" />
-    <div className="h-4 shimmer rounded" />
-  </div>
+  <SkeletonScope>
+    <div className="mx-auto max-w-lg space-y-4 p-6" role="status" aria-label="Loading review">
+      <Skeleton width="50%" height={24} />
+      <Skeleton height={160} borderRadius="0.875rem" />
+      <Skeleton width="33%" height={16} />
+      <Skeleton count={2} height={16} />
+    </div>
+  </SkeletonScope>
 );
 
 export default Loading;

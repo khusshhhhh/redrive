@@ -43,6 +43,22 @@ interface AddressAutocompleteProps {
 const DEBOUNCE_MS = 300;
 const MIN_CHARS = 3;
 
+const AU_STATE_CODES = ["NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"];
+
+// Pull a rough suburb/state out of a prediction's secondary text so the form
+// can still pre-fill when the Places Details call is unavailable.
+function parseSuggestion(suggestion: Suggestion): ParsedAddress {
+    const firstPart = suggestion.secondaryText.split(",")[0]?.trim() ?? "";
+    const tokens = firstPart.split(/\s+/);
+    const last = tokens[tokens.length - 1]?.toUpperCase();
+    const hasState = last ? AU_STATE_CODES.includes(last) : false;
+    return {
+        streetAddress: suggestion.mainText,
+        suburb: hasState ? tokens.slice(0, -1).join(" ") : firstPart || undefined,
+        state: hasState ? last : undefined,
+    };
+}
+
 const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     id,
     label,
@@ -128,12 +144,14 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             onSelect?.(result);
             // Each completed selection ends a Google-billed "session" - start a fresh one.
             sessionTokenRef.current = crypto.randomUUID();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error) {
             console.error("Failed to load address details:", error);
-            // Fall back to at least filling in the description the user picked.
+            // Details lookup failed — still fill the street from the picked
+            // prediction, and best-effort parse the suburb/state out of its
+            // secondary text (e.g. "Broadview SA, Australia").
             setValue(id, suggestion.mainText, { shouldValidate: true, shouldDirty: true });
             onManualChange?.(suggestion.mainText);
+            onSelect?.(parseSuggestion(suggestion));
         }
     };
 

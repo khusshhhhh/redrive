@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import toast from "@/app/libs/toast";
 import Image from "next/image";
+import StarRating from "@/app/components/inputs/StarRating";
 
 const ReviewPage = () => {
     const router = useRouter();
@@ -80,18 +81,17 @@ const ReviewPage = () => {
             <h1 className="mt-2 text-2xl font-semibold text-ink">Review {listing.title}</h1>
             <div className="relative mt-5 aspect-[16/10] overflow-hidden rounded-md"><Image fill sizes="(max-width: 640px) 100vw, 512px" src={listing.imageSrcs?.[0] || "/images/placeholder.png"} alt={listing.title} className="object-cover" /></div>
             <h2 className="mt-6 text-lg font-semibold text-ink">Rate your experience</h2>
-            <div className="mt-2 flex justify-between gap-1 sm:justify-start sm:gap-2" role="group" aria-label="Rating out of five">
-                {[1, 2, 3, 4, 5].map(star => (
-                    <button
-                        type="button"
-                        key={star}
-                        aria-label={`${star} star${star === 1 ? "" : "s"}`}
-                        className={`flex h-12 w-12 items-center justify-center text-4xl ${rating >= star ? "text-primary" : "text-hairline"}`}
-                        onClick={() => setRating(star)}
-                    >
-                        ★
-                    </button>
-                ))}
+            <div className="mt-3">
+                <StarRating
+                    value={rating}
+                    onChange={setRating}
+                    precision={1}
+                    size={44}
+                    label="Rate your experience out of five"
+                />
+                <p className="mt-1.5 text-xs text-muted">
+                    {rating ? `${rating} out of 5` : "Tap a star to rate"}
+                </p>
             </div>
             <textarea
                 className="mt-4 min-h-32 w-full resize-y rounded-sm border border-hairline p-3 text-base text-ink outline-none focus:border-primary focus:ring-1 focus:ring-primary"
