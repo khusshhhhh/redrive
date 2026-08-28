@@ -3,6 +3,10 @@ import EditorialIndex from "@/app/components/content/EditorialIndex";
 import { blogPosts } from "@/app/content/editorial";
 import { buildSeoMetadata } from "@/app/libs/seo";
 
+// Editorial content is bundled at build time — render this route as a static
+// asset (served from the CDN) rather than a per-request server render.
+export const dynamic = "force-static";
+
 export const metadata: Metadata = buildSeoMetadata({
   title: "Australian vehicle sharing and road-trip guides",
   description: "Practical Redrive guides for peer-to-peer vehicle hire, Australian road trips, safer handovers, hosting and vehicle protection.",

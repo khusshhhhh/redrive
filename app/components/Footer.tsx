@@ -5,13 +5,10 @@ import { ArrowUpRight, CarFront, ShieldCheck, Sparkles } from "lucide-react";
 
 import useRentModal from "@/app/hooks/useRentModal";
 import useLoginModal from "@/app/hooks/useLoginModal";
-import type { SafeUser } from "@/app/types";
+import { useCurrentUser } from "@/app/providers/CurrentUserProvider";
 
-interface FooterProps {
-  currentUser?: SafeUser | null;
-}
-
-export default function Footer({ currentUser }: FooterProps) {
+export default function Footer() {
+  const { currentUser } = useCurrentUser();
   const rentModal = useRentModal();
   const loginModal = useLoginModal();
 

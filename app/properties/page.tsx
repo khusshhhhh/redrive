@@ -4,6 +4,9 @@ import getCurrentUser from "../actions/getCurrentUser";
 import getListings from "../actions/getListings";
 import MyUtilitiesClient from "./MyUtilitiesClient";
 
+// Per-user listings management — always rendered per request.
+export const dynamic = "force-dynamic";
+
 const MyUtilitiesPage = async () => {
     const currentUser = await getCurrentUser();
 

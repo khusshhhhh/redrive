@@ -6,18 +6,13 @@ import Categories from "./Categories";
 import Logo from "./Logo";
 import Search from "./Search";
 import UserMenu from "./UserMenu";
-import { SafeUser } from "@/app/types";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { BiSearch } from "react-icons/bi";
-
-interface NavbarProps {
-  currentUser?: SafeUser | null;
-}
 
 const HEADER_COLLAPSE_SCROLL_Y = 48;
 const HEADER_EXPAND_SCROLL_Y = 8;
 
-const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
+const Navbar: React.FC = () => {
   const pathname = usePathname(); // ✅ Now inside Client Component
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -88,7 +83,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
               </div>
             </div>
             <div className="col-start-3 row-start-1 shrink-0 md:col-start-auto md:row-start-auto md:justify-self-end">
-              <UserMenu currentUser={currentUser} prominent={pathname === "/" && !isScrolled} />
+              <UserMenu prominent={pathname === "/" && !isScrolled} />
             </div>
           </div>
         </Container>

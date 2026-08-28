@@ -3,6 +3,9 @@ import EditorialIndex from "@/app/components/content/EditorialIndex";
 import { newsroomPosts } from "@/app/content/editorial";
 import { buildSeoMetadata } from "@/app/libs/seo";
 
+// Bundled editorial content — render as a static CDN asset.
+export const dynamic = "force-static";
+
 export const metadata: Metadata = buildSeoMetadata({
   title: "Redrive Newsroom",
   description: "Read Redrive product announcements, trust and safety updates, marketplace improvements and company news.",

@@ -196,6 +196,10 @@ const pages: Record<string, PageContent> = {
   },
 };
 
+// Informational pages (privacy, terms, about, careers, …) are static content —
+// prerender each known slug as a CDN asset; unknown slugs 404.
+export const dynamic = "force-static";
+
 export function generateStaticParams() {
   return Object.keys(pages).map((slug) => ({ slug }));
 }

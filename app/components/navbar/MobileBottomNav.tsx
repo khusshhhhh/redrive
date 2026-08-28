@@ -12,11 +12,7 @@ import {
 } from "@tabler/icons-react";
 
 import useLoginModal from "@/app/hooks/useLoginModal";
-import { SafeUser } from "@/app/types";
-
-interface MobileBottomNavProps {
-  currentUser?: SafeUser | null;
-}
+import { useCurrentUser } from "@/app/providers/CurrentUserProvider";
 
 const items = [
   { label: "Explore", href: "/", icon: IconCar, public: true },
@@ -26,7 +22,8 @@ const items = [
   { label: "Profile", href: "/profile", icon: IconUserCircle },
 ];
 
-const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ currentUser }) => {
+const MobileBottomNav: React.FC = () => {
+  const { currentUser } = useCurrentUser();
   const pathname = usePathname();
   const loginModal = useLoginModal();
 

@@ -7,18 +7,18 @@ import useRegisterModal from "@/app/hooks/useRegisterModal";
 import useLoginModal from "@/app/hooks/useLoginModal";
 import useRentModal from "@/app/hooks/useRentModal";
 import { signOut } from "next-auth/react";
-import { SafeUser } from "@/app/types";
+import { useCurrentUser } from "@/app/providers/CurrentUserProvider";
 import { useRouter } from "next/navigation";
 import { IconBrandDatabricks, IconCalendar, IconClipboardPlus, IconFilePlus, IconHearts, IconLocationCheck, IconLogin2, IconLogout2, IconMenu3, IconArrowRight, IconMessage, IconUserCircle } from "@tabler/icons-react";
 import NotificationBell from "@/app/components/notifications/NotificationBell";
 import Modal from "@/app/components/modals/Modal";
 
 interface UserMenuProps {
-  currentUser?: SafeUser | null;
   prominent?: boolean;
 }
 
-const UserMenu: React.FC<UserMenuProps> = ({ currentUser, prominent = false }) => {
+const UserMenu: React.FC<UserMenuProps> = ({ prominent = false }) => {
+  const { currentUser, isLoading: isSessionLoading } = useCurrentUser();
   const router = useRouter();
   const registerModal = useRegisterModal();
   const loginModal = useLoginModal();
@@ -110,16 +110,19 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser, prominent = false }) =
           ref={triggerRef}
           type="button"
           onClick={toggleOpen}
+          disabled={isSessionLoading}
           aria-label={currentUser ? "Open account menu" : "Open sign in menu"}
           aria-expanded={isOpen}
           aria-haspopup="menu"
           className={`flex h-11 w-11 cursor-pointer flex-row items-center justify-center rounded-full border bg-white text-ink outline-none transition hover:shadow-card focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:h-auto md:w-auto md:min-h-11 md:min-w-11 md:gap-2 md:px-3 md:py-2 ${
             isOpen ? "border-border-strong shadow-card" : "border-hairline hover:border-border-strong"
-          }`}
+          } ${isSessionLoading ? "cursor-default" : ""}`}
         >
           <IconMenu3 className="hidden md:block" size={18} />
           <div>
-            {currentUser?.image ? (
+            {isSessionLoading ? (
+              <span className="block h-[30px] w-[30px] animate-pulse rounded-full bg-hairline" aria-hidden="true" />
+            ) : currentUser?.image ? (
               <Avatar src={currentUser.image} alt={`${currentUser.name || "Your"} profile photo`} />
             ) : (
               <IconUserCircle className="text-muted" size={30} />

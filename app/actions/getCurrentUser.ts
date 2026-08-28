@@ -59,6 +59,19 @@ const getCurrentUser = cache(async () => {
       hasPassword: Boolean(currentUser.hashedPassword),
     };
   } catch (error) {
+    // `getServerSession` reads request headers. When Next probes whether a route
+    // can be statically rendered it throws a control-flow error to signal
+    // "this route is dynamic" — that must propagate, not be swallowed as null,
+    // or the route silently loses its dynamic marking.
+    if (
+      error &&
+      typeof error === "object" &&
+      "digest" in error &&
+      typeof (error as { digest?: unknown }).digest === "string" &&
+      (error as { digest: string }).digest.startsWith("DYNAMIC_SERVER_USAGE")
+    ) {
+      throw error;
+    }
     console.error("Error fetching current user:", error);
     return null;
   }

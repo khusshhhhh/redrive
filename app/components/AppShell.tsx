@@ -2,17 +2,15 @@
 
 import { usePathname } from "next/navigation";
 
-import type { SafeUser } from "@/app/types";
 import CompareTray from "./CompareTray";
 import Footer from "./Footer";
 import MobileBottomNav from "./navbar/MobileBottomNav";
 
 interface AppShellProps {
   children: React.ReactNode;
-  currentUser?: SafeUser | null;
 }
 
-export default function AppShell({ children, currentUser }: AppShellProps) {
+export default function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const isMessagesRoute = pathname.startsWith("/messages");
 
@@ -29,8 +27,8 @@ export default function AppShell({ children, currentUser }: AppShellProps) {
       </main>
       {!isMessagesRoute && (
         <>
-          <Footer currentUser={currentUser} />
-          <MobileBottomNav currentUser={currentUser} />
+          <Footer />
+          <MobileBottomNav />
           <CompareTray />
         </>
       )}

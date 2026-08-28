@@ -3,6 +3,7 @@
 import { getSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
 import toast from "@/app/libs/toast";
+import { useCurrentUser } from "@/app/providers/CurrentUserProvider";
 import {
   clearBrowserActivity,
   readBrowserActivity,
@@ -20,12 +21,12 @@ function storedActivity() {
 }
 
 export default function IdleSessionGuard({
-  isAuthenticated,
   idleTimeoutMs,
 }: {
-  isAuthenticated: boolean;
   idleTimeoutMs: number;
 }) {
+  const { isAuthenticated } = useCurrentUser();
+
   useEffect(() => {
     const url = new URL(window.location.href);
     if (url.searchParams.get("session") === "inactive") {

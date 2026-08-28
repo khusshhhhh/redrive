@@ -4,6 +4,9 @@ import ReservationsClient from "./ReservationsClient";
 import Container from "../components/Container";
 import { CalendarDays } from "lucide-react";
 
+// Per-user hosting reservations — always rendered per request.
+export const dynamic = "force-dynamic";
+
 const ReservationsPage = async () => {
     const currentUser = await getCurrentUser();
 

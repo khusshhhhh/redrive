@@ -15,6 +15,7 @@ import PasswordField from "../inputs/PasswordField";
 import Button from "../Button";
 import Modal from "./Modal";
 import { recordBrowserActivity } from "@/app/libs/browserSessionActivity";
+import { notifyAuthChanged } from "@/app/providers/CurrentUserProvider";
 
 type LoginStage = "credentials" | "otp";
 
@@ -38,6 +39,7 @@ const LoginModal = () => {
     // timestamp can never be applied to the new session.
     recordBrowserActivity(window.localStorage);
     toast.success("Welcome back");
+    notifyAuthChanged();
     router.refresh();
     loginModal.onClose();
     setStage("credentials");

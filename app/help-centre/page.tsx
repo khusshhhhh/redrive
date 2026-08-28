@@ -3,6 +3,9 @@ import HelpCentreClient from "./HelpCentreClient";
 import { buildSeoMetadata } from "@/app/libs/seo";
 import InformationNav from "@/app/components/content/InformationNav";
 
+// Static help content — render as a CDN asset, not a per-request server render.
+export const dynamic = "force-static";
+
 export const metadata: Metadata = buildSeoMetadata({
   title: "Redrive Help Centre",
   description: "Get help with Redrive vehicle search, booking requests, licence verification, hosting, handovers, messages and account security.",

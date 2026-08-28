@@ -2,12 +2,11 @@
 
 import React from 'react';
 import usePresence from '@/app/hooks/usePresence';
+import { useCurrentUser } from '@/app/providers/CurrentUserProvider';
 
-interface DataPreloaderProps {
-  isAuthenticated?: boolean;
-}
+const DataPreloader: React.FC = () => {
+  const { isAuthenticated } = useCurrentUser();
 
-const DataPreloader: React.FC<DataPreloaderProps> = ({ isAuthenticated = false }) => {
   usePresence(isAuthenticated);
 
   return null; // This component doesn't render anything

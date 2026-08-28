@@ -1,7 +1,7 @@
 import "../app/globals.css";
 import Navbar from "./components/navbar/Navbar";
 import ToasterProvider from "./providers/ToasterProvider";
-import getCurrentUser from "./actions/getCurrentUser";
+import CurrentUserProvider from "./providers/CurrentUserProvider";
 import DataPreloader from "./providers/DataPreloader";
 import LazyModals from "./providers/LazyModals";
 import { Analytics } from "@vercel/analytics/react"
@@ -88,14 +88,14 @@ export const viewport: Viewport = {
   ],
 };
 
-// Navigation and account controls are session-aware on every route.
-export const dynamic = "force-dynamic";
+// The navbar/footer/nav are session-aware, but they now hydrate the current
+// user on the client via CurrentUserProvider (`/api/me`). Keeping that work out
+// of this layout lets static and ISR routes actually be prerendered instead of
+// every route being forced dynamic.
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const currentUser = await getCurrentUser();
-
   return (
     <html lang="en-AU">
       <head>
@@ -130,12 +130,14 @@ export default async function RootLayout({
         />
       </head>
       <body className={`${manrope.variable} bg-white text-ink`}>
-        <IdleSessionGuard isAuthenticated={!!currentUser} idleTimeoutMs={sessionIdleTimeoutMs()} />
-        <DataPreloader isAuthenticated={!!currentUser} />
-        <ToasterProvider />
-        <LazyModals />
-        <Navbar currentUser={currentUser} />
-        <AppShell currentUser={currentUser}>{children}</AppShell>
+        <CurrentUserProvider>
+          <IdleSessionGuard idleTimeoutMs={sessionIdleTimeoutMs()} />
+          <DataPreloader />
+          <ToasterProvider />
+          <LazyModals />
+          <Navbar />
+          <AppShell>{children}</AppShell>
+        </CurrentUserProvider>
         <Analytics />
         <SpeedInsights />
       </body>

@@ -4,6 +4,9 @@ import ArticlePage from "@/app/components/content/ArticlePage";
 import { findArticle, newsroomPosts } from "@/app/content/editorial";
 import { buildSeoMetadata } from "@/app/libs/seo";
 
+// Bundled editorial content — prerender every article as a static asset.
+export const dynamic = "force-static";
+
 export function generateStaticParams() { return newsroomPosts.map((article) => ({ slug: article.slug })); }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

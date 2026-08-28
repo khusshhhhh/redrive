@@ -9,6 +9,10 @@ import { buildSeoMetadata } from "@/app/libs/seo";
 
 type ListingPageProps = { params: Promise<{ listingId: string }> };
 
+// Depends on the signed-in viewer and on up-to-the-second availability
+// (a date booked seconds ago must not still look free), so never cached.
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params }: ListingPageProps): Promise<Metadata> {
     const { listingId } = await params;
     const listing = await getListingById({ listingId });
@@ -42,9 +46,14 @@ const ListingPage = async ({ params }: ListingPageProps) => {
 
     const { listingId } = resolvedParams;
 
-    const listing = await getListingById({ listingId });
-    const reservations = await getReservationDateRanges(listingId);
-    const currentUser = await getCurrentUser();
+    // These three reads are independent — run them together instead of waiting
+    // for each in turn. (getListingById is request-memoised, so the earlier
+    // generateMetadata call does not cause a second query here.)
+    const [listing, reservations, currentUser] = await Promise.all([
+        getListingById({ listingId }),
+        getReservationDateRanges(listingId),
+        getCurrentUser(),
+    ]);
 
     if (!listing) {
         return (

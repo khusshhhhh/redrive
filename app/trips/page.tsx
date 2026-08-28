@@ -5,6 +5,9 @@ import getCurrentUser from "../actions/getCurrentUser";
 import getReservations from "../actions/getReservations";
 import TripsClient from "./TripsClient";
 
+// Per-user bookings — always rendered per request.
+export const dynamic = "force-dynamic";
+
 const TripsPage = async () => {
     const currentUser = await getCurrentUser();
 
