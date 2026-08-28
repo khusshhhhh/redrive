@@ -20,7 +20,7 @@ export default function SmoothScroll() {
     if (!fine || reduced) return;
 
     // Ease factor: lower = slower, heavier glide.
-    const EASE = 0.075;
+    const EASE = 0.5;
 
     let target = window.scrollY;
     let current = target;
