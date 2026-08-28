@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import MenuItem from "./MenuItem";
 import useRegisterModal from "@/app/hooks/useRegisterModal";
 import useLoginModal from "@/app/hooks/useLoginModal";
-import useRentModal from "@/app/hooks/useRentModal";
 import { signOut } from "next-auth/react";
 import { useCurrentUser } from "@/app/providers/CurrentUserProvider";
 import { useRouter } from "next/navigation";
@@ -22,7 +21,6 @@ const UserMenu: React.FC<UserMenuProps> = ({ prominent = false }) => {
   const router = useRouter();
   const registerModal = useRegisterModal();
   const loginModal = useLoginModal();
-  const rentModal = useRentModal();
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -73,9 +71,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ prominent = false }) => {
     if (!currentUser) {
       return loginModal.onOpen();
     }
-    rentModal.onOpen();
+    router.push("/host");
     closeMenu();
-  }, [currentUser, loginModal, rentModal]);
+  }, [currentUser, loginModal, router]);
 
   const requestLogout = () => {
     closeMenu();
@@ -180,7 +178,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ prominent = false }) => {
               <MenuItem
                 index={0}
                 variant="cta"
-                onClick={() => { rentModal.onOpen(); closeMenu(); }}
+                onClick={() => { router.push("/host"); closeMenu(); }}
                 label="List your car"
                 hint="Earn from a vehicle you own"
                 icon={<IconFilePlus size={18} />}

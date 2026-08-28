@@ -115,7 +115,7 @@ export default function FavoritesClient({ listings, currentUser }: FavoritesClie
             </div>
             <h2 id="empty-favourites" className="mt-6 text-display-lg font-semibold text-ink">Start your vehicle shortlist</h2>
             <p className="mt-3 max-w-lg text-body-sm leading-6 text-muted sm:text-body-md">Tap the heart on any listing and it will appear here, ready for your next trip plan.</p>
-            <Link href="/" className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-button-sm font-semibold text-white transition hover:bg-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+            <Link href="/explore" className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-button-sm font-semibold text-white transition hover:bg-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
               Explore vehicles <IconArrowRight size={17} aria-hidden="true" />
             </Link>
           </section>
@@ -129,7 +129,7 @@ export default function FavoritesClient({ listings, currentUser }: FavoritesClie
                 <h2 id="saved-vehicles-heading" className="mt-2 text-display-lg font-semibold text-ink">Your saved vehicles</h2>
                 <p className="mt-1 text-body-sm text-muted">Select Compare on up to three cards to view them side by side.</p>
               </div>
-              <Link href="/" className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-border-strong bg-white px-5 text-button-sm font-semibold text-ink transition hover:border-primary hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+              <Link href="/explore" className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-border-strong bg-white px-5 text-button-sm font-semibold text-ink transition hover:border-primary hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                 Find more vehicles <IconArrowRight size={17} aria-hidden="true" />
               </Link>
             </div>

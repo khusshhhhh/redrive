@@ -70,9 +70,9 @@ const Categories = ({ compact = false }: CategoriesProps) => {
     const category = params?.get('category');
     const pathname = usePathname();
 
-    const isMainPage = pathname === '/';
+    const isMarketplace = pathname === '/explore';
 
-    if (!isMainPage) {
+    if (!isMarketplace) {
         return null;
     }
     return (

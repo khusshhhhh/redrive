@@ -108,7 +108,7 @@ const SearchModal = () => {
       startDate: dateRange.startDate ? formatISO(dateRange.startDate) : undefined,
       endDate: dateRange.endDate ? formatISO(dateRange.endDate) : undefined,
     };
-    const url = qs.stringifyUrl({ url: "/", query }, { skipNull: true, skipEmptyString: true });
+    const url = qs.stringifyUrl({ url: "/explore", query }, { skipNull: true, skipEmptyString: true });
     saveLastSearch({
       state: selectedState?.value,
       suburb: selectedSuburb?.value,

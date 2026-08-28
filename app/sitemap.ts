@@ -7,6 +7,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const updated = new Date();
   const coreRoutes: MetadataRoute.Sitemap = [
     { url: siteUrl, lastModified: updated, changeFrequency: "daily", priority: 1 },
+    { url: `${siteUrl}/explore`, lastModified: updated, changeFrequency: "daily", priority: 0.95 },
+    { url: `${siteUrl}/host`, lastModified: updated, changeFrequency: "monthly", priority: 0.8 },
     { url: `${siteUrl}/help-centre`, lastModified: updated, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteUrl}/blog`, lastModified: updated, changeFrequency: "weekly", priority: 0.8 },
     { url: `${siteUrl}/newsroom`, lastModified: updated, changeFrequency: "weekly", priority: 0.7 },

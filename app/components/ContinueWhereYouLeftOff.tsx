@@ -69,7 +69,7 @@ const ContinueWhereYouLeftOff: React.FC<ContinueWhereYouLeftOffProps> = ({ curre
 
   const repeatSearch = () => {
     if (!lastSearch) return;
-    router.push(qs.stringifyUrl({ url: "/", query: { ...lastSearch.filters } }, { skipNull: true, skipEmptyString: true }));
+    router.push(qs.stringifyUrl({ url: "/explore", query: { ...lastSearch.filters } }, { skipNull: true, skipEmptyString: true }));
   };
 
   return (

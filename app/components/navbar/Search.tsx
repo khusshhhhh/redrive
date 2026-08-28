@@ -57,7 +57,7 @@ const Search = ({ compact = false, isHome = false }: SearchProps) => {
   }, [stateValue, suburbValue, startDate, endDate, guestCount]);
 
   const handleClearFilters = () => {
-    router.push("/");
+    router.push("/explore");
   };
 
   return (

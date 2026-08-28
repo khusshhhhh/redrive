@@ -101,7 +101,7 @@ export default function ConfirmReservation() {
 
   if (loading) return <ConfirmationSkeleton />;
   if (loadError) return <Container><div className="py-12"><InlineRetry title="Booking details unavailable" message="Your selected dates are still preserved. Try loading the vehicle details again." onRetry={() => { setLoading(true); setReloadKey((value) => value + 1); }} /></div></Container>;
-  if (!listing || !validRequest) return <div className="py-32 text-center"><h1 className="text-2xl font-semibold text-ink">Booking details unavailable</h1><button onClick={() => router.push("/")} className="mt-5 text-sm font-semibold text-primary hover:underline">Return to listings</button></div>;
+  if (!listing || !validRequest) return <div className="py-32 text-center"><h1 className="text-2xl font-semibold text-ink">Booking details unavailable</h1><button onClick={() => router.push("/explore")} className="mt-5 text-sm font-semibold text-primary hover:underline">Return to listings</button></div>;
 
   const host = listing.user;
 

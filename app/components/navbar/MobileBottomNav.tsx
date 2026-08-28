@@ -15,7 +15,7 @@ import useLoginModal from "@/app/hooks/useLoginModal";
 import { useCurrentUser } from "@/app/providers/CurrentUserProvider";
 
 const items = [
-  { label: "Explore", href: "/", icon: IconCar, public: true },
+  { label: "Explore", href: "/explore", icon: IconCar, public: true },
   { label: "Favourites", href: "/favorites", icon: IconHeart, activeIcon: IconHeartFilled },
   { label: "Trips", href: "/trips", icon: IconRoute },
   { label: "Inbox", href: "/messages", icon: IconMessageCircle },
@@ -35,6 +35,7 @@ const MobileBottomNav: React.FC = () => {
     "/forgot-password",
     "/reset-password",
     "/messages",
+    "/host",
   ].some((route) => pathname.startsWith(route));
 
   if (hideOnFocusedFlow) return null;

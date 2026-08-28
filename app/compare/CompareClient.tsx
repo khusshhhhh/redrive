@@ -59,7 +59,7 @@ const CompareClient = ({ vehicles, tripDays }: { vehicles: ComparisonVehicle[]; 
       <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-primary">Vehicle comparison</p>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Choose at least two vehicles</h1>
       <p className="mt-3 max-w-sm text-sm leading-6 text-muted">Use the Compare control on listing cards to add up to three vehicles, then return here to review them together.</p>
-      <Link href="/" className="mt-7 inline-flex min-h-11 items-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">Explore vehicles</Link>
+      <Link href="/explore" className="mt-7 inline-flex min-h-11 items-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">Explore vehicles</Link>
     </div>
   );
 

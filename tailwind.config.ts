@@ -59,6 +59,10 @@ const config: Config = {
       fontSize: {
         // Airbnb-style type scale (see DESIGN-airbnb.md). Weight is applied
         // separately via font-{weight} utilities to match the spec table.
+        // Oversized display sizes used only by the marketing / showcase surfaces.
+        "display-hero": ["clamp(2.75rem, 6vw + 1rem, 5.25rem)", { lineHeight: "0.98", letterSpacing: "-0.035em" }],
+        "display-3xl": ["clamp(2.25rem, 3.5vw + 1rem, 3.5rem)", { lineHeight: "1.02", letterSpacing: "-0.03em" }],
+        "display-2xl": ["clamp(1.85rem, 2vw + 1rem, 2.5rem)", { lineHeight: "1.08", letterSpacing: "-0.025em" }],
         "rating-display": ["64px", { lineHeight: "1.1", letterSpacing: "-1px" }],
         "display-xl": ["28px", { lineHeight: "1.43", letterSpacing: "0" }],
         "display-lg": ["22px", { lineHeight: "1.18", letterSpacing: "-0.44px" }],
@@ -90,10 +94,31 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'scale(0.8)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
         },
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        floaty: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        'gradient-pan': {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+        'step-in': {
+          '0%': { opacity: '0', transform: 'translateY(14px) scale(0.985)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.3s ease-in-out',
         pop: 'pop 0.2s ease-out',
+        marquee: 'marquee 38s linear infinite',
+        'marquee-slow': 'marquee 64s linear infinite',
+        floaty: 'floaty 6s ease-in-out infinite',
+        'gradient-pan': 'gradient-pan 14s ease infinite',
+        'step-in': 'step-in 460ms cubic-bezier(.16,1,.3,1) both',
       },
     },
   },

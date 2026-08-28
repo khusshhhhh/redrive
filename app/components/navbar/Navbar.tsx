@@ -64,6 +64,8 @@ const Navbar: React.FC = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const showSearchBar = !pathname.startsWith("/confirm-reservation");
+  // The marketplace surface (category rail + expanded search) now lives at /explore.
+  const isMarketplace = pathname === "/explore";
 
   return (
     <>
@@ -75,19 +77,19 @@ const Navbar: React.FC = () => {
               <Logo />
             </div>
             <div className="col-start-2 row-start-1 flex min-w-0 justify-center md:col-span-1 md:col-start-auto md:row-start-auto">
-              <div className={`max-w-fit transition-[max-width,transform] duration-300 ease-out motion-reduce:transition-none ${pathname === "/" && !isScrolled ? "md:w-full md:max-w-[540px] xl:-translate-x-6" : "md:max-w-[440px]"}`}>
+              <div className={`max-w-fit transition-[max-width,transform] duration-300 ease-out motion-reduce:transition-none ${isMarketplace && !isScrolled ? "md:w-full md:max-w-[540px] xl:-translate-x-6" : "md:max-w-[440px]"}`}>
                 <Suspense fallback={<SearchFallback />}>
-                  <Search compact={isScrolled} isHome={pathname === "/"} />
+                  <Search compact={isScrolled} isHome={isMarketplace} />
                 </Suspense>
               </div>
             </div>
             <div className="col-start-3 row-start-1 shrink-0 md:col-start-auto md:row-start-auto md:justify-self-end">
-              <UserMenu prominent={pathname === "/" && !isScrolled} />
+              <UserMenu prominent={isMarketplace && !isScrolled} />
             </div>
           </div>
         </Container>
       </div>
-      {pathname === "/" && (
+      {isMarketplace && (
         <Suspense fallback={<div className="h-16 border-t border-transparent sm:h-[72px]" aria-hidden="true" />}>
           <Categories compact={isScrolled} />
         </Suspense>
@@ -95,7 +97,7 @@ const Navbar: React.FC = () => {
     </header>
     <div
       aria-hidden="true"
-      className={pathname === "/" ? "h-[128px] sm:h-[140px]" : "h-[64px] md:h-[68px]"}
+      className={isMarketplace ? "h-[128px] sm:h-[140px]" : "h-[64px] md:h-[68px]"}
       style={headerHeight ? { height: `${headerHeight}px` } : undefined}
     />
     </>

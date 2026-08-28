@@ -11,5 +11,6 @@ export const config = {
     "/confirm-reservation/:path*",
     "/review/:path*",
     "/edit-utility/:path*",
+    "/host/:path*",
   ],
 };

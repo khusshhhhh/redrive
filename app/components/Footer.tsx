@@ -1,20 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowUpRight, CarFront, ShieldCheck, Sparkles } from "lucide-react";
 
-import useRentModal from "@/app/hooks/useRentModal";
 import useLoginModal from "@/app/hooks/useLoginModal";
 import { useCurrentUser } from "@/app/providers/CurrentUserProvider";
 
 export default function Footer() {
   const { currentUser } = useCurrentUser();
-  const rentModal = useRentModal();
+  const router = useRouter();
   const loginModal = useLoginModal();
 
   const onListCar = () => {
     if (!currentUser) return loginModal.onOpen();
-    rentModal.onOpen();
+    router.push("/host");
   };
 
   return (
@@ -27,7 +27,7 @@ export default function Footer() {
             <p className="mt-2 text-sm text-white/60">From weekday errands to long Australian escapes.</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link href="/" className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-ink transition hover:bg-surface-soft">Explore vehicles <ArrowUpRight size={16} /></Link>
+            <Link href="/explore" className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-ink transition hover:bg-surface-soft">Explore vehicles <ArrowUpRight size={16} /></Link>
             <button onClick={onListCar} className="inline-flex h-12 items-center gap-2 rounded-full border border-white/20 px-6 text-sm font-semibold text-white transition hover:bg-white/10"><CarFront size={17} />List a vehicle</button>
           </div>
         </div>

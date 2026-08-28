@@ -482,3 +482,74 @@ textarea::placeholder {
   .redrive-toast__route-dot,
   .redrive-toast--loading .redrive-toast__icon svg { animation: none; }
 }
+
+/* ── Showcase / marketing surfaces ─────────────────────────────────────────
+   Scroll-reveal: elements start dimmed and shifted, then settle when the
+   IntersectionObserver in <Reveal> adds `.is-revealed`. Transform + opacity
+   only, so it stays cheap on long landing pages. */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 720ms cubic-bezier(.16, 1, .3, 1), transform 720ms cubic-bezier(.16, 1, .3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+.reveal-left { transform: translateX(-32px); }
+.reveal-right { transform: translateX(32px); }
+.reveal-zoom { transform: scale(.94); }
+
+/* A gradient wash that drifts behind the hero headline. */
+.aurora {
+  background-image:
+    radial-gradient(42rem 42rem at 12% -10%, rgba(99, 99, 99, 0.16), transparent 60%),
+    radial-gradient(38rem 38rem at 108% 8%, rgba(59, 59, 59, 0.14), transparent 55%),
+    radial-gradient(30rem 30rem at 50% 120%, rgba(181, 181, 181, 0.22), transparent 60%);
+  background-size: 180% 180%;
+}
+
+/* Edge-fade for the auto-scrolling marquees so chips dissolve at the rim. */
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track { width: max-content; }
+.group\/marquee:hover .marquee-track,
+.marquee-track:hover { animation-play-state: paused; }
+
+/* Faux device chrome for the composed app screenshots. */
+.device-phone {
+  border-radius: 2.75rem;
+  box-shadow:
+    0 2px 4px rgba(59, 59, 59, 0.08),
+    0 34px 90px -20px rgba(59, 59, 59, 0.42),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.55);
+}
+.device-browser {
+  box-shadow:
+    0 2px 4px rgba(59, 59, 59, 0.06),
+    0 44px 120px -32px rgba(59, 59, 59, 0.4);
+}
+
+/* One-question-per-screen host flow: each panel animates in on step change. */
+.host-step {
+  animation: stepEnter 460ms cubic-bezier(.16, 1, .3, 1) both;
+}
+@keyframes stepEnter {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.host-progress-fill {
+  transition: width 620ms cubic-bezier(.16, 1, .3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .marquee-track { animation: none !important; }
+  .aurora { animation: none !important; }
+  .host-step { animation: none; }
+  .host-progress-fill { transition: none; }
+}

@@ -81,7 +81,7 @@ const SavedSearchManager: React.FC<SavedSearchManagerProps> = ({ currentFilters,
   };
 
   const apply = (search: SavedSearchRecord) => {
-    router.push(qs.stringifyUrl({ url: "/", query: { ...search.filters } }, { skipNull: true, skipEmptyString: true }));
+    router.push(qs.stringifyUrl({ url: "/explore", query: { ...search.filters } }, { skipNull: true, skipEmptyString: true }));
   };
 
   const changeFrequency = async (search: SavedSearchRecord, alertFrequency: SavedSearchFrequency) => {
