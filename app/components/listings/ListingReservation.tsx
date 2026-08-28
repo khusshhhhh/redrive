@@ -32,7 +32,7 @@ interface ListingReservationProps {
     setInsuranceFee: (fee: number) => void;
     serviceFee: number;
     onChangeDate: (value: Range) => void;
-    onSubmit: (insuranceType: string, insuranceFee: number) => void; // ✅ Updated to pass insurance details
+    onSubmit: (insuranceType: string, insuranceFee: number) => void;
     disabled?: boolean;
     disabledDates: Date[];
     currentUser?: SafeUser | null;
@@ -45,7 +45,6 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     dateRange,
     totalPrice,
     onChangeDate,
-    // onSubmit,
     disabled,
     disabledDates,
     insuranceType,
@@ -126,7 +125,6 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                 )}
                 <hr className="mt-6 border-hairline-soft" />
 
-                {/* ✅ Styled Insurance Options */}
                 <div className="mt-6">
                     <div className="font-semibold mb-4">Insurance Options</div>
                     <div className="flex flex-col space-y-3 relative">

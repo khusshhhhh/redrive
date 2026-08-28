@@ -136,12 +136,10 @@ model Listing {
   latitude  Float?
   longitude Float?
 
-  // ✅ New fields for registration details
-  regoNumber  String?   @unique // Ensure unique registration numbers
+  regoNumber  String?   @unique
   regoEndDate DateTime?
-  regoImage   String? // Store Cloudinary image URL
+  regoImage   String?
 
-  // Cleaning fee details
   cleaningFeeOption       String? // "YES", "NO", or "UPON_RETURNING"
   cleaningFeeAmount       Int?
   returnCleaningFeeAmount Int?

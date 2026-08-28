@@ -5,15 +5,12 @@ import { cache } from "react";
 
 const getCurrentUser = cache(async () => {
   try {
-    // Fetch session with correct request context
     const session = await getServerSession(authOptions);
 
-    // If no session or email, return null
     if (!session?.user?.email) {
       return null;
     }
 
-    // Fetch user from database using email
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email as string },
     });

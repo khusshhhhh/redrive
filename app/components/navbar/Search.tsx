@@ -19,7 +19,6 @@ const Search = ({ compact = false, isHome = false }: SearchProps) => {
   const params = useSearchParams();
   const searchModal = useSearchModal();
 
-  // Retrieve filters from URL params
   const stateValue = params?.get("state") || "Anywhere";
   const suburbValue = params?.get("suburb");
   const startDate = params?.get("startDate");
@@ -47,7 +46,6 @@ const Search = ({ compact = false, isHome = false }: SearchProps) => {
     return guestCount ? `${guestCount} Guests` : "Add Guests";
   }, [guestCount]);
 
-  // Determine if any filter is applied
   const filtersApplied = useMemo(() => {
     return (
       (stateValue && stateValue !== "Anywhere") ||
@@ -58,7 +56,6 @@ const Search = ({ compact = false, isHome = false }: SearchProps) => {
     );
   }, [stateValue, suburbValue, startDate, endDate, guestCount]);
 
-  // Handler to clear filters by navigating to the base route without query parameters
   const handleClearFilters = () => {
     router.push("/");
   };

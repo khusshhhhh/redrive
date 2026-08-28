@@ -59,9 +59,8 @@ import {
   IconPlug,
   IconTrafficLights,
   IconArrowsMoveVertical,
-} from "@tabler/icons-react"; // ✅ Import all required icons
+} from "@tabler/icons-react";
 
-// ✅ Define Global Icon Properties
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ICON_PROPS = {
   size: 24, // Set icon size
@@ -70,7 +69,6 @@ const ICON_PROPS = {
   className: "transition-colors duration-300 group-hover:text-white", // Set default color
 };
 
-// ✅ Updated Amenities List
 export const AMENITIES_LIST = [
   { id: "air_conditioner", name: "Air Conditioner", icon: IconTemperatureSnow },
   { id: "heater", name: "Heater", icon: IconTemperatureSun },
@@ -153,7 +151,6 @@ export const AMENITIES_LIST = [
   },
 ];
 
-// ✅ Hook for Managing Amenities Selection
 const useAmenities = () => {
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
 

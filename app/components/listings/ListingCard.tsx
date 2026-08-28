@@ -78,7 +78,6 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
         return `${reservationDateFormatter.format(start)} – ${reservationDateFormatter.format(end)}`;
     }, [reservation]);
 
-    // Use the first image from the array, or a fallback image if none exists.
     const imageUrl = useMemo(() => {
         if (Array.isArray(data.imageSrcs) && data.imageSrcs.length > 0) {
             return data.imageSrcs[0];
@@ -111,7 +110,6 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                         src={imageUrl}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
                     />
-                    {/* ✅ Show badge dynamically if it exists */}
                     {data.badgeValue && (
                         <div className="absolute left-3 top-3 rounded-full border border-accent/40 bg-accent-soft px-2.5 py-1 text-badge font-semibold text-ink shadow-card">
                             {data.badgeValue}
@@ -162,7 +160,6 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                     <div className="text-xs font-semibold text-ink">Status: {reservation.status}</div>
                 )}
                 <div className="gap-0">
-                    {/* ✅ Show Edit Button only if 'showEditButton' is true */}
                     {showEditButton && (
                         <ListingCardButton
                             label="Edit Utility"

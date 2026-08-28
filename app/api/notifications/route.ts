@@ -5,7 +5,6 @@ import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import { Prisma } from "@prisma/client";
 import { getAdminUser } from "@/app/libs/adminAuth";
 
-// GET - Fetch user's notifications
 async function GETHandler(request: NextRequest) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
@@ -31,7 +30,6 @@ async function GETHandler(request: NextRequest) {
       whereClause.read = false;
     }
 
-    // Remove expired notifications
     const now = new Date();
     whereClause.OR = [
       { expiresAt: null },
@@ -75,7 +73,6 @@ async function GETHandler(request: NextRequest) {
   }
 }
 
-// POST - Create new notification (for admin/system use)
 async function POSTHandler(request: NextRequest) {
   try {
     const currentUser = await getAdminUser();
@@ -92,7 +89,6 @@ async function POSTHandler(request: NextRequest) {
       expiresAt 
     } = body;
 
-    // Validate required fields
     if (!userId || !type || !title || !message) {
       return NextResponse.json(
         { error: "Missing required fields" },

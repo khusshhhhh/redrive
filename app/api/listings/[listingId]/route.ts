@@ -7,7 +7,7 @@ import { normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
 import { invalidatePublicListingsCache } from "@/app/actions/getListings";
 
 /**
- * ✅ GET: Fetch a specific listing by ID (Includes state, suburb, amenities, images, and rego details)
+ * GET: Fetch a specific listing by ID (Includes state, suburb, amenities, images, and rego details)
  */
 async function GETHandler(
   request: NextRequest,
@@ -55,7 +55,7 @@ async function GETHandler(
 }
 
 /**
- * ✅ PUT: Update listing (Supports multiple images, rego details, state, suburb, and address)
+ * PUT: Update listing (Supports multiple images, rego details, state, suburb, and address)
  */
 async function PUTHandler(
   request: NextRequest,
@@ -105,7 +105,6 @@ async function PUTHandler(
       cancellationPolicy,
     } = body;
 
-    // Validate required fields
     if (
       !title ||
       !description ||
@@ -184,7 +183,7 @@ async function PUTHandler(
 }
 
 /**
- * ✅ DELETE: Remove a listing (Ensures only the owner can delete it)
+ * DELETE: Remove a listing (Ensures only the owner can delete it)
  */
 async function DELETEHandler(
   request: NextRequest,
@@ -206,7 +205,6 @@ async function DELETEHandler(
       );
     }
 
-    // Check if the listing exists and belongs to the current user
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
     });
@@ -222,7 +220,6 @@ async function DELETEHandler(
       );
     }
 
-    // Delete the listing
     await prisma.listing.delete({
       where: { id: listingId },
     });

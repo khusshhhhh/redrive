@@ -20,7 +20,7 @@ export type SafeListing = Omit<
   | "exactLocationReleaseRule"
 > & {
   createdAt: string;
-  regoImage: string; // ✅ Ensure regoImage is always a string
+  regoImage: string;
   badgeValue?: string;
   cleaningFeeOption?: string | null;
   cleaningFeeAmount?: number | null;
@@ -59,7 +59,7 @@ export type SafeReservation = Omit<
   createdAt: string;
   startDate: string;
   endDate: string;
-  user: SafeUser; // ✅ Ensure user is required
+  user: SafeUser;
   listing: SafeListing;
   status: string;
   updatedAt?: string;

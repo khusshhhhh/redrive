@@ -21,17 +21,14 @@ class SuburbDataLoader {
   }
 
   async loadData(): Promise<SuburbData[]> {
-    // Return cached data if available
     if (this.data) {
       return this.data;
     }
 
-    // Return existing promise if already loading
     if (this.loadingPromise) {
       return this.loadingPromise;
     }
 
-    // Start loading data
     this.loadingPromise = this.fetchData();
     
     try {
@@ -90,7 +87,6 @@ class SuburbDataLoader {
     return foundSuburb ? { lat: foundSuburb.lat, lng: foundSuburb.lng } : null;
   }
 
-  // Preload data for better performance
   preload(): void {
     this.loadData().catch(console.error);
   }

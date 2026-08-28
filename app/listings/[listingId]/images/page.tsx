@@ -16,7 +16,6 @@ const ListingImages = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [startIndex, setStartIndex] = useState(0);
 
-    // Fetch images from API
     useEffect(() => {
         const fetchImages = async () => {
             try {

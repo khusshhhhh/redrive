@@ -11,7 +11,6 @@ const path = require('path');
 
 console.log('📊 Starting Bundle Analysis...\n');
 
-// Build the application first
 console.log('🔨 Building application...');
 try {
   execSync('npm run build', { stdio: 'inherit' });
@@ -20,7 +19,6 @@ try {
   process.exit(1);
 }
 
-// Analyze bundle sizes
 console.log('\n📦 Analyzing bundle sizes...');
 
 const buildDir = path.join(process.cwd(), '.next');
@@ -31,7 +29,6 @@ if (!fs.existsSync(staticDir)) {
   process.exit(1);
 }
 
-// Get build statistics
 const buildManifest = path.join(buildDir, 'build-manifest.json');
 if (fs.existsSync(buildManifest)) {
   const manifest = JSON.parse(fs.readFileSync(buildManifest, 'utf8'));
@@ -39,7 +36,6 @@ if (fs.existsSync(buildManifest)) {
   console.log('\n📋 Bundle Analysis Results:');
   console.log('=' .repeat(50));
   
-  // Analyze main bundles
   const pages = manifest.pages || {};
   let totalSize = 0;
   
@@ -63,7 +59,6 @@ if (fs.existsSync(buildManifest)) {
   console.log('=' .repeat(50));
   console.log(`📊 Total Bundle Size: ${(totalSize / 1024 / 1024).toFixed(2)} MB`);
   
-  // Performance recommendations
   console.log('\n💡 Performance Recommendations:');
   if (totalSize > 5 * 1024 * 1024) {
     console.log('⚠️  Bundle size is large (>5MB). Consider code splitting.');
@@ -76,7 +71,6 @@ if (fs.existsSync(buildManifest)) {
   }
 }
 
-// Check for large files
 console.log('\n🔍 Checking for large files...');
 const findLargeFiles = (dir, threshold = 500 * 1024) => {
   const files = [];
@@ -115,7 +109,6 @@ if (largeFiles.length > 0) {
   console.log('✅ No large files found.');
 }
 
-// Check public directory for large assets
 console.log('\n🌐 Checking public directory...');
 const publicDir = path.join(process.cwd(), 'public');
 const publicLargeFiles = findLargeFiles(publicDir, 1024 * 1024); // 1MB threshold for public
@@ -140,7 +133,6 @@ console.log('\n📈 To monitor bundle size over time:');
 console.log('   npm run analyze');
 console.log('   npm run bundle-analyzer');
 
-// Generate summary report
 const reportPath = path.join(process.cwd(), 'bundle-analysis-report.json');
 const report = {
   timestamp: new Date().toISOString(),

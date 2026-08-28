@@ -98,7 +98,6 @@ async function PUTHandler(request: Request) {
       ((name ?? "") !== (existingUser.name ?? "") ||
         (dateOfBirth ?? "") !== (existingUser.dateOfBirth ?? ""));
 
-    // Update the user profile in the database
     const updatedUser = await prisma.user.update({
       where: { email: session.user.email },
       data: {

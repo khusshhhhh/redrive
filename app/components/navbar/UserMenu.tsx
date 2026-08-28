@@ -29,7 +29,6 @@ const UserMenu: React.FC<UserMenuProps> = ({ prominent = false }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Toggle menu open/close
   const toggleOpen = useCallback(() => {
     setIsOpen((value) => !value);
   }, []);

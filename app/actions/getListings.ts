@@ -87,7 +87,6 @@ async function getListingsFromDatabase(params: IListingsParams) {
     if (guestCount) query.guestCount = { gte: +guestCount };
     if (sleepCount) query.sleepCount = { gte: +sleepCount };
 
-    // Only filter by state if one is provided and it's not "Anywhere"
     if (state && state !== "Anywhere") {
       query.state = state;
     }
@@ -99,7 +98,6 @@ async function getListingsFromDatabase(params: IListingsParams) {
     if (information)
       query.information = { contains: information, mode: "insensitive" };
 
-    // Convert minPrice & maxPrice to numbers before filtering
     const parsedMinPrice = minPrice ? Number(minPrice) : undefined;
     const parsedMaxPrice = maxPrice ? Number(maxPrice) : undefined;
 
@@ -138,7 +136,6 @@ async function getListingsFromDatabase(params: IListingsParams) {
       orderBy: { createdAt: "desc" },
     });
 
-    // Fetch associated badges
     const badgeKeys = listings.map((listing) => listing.badge).filter(Boolean);
     const badges = await prisma.badge.findMany({
       where: { key: { in: badgeKeys } },

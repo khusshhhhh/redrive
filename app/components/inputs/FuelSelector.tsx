@@ -11,7 +11,7 @@ interface FuelSelectorProps {
     disabled?: boolean;
     required?: boolean;
     setValue: UseFormSetValue<FieldValues>;
-    watch?: UseFormWatch<FieldValues>; // ✅ Make watch optional to prevent undefined error
+    watch?: UseFormWatch<FieldValues>;
     errors: FieldErrors;
 }
 
@@ -31,10 +31,10 @@ const FuelSelector: React.FC<FuelSelectorProps> = ({
     watch,
     errors,
 }) => {
-    const selectedFuel = watch ? watch(id) || "" : ""; // ✅ Ensure watch is available
+    const selectedFuel = watch ? watch(id) || "" : "";
 
     const handleFuelSelection = (fuel: string) => {
-        setValue(id, fuel, { shouldValidate: true }); // ✅ Update form state properly
+        setValue(id, fuel, { shouldValidate: true });
     };
 
     return (

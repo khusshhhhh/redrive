@@ -6,8 +6,6 @@ import HorizontalScroller from "../HorizontalScroller";
 import { usePathname, useSearchParams } from "next/navigation";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { IconCamper, IconCar, IconCaravan, IconMotorbike, IconSailboat, IconSpeedboat, IconSwimming, IconTent, IconTir, IconTruck } from "@tabler/icons-react";
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { faTrailer } from "@fortawesome/free-solid-svg-icons";
 import { Van } from "@phosphor-icons/react";
 
 export const categories = [
@@ -61,11 +59,6 @@ export const categories = [
         icon: () => <IconTruck size={24} stroke={1.5} />,
         description: 'Heavy-duty trucks for transport and hauling!'
     },
-    // {
-    //     label: 'Accessories',
-    //     icon: () => <IconTent size={28} stroke={1.5} />,
-    //     description: 'These are better accessories to have!'
-    // },
 ]
 
 interface CategoriesProps {

@@ -9,7 +9,6 @@ import { getStripe } from "@/app/libs/stripe";
 import { calculateCancellationOutcome } from "@/app/libs/cancellationPolicy";
 import { renterIdentityCheck } from "@/app/libs/bookingIdentity";
 
-// ✅ GET: Fetch reservation details with user included
 async function GETHandler(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,7 +31,7 @@ async function GETHandler(
 
     const reservation = await prisma.reservation.findUnique({
       where: { id: reservationId },
-      include: { listing: true, user: true }, // ✅ Include user details
+      include: { listing: true, user: true },
     });
 
     if (!reservation) {
@@ -54,7 +53,6 @@ async function GETHandler(
     // for their vehicle before approving. Nobody else can reach this route.
     const identityCheck = renterIdentityCheck(reservation.user);
 
-    // ✅ Ensure response matches SafeReservation format
     const safeReservation = {
       ...reservation,
       renterIdentity: identityCheck,
@@ -113,7 +111,6 @@ async function GETHandler(
     );
   }
 }
-// ✅ DELETE: Cancel a reservation
 async function DELETEHandler(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -127,7 +124,6 @@ async function DELETEHandler(
 
     const { reservationId } = await context.params;
 
-    // Validate the reservation
     const reservation = await prisma.reservation.findUnique({
       where: { id: reservationId },
       include: {
@@ -308,7 +304,6 @@ async function DELETEHandler(
       metadata: { refundAmount, refundPercentage: outcome.refundPercentage, cancellationPolicy: outcome.policy.key },
     });
 
-    // Send cancellation notification
     try {
       await notificationService.notifyBookingCancelled(
         notifyUserId,
@@ -344,7 +339,6 @@ async function DELETEHandler(
   }
 }
 
-// PATCH: update reservation status
 async function PATCHHandler(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -461,7 +455,6 @@ async function PATCHHandler(
       metadata: { from: reservation.status, to: status },
     });
 
-    // Send notification based on status change
     try {
       if (status === "APPROVED") {
         await notificationService.notifyBookingApproved(

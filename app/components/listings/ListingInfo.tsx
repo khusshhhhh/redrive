@@ -98,7 +98,6 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
         if (listings.length === 0) {
             return "No listings yet";
         }
-        // Find the earliest listing date
         const earliestListing = listings.reduce((earliest, current) =>
             new Date(current.createdAt) < new Date(earliest.createdAt)
                 ? current
@@ -107,7 +106,6 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
         return getHostingDuration(new Date(earliestListing.createdAt));
     }, [user]);
 
-    // Determine fuel economy label
     let fuelEconomyLabel = "";
     if (fuelEconomy !== null && fuelEconomy !== undefined) {
         if (fuelEconomy < 8) {

@@ -1,8 +1,6 @@
-// helpers/getHostingDuration.ts
 import { differenceInDays } from "date-fns";
 
 export function getHostingDuration(startDate: Date) {
-  // Calculate total days from `startDate` to now
   const days = differenceInDays(new Date(), startDate);
 
   // Return a string in days, weeks, months, or years

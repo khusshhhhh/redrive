@@ -19,7 +19,6 @@ async function runNotificationCron() {
   try {
     console.log("🔄 Starting notification cron job...");
 
-    // Clean up expired notifications
     await notificationService.cleanupExpiredNotifications();
 
     // Send booking reminders for trips starting in 1 day
@@ -46,7 +45,6 @@ async function runNotificationCron() {
 
     console.log(`📅 Found ${upcomingReservations.length} reservations starting tomorrow`);
 
-    // Send reminders
     for (const reservation of upcomingReservations) {
       try {
         await notificationService.notifyBookingReminder(
@@ -86,10 +84,8 @@ async function runNotificationCron() {
 
     console.log(`📝 Found ${completedReservations.length} recently completed reservations`);
 
-    // Send review reminders if no review exists
     for (const reservation of completedReservations) {
       try {
-        // Check if user has already reviewed
         const existingReview = await prisma.review.findUnique({
           where: {
             userId_listingId: {

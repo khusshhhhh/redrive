@@ -5,14 +5,13 @@ import prisma from "@/app/libs/prismadb";
 import type { NextRequest } from "next/server";
 import { notificationService } from "@/app/services/notificationService";
 
-// ✅ POST: Add listing to favorites
 async function POSTHandler(request: NextRequest) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
     return NextResponse.error();
   }
 
-  const listingId = request.nextUrl.pathname.split("/").pop(); // ✅ Extract listingId from URL
+  const listingId = request.nextUrl.pathname.split("/").pop();
   if (!listingId || typeof listingId !== "string") {
     return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
   }
@@ -25,7 +24,6 @@ async function POSTHandler(request: NextRequest) {
     data: { favoriteIds },
   });
 
-  // Get listing details for the notification
   try {
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
@@ -48,14 +46,13 @@ async function POSTHandler(request: NextRequest) {
   return NextResponse.json(user);
 }
 
-// ✅ DELETE: Remove listing from favorites
 async function DELETEHandler(request: NextRequest) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
     return NextResponse.error();
   }
 
-  const listingId = request.nextUrl.pathname.split("/").pop(); // ✅ Extract listingId from URL
+  const listingId = request.nextUrl.pathname.split("/").pop();
   if (!listingId || typeof listingId !== "string") {
     return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
   }

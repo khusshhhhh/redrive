@@ -4,14 +4,12 @@ import useRentModal from "@/app/hooks/useRentModal";
 import Modal from "./Modal";
 
 import CategoryInput from "../inputs/CategoryInput";
-// import CountrySelect from "../inputs/CountrySelect";
 import Input from "../inputs/Input";
 import AddressAutocomplete, { ParsedAddress } from "../inputs/AddressAutocomplete";
 import YearSelect from "../inputs/YearSelect";
 import FuelSelector from "../inputs/FuelSelector";
 import Counter from "../inputs/Counter";
 import AmenitiesSelector from "../inputs/AmenitiesSelector";
-// import ImageUpload from "../inputs/ImageUpload";
 import Heading from "../Heading";
 import TextArea from "../inputs/TextArea";
 import StateSelector, { states as AU_STATES } from "../inputs/StateSelector";
@@ -30,7 +28,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 
-// Declare google property on window object
 declare global {
     interface Window {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,7 +67,6 @@ const RentModal = () => {
     const [regoImage, setRegoImage] = useState<string>("");
     const [uploadingRego, setUploadingRego] = useState(false);
 
-    // ✅ Function to Upload Rego Image to Cloudinary
     const handleRegoImage = async (file: File) => {
         if (!file) return;
 
@@ -101,7 +97,6 @@ const RentModal = () => {
         }
     };
 
-    // ✅ Function to Remove Uploaded Rego Image
     const removeRegoImage = () => {
         setRegoImage(""); // Reset the state
     };
@@ -136,10 +131,10 @@ const RentModal = () => {
             modal: '',
             regoNumber: '',
             regoEndDate: new Date(),
-            badge: null, // ✅ Ensure badge is included and set to null
-            imageSrcs: [], // ✅ Prevents errors from undefined imageSrcs
-            amenities: [], // ✅ Ensures amenities are an empty array by default
-            regoImage: '', // ✅ Ensures regoImage is an empty string instead of undefined
+            badge: null,
+            imageSrcs: [],
+            amenities: [],
+            regoImage: '',
             cleaningFeeOption: 'NO',
             cleaningFeeAmount: '',
             returnCleaningFeeAmount: '',
@@ -148,11 +143,9 @@ const RentModal = () => {
     });
 
     const category = watch('category');
-    // const location = watch('location');
     const guestCount = watch('guestCount');
     const doorCount = watch('doorCount');
     const sleepCount = watch('sleepCount');
-    // const regoNumber = watch('regoNumber');
     const regoEndDate = watch('regoEndDate');
     const cleaningFeeOption = watch('cleaningFeeOption');
     const cancellationPolicy = watch('cancellationPolicy');
@@ -215,7 +208,6 @@ const RentModal = () => {
             state: selectedState?.value,
             suburb: selectedSuburb?.value,
             address: address.trim() !== "" ? address : "Unknown",
-            // ✅ use the submitted form values directly
             cleaningFeeOption: data.cleaningFeeOption,
             cleaningFeeAmount: data.cleaningFeeAmount || null,
             returnCleaningFeeAmount: data.returnCleaningFeeAmount || null,
@@ -223,7 +215,7 @@ const RentModal = () => {
 
         axios.post('/api/listings', finalData, {
             headers: {
-                "Content-Type": "application/json" // ✅ Ensure JSON format
+                "Content-Type": "application/json"
             }
         })
             .then(() => {
@@ -236,7 +228,7 @@ const RentModal = () => {
                 rentModal.onClose();
             })
             .catch((error) => {
-                console.error("Error creating listing:", error); // ✅ Log the error for debugging
+                console.error("Error creating listing:", error);
                 toast.error("Something went wrong.");
             })
             .finally(() => {
@@ -477,7 +469,7 @@ const RentModal = () => {
                         disabled={isLoading}
                         register={register}
                         errors={errors}
-                        required={false} // ✅ This field is optional
+                        required={false}
                     />
                 </div>
             </div>
@@ -524,7 +516,6 @@ const RentModal = () => {
             <div className="flex flex-col gap-8">
                 <Heading title="Legal Information" subtitle="Provide your utility registration details." />
 
-                {/* ✅ Registration Number Input */}
                 <Input
                     id="regoNumber"
                     label="Registration Number"
@@ -537,7 +528,6 @@ const RentModal = () => {
                     onChange={(e) => setCustomValue("regoNumber", e.target.value.toUpperCase())}
                 />
 
-                {/* ✅ Registration Expiry Date */}
                 <div>
                     <label className="mb-1.5 block text-xs font-medium text-muted">Registration expiry date</label>
                     <div>
@@ -548,7 +538,6 @@ const RentModal = () => {
                     </div>
                 </div>
 
-                {/* ✅ File Input for Legal Document */}
                 <input
                     type="file"
                     accept="image/*"
@@ -561,11 +550,9 @@ const RentModal = () => {
                     {uploadingRego ? <><span className="relative flex h-14 w-14 items-center justify-center"><span className="loader-orbit absolute inset-0 rounded-full border-2 border-hairline border-t-primary" /><span className="loader-core h-6 w-6 rounded-full bg-primary/15" /></span><span className="mt-4 font-semibold text-ink">Uploading registration document</span><span className="mt-1 text-xs text-muted">Checking and securing your image</span></> : <><span className="font-semibold text-ink">Upload registration document</span><span className="mt-1 text-xs">JPG, PNG or WebP · up to 10 MB</span></>}
                 </label>
 
-                {/* ✅ Show Uploaded Legal Document with Delete Option */}
                 {regoImage && (
                     <div className="mt-4 relative overflow-hidden w-full aspect-video rounded-md border border-hairline-soft">
                         <Image alt="Uploaded vehicle registration document preview" src={regoImage} fill className="object-cover" />
-                        {/* ✅ Delete Button */}
                         <button
                             onClick={removeRegoImage}
                             className="absolute top-2 right-2 bg-error text-white p-1 rounded-full opacity-100 hover:opacity-80 transition"

@@ -8,13 +8,11 @@ import { invalidatePublicListingsCache } from "@/app/actions/getListings";
 
 async function POSTHandler(request: NextRequest) {
   try {
-    // ✅ Fetch current user
     const currentUser = await getCurrentUserEnhanced(request);
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // ✅ Parse request body
     const body = await request.json();
 
     const {
@@ -29,8 +27,8 @@ async function POSTHandler(request: NextRequest) {
       modal,
       year,
       fuelType,
-      fuelEconomy, // ✅ New field
-      driveChain, // ✅ New field
+      fuelEconomy,
+      driveChain,
       price,
       information,
       amenities = [],
@@ -42,27 +40,23 @@ async function POSTHandler(request: NextRequest) {
       regoNumber,
       regoEndDate,
       regoImage = "",
-      badge, // ✅ Default to empty string
+      badge,
       cleaningFeeOption,
       cleaningFeeAmount,
       returnCleaningFeeAmount,
       cancellationPolicy,
     } = body;
 
-    const parsedFuelEconomy = fuelEconomy ? parseFloat(fuelEconomy) : null; // ✅ Ensure float or null
+    const parsedFuelEconomy = fuelEconomy ? parseFloat(fuelEconomy) : null;
 
-    // ✅ Ensure valid address
     const finalAddress = address?.trim() !== "" ? address : "Unknown";
 
-    // ✅ Ensure regoNumber is uppercase (avoid passing null)
     const formattedRegoNumber = regoNumber
       ? regoNumber.toUpperCase()
       : "UNKNOWN";
 
-    // ✅ Convert regoEndDate string ("YYYY-MM-DD") to a Date object
     const formattedRegoEndDate = regoEndDate ? new Date(regoEndDate) : null;
 
-    // ✅ Ensure required fields exist
     if (
       !title ||
       !description ||
@@ -83,7 +77,6 @@ async function POSTHandler(request: NextRequest) {
       );
     }
 
-    // ✅ Ensure numeric values are properly parsed
     const parsedPrice = isNaN(parseInt(price, 10)) ? 0 : parseInt(price, 10);
     const parsedYear = isNaN(parseInt(year, 10)) ? null : parseInt(year, 10);
     const parsedLatitude = latitude ? parseFloat(latitude) : null;
@@ -92,7 +85,6 @@ async function POSTHandler(request: NextRequest) {
     const parsedCleaningFeeAmount = cleaningFeeAmount ? parseInt(cleaningFeeAmount, 10) : null;
     const parsedReturnCleaningFeeAmount = returnCleaningFeeAmount ? parseInt(returnCleaningFeeAmount, 10) : null;
 
-    // ✅ Ensure amenities is an array
     const formattedAmenities = Array.isArray(amenities) ? amenities : [];
 
     // The first URL is always the main/cover photo; the remaining entries are
@@ -107,18 +99,15 @@ async function POSTHandler(request: NextRequest) {
       );
     }
 
-    // ✅ Ensure regoImage is either a valid URL or null
     const formattedRegoImage = regoImage ? regoImage : null;
 
-    // ✅ Ensure badge is explicitly set to `null` (It can be updated later)
     const finalBadge = badge ?? null;
 
-    // ✅ Create listing with new fields
     const listing = await prisma.listing.create({
       data: {
         title,
         description,
-        badge: finalBadge, // ✅ Ensure badge is explicitly included
+        badge: finalBadge,
         imageSrcs: formattedImageSrcs,
         category,
         guestCount,
@@ -128,8 +117,8 @@ async function POSTHandler(request: NextRequest) {
         modal,
         year: parsedYear,
         fuelType,
-        driveChain, // ✅ Storing drive chain
-        fuelEconomy: parsedFuelEconomy, // ✅ Storing fuel economy
+        driveChain,
+        fuelEconomy: parsedFuelEconomy,
         information,
         price: parsedPrice,
         state,

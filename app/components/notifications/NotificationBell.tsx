@@ -100,12 +100,10 @@ const NotificationBell = () => {
   };
 
   const handleNotificationClick = async (notification: SafeNotification) => {
-    // Mark as read if not already read
     if (!notification.read) {
       await markAsRead(notification.id);
     }
 
-    // Navigate to action URL if provided
     if (notification.actionUrl) {
       router.push(notification.actionUrl);
       setIsOpen(false);

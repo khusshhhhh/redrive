@@ -9,7 +9,7 @@ interface YearSelectProps {
     required?: boolean;
     register: UseFormRegister<FieldValues>;
     setValue: UseFormSetValue<FieldValues>;
-    watch?: UseFormWatch<FieldValues>; // ✅ Make watch optional to prevent undefined error
+    watch?: UseFormWatch<FieldValues>;
     errors: FieldErrors;
 }
 
@@ -26,7 +26,7 @@ const YearSelect: React.FC<YearSelectProps> = ({
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 100 }, (_, i) => currentYear - i); // Last 100 years
 
-    const selectedYear = watch ? watch(id) || "" : ""; // ✅ Ensure watch is available
+    const selectedYear = watch ? watch(id) || "" : "";
 
     return (
         <div className="w-full">

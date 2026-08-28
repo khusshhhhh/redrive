@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 
-// PATCH - Bulk mark notifications as read
 async function PATCHHandler(request: NextRequest) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
@@ -23,7 +22,6 @@ async function PATCHHandler(request: NextRequest) {
     }
 
     if (action === "markAllRead") {
-      // Mark all notifications as read for the user
       await prisma.notification.updateMany({
         where: {
           userId: currentUser.id,
@@ -38,7 +36,6 @@ async function PATCHHandler(request: NextRequest) {
     }
 
     if (action === "markRead") {
-      // Mark specific notifications as read
       await prisma.notification.updateMany({
         where: {
           id: { in: notificationIds },
@@ -63,7 +60,6 @@ async function PATCHHandler(request: NextRequest) {
   }
 }
 
-// DELETE - Bulk delete notifications
 async function DELETEHandler(request: NextRequest) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
@@ -76,7 +72,6 @@ async function DELETEHandler(request: NextRequest) {
     const { notificationIds, action } = body;
 
     if (action === "deleteAll") {
-      // Delete all notifications for the user
       await prisma.notification.deleteMany({
         where: {
           userId: currentUser.id,
@@ -87,7 +82,6 @@ async function DELETEHandler(request: NextRequest) {
     }
 
     if (action === "deleteRead") {
-      // Delete all read notifications for the user
       await prisma.notification.deleteMany({
         where: {
           userId: currentUser.id,
@@ -105,7 +99,6 @@ async function DELETEHandler(request: NextRequest) {
       );
     }
 
-    // Delete specific notifications
     await prisma.notification.deleteMany({
       where: {
         id: { in: notificationIds },

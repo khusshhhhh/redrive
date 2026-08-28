@@ -26,7 +26,6 @@ const DateSelector: React.FC<DateSelectorProps> = ({ value, onChange }) => {
     // Generate year options (Current year to 20 years ahead)
     const years = useMemo(() => Array.from({ length: 21 }, (_, i) => currentYear + i), [currentYear]);
 
-    // Function to get the number of days in a selected month/year
     const getDaysInMonth = (year: number, month: number) => {
         return new Date(year, month, 0).getDate();
     };
@@ -47,10 +46,10 @@ const DateSelector: React.FC<DateSelectorProps> = ({ value, onChange }) => {
         if (day && month && year) {
             const monthIndex = months.indexOf(month) + 1;
             const formattedDate = `${year}-${String(monthIndex).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-            onChange(formattedDate); // ✅ Only call `onChange` when the selected date is valid
+            onChange(formattedDate);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [day, year, month]); // ✅ Removed `onChange` from dependency array
+    }, [day, year, month]);
 
     return (
         <div className="flex gap-2">

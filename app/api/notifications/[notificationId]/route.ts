@@ -7,7 +7,6 @@ interface IParams {
   notificationId: string;
 }
 
-// PATCH - Mark notification as read/unread
 async function PATCHHandler(
   request: NextRequest,
   { params }: { params: Promise<IParams> }
@@ -55,7 +54,6 @@ async function PATCHHandler(
   }
 }
 
-// DELETE - Delete notification
 async function DELETEHandler(
   request: NextRequest,
   { params }: { params: Promise<IParams> }

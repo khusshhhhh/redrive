@@ -41,13 +41,11 @@ filesToUpdate.forEach((filePath) => {
   try {
     let content = fs.readFileSync(filePath, "utf8");
 
-    // Check if already updated
     if (content.includes("getCurrentUserEnhanced")) {
       console.log(`✅ Already updated: ${filePath}`);
       return;
     }
 
-    // Replace import statement
     const oldImport =
       'import getCurrentUser from "@/app/actions/getCurrentUser";';
     const newImport =
@@ -93,7 +91,6 @@ filesToUpdate.forEach((filePath) => {
       }
     });
 
-    // Write updated content
     fs.writeFileSync(filePath, content);
     console.log(`✅ Updated: ${filePath}`);
   } catch (error) {

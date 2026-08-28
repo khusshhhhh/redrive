@@ -37,7 +37,6 @@ export default async function getReservations(params: IParams) {
       },
     });
 
-    // ✅ Convert all Date fields to ISO strings for TypeScript compatibility
     const safeReservations = reservations.map((reservation) => ({
       ...reservation,
       createdAt: reservation.createdAt.toISOString(),

@@ -7,7 +7,7 @@ interface ListingCardButtonProps {
     label: string;
     onClick: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void> | void;
     disabled?: boolean;
-    variant?: "primary" | "danger"; // ✅ Choose between styles
+    variant?: "primary" | "danger";
 }
 
 const ListingCardButton: React.FC<ListingCardButtonProps> = ({ label, onClick, disabled, variant = "primary" }) => {

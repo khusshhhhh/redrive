@@ -37,7 +37,6 @@ export const useNotifications = ({
   const [error, setError] = useState<string | null>(null);
   const hasLoadedRef = useRef(false);
 
-  // Fetch notifications
   const fetchNotifications = useCallback(async (
     unreadOnly = false,
     limit = 20,
@@ -86,7 +85,6 @@ export const useNotifications = ({
     }
   }, []);
 
-  // Mark single notification as read
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
       await axios.patch(`/api/notifications/${notificationId}`, { read: true });
@@ -109,7 +107,6 @@ export const useNotifications = ({
     }
   }, []);
 
-  // Mark all notifications as read
   const markAllAsRead = useCallback(async () => {
     try {
       await axios.patch("/api/notifications/bulk", { 
@@ -131,7 +128,6 @@ export const useNotifications = ({
     }
   }, []);
 
-  // Delete notification
   const deleteNotification = useCallback(async (notificationId: string) => {
     try {
       await axios.delete(`/api/notifications/${notificationId}`);
@@ -153,7 +149,6 @@ export const useNotifications = ({
     }
   }, [notifications]);
 
-  // Delete all read notifications
   const deleteAllRead = useCallback(async () => {
     try {
       await axios.delete("/api/notifications/bulk", {
@@ -174,24 +169,20 @@ export const useNotifications = ({
     }
   }, [notifications]);
 
-  // Load more notifications (for pagination)
   const loadMore = useCallback(() => {
     if (!loading && hasMore) {
       fetchNotifications(false, 20, notifications.length, true);
     }
   }, [loading, hasMore, notifications.length, fetchNotifications]);
 
-  // Get unread notifications only
   const getUnreadNotifications = useCallback(() => {
     return notifications.filter(n => !n.read);
   }, [notifications]);
 
-  // Get notifications by type
   const getNotificationsByType = useCallback((type: string) => {
     return notifications.filter(n => n.type === type);
   }, [notifications]);
 
-  // Request browser notification permission
   const requestNotificationPermission = useCallback(async () => {
     if (!("Notification" in window)) {
       console.log("This browser does not support notifications");
@@ -210,7 +201,6 @@ export const useNotifications = ({
     return permission === "granted";
   }, []);
 
-  // Show browser notification
   const showBrowserNotification = useCallback(async (
     title: string,
     options?: NotificationOptions
@@ -224,7 +214,6 @@ export const useNotifications = ({
         ...options,
       });
 
-      // Auto close after 5 seconds
       setTimeout(() => {
         notification.close();
       }, 5000);
@@ -235,7 +224,6 @@ export const useNotifications = ({
     return null;
   }, [requestNotificationPermission]);
 
-  // Initial load
   useEffect(() => {
     fetchNotifications();
   }, [fetchNotifications]);
@@ -300,7 +288,6 @@ export const useNotifications = ({
     loading,
     error,
     
-    // Actions
     fetchNotifications,
     markAsRead,
     markAllAsRead,
@@ -308,15 +295,12 @@ export const useNotifications = ({
     deleteAllRead,
     loadMore,
     
-    // Getters
     getUnreadNotifications,
     getNotificationsByType,
     
-    // Browser notifications
     requestNotificationPermission,
     showBrowserNotification,
     
-    // Refresh
     refresh: () => fetchNotifications(),
   };
 };

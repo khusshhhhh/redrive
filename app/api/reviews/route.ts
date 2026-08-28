@@ -30,7 +30,6 @@ async function POSTHandler(request: Request) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
-    // Get the current date and subtract one day
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
@@ -51,7 +50,6 @@ async function POSTHandler(request: Request) {
       );
     }
 
-    // Ensure the user hasn't already reviewed
     const existingReview = await prisma.review.findUnique({
       where: { userId_listingId: { userId: currentUser.id, listingId } },
     });
@@ -63,7 +61,6 @@ async function POSTHandler(request: Request) {
       );
     }
 
-    // Get listing details for the notification
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
     });
@@ -72,7 +69,6 @@ async function POSTHandler(request: Request) {
       return NextResponse.json({ error: "Listing not found" }, { status: 404 });
     }
 
-    // Create the review
     const review = await prisma.review.create({
       data: {
         userId: currentUser.id,
@@ -82,7 +78,6 @@ async function POSTHandler(request: Request) {
       },
     });
 
-    // Send review notification to listing owner
     try {
       await notificationService.notifyReviewReceived(
         listing.userId,

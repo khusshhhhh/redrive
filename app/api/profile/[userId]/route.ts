@@ -4,7 +4,7 @@ import prisma from "@/app/libs/prismadb";
 import type { NextRequest } from "next/server";
 
 /**
- * ✅ GET: Fetch a user by ID
+ * GET: Fetch a user by ID
  */
 async function GETHandler(
   request: NextRequest,

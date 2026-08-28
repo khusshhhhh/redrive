@@ -109,7 +109,6 @@ async function POSTHandler(request: NextRequest) {
   }
 }
 
-// GET: Check login endpoint availability
 async function GETHandler() {
   return NextResponse.json({ enabled: process.env.ENABLE_LEGACY_API_AUTH === "true" });
 }

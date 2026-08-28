@@ -29,7 +29,6 @@ interface ListingClientProps {
         amenities?: string[];
         state: string;
         suburb: string;
-        // address: string;
     };
     currentUser?: SafeUser | null;
 }
@@ -68,8 +67,8 @@ const ListingClient: React.FC<ListingClientProps> = ({
     const initialFees = listing.price * 1.08 + (listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0);
     const [totalFees, setTotalFees] = useState(initialFees);
     const [dateRange, setDateRange] = useState<Range>(initialDateRange);
-    const [insuranceType, setInsuranceType] = useState("No Insurance"); // ✅ Default to No Insurance
-    const [insuranceFee, setInsuranceFee] = useState(0); // ✅ Default fee is 0
+    const [insuranceType, setInsuranceType] = useState("No Insurance");
+    const [insuranceFee, setInsuranceFee] = useState(0);
 
     // Disable booking actions if the viewer is the listing owner
     const isOwner = currentUser?.id === listing.userId;
@@ -92,8 +91,8 @@ const ListingClient: React.FC<ListingClientProps> = ({
             endDate: dateRange.endDate,
             totalPrice,
             totalFees,
-            insuranceType, // ✅ Now properly passed
-            insuranceFee, // ✅ Now properly passed
+            insuranceType,
+            insuranceFee,
         })
             .then(() => {
                 toast.success('Listing reserved!');
@@ -111,8 +110,8 @@ const ListingClient: React.FC<ListingClientProps> = ({
     }, [
         totalPrice,
         totalFees,
-        insuranceType, // ✅ Include insuranceType
-        insuranceFee, // ✅ Include insuranceFee
+        insuranceType,
+        insuranceFee,
         dateRange,
         listing?.id,
         router,
@@ -186,7 +185,6 @@ const ListingClient: React.FC<ListingClientProps> = ({
                                 fuelEconomy={listing.fuelEconomy}
                                 driveChain={listing.driveChain}
                                 cancellationPolicy={listing.cancellationPolicy}
-                                // ✅ Replace locationValue with formatted address
                                 address={`${listing.suburb}, ${listing.state}`}
                                 amenities={listing.amenities} state={listing.state} suburb={listing.suburb} />
                         </div>
@@ -203,10 +201,10 @@ const ListingClient: React.FC<ListingClientProps> = ({
                                     onSubmit={onCreateReservation}
                                     disabled={isLoading || isOwner}
                                     disabledDates={disabledDates}
-                                    insuranceType={insuranceType} // ✅ Add insurance state
-                                    setInsuranceType={setInsuranceType} // ✅ Allow user to update it
-                                    insuranceFee={insuranceFee} // ✅ Add insurance fee state
-                                    setInsuranceFee={setInsuranceFee} // ✅ Allow updates
+                                    insuranceType={insuranceType}
+                                    setInsuranceType={setInsuranceType}
+                                    insuranceFee={insuranceFee}
+                                    setInsuranceFee={setInsuranceFee}
                                     currentUser={currentUser}
                                     onRequireLogin={loginModal.onOpen}
                                 />

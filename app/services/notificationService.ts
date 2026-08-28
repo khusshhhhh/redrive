@@ -13,7 +13,6 @@ interface CreateNotificationParams {
 }
 
 class NotificationService {
-  // Create a single notification
   async createNotification(params: CreateNotificationParams) {
     try {
       const notification = await prisma.notification.create({
@@ -35,7 +34,6 @@ class NotificationService {
     }
   }
 
-  // Create multiple notifications
   async createMultipleNotifications(notifications: CreateNotificationParams[]) {
     try {
       const result = await prisma.notification.createMany({
@@ -57,7 +55,6 @@ class NotificationService {
     }
   }
 
-  // Booking-related notifications
   async notifyBookingRequest(
     listingOwnerId: string,
     bookerName: string,
@@ -153,7 +150,6 @@ class NotificationService {
     });
   }
 
-  // Review-related notifications
   async notifyReviewReceived(
     listingOwnerId: string,
     reviewerName: string,
@@ -187,7 +183,6 @@ class NotificationService {
     });
   }
 
-  // Message-related notifications
   async notifyMessageReceived(
     userId: string,
     senderName: string,
@@ -204,7 +199,6 @@ class NotificationService {
     });
   }
 
-  // Listing-related notifications
   async notifyListingFavorited(
     listingOwnerId: string,
     userName: string,
@@ -236,7 +230,6 @@ class NotificationService {
     });
   }
 
-  // Profile-related notifications
   async notifyProfileVerified(
     userId: string,
     verificationStatus: string
@@ -255,7 +248,6 @@ class NotificationService {
     });
   }
 
-  // Payment-related notifications
   async notifyPaymentReceived(
     userId: string,
     amount: number,
@@ -288,7 +280,6 @@ class NotificationService {
     });
   }
 
-  // System notifications
   async notifySystemUpdate(
     userId: string,
     title: string,
@@ -319,7 +310,6 @@ class NotificationService {
     });
   }
 
-  // Clean up expired notifications
   async cleanupExpiredNotifications() {
     try {
       const result = await prisma.notification.deleteMany({

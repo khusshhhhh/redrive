@@ -8,7 +8,7 @@ import ListingCard from "../components/listings/ListingCard";
 import axios from "axios";
 import toast from "@/app/libs/toast";
 import { useState } from "react";
-import DeleteModal from "../components/modals/DeleteModal"; // ✅ Import DeleteModal
+import DeleteModal from "../components/modals/DeleteModal";
 
 interface MyUtilitiesClientProps {
     listings: SafeListing[];
@@ -25,7 +25,7 @@ const MyUtilitiesClient: React.FC<MyUtilitiesClientProps> = ({
 
     const handleDeleteClick = (id: string) => {
         setDeletingId(id);
-        setIsModalOpen(true); // ✅ Open modal when delete is clicked
+        setIsModalOpen(true);
     };
 
     const onDelete = () => {
@@ -42,11 +42,10 @@ const MyUtilitiesClient: React.FC<MyUtilitiesClientProps> = ({
             })
             .finally(() => {
                 setDeletingId(null);
-                setIsModalOpen(false); // ✅ Close modal after deletion
+                setIsModalOpen(false);
             });
     };
 
-    // ✅ Reset deletingId when closing the modal
     const handleCloseModal = () => {
         setDeletingId(null); // Re-enable delete button
         setIsModalOpen(false);
@@ -65,15 +64,14 @@ const MyUtilitiesClient: React.FC<MyUtilitiesClientProps> = ({
                         showEditButton={true}
                         actionLabel="Delete Utility"
                         onAction={() => handleDeleteClick(listing.id)}
-                        disabled={deletingId === listing.id} // ✅ Re-enabled after "Go Back"
+                        disabled={deletingId === listing.id}
                     />
                 ))}
             </div>
 
-            {/* ✅ Delete Modal */}
             <DeleteModal
                 isOpen={isModalOpen}
-                onClose={handleCloseModal} // ✅ Now resets deletingId
+                onClose={handleCloseModal}
                 onDelete={onDelete}
             />
           </div>

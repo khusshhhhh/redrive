@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation"; // ✅ Now used in Client Component
+import { usePathname } from "next/navigation";
 import Container from "../Container";
 import Categories from "./Categories";
 import Logo from "./Logo";
@@ -13,7 +13,7 @@ const HEADER_COLLAPSE_SCROLL_Y = 48;
 const HEADER_EXPAND_SCROLL_Y = 8;
 
 const Navbar: React.FC = () => {
-  const pathname = usePathname(); // ✅ Now inside Client Component
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
   const headerRef = useRef<HTMLElement>(null);
@@ -62,7 +62,6 @@ const Navbar: React.FC = () => {
     return () => observer.disconnect();
   }, [pathname]);
 
-  // ✅ Hide search bar on listing pages
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const showSearchBar = !pathname.startsWith("/confirm-reservation");
 

@@ -127,7 +127,6 @@ const EditUtilityPage = () => {
                 setValue("returnCleaningFeeAmount", data.returnCleaningFeeAmount || '');
                 setValue("cancellationPolicy", data.cancellationPolicy || 'MODERATE');
 
-                // Load images and registration details
                 setListingImages(data.imageSrcs || []);
                 setRegoNumber(data.regoNumber || "");
                 setRegoEndDate(
@@ -161,7 +160,6 @@ const EditUtilityPage = () => {
         }
     };
 
-    // Toggle an amenity
     const toggleAmenity = (id: string) => {
         setSelectedAmenities((prev) =>
             prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]
@@ -184,7 +182,6 @@ const EditUtilityPage = () => {
                 regoNumber,
                 regoEndDate,
                 regoImage,
-                // ✅ submit cleaning fee values from the form data
                 cleaningFeeOption,
                 cleaningFeeAmount: cleaningFeeAmount || null,
                 returnCleaningFeeAmount: returnCleaningFeeAmount || null,

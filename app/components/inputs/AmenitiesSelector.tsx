@@ -3,9 +3,8 @@
 import { useEffect } from "react";
 import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 import useAmenities, { AMENITIES_LIST } from "@/app/hooks/useAmenities";
-import { IconQuestionMark } from "@tabler/icons-react"; // ✅ Default fallback icon
+import { IconQuestionMark } from "@tabler/icons-react";
 
-// ✅ Global icon properties for consistency
 const ICON_PROPS = {
     size: 24, // Set icon size
     stroke: 2, // Set stroke width
@@ -35,7 +34,7 @@ const AmenitiesSelector: React.FC<AmenitiesSelectorProps> = ({
             <label className="text-body-md font-semibold text-ink">Select Amenities</label>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mt-4">
                 {AMENITIES_LIST.map((amenity) => {
-                    const IconComponent = amenity.icon || IconQuestionMark; // ✅ Use Tabler Icon or fallback
+                    const IconComponent = amenity.icon || IconQuestionMark;
                     return (
                         <button
                             key={amenity.id}
@@ -47,7 +46,7 @@ const AmenitiesSelector: React.FC<AmenitiesSelectorProps> = ({
                                     : "border-hairline text-ink hover:border-ink"
                                 }`}
                         >
-                            <IconComponent {...ICON_PROPS} /> {/* ✅ Icon will change color on hover */}
+                            <IconComponent {...ICON_PROPS} />
                             <span>{amenity.name}</span>
                         </button>
                     );
