@@ -7,6 +7,8 @@ import { buildSeoMetadata } from "./libs/seo";
 import LandingHero from "./components/landing/LandingHero";
 import FeatureShowcase from "./components/landing/FeatureShowcase";
 import Reveal from "./components/landing/Reveal";
+import SmoothScroll from "./components/landing/SmoothScroll";
+import SplitText from "./components/landing/SplitText";
 import { CategoryMarquee, HostCtaBand, HowItWorks, TrustBar } from "./components/landing/sections";
 
 export const revalidate = 1800;
@@ -51,6 +53,7 @@ export default async function Home() {
 
   return (
     <div className="overflow-x-clip">
+      <SmoothScroll />
       <LandingHero listings={showcase} />
       <TrustBar />
       <FeatureShowcase listings={showcase} />
@@ -61,7 +64,10 @@ export default async function Home() {
         <Reveal className="rounded-2xl border border-hairline-soft bg-surface-soft/50 p-8 sm:p-10">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-display-2xl font-extrabold tracking-tight text-ink">Ready when you are.</h2>
+              <h2 className="text-display-2xl font-extrabold tracking-tight text-ink">
+                <SplitText text="Ready when you are" />
+                <span className="text-yellow-500">.</span>
+              </h2>
               <p className="mt-2 max-w-md text-sm leading-6 text-muted">
                 Browse what&rsquo;s available near you now, or jump straight into listing your own vehicle.
               </p>
@@ -69,13 +75,17 @@ export default async function Home() {
             <div className="flex shrink-0 flex-wrap gap-3">
               <Link
                 href="/explore"
-                className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-white transition hover:bg-primary-active"
+                className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-white transition-[background-color,transform] duration-300 hover:-translate-y-0.5 hover:bg-primary-active"
               >
-                Explore vehicles <ArrowRight size={16} />
+                Explore vehicles
+                <ArrowRight
+                  size={16}
+                  className="transition-[transform,color] duration-300 group-hover:translate-x-1.5 group-hover:text-yellow-500"
+                />
               </Link>
               <Link
                 href="/host"
-                className="inline-flex h-12 items-center rounded-full border border-border-strong bg-white px-6 text-sm font-semibold text-ink transition hover:border-ink"
+                className="inline-flex h-12 items-center rounded-full border border-border-strong bg-white px-6 text-sm font-semibold text-ink transition-[border-color,transform] duration-300 hover:-translate-y-0.5 hover:border-ink"
               >
                 List your vehicle
               </Link>

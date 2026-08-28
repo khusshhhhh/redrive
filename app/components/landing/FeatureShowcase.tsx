@@ -5,6 +5,8 @@ import { ArrowRight } from "lucide-react";
 
 import type { ListingCardData } from "@/app/libs/listingCardData";
 import Reveal from "./Reveal";
+import Tilt from "./Tilt";
+import SplitText from "./SplitText";
 import { BrowserFrame, PhoneFrame } from "./DeviceFrame";
 import { BookingMock, BrowseGridMock, ChatMock, HostStepMock, VerifiedList } from "./mockups";
 
@@ -87,8 +89,13 @@ export default function FeatureShowcase({ listings }: { listings: ListingCardDat
               className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16"
             >
               <Reveal from={flip ? "right" : "left"} className={flip ? "lg:order-2" : ""}>
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">{row.eyebrow}</p>
-                <h2 className="mt-3 text-display-3xl font-extrabold tracking-tight text-ink">{row.title}</h2>
+                <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-yellow-500" />
+                  {row.eyebrow}
+                </p>
+                <h2 className="mt-3 text-display-3xl font-extrabold tracking-tight text-ink">
+                  <SplitText text={row.title} />
+                </h2>
                 <p className="mt-4 max-w-lg text-[15px] leading-7 text-muted">{row.body}</p>
                 {row.extra && <div className="mt-6">{row.extra}</div>}
                 {row.cta && (
@@ -96,20 +103,18 @@ export default function FeatureShowcase({ listings }: { listings: ListingCardDat
                     href={row.cta.href}
                     className="group mt-7 inline-flex items-center gap-2 text-sm font-semibold text-ink"
                   >
-                    {row.cta.label}
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border-strong transition group-hover:translate-x-0.5 group-hover:border-ink">
+                    <span className="hover-underline">{row.cta.label}</span>
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border-strong text-ink transition-[transform,color,border-color] duration-300 group-hover:translate-x-1 group-hover:border-yellow-500 group-hover:text-yellow-500">
                       <ArrowRight size={15} />
                     </span>
                   </Link>
                 )}
               </Reveal>
 
-              <Reveal
-                from="zoom"
-                delay={80}
-                className={`${flip ? "lg:order-1" : ""} [perspective:1400px]`}
-              >
-                {row.visual}
+              <Reveal from="zoom" delay={80} className={flip ? "lg:order-1" : ""}>
+                <Tilt max={7} glare={false}>
+                  {row.visual}
+                </Tilt>
               </Reveal>
             </div>
           );

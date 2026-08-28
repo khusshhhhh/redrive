@@ -11,7 +11,7 @@ const Logo = () => {
         aria-hidden="true"
         className="logo-wordmark text-2xl font-bold tracking-[-0.045em] sm:text-2xl md:text-[23px]"
       >
-        redrive<span className="text-yellow-500">.</span>
+        redrive<span className="text-yellow-500 text-4xl">.</span>
       </span>
       <span className="sr-only">Redrive</span>
     </Link>

@@ -21,11 +21,19 @@ const FROM_CLASS: Record<NonNullable<RevealProps["from"]>, string> = {
   zoom: "reveal-zoom",
 };
 
+const supportsScrollTimeline = () =>
+  typeof CSS !== "undefined" &&
+  typeof CSS.supports === "function" &&
+  CSS.supports("animation-timeline: view()");
+
 /**
- * Wraps content in the `.reveal` scroll animation. Uses a single
- * IntersectionObserver per instance and unobserves once settled (unless
- * `once` is false). SSR renders the pre-animation state, so there is no flash
- * of fully-visible content before hydration.
+ * Wraps content in the `.reveal` scroll animation.
+ *
+ * Where the browser supports scroll-driven animations, the CSS `@supports`
+ * block in globals.css scrubs the reveal with scroll position and this
+ * component stays out of the way. Otherwise it falls back to a single
+ * IntersectionObserver that toggles `.is-revealed`, with a timed backstop so
+ * content is never left stuck hidden.
  */
 export default function Reveal({
   children,
@@ -42,6 +50,9 @@ export default function Reveal({
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
+
+    // CSS scroll-driven animation owns the reveal — nothing to do here.
+    if (supportsScrollTimeline()) return;
 
     if (typeof IntersectionObserver === "undefined") {
       setRevealed(true);
