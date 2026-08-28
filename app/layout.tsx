@@ -129,7 +129,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${manrope.variable} bg-white text-ink`}>
+      <body className={`${manrope.variable} bg-white text-ink`} suppressHydrationWarning>
         <CurrentUserProvider>
           <IdleSessionGuard idleTimeoutMs={sessionIdleTimeoutMs()} />
           <DataPreloader />
