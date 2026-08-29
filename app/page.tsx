@@ -8,7 +8,7 @@ import BecomeHostLink from "./components/BecomeHostLink";
 import LandingHero from "./components/landing/LandingHero";
 import FeatureShowcase from "./components/landing/FeatureShowcase";
 import Reveal from "./components/landing/Reveal";
-import { CategoryMarquee, HostCtaBand, HowItWorks, TrustBar } from "./components/landing/sections";
+import { CategoryMarquee, HomeFaq, HostCtaBand, HowItWorks, TrustBar, WhyRedrive } from "./components/landing/sections";
 
 export const revalidate = 1800;
 
@@ -57,6 +57,8 @@ export default async function Home() {
       <FeatureShowcase listings={showcase} />
       <CategoryMarquee />
       <HowItWorks />
+      <WhyRedrive />
+      <HomeFaq />
 
       <section className="mx-auto max-w-6xl px-5 pb-4 sm:px-8">
         <Reveal className="rounded-2xl border border-hairline-soft bg-surface-soft/50 p-8 sm:p-10">
