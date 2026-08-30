@@ -64,6 +64,22 @@ const Explore = async ({ searchParams }: ExploreProps) => {
 
           {currentUser && <SavedSearchManager currentFilters={params} hasFilters={hasFilters} />}
 
+          {/* Personalised sections, shown above the full catalogue */}
+          {!hasFilters && (
+            <>
+              {currentUser ? (
+                <ContinueWhereYouLeftOff currentUser={currentUser} />
+              ) : (
+                <RecentlyViewed currentUser={currentUser} />
+              )}
+              <RealRecommendations currentUser={currentUser} />
+              <FavoriteListings
+                listings={favoriteListings}
+                currentUser={currentUser}
+              />
+            </>
+          )}
+
           {/* Main Content */}
           {listings.length === 0 ? (
             <EmptyState showReset />
@@ -113,23 +129,6 @@ const Explore = async ({ searchParams }: ExploreProps) => {
                 </div>
               )}
             </div>
-          )}
-
-          {/* Loaded below the stable results grid so browser-only history cannot
-              push the primary content down and create layout shift. */}
-          {!hasFilters && (
-            <>
-              <FavoriteListings
-                listings={favoriteListings}
-                currentUser={currentUser}
-              />
-              {currentUser ? (
-                <ContinueWhereYouLeftOff currentUser={currentUser} />
-              ) : (
-                <RecentlyViewed currentUser={currentUser} />
-              )}
-              <RealRecommendations currentUser={currentUser} />
-            </>
           )}
         </div>
       </Container>

@@ -1,7 +1,7 @@
 import { verifyEmailRequestSchema } from "@redrive/contracts/mobile";
 
 import { monitorApiRoute } from "@/app/libs/apiMonitoring";
-import { isVerificationCodeValid } from "@/app/libs/emailVerification";
+import { isVerificationCodeValid, sendWelcomeEmail } from "@/app/libs/emailVerification";
 import { mobileError, mobileJson, parseMobileJson } from "@/app/libs/mobile-api/responses";
 import prisma from "@/app/libs/prismadb";
 import { consumeRateLimits, getClientIp, writeAuditEvent } from "@/app/libs/security";
@@ -30,6 +30,17 @@ async function POSTHandler(request: Request) {
     data: { emailVerified: new Date(), verificationCodeHash: null, verificationCodeExpires: null, verificationCodeSentAt: null, verificationAttempts: 0, verificationRequired: false },
   });
   await writeAuditEvent({ request, actorUserId: user.id, action: "EMAIL_VERIFIED", targetType: "User", targetId: user.id });
+
+  // Best-effort onboarding email, sent only the first time an address is
+  // confirmed — never block verification on delivery.
+  if (!user.emailVerified) {
+    try {
+      await sendWelcomeEmail(user.email, user.name);
+    } catch (error) {
+      console.error("Welcome email failed to send", error);
+    }
+  }
+
   return mobileJson(request, { verified: true });
 }
 

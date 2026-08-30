@@ -1,0 +1,18 @@
+<svg width="480" height="360" viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A camper van on an open road">
+  <path d="M36 300h408" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+  <path d="M44 324c70 0 90-26 150-26s78 26 140 26 60-18 102-18" stroke="#E7E7E7" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 13"/>
+  <circle cx="388" cy="84" r="24" stroke="#EAB308" stroke-width="3"/>
+  <path d="M388 44v-10M388 144v-10M340 84h-10M446 84h-10M352 48l-7-7M431 127l-7-7M424 48l7-7M345 127l7-7" stroke="#EAB308" stroke-width="3" stroke-linecap="round"/>
+  <path d="M96 262V150a10 10 0 0 1 10-10h96a10 10 0 0 1 9 6l26 62h44a16 16 0 0 1 16 16v38" stroke="#3B3B3B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M96 262H84a6 6 0 0 1-6-6v-14a6 6 0 0 1 6-6h12" stroke="#3B3B3B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M96 262h44M196 262h56M304 262h20" stroke="#3B3B3B" stroke-width="3" stroke-linecap="round"/>
+  <path d="M124 148v92" stroke="#3B3B3B" stroke-width="3"/>
+  <path d="M150 156v58h74l-20-58h-54Z" stroke="#B5B5B5" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M176 156v58M150 186h58" stroke="#B5B5B5" stroke-width="3"/>
+  <rect x="94" y="170" width="24" height="22" rx="4" stroke="#B5B5B5" stroke-width="3"/>
+  <circle cx="168" cy="262" r="22" fill="#fff" stroke="#3B3B3B" stroke-width="3"/>
+  <circle cx="168" cy="262" r="6" fill="#EAB308"/>
+  <circle cx="280" cy="262" r="22" fill="#fff" stroke="#3B3B3B" stroke-width="3"/>
+  <circle cx="280" cy="262" r="6" fill="#EAB308"/>
+  <path d="M330 150c8 0 8-10 16-10M330 168c12 0 12-14 24-14" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+</svg>

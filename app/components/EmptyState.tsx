@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Heading from "./Heading";
+import Illustration, { IllustrationName } from "./Illustration";
 import { IconCalendarEvent, IconCategory, IconMapPin, IconRefresh } from "@tabler/icons-react";
 
 interface EmptyState {
@@ -10,6 +11,7 @@ interface EmptyState {
     showReset?: boolean;
     actionLabel?: string;
     actionHref?: string;
+    illustration?: IllustrationName;
 }
 
 const EmptyState: React.FC<EmptyState> = ({
@@ -18,6 +20,7 @@ const EmptyState: React.FC<EmptyState> = ({
     showReset,
     actionLabel,
     actionHref,
+    illustration = "empty-search",
 }) => {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -42,6 +45,7 @@ const EmptyState: React.FC<EmptyState> = ({
         <div
             className="flex min-h-[55vh] flex-col items-center justify-center py-12"
         >
+            <Illustration name={illustration} width={260} className="mb-6 h-auto w-[220px] sm:w-[260px]" priority />
             <Heading center title={title} subtitle={subtitle} />
             {recoveries.length > 0 && <div className="mt-7 grid w-full max-w-3xl gap-3 sm:grid-cols-3">{recoveries.map((recovery) => <button key={recovery.label} type="button" onClick={() => applyRecovery(recovery.remove)} className="min-h-24 rounded-md border border-hairline bg-white p-4 text-left outline-none transition hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"><recovery.icon size={20} className="text-primary" /><span className="mt-3 block text-sm font-semibold text-ink">{recovery.label}</span><span className="mt-1 block text-xs leading-5 text-muted">{recovery.detail}</span></button>)}</div>}
             {showReset && <button type="button" onClick={() => router.push('/explore')} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-ink px-5 text-sm font-semibold text-ink transition hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"><IconRefresh size={17} /> Remove all filters</button>}

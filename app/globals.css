@@ -525,21 +525,10 @@ textarea::placeholder {
   .star-fill { transition: none; }
 }
 
-/* A deep gradient wash behind the hero headline. Darker than the page ground,
-   with a slow drift so it feels alive without pulling focus. */
+/* Plain white ground behind the hero headline. No gradient wash. */
 .aurora {
-  background-color: #E6E6E6;
-  background-image:
-    radial-gradient(44rem 44rem at 10% -12%, rgba(31, 31, 31, 0.30), transparent 60%),
-    radial-gradient(40rem 40rem at 110% 6%, rgba(46, 46, 46, 0.26), transparent 55%),
-    radial-gradient(34rem 34rem at 52% 124%, rgba(99, 99, 99, 0.34), transparent 62%);
-  background-size: 160% 160%, 170% 170%, 150% 150%;
-  background-position: 0% 50%, 100% 50%, 50% 100%;
-  animation: auroraDrift 24s ease-in-out infinite;
-}
-@keyframes auroraDrift {
-  0%, 100% { background-position: 0% 50%, 100% 50%, 50% 100%; }
-  50% { background-position: 30% 60%, 70% 40%, 50% 80%; }
+  background-color: #FFFFFF;
+  background-image: none;
 }
 
 /* Scroll-triggered reveal used across the marketing surfaces. Elements start
@@ -560,7 +549,6 @@ textarea::placeholder {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .aurora { animation: none; }
   .reveal-on-scroll {
     opacity: 1;
     transform: none;
@@ -650,7 +638,7 @@ a:hover .hover-underline,
   position: absolute;
   inset: 0;
   border: 1px solid rgba(59, 59, 59, 0.12);
-  background: linear-gradient(140deg, rgba(234, 179, 8, 0.07), rgba(59, 59, 59, 0.03));
+  background: rgba(59, 59, 59, 0.03);
 }
 
 @media (prefers-reduced-motion: reduce) {

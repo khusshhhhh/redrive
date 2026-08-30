@@ -1,0 +1,8 @@
+<svg width="480" height="360" viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An empty saved-vehicles shortlist">
+  <ellipse cx="240" cy="314" rx="140" ry="15" fill="#F0F0F0"/>
+  <rect x="120" y="118" width="240" height="150" rx="16" fill="#fff" stroke="#3B3B3B" stroke-width="3"/>
+  <path d="M120 168h240" stroke="#E7E7E7" stroke-width="3" stroke-dasharray="2 12"/>
+  <path d="M152 150h60M152 200h130M152 226h96" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+  <path d="M300 96c-14 0-26 10-26 26 0 28 34 44 46 52 12-8 46-24 46-52 0-16-12-26-26-26-9 0-17 5-20 12-3-7-11-12-20-12Z" fill="#fff" stroke="#EAB308" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M84 132h20M78 156h26M92 180h12" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+</svg>

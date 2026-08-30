@@ -1,7 +1,7 @@
 import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
-import { isVerificationCodeValid } from "@/app/libs/emailVerification";
+import { isVerificationCodeValid, sendWelcomeEmail } from "@/app/libs/emailVerification";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 
 async function POSTHandler(request: Request) {
@@ -55,6 +55,16 @@ async function POSTHandler(request: Request) {
   });
 
   await writeAuditEvent({ request, actorUserId: user.id, action: "EMAIL_VERIFIED", targetType: "User", targetId: user.id });
+
+  // Best-effort onboarding email, sent only the first time an address is
+  // confirmed — never block verification on delivery.
+  if (!user.emailVerified) {
+    try {
+      await sendWelcomeEmail(email, user.name);
+    } catch (error) {
+      console.error("Welcome email failed to send", error);
+    }
+  }
 
   return NextResponse.json({ verified: true });
 }

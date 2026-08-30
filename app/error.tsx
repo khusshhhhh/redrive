@@ -15,8 +15,11 @@ const ErrorState: React.FC<ErrorStateProps> = ({ error }) => {
 
     return (
         <EmptyState
-            title="Uh Oh"
-            subtitle="Something went wrong!"
+            title="Something went wrong"
+            subtitle="That request hit a bump. Try again, or head back to explore."
+            illustration="lost"
+            actionLabel="Back to explore"
+            actionHref="/explore"
         />
     );
 };

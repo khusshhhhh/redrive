@@ -3,16 +3,15 @@
 import {
   IconArrowRight,
   IconArrowsExchange,
-  IconHeart,
   IconHeartFilled,
   IconSearch,
-  IconSparkles,
   IconX,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import Container from "../components/Container";
+import Illustration from "../components/Illustration";
 import ListingCard from "../components/listings/ListingCard";
 import useLoginModal from "../hooks/useLoginModal";
 import type { ListingCardData } from "../libs/listingCardData";
@@ -98,10 +97,8 @@ export default function FavoritesClient({ listings, currentUser }: FavoritesClie
 
         {!currentUser ? (
           <section className="mx-auto flex min-h-[380px] max-w-xl flex-col items-center justify-center py-14 text-center" aria-labelledby="signed-out-favourites">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-favorite-soft text-favorite">
-              <IconHeart size={30} stroke={1.8} aria-hidden="true" />
-            </div>
-            <h2 id="signed-out-favourites" className="mt-6 text-display-lg font-semibold text-ink">Sign in to see your favourites</h2>
+            <Illustration name="signed-out" width={220} className="mb-6 h-auto w-[180px] sm:w-[220px]" />
+            <h2 id="signed-out-favourites" className="mt-2 text-display-lg font-semibold text-ink">Sign in to see your favourites</h2>
             <p className="mt-3 max-w-md text-body-sm leading-6 text-muted">Your saved vehicles are kept with your Redrive account so they are available across your devices.</p>
             <button type="button" onClick={() => loginModal.onOpen()} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-button-sm font-semibold text-white transition hover:bg-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
               Sign in <IconArrowRight size={17} aria-hidden="true" />
@@ -109,11 +106,8 @@ export default function FavoritesClient({ listings, currentUser }: FavoritesClie
           </section>
         ) : listings.length === 0 ? (
           <section className="mx-auto flex min-h-[420px] max-w-2xl flex-col items-center justify-center py-14 text-center" aria-labelledby="empty-favourites">
-            <div className="relative flex h-20 w-20 items-center justify-center rounded-full border border-hairline bg-white text-primary shadow-sm">
-              <IconHeart size={34} stroke={1.7} aria-hidden="true" />
-              <IconSparkles size={18} className="absolute -right-1 top-1 text-accent" aria-hidden="true" />
-            </div>
-            <h2 id="empty-favourites" className="mt-6 text-display-lg font-semibold text-ink">Start your vehicle shortlist</h2>
+            <Illustration name="saved-empty" width={260} className="mb-6 h-auto w-[220px] sm:w-[260px]" />
+            <h2 id="empty-favourites" className="mt-2 text-display-lg font-semibold text-ink">Start your vehicle shortlist</h2>
             <p className="mt-3 max-w-lg text-body-sm leading-6 text-muted sm:text-body-md">Tap the heart on any listing and it will appear here, ready for your next trip plan.</p>
             <Link href="/explore" className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-button-sm font-semibold text-white transition hover:bg-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
               Explore vehicles <IconArrowRight size={17} aria-hidden="true" />

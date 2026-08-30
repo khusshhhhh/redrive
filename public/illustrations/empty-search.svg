@@ -1,0 +1,11 @@
+<svg width="480" height="360" viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A magnifying glass over a map">
+  <ellipse cx="240" cy="316" rx="150" ry="15" fill="#F0F0F0"/>
+  <rect x="96" y="80" width="220" height="180" rx="14" fill="#fff" stroke="#3B3B3B" stroke-width="3"/>
+  <path d="M96 140h220M96 200h220M156 80v180M236 80v180" stroke="#E7E7E7" stroke-width="3"/>
+  <path d="M150 118c0 16-24 34-24 34s-24-18-24-34a24 24 0 0 1 48 0Z" stroke="#B5B5B5" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="126" cy="114" r="7" fill="#B5B5B5"/>
+  <circle cx="252" cy="196" r="52" fill="#fff" stroke="#3B3B3B" stroke-width="3"/>
+  <path d="M289 233l46 46" stroke="#3B3B3B" stroke-width="3" stroke-linecap="round"/>
+  <path d="M330 274l24 24a10 10 0 0 1-14 14l-24-24" fill="#fff" stroke="#3B3B3B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M232 196h40M252 176v40" stroke="#EAB308" stroke-width="3" stroke-linecap="round"/>
+</svg>

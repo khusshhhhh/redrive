@@ -19,7 +19,7 @@ export default function Footer() {
 
   return (
     <footer className="mb-20 mt-16 overflow-hidden bg-graphite text-white md:mb-0">
-      <div className="border-b border-white/10 bg-gradient-to-r from-primary/20 via-transparent to-accent/10">
+      <div className="border-b border-white/10">
         <div className="mx-auto flex max-w-[1280px] flex-col gap-6 px-5 py-9 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-10">
           <div>
             <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-accent"><Sparkles size={14} />Ready for the road</p>
