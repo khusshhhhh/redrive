@@ -202,7 +202,10 @@ Copy [`.env.example`](.env.example) and supply real values locally and in the de
 | `LICENSE_DATA_ENCRYPTION_KEY`, `LICENSE_DATA_HMAC_KEY` | Licence checks | Encrypts document numbers and creates keyed duplicate-check hashes |
 | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Uploads | Cloudinary cloud identifier |
 | `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Uploads | Server-only signed-upload credentials |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | For bookings | Server-side Stripe API calls and webhook signature verification |
 | `CRON_SECRET` | Production jobs | Protects scheduled notification and security tasks |
+| `API_MONITOR_SUCCESS_SAMPLE_RATE`, `API_MONITOR_CLIENT_ERROR_SAMPLE_RATE` | No | Optional production telemetry sampling overrides |
+| `MOBILE_APPLE_TEAM_ID`, `MOBILE_IOS_BUNDLE_ID`, `MOBILE_ANDROID_PACKAGE`, `MOBILE_ANDROID_SHA256_CERT_FINGERPRINTS` | Signed mobile builds | Identifiers for iOS/Android deep-link association files |
 | `RESTORE_TEST_DATABASE_URL` | Restore drills only | Explicit disposable restore target |
 | `ENABLE_LEGACY_API_AUTH` | No | Compatibility endpoint; keep `false` unless documented |
 | `EXPO_PUBLIC_*` mobile values | Mobile builds | Public EAS-scoped API, Stripe, monitoring, and map configuration |

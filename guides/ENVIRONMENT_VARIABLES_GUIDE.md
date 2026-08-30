@@ -12,11 +12,15 @@ Create `.env.local` in the project root. You may use `.env` instead, but `.env.l
 
 ```dotenv
 DATABASE_URL="mongodb+srv://redrive_app:URL_ENCODED_PASSWORD@cluster0.example.mongodb.net/redrive?retryWrites=true&w=majority"
+RESTORE_TEST_DATABASE_URL=""
 
 NEXTAUTH_SECRET="a-long-random-secret-generated-for-this-project"
 NEXTAUTH_URL="http://localhost:3000"
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 RATE_LIMIT_SECRET="an-independent-hmac-secret"
 SESSION_IDLE_TIMEOUT_MINUTES="60"
+ENABLE_LEGACY_API_AUTH="false"
+ADMIN_EMAILS="you@example.com"
 GOOGLE_CLIENT_ID="123456789-example.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="GOCSPX-example"
 
@@ -26,16 +30,28 @@ SMTP_SECURE="false"
 SMTP_USER="your-sender@gmail.com"
 SMTP_PASS="your-16-character-google-app-password"
 EMAIL_FROM="Redrive <your-sender@gmail.com>"
+PRIVACY_CONTACT_EMAIL="privacy@redrive.com.au"
+SUPPORT_CONTACT_EMAIL="support@redrive.com.au"
 
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="AIza-example-browser-key"
 NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=""
 GOOGLE_PLACES_API_KEY="AIza-example-server-key"
 
+GOOGLE_CLOUD_VISION_API_KEY="AIza-example-vision-key"
+LICENSE_DATA_ENCRYPTION_KEY="base64-encoded-32-byte-key"
+LICENSE_DATA_HMAC_KEY="an-independent-random-secret"
+
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your-cloud-name"
 CLOUDINARY_API_KEY="your-cloudinary-api-key"
 CLOUDINARY_API_SECRET="your-cloudinary-api-secret"
 
+STRIPE_SECRET_KEY="sk_test_example"
+STRIPE_WEBHOOK_SECRET="whsec_example"
+
 CRON_SECRET="another-long-random-secret"
+
+API_MONITOR_SUCCESS_SAMPLE_RATE="0.25"
+API_MONITOR_CLIENT_ERROR_SAMPLE_RATE="0.5"
 
 MOBILE_TOKEN_ISSUER="http://localhost:3000"
 MOBILE_TOKEN_AUDIENCE="redrive-mobile-api"
@@ -70,11 +86,14 @@ Never put `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`,
 | Variable | Required? | Secret? | Used where |
 |---|---:|---:|---|
 | `DATABASE_URL` | Yes | Yes | Prisma/MongoDB server connection |
+| `RESTORE_TEST_DATABASE_URL` | Restore drills only | Yes | Disposable target for `scripts/restore-drill-mongodb.ps1` |
 | `NEXTAUTH_SECRET` | Yes | Yes | NextAuth web sessions and disabled legacy API compatibility |
 | `NEXTAUTH_URL` | Yes in production | No | Authentication callback base URL |
 | `NEXT_PUBLIC_SITE_URL` | Yes in production | No | Canonical public web origin |
 | `RATE_LIMIT_SECRET` | Yes | Yes | HMAC key for privacy-safe rate-limit identifiers |
 | `SESSION_IDLE_TIMEOUT_MINUTES` | Recommended | No | Revokes web and native sessions after inactivity; defaults to 60 minutes |
+| `ENABLE_LEGACY_API_AUTH` | No (keep `false`) | No | Temporary switch for the deprecated `/api/auth/login` compatibility endpoint |
+| `ADMIN_EMAILS` | Recommended | Sensitive | Comma-separated allow-list for `/admin` in addition to the `ADMIN` role |
 | `MOBILE_TOKEN_ISSUER` | Before mobile API rollout | No | Expected mobile access-token issuer |
 | `MOBILE_TOKEN_AUDIENCE` | Before mobile API rollout | No | Expected mobile API audience |
 | `MOBILE_ACCESS_TOKEN_KEY_ID` | Before mobile API rollout | No | Active signing-key identifier written into access-token headers |
@@ -83,6 +102,10 @@ Never put `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`,
 | `MOBILE_REFRESH_TOKEN_PEPPER` | Before mobile API rollout | Yes | Independent keyed hash input for opaque refresh tokens |
 | `MOBILE_ALLOW_AUTH_PREVIEWS` | Local/test only | No | Explicitly permits local verification-code previews; ignored in production |
 | `EXPO_ACCESS_TOKEN` | When authenticated Expo push is enabled | Yes | Server-to-Expo push authentication |
+| `MOBILE_APPLE_TEAM_ID` | Signed mobile builds | No | 10-character Apple Team ID used in the iOS app-site-association file |
+| `MOBILE_IOS_BUNDLE_ID` | Signed mobile builds | No | Approved iOS bundle identifier (`au.com.redrive.app[.suffix]`) |
+| `MOBILE_ANDROID_PACKAGE` | Signed mobile builds | No | Approved Android application ID (`au.com.redrive.app[.suffix]`) |
+| `MOBILE_ANDROID_SHA256_CERT_FINGERPRINTS` | Signed mobile builds | No | Comma-separated signing-certificate SHA-256 fingerprints for Android App Links |
 | `GOOGLE_CLIENT_ID` | For Google sign-in | Usually no | Google OAuth identification |
 | `GOOGLE_CLIENT_SECRET` | For Google sign-in | Yes | Google OAuth server exchange |
 | `SMTP_HOST` | For production email verification | No | SMTP server hostname |
@@ -91,13 +114,22 @@ Never put `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`,
 | `SMTP_USER` | For production email verification | Sensitive | SMTP account name/email |
 | `SMTP_PASS` | For production email verification | Yes | SMTP app password |
 | `EMAIL_FROM` | For production email verification | No | Sender shown to recipients |
+| `PRIVACY_CONTACT_EMAIL` | Recommended | No | Address shown on the privacy policy page; defaults to `privacy@redrive.com.au` |
+| `SUPPORT_CONTACT_EMAIL` | Recommended | No | Address shown on legal/support pages; defaults to `support@redrive.com.au` |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | For maps | Public by design | Browser-side Google Maps SDK |
 | `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` | No | No | Optional Google map style ID |
 | `GOOGLE_PLACES_API_KEY` | For address search | Yes | Server-side Places requests |
+| `GOOGLE_CLOUD_VISION_API_KEY` | For licence checks | Yes | Server-side driver-licence OCR (Cloud Vision) |
+| `LICENSE_DATA_ENCRYPTION_KEY` | For licence checks | Yes | AES-256-GCM key (base64, 32 bytes) for stored licence/card numbers |
+| `LICENSE_DATA_HMAC_KEY` | For licence checks | Yes | Independent key for non-reversible duplicate-check hashes |
 | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | For images | Public by design | Cloudinary account identifier |
 | `CLOUDINARY_API_KEY` | For server upload route | Sensitive | Cloudinary API identification |
 | `CLOUDINARY_API_SECRET` | For server upload route | Yes | Cloudinary signed operations |
+| `STRIPE_SECRET_KEY` | For bookings/payments | Yes | Server-side Stripe API calls (Checkout, Connect) |
+| `STRIPE_WEBHOOK_SECRET` | For bookings/payments | Yes | Verifies Stripe webhook signatures at `/api/stripe/webhook` |
 | `CRON_SECRET` | For scheduled notifications | Yes | Protects the cron endpoint |
+| `API_MONITOR_SUCCESS_SAMPLE_RATE` | No | No | Fraction of successful production requests sampled; default `0.25` |
+| `API_MONITOR_CLIENT_ERROR_SAMPLE_RATE` | No | No | Fraction of handled 4xx responses sampled; default `0.5` |
 | `EXPO_PUBLIC_APP_ENV` | Mobile builds | Public by design | Runtime environment label |
 | `EXPO_PUBLIC_API_ORIGIN` | Mobile builds | Public by design | Versioned mobile API origin |
 | `EXPO_PUBLIC_LINK_HOST` | Signed mobile builds | Public by design | Verified host used for universal/app links |
@@ -134,7 +166,10 @@ Stripe test mode, and isolated upload/push resources so it cannot mutate
 production data.
 
 The decision and account-owner gates for this setup are tracked in
-[`MOBILE_FOUNDATION_CHECKLIST.md`](MOBILE_FOUNDATION_CHECKLIST.md).
+[`MOBILE_FOUNDATION_CHECKLIST.md`](MOBILE_FOUNDATION_CHECKLIST.md). The non-secret
+store identifiers (`MOBILE_APPLE_TEAM_ID`, `MOBILE_IOS_BUNDLE_ID`,
+`MOBILE_ANDROID_PACKAGE`, `MOBILE_ANDROID_SHA256_CERT_FINGERPRINTS`) are covered
+in Section 11.
 
 #### Where each mobile value belongs
 
@@ -459,7 +494,28 @@ This project uses MongoDB, so `prisma db push` is used instead of SQL migrations
 
 Official references: [Connect to an Atlas deployment](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/) and [manage the Atlas IP access list](https://www.mongodb.com/docs/atlas/security/add-ip-address-to-list/).
 
-## 4. NextAuth and Google sign-in
+### `RESTORE_TEST_DATABASE_URL`
+
+Only `scripts/restore-drill-mongodb.ps1` reads this value. It is the destination
+that a backup archive is restored into during a recovery drill, and the script
+**refuses to run** unless the connection string contains `restore`, `drill`,
+`staging`, or `test` (case-insensitive).
+
+1. Create a separate, disposable MongoDB deployment or database — never point
+   this at the production database or any database holding real user data.
+2. Give it a name that clearly identifies it as a drill target, for example
+   `redrive_restore_drill`.
+3. Build the connection string the same way as `DATABASE_URL` (own database
+   user, URL-encoded password, `/redrive_restore_drill` before the query string).
+
+```dotenv
+RESTORE_TEST_DATABASE_URL="mongodb+srv://drill_user:PASSWORD@cluster0.abcde.mongodb.net/redrive_restore_drill?retryWrites=true&w=majority"
+```
+
+Leave it blank on machines and environments that never run restore drills. It is
+not needed by the running application.
+
+## 4. NextAuth, site URLs, and access control
 
 ### `NEXTAUTH_SECRET`
 
@@ -504,6 +560,75 @@ NEXTAUTH_URL="https://your-project.vercel.app"
 ```
 
 Do not put `/api/auth/callback/google` into `NEXTAUTH_URL`; that path is added by NextAuth.
+
+### `NEXT_PUBLIC_SITE_URL`
+
+The canonical public origin used to build absolute links in places that run
+outside a request context — Stripe Checkout and Connect return URLs, emails, and
+share links. `app/libs/siteUrl.ts` falls back to `NEXTAUTH_URL`, then to
+`http://localhost:3000`, and always strips a trailing slash.
+
+```dotenv
+# Local
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+
+# Production
+NEXT_PUBLIC_SITE_URL="https://your-domain.com"
+```
+
+Because it is a `NEXT_PUBLIC_` value it is embedded into the browser bundle at
+build time, so set it before the production build and redeploy after changing it.
+Keep it identical to `NEXTAUTH_URL` in production unless you deliberately serve
+links from a different origin.
+
+### `RATE_LIMIT_SECRET`
+
+A separate HMAC key used only to hash account identifiers and IP addresses before
+they are written to rate-limit and audit records, so those tables never store raw
+addresses. Generate it independently of every other secret:
+
+```powershell
+$bytes = New-Object byte[] 32
+[Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
+[Convert]::ToBase64String($bytes)
+```
+
+```dotenv
+RATE_LIMIT_SECRET="an-independent-hmac-secret"
+```
+
+Changing it resets the identity of existing rate-limit buckets (counters
+effectively start over) and makes historic audit hashes non-comparable. The
+rate-limit and cache design is described in
+[`cache-and-rate-limiting.md`](cache-and-rate-limiting.md).
+
+### `ENABLE_LEGACY_API_AUTH`
+
+Controls the deprecated `/api/auth/login` compatibility endpoint. Keep it
+`false` (or unset). Only set it to `true` briefly, and only if a trusted
+first-party integration still depends on that route, then set it back:
+
+```dotenv
+ENABLE_LEGACY_API_AUTH="false"
+```
+
+New mobile and API clients must use `/api/mobile/v1` instead. This switch is not
+a way to give the native app a password login.
+
+### `ADMIN_EMAILS`
+
+A comma-separated allow-list of email addresses that may reach `/admin` after a
+normal password sign-in, in addition to any account whose database `role` is
+already `ADMIN` (`app/libs/adminAuth.ts`). Comparison is case-insensitive and
+whitespace is trimmed.
+
+```dotenv
+ADMIN_EMAILS="founder@example.com,ops@example.com"
+```
+
+Use accounts that already exist in Redrive. Keep this server-only — it is not a
+`NEXT_PUBLIC_` value — and use different lists for Preview and Production if the
+reviewer set differs.
 
 ### `SESSION_IDLE_TIMEOUT_MINUTES`
 
@@ -597,6 +722,21 @@ When `SMTP_HOST`, `SMTP_USER`, or `SMTP_PASS` is blank in development, Redrive l
 
 Production deliberately has no fallback: registration returns an email-configuration error if SMTP credentials are missing. Configure SMTP in Vercel before testing production registration.
 
+### `PRIVACY_CONTACT_EMAIL` and `SUPPORT_CONTACT_EMAIL`
+
+Plain public-facing addresses printed on the policy, legal, and support content
+pages (`app/[slug]/page.tsx`). They are not secrets and are not used to send
+mail — only displayed. If unset they default to `privacy@redrive.com.au` and
+`support@redrive.com.au`.
+
+```dotenv
+PRIVACY_CONTACT_EMAIL="privacy@your-domain.com"
+SUPPORT_CONTACT_EMAIL="support@your-domain.com"
+```
+
+Set them to addresses you actually monitor before launch, and make sure the
+mailbox or forwarding rule exists.
+
 ## 6. Google Maps and Places
 
 Google Maps Platform generally requires a billing account even when usage is covered by no-cost allowances. Configure budgets, alerts and quotas before making the app public.
@@ -685,7 +825,203 @@ The route accepts JPG, PNG, and WebP images up to 5 MB and stores them under `re
 
 Official reference: [Cloudinary authenticated uploads](https://cloudinary.com/documentation/upload_images#authenticated_requests).
 
-## 8. Scheduled notification secret
+## 8. Licence verification and OCR
+
+The driver-licence readiness check reads the front and back licence images with
+Google Cloud Vision, then stores the extracted document number encrypted and a
+keyed hash of it for duplicate detection. Three variables control this.
+
+### `GOOGLE_CLOUD_VISION_API_KEY`
+
+A dedicated Google Cloud API key used server-side by `app/libs/googleVision.ts`
+(sent as the `X-Goog-Api-Key` header to `vision.googleapis.com`).
+
+1. In the [Google Cloud API Library](https://console.cloud.google.com/apis/library),
+   enable **Cloud Vision API** on the project (this needs a billing account).
+2. In **APIs & Services → Credentials**, choose **Create credentials → API key**.
+3. Open the new key and set **API restrictions → Restrict key → Cloud Vision API**
+   only.
+4. Application restriction: leave as **None** (standard Vercel functions have no
+   stable outbound IP), and rely on the API restriction, quotas, and budget
+   alerts instead.
+5. The app validates the shape `AIza…` (39 characters). A malformed value is
+   reported as `GOOGLE_CLOUD_VISION_API_KEY_INVALID`.
+
+```dotenv
+GOOGLE_CLOUD_VISION_API_KEY="AIza..."
+```
+
+Licence images are sent to Google only when an authenticated user starts the
+licence check from their profile.
+
+### `LICENSE_DATA_ENCRYPTION_KEY`
+
+An AES-256-GCM key that encrypts recoverable licence and card numbers at the
+application layer (`app/libs/licenseDataProtection.ts`). It must decode to
+**exactly 32 bytes**. Generate it as base64:
+
+```powershell
+$bytes = New-Object byte[] 32
+[Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
+[Convert]::ToBase64String($bytes)
+```
+
+```bash
+openssl rand -base64 32
+```
+
+```dotenv
+LICENSE_DATA_ENCRYPTION_KEY="the-base64-value-above"
+```
+
+In non-production only, if this is blank the code derives a key from
+`NEXTAUTH_SECRET` so local development works without extra setup. Production
+throws if it is missing. Rotating it makes previously stored encrypted licence
+values undecryptable, so plan a re-encryption or re-verification path before
+changing it.
+
+### `LICENSE_DATA_HMAC_KEY`
+
+A separate secret used to build non-reversible HMAC-SHA-256 hashes for
+duplicate-licence detection. Generate it independently of the encryption key:
+
+```powershell
+$bytes = New-Object byte[] 32
+[Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
+[Convert]::ToBase64String($bytes)
+```
+
+```dotenv
+LICENSE_DATA_HMAC_KEY="an-independent-random-secret"
+```
+
+If unset the code falls back to `RATE_LIMIT_SECRET`, then `NEXTAUTH_SECRET`;
+set an explicit value in production so duplicate detection does not break when
+those other secrets rotate. Changing it invalidates existing duplicate-check
+hashes.
+
+## 9. Stripe Connect marketplace payments
+
+Booking payment collection uses Stripe Checkout plus Stripe Connect. Use
+**test-mode** keys locally and in Preview; use live keys only once the payment
+slice is approved for Production.
+
+### `STRIPE_SECRET_KEY`
+
+1. Create a [Stripe account](https://dashboard.stripe.com/) and, if you want
+   marketplace payouts, enable **Connect**.
+2. Keep the dashboard in **Test mode** while building.
+3. Open **Developers → API keys** and copy the **Secret key** (`sk_test_…`).
+4. Store it server-side only — it is read by `app/libs/stripe.ts` and never
+   exposed to the browser.
+
+```dotenv
+STRIPE_SECRET_KEY="sk_test_..."
+```
+
+The native app uses the matching **publishable** key
+(`EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY`, covered under the Expo application
+variables in Section 2) — never put an `sk_…` value there.
+
+### `STRIPE_WEBHOOK_SECRET`
+
+`/api/stripe/webhook` verifies every incoming event signature with this value.
+
+- **Local:** run the [Stripe CLI](https://docs.stripe.com/stripe-cli):
+  `stripe listen --forward-to localhost:3000/api/stripe/webhook`. The CLI prints
+  a `whsec_…` signing secret for that session — use it as
+  `STRIPE_WEBHOOK_SECRET`.
+- **Deployed:** in **Developers → Webhooks**, add an endpoint pointing at
+  `https://<your-domain>/api/stripe/webhook`, subscribe to at least
+  `checkout.session.completed`, `checkout.session.expired`,
+  `payment_intent.payment_failed`, and `account.updated`, then copy that
+  endpoint's **Signing secret**.
+
+```dotenv
+STRIPE_WEBHOOK_SECRET="whsec_..."
+```
+
+Each endpoint (local CLI, Preview, Production) has its own signing secret; do not
+share one value across environments.
+
+## 10. API request monitoring sampling
+
+`app/libs/apiMonitoring.ts` records lightweight, payload-free telemetry for API
+routes. Both variables are optional and only take effect in a Vercel production
+environment.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `API_MONITOR_SUCCESS_SAMPLE_RATE` | `0.25` | Fraction of 2xx/3xx responses recorded |
+| `API_MONITOR_CLIENT_ERROR_SAMPLE_RATE` | `0.5` | Fraction of handled 4xx responses recorded |
+
+- All 5xx responses are always recorded regardless of these values.
+- Accepted range is `0.01`–`1`; out-of-range or non-numeric values fall back to
+  the defaults.
+- Set both to `1` for full sampling while investigating an incident, then revert.
+
+```dotenv
+API_MONITOR_SUCCESS_SAMPLE_RATE="0.25"
+API_MONITOR_CLIENT_ERROR_SAMPLE_RATE="0.5"
+```
+
+You do not need to set these locally or in `.env.local`.
+
+## 11. Mobile app store association and deep links
+
+These identifiers are served by `/.well-known/apple-app-site-association` and
+`/.well-known/assetlinks.json` (`app/libs/mobileAssociations.ts`) so that iOS
+Universal Links and Android App Links open the installed app instead of the
+website. They are **not secrets**, but they must match the real signing accounts,
+and the routes throw if a value is malformed.
+
+Leave them blank until `apps/mobile` exists and the organization-owned Apple
+Developer and Google Play / EAS signing accounts are set up.
+
+### `MOBILE_APPLE_TEAM_ID`
+
+The 10-character Apple Developer Team ID (uppercase letters and digits). Find it
+in [Apple Developer → Membership details](https://developer.apple.com/account),
+or in App Store Connect under the organization name.
+
+```dotenv
+MOBILE_APPLE_TEAM_ID="ABCDE12345"
+```
+
+### `MOBILE_IOS_BUNDLE_ID` and `MOBILE_ANDROID_PACKAGE`
+
+The production identifiers are already set in `.env.example`:
+
+```dotenv
+MOBILE_IOS_BUNDLE_ID="au.com.redrive.app"
+MOBILE_ANDROID_PACKAGE="au.com.redrive.app"
+```
+
+Only `au.com.redrive.app` or a single lowercase suffix such as
+`au.com.redrive.app.preview` is accepted. Use the suffixed identifier in the
+environment whose EAS `EXPO_PUBLIC_APP_ENV` is `preview` or `development`, and
+the bare identifier in Production, so each build variant has its own association.
+
+### `MOBILE_ANDROID_SHA256_CERT_FINGERPRINTS`
+
+The SHA-256 fingerprint(s) of the app-signing certificate, formatted as 32
+uppercase hex pairs separated by colons. Sources:
+
+- **Google Play App Signing:** Play Console → your app → **Test and release →
+  App integrity → App signing** → copy the *SHA-256 certificate fingerprint*.
+- **EAS-managed credentials:** run `npx eas-cli@latest credentials` from
+  `apps/mobile`, choose Android → the build profile, and read the SHA-256.
+- **A local keystore:**
+  `keytool -list -v -keystore my.keystore -alias my-alias`.
+
+```dotenv
+MOBILE_ANDROID_SHA256_CERT_FINGERPRINTS="AB:CD:EF:...:99"
+```
+
+During a signing-key rotation, list both the old and new fingerprints separated
+by commas until the old key is fully retired.
+
+## 12. Scheduled notification secret
 
 ### `CRON_SECRET`
 
@@ -715,7 +1051,7 @@ Vercel cron expressions use UTC, so this means 09:00 UTC every day. Adelaide's l
 
 Official reference: [Vercel cron job security](https://vercel.com/docs/cron-jobs/manage-cron-jobs#securing-cron-jobs).
 
-## 9. Add variables to Vercel using the dashboard
+## 13. Add variables to Vercel using the dashboard
 
 ### First deployment
 
@@ -746,7 +1082,9 @@ Recommended initial configuration:
 | Google OAuth | Optional via CLI | Only with an authorized stable preview callback | Yes |
 | SMTP | Optional; local fallback exists | Yes for end-to-end testing | Yes |
 | Maps/Places | Optional via CLI | Yes if testing those features | Yes |
+| Licence OCR + data keys | Optional via CLI | Yes if testing licence checks | Yes |
 | Cloudinary | Optional via CLI | Yes if testing uploads | Yes |
+| Stripe (test keys) | Optional via CLI + Stripe CLI | Yes, test mode | Yes, live keys only after approval |
 | Cron secret | Optional | Yes | Yes |
 | Mobile issuer/audience | Local `.env.local` | Stable Preview API identity | Canonical Production API identity |
 | Mobile signing key ID/private/public map | Development-only pair | Independent Preview pair | Independent Production pair |
@@ -756,7 +1094,10 @@ Recommended initial configuration:
 Use separate Preview and Production databases where practical. Preview deployments can execute mutations, registrations and uploads; pointing every branch at the production database risks contaminating real data.
 
 Use independent secrets for Preview and Production. `NEXTAUTH_SECRET`,
-`SMTP_PASS`, `CLOUDINARY_API_SECRET`, `DATABASE_URL`, `CRON_SECRET`,
+`RATE_LIMIT_SECRET`, `SMTP_PASS`, `GOOGLE_PLACES_API_KEY`,
+`GOOGLE_CLOUD_VISION_API_KEY`, `LICENSE_DATA_ENCRYPTION_KEY`,
+`LICENSE_DATA_HMAC_KEY`, `CLOUDINARY_API_SECRET`, `STRIPE_SECRET_KEY`,
+`STRIPE_WEBHOOK_SECRET`, `DATABASE_URL`, `CRON_SECRET`,
 `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`, and
 `EXPO_ACCESS_TOKEN` should be marked sensitive when the Vercel UI offers that
 option. The mobile public-key map is not secret, but it remains server
@@ -779,7 +1120,7 @@ Changing a Vercel environment variable does not modify an already-built deployme
 
 Official references: [Vercel environment variables](https://vercel.com/docs/environment-variables), [Vercel environments](https://vercel.com/docs/deployments/environments), and [adding variables in the dashboard](https://vercel.com/kb/guide/how-to-add-vercel-environment-variables).
 
-## 10. Add variables using the Vercel CLI
+## 14. Add variables using the Vercel CLI
 
 Install and link the CLI:
 
@@ -818,7 +1159,7 @@ Deploy to production:
 vercel --prod
 ```
 
-## 11. Apply the database schema before production use
+## 15. Apply the database schema before production use
 
 The package build generates Prisma Client but intentionally does not run `prisma db push`. Apply schema changes explicitly from a trusted local machine.
 
@@ -835,27 +1176,34 @@ challenge, push-token, and idempotency collections/indexes defined in
 `prisma/schema.prisma`. Apply and verify these changes in Preview before
 Production.
 
-## 12. Recommended setup order
+## 16. Recommended setup order
 
 1. Create MongoDB Atlas and set `DATABASE_URL`.
-2. Generate `NEXTAUTH_SECRET` and `CRON_SECRET` separately.
-3. Configure Google OAuth and set `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`.
-4. Configure Gmail app password or another SMTP provider.
+2. Generate `NEXTAUTH_SECRET`, `RATE_LIMIT_SECRET`, and `CRON_SECRET` separately.
+3. Configure Google OAuth and set `NEXTAUTH_URL`, `NEXT_PUBLIC_SITE_URL`,
+   `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`. Set `ADMIN_EMAILS`.
+4. Configure Gmail app password or another SMTP provider, and set the
+   privacy/support contact addresses.
 5. Enable Google Maps/Places, create two restricted keys, and optionally create a map ID.
-6. Configure the three Cloudinary environment variables; no upload preset is needed.
-7. Generate separate mobile RSA key pairs and refresh-token peppers for
+6. Enable Cloud Vision and generate `LICENSE_DATA_ENCRYPTION_KEY` and
+   `LICENSE_DATA_HMAC_KEY` for the licence check.
+7. Configure the three Cloudinary environment variables; no upload preset is needed.
+8. Create a Stripe account, set `STRIPE_SECRET_KEY`, and register the webhook
+   endpoint to obtain `STRIPE_WEBHOOK_SECRET`.
+9. Generate separate mobile RSA key pairs and refresh-token peppers for
    Development, Preview, and Production.
-8. Initialize the organization-owned EAS project from `apps/mobile`, then
-   record its project ID.
-9. Configure the server-side mobile values in matching Vercel environments and
+10. Initialize the organization-owned EAS project from `apps/mobile`, then
+    record its project ID, and gather the Apple Team ID, bundle/package IDs, and
+    Android signing SHA-256 fingerprints.
+11. Configure the server-side mobile values in matching Vercel environments and
     the public mobile values in matching EAS environments.
-10. Run `npx prisma db push` against the intended Preview database after a
+12. Run `npx prisma db push` against the intended Preview database after a
     backup and target check; validate it before Production.
-11. Deploy or redeploy the backend.
-12. Create a signed Preview build and confirm it uses only Preview providers.
-13. Complete the verification checklist below.
+13. Deploy or redeploy the backend.
+14. Create a signed Preview build and confirm it uses only Preview providers.
+15. Complete the verification checklist below.
 
-## 13. Post-deployment checklist
+## 17. Post-deployment checklist
 
 - [ ] The homepage and listing data load without a Prisma connection error.
 - [ ] A new email/password account receives a six-digit email.
@@ -865,6 +1213,11 @@ Production.
 - [ ] Maps render on a listing.
 - [ ] Address autocomplete returns Australian results.
 - [ ] A listing image uploads successfully.
+- [ ] Starting the licence check from Profile completes OCR without an
+      `OCR_CONFIGURATION_ERROR` or licence-encryption error.
+- [ ] A Stripe test booking reaches Checkout and the webhook records
+      `checkout.session.completed` (HTTP 200, signature accepted).
+- [ ] `/admin` is reachable by an `ADMIN_EMAILS` address and refused for others.
 - [ ] Vercel shows `/api/cron/notifications` under Cron Jobs.
 - [ ] The cron's latest execution returns HTTP 200 rather than 401 or 500.
 - [ ] Preview deployments do not write test data into the production database unless that was an intentional decision.
@@ -884,7 +1237,7 @@ Production.
 - [ ] No server-only `MOBILE_*` value or `EXPO_ACCESS_TOKEN` appears in the
       compiled application or Expo public configuration.
 
-## 14. Troubleshooting
+## 18. Troubleshooting
 
 | Symptom | What to check |
 |---|---|
@@ -899,6 +1252,12 @@ Production.
 | Places requests fail | Confirm the server key, enabled Places API, billing, API restriction and quota. Check Vercel function logs. |
 | Cloudinary widget rejects uploads | Confirm cloud name and the exact unsigned preset name `redrive`; inspect preset file limits/formats. |
 | Cron returns 401 | Confirm `CRON_SECRET` exists in that Vercel environment and redeploy. Do not add `Bearer ` to the stored value. |
+| Licence check fails with `OCR_CONFIGURATION_ERROR` / `OCR_SERVICE_DISABLED` | Confirm `GOOGLE_CLOUD_VISION_API_KEY` is a valid `AIza…` key, the Cloud Vision API is enabled, and billing is active on that project. |
+| Licence save throws `must be a base64-encoded 32-byte key` | `LICENSE_DATA_ENCRYPTION_KEY` must decode to exactly 32 bytes; regenerate with `openssl rand -base64 32`. |
+| Stripe webhook returns 400 `Invalid signature` | The endpoint's signing secret does not match `STRIPE_WEBHOOK_SECRET` for that environment (local CLI, Preview, and Production each have their own). |
+| Stripe calls throw `STRIPE_SECRET_KEY is not configured` | Add the `sk_…` key to that Vercel environment and redeploy; never use a `pk_…` value here. |
+| `/admin` returns 404/redirect for a known admin | Add the exact lower-cased email to `ADMIN_EMAILS` in that environment, or set the user's DB `role` to `ADMIN`, then redeploy. |
+| iOS/Android association route returns 500 | A `MOBILE_APPLE_TEAM_ID` (10 chars), bundle/package ID, or SHA-256 fingerprint is missing or malformed for that environment. |
 | A variable remains `undefined` | Confirm its Vercel environment scope and redeploy. For local work, restart `npm run dev` after changing `.env.local`. |
 | Mobile API returns `MOBILE_AUTH_UNAVAILABLE` | Confirm the issuer, audience, active key ID, complete PKCS#8 private PEM, valid public-key JSON map, matching public key, and refresh-token pepper exist in that Vercel environment. |
 | Mobile API returns `UNAUTHENTICATED` immediately after login | Check that the signing and verification key pair match and that the deployment has not mixed Preview and Production issuer/audience values. |
@@ -909,7 +1268,7 @@ Production.
 | Universal/App Link opens the website instead of the app | Confirm `EXPO_PUBLIC_LINK_HOST`, rebuild the signed binary, publish the correct Apple/Android association files, and verify they include that exact signed app identity. |
 | Expo push requests return `UNAUTHORIZED` | If enhanced push security is enabled, confirm the backend's `EXPO_ACCESS_TOKEN` is active and its Expo user/robot has access to the owning project. EAS environment names do not scope the token automatically. Never move it into the app bundle. |
 
-## 15. Rotation and incident response
+## 19. Rotation and incident response
 
 If a secret is accidentally committed or shared, deleting it from the current file is not sufficient. Treat it as compromised:
 
@@ -929,5 +1288,12 @@ Suggested rotation impact:
 | `GOOGLE_CLIENT_SECRET` | Google login fails until Vercel is updated and redeployed. |
 | `SMTP_PASS` | Verification delivery fails until updated. |
 | `GOOGLE_PLACES_API_KEY` | Address search fails until updated. |
+| `GOOGLE_CLOUD_VISION_API_KEY` | Licence OCR fails until updated. |
+| `LICENSE_DATA_ENCRYPTION_KEY` | Previously stored encrypted licence/card numbers become undecryptable; plan re-verification. |
+| `LICENSE_DATA_HMAC_KEY` | Existing duplicate-check hashes no longer match; duplicates may be re-accepted once. |
 | `CLOUDINARY_API_SECRET` | Signed/server uploads fail until updated. |
+| `STRIPE_SECRET_KEY` | All Stripe operations fail until updated; revoke the old key in the Stripe dashboard. |
+| `STRIPE_WEBHOOK_SECRET` | Webhook events are rejected (400) until the new signing secret is deployed. |
+| `RATE_LIMIT_SECRET` | Rate-limit counters reset and historic audit hashes stop matching. |
 | `CRON_SECRET` | Cron calls receive 401 until updated. |
+| `MOBILE_REFRESH_TOKEN_PEPPER` | Every mobile refresh token is invalidated; users re-authenticate. |
