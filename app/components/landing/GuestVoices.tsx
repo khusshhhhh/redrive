@@ -1,6 +1,6 @@
 "use client";
 
-import { IconQuote, IconStar } from "@tabler/icons-react";
+import { IconQuote, IconRosetteDiscountCheck, IconStar } from "@tabler/icons-react";
 
 import type { HomeReview } from "@/app/actions/getHomeData";
 import Reveal from "./Reveal";
@@ -18,6 +18,9 @@ export default function GuestVoices({ reviews }: { reviews: HomeReview[] }) {
         <h2 className="mt-3 max-w-2xl text-display-3xl font-extrabold tracking-tight text-ink">
           What guests say after handing the keys back.
         </h2>
+        <p className="mt-3 max-w-lg text-[15px] leading-7 text-muted">
+          A selection of recent reviews. Every one is left by a guest after a completed trip.
+        </p>
       </Reveal>
 
       <div className="mt-12 flex snap-x gap-4 overflow-x-auto pb-2 [scrollbar-width:none] sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3 [&::-webkit-scrollbar]:hidden">
@@ -40,6 +43,9 @@ export default function GuestVoices({ reviews }: { reviews: HomeReview[] }) {
             <p className="mt-2 line-clamp-5 flex-1 text-sm leading-6 text-body">{review.text}</p>
             <p className="mt-4 text-xs font-semibold text-muted">
               on {review.vehicle} · {review.suburb}, {review.state}
+            </p>
+            <p className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-medium text-secondary">
+              <IconRosetteDiscountCheck size={13} /> Verified trip review
             </p>
           </Reveal>
         ))}

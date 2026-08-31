@@ -8,20 +8,24 @@ import Reveal from "./Reveal";
 
 export default function CoveragePanel({ byState }: { byState: HomeStateCoverage[] }) {
   const max = Math.max(1, ...byState.map((entry) => entry.count));
-  const anyLive = byState.some((entry) => entry.count > 0);
+  const liveStates = byState.filter((entry) => entry.count > 0).length;
+  const anyLive = liveStates > 0;
 
   return (
     <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:py-24">
       <Reveal>
         <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-yellow-500" />
-          Australia-wide
+          State by state
         </p>
         <h2 className="mt-3 max-w-2xl text-display-3xl font-extrabold tracking-tight text-ink">
-          Hosts in every state and territory.
+          {anyLive
+            ? `Live in ${liveStates} of ${byState.length} states and territories — and growing.`
+            : "Coming to every state and territory."}
         </h2>
         <p className="mt-4 max-w-lg text-[15px] leading-7 text-muted">
-          From inner-city runabouts to outback-ready 4WDs. Pick a state to see what&rsquo;s available near you.
+          From inner-city runabouts to outback-ready 4WDs. Pick a state to see what&rsquo;s near you, or be the first to
+          list one.
         </p>
       </Reveal>
 

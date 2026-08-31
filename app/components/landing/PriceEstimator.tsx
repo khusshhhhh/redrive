@@ -32,8 +32,8 @@ export default function PriceEstimator() {
             See the whole price before you ask.
           </h2>
           <p className="mt-4 max-w-lg text-[15px] leading-7 text-muted">
-            The host sets the daily rate. Redrive adds a small percentage fee and a flat service fee — both shown up
-            front. Your card is only charged once a host accepts. Move the sliders to try it.
+            The host sets the daily rate. Redrive adds a percentage fee and a flat service fee — both shown in full up
+            front. Your card is only charged once a host accepts. Adjust the trip length and rate to see how it works.
           </p>
           <ul className="mt-6 space-y-2.5 text-sm text-muted">
             {["No membership or booking fees", "Insurance and any deposit are set per listing", "Cancel free any time before a host accepts"].map((item) => (

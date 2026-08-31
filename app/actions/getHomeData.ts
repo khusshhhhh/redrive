@@ -95,6 +95,9 @@ async function loadHomeData(): Promise<HomeData> {
       },
       orderBy: { createdAt: "desc" },
     }),
+    // Every Review row is already gated on a COMPLETED reservation that ended
+    // 1+ day ago (see app/api/reviews/route.ts), so these are genuine trip
+    // reviews. GuestVoices discloses that this is a recent selection.
     prisma.review.findMany({
       where: { rating: { gte: 4 } },
       orderBy: { createdAt: "desc" },

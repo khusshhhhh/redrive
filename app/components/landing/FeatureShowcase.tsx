@@ -23,7 +23,7 @@ export default function FeatureShowcase({ listings }: { listings: ListingCardDat
     {
       eyebrow: "Explore",
       title: "Browse vehicles the way locals do.",
-      body: "Filter by vehicle type, dates and suburb. Every listing shows the real photos, the daily price and the host's response time before you ever send a message.",
+      body: "Filter by vehicle type, dates and suburb. Every listing shows the real photos, the daily price and the host’s response time before you ever send a message.",
       cta: { label: "Open the marketplace", href: "/explore" },
       visual: (
         <BrowserFrame url="redrive.com.au/explore" label="Redrive marketplace" className="rotate-[1deg]">
@@ -36,7 +36,7 @@ export default function FeatureShowcase({ listings }: { listings: ListingCardDat
     {
       eyebrow: "Book",
       title: "Request in a tap. Pay only when it’s accepted.",
-      body: "See the full price breakdown up front — nightly rate, service fee, cleaning terms. Send a request and your card is only charged once the host says yes.",
+      body: "See the full price breakdown up front — daily rate, Redrive fee, service fee and any cleaning terms. Send a request and your card is only charged once the host says yes.",
       extra: <VerifiedList />,
       visual: (
         <div className="flex justify-center">
@@ -53,7 +53,7 @@ export default function FeatureShowcase({ listings }: { listings: ListingCardDat
     {
       eyebrow: "Know before you book",
       title: "Every rule and cost, on the listing.",
-      body: "An “At a glance” strip covers transmission, distance limits, delivery and deposit. A “Before you book” panel spells out the rules that catch renters out — km caps, interstate limits, who's allowed to drive — in plain English.",
+      body: "An “At a glance” strip covers transmission, distance limits, delivery and deposit. A “Before you book” panel spells out the details guests most often miss — distance caps, interstate rules, who can drive — in plain English.",
       cta: { label: "See a listing", href: "/explore" },
       visual: (
         <BrowserFrame url="redrive.com.au/listings" label="Redrive listing detail" className="rotate-[-1deg]">
@@ -81,8 +81,8 @@ export default function FeatureShowcase({ listings }: { listings: ListingCardDat
     },
     {
       eyebrow: "Host",
-      title: "List your vehicle in a few minutes.",
-      body: "One question per screen, with a note on why each detail matters to guests. Photos, specs, trip rules, pricing and cancellation — nothing goes live until you publish.",
+      title: "List your vehicle, one question at a time.",
+      body: "A guided flow with a note on why each detail matters to guests. Photos, specs, trip rules, pricing and cancellation — nothing goes live until you publish.",
       cta: { label: "Start hosting", href: "/host" },
       visual: (
         <div className="flex justify-center">

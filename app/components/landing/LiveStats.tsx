@@ -33,8 +33,8 @@ export default function LiveStats({ stats }: { stats: HomeStats }) {
     : [
         { node: <>10</>, label: "Vehicle categories" },
         { node: <>8</>, label: "States & territories" },
-        { node: <>5 min</>, label: "Average time to list" },
         { node: <>AU$0</>, label: "Cost to list your vehicle" },
+        { node: <>0</>, label: "Membership or booking fees" },
       ];
 
   return (

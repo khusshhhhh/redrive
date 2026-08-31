@@ -78,8 +78,8 @@ export function HostCtaBand() {
             Your vehicle could be working while you&rsquo;re not<span className="text-yellow-500">.</span>
           </h2>
           <p className="mt-4 text-sm leading-7 text-white/65">
-            List for free, set your own price and availability, and approve every request. The guided flow takes about
-            five minutes.
+            List for free, set your own price and availability, and approve every request. The guided flow is one
+            question per screen, and nothing goes live until you publish.
           </p>
           <BecomeHostLink className="group mt-8 inline-flex h-[52px] items-center gap-2 rounded-full bg-white px-7 text-sm font-semibold text-ink transition-colors hover:bg-surface-soft">
             Become a host
@@ -96,8 +96,8 @@ export function HostCtaBand() {
 const WHY = [
   {
     icon: ShieldCheck,
-    title: "Verified hosts and renters",
-    body: "ID checks, reviews and trip history on every profile. You always know who you're handing the keys to.",
+    title: "Verified hosts and guests",
+    body: "ID checks, reviews and trip history on every profile. You always know who you’re handing the keys to.",
   },
   {
     icon: Wallet,
@@ -107,22 +107,22 @@ const WHY = [
   {
     icon: MessagesSquare,
     title: "Everything on-platform",
-    body: "Messaging, payments, receipts and reviews stay in Redrive, so there's a record if anything needs sorting out.",
+    body: "Messaging, payments, receipts and reviews stay in Redrive, so there’s a record if anything needs sorting out.",
   },
   {
     icon: CalendarClock,
     title: "Flexible cancellation",
-    body: "Cancel a request any time before it's accepted, and each listing states its own cancellation window.",
+    body: "Cancel a request any time before it’s accepted, and each listing states its own cancellation window.",
   },
   {
     icon: BadgeCheck,
     title: "Real local vehicles",
-    body: "No fleet stock photos. Every listing is someone's actual ute, van or camper, with the photos to prove it.",
+    body: "No fleet stock photos. Every listing is someone’s actual ute, van or camper, with the photos to prove it.",
   },
   {
     icon: MapPinned,
-    title: "Australia-wide",
-    body: "Hosts across every state and territory, from inner-city runabouts to outback-ready 4WDs.",
+    title: "Growing across Australia",
+    body: "Local hosts from inner-city runabouts to outback-ready 4WDs, in more suburbs every week.",
   },
 ];
 
@@ -163,11 +163,11 @@ export function WhyRedrive() {
 const FAQS = [
   {
     q: "How much does it cost to rent a vehicle?",
-    a: "The host sets the daily rate. Redrive adds a small service fee, shown before you send a request. There are no membership or booking fees.",
+    a: "The host sets the daily rate. Redrive adds a percentage fee and a flat service fee — both shown in full before you send a request. There are no membership or booking fees.",
   },
   {
     q: "When am I charged?",
-    a: "Never at request time. Your card is only charged once the host accepts your trip. If they decline or don't respond, nothing is taken.",
+    a: "Never at request time. Your card is only charged once the host accepts your trip. If they decline or don’t respond, nothing is taken.",
   },
   {
     q: "What do I need to rent?",
@@ -175,7 +175,7 @@ const FAQS = [
   },
   {
     q: "Is it free to list my vehicle?",
-    a: "Yes. Listing is free, you set your own price and availability, and you approve every request. Redrive's fee only applies to completed trips.",
+    a: "Yes. Listing is free, you set your own price and availability, and you approve every request. Redrive’s fee only applies to completed trips.",
   },
   {
     q: "What happens if something goes wrong during a trip?",

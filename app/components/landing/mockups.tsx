@@ -161,10 +161,10 @@ export function ListingDetailMock({ cover, title, suburb }: { cover?: string; ti
 
 export function ChatMock() {
   const messages = [
-    { from: "them", text: "Hi! The ute is free that weekend 👍" },
+    { from: "them", text: "Hi — the ute is free that weekend." },
     { from: "me", text: "Perfect. Can I pick up Friday evening?" },
-    { from: "them", text: "Yep, from 6pm. I'll send the address once it's confirmed." },
-    { from: "me", text: "Booking it now — thanks!" },
+    { from: "them", text: "Yep, from 6pm. I’ll send the address once it’s confirmed." },
+    { from: "me", text: "Booking it now — thanks." },
   ];
   return (
     <div className="pointer-events-none flex h-full select-none flex-col bg-white">
@@ -251,7 +251,7 @@ export function HostStepMock() {
 export function VerifiedList() {
   return (
     <ul className="space-y-2.5">
-      {["ID-verified hosts and guests", "Clear cancellation terms up front", "On-platform trip and payment records"].map(
+      {["ID checks for hosts and guests", "Clear cancellation terms up front", "On-platform trip and payment records"].map(
         (item) => (
           <li key={item} className="flex items-center gap-2 text-sm text-muted">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white">

@@ -22,7 +22,7 @@ export const revalidate = 1800;
 export const metadata = buildSeoMetadata({
   title: "Redrive — rent a useful vehicle, or earn from yours",
   description:
-    "Redrive is Australia's marketplace for useful vehicles. Rent a ute, van or campervan from a local host, or list your own vehicle for free with a guided hosting flow.",
+    "Redrive is Australia’s marketplace for useful vehicles. Rent a ute, van or campervan from a local host, or list your own vehicle for free with a guided hosting flow.",
   path: "/",
   keywords: [
     "peer-to-peer vehicle hire Australia",
