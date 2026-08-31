@@ -10,15 +10,7 @@ import { Info } from "lucide-react";
 import { Card, CardContent } from "../CardContent";
 import { useState } from 'react';
 import toast from "@/app/libs/toast";
-
-const calculateServiceFee = (totalPrice: number): number => {
-    if (totalPrice <= 200) return 10;
-    if (totalPrice <= 400) return 25;
-    if (totalPrice <= 800) return 40;
-    if (totalPrice <= 1200) return 60;
-    if (totalPrice <= 2000) return 80;
-    return 100;
-};
+import { calculateServiceFee, redriveFee as calcRedriveFee } from "@/app/libs/pricing";
 
 interface ListingReservationProps {
     listing: SafeListing;
@@ -54,7 +46,7 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     currentUser,
     onRequireLogin,
 }) => {
-    const redriveFee = Math.round(totalPrice * 0.08);
+    const redriveFee = calcRedriveFee(totalPrice);
     const serviceFee = calculateServiceFee(totalPrice);
     const dayCount = differenceInCalendarDays(dateRange.endDate, dateRange.startDate) + 1;
     const router = useRouter();

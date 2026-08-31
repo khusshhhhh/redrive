@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 import type { ListingCardData } from "@/app/libs/listingCardData";
 import Reveal from "./Reveal";
 import { BrowserFrame, PhoneFrame } from "./DeviceFrame";
-import { BookingMock, BrowseGridMock, ChatMock, HostStepMock, VerifiedList } from "./mockups";
+import { BookingMock, BrowseGridMock, ChatMock, HostStepMock, ListingDetailMock, VerifiedList } from "./mockups";
 import BecomeHostLink from "@/app/components/BecomeHostLink";
 
 interface Row {
@@ -51,6 +51,23 @@ export default function FeatureShowcase({ listings }: { listings: ListingCardDat
       ),
     },
     {
+      eyebrow: "Know before you book",
+      title: "Every rule and cost, on the listing.",
+      body: "An “At a glance” strip covers transmission, distance limits, delivery and deposit. A “Before you book” panel spells out the rules that catch renters out — km caps, interstate limits, who's allowed to drive — in plain English.",
+      cta: { label: "See a listing", href: "/explore" },
+      visual: (
+        <BrowserFrame url="redrive.com.au/listings" label="Redrive listing detail" className="rotate-[-1deg]">
+          <div className="max-h-[440px] overflow-hidden">
+            <ListingDetailMock
+              cover={listings[2]?.imageSrcs?.[0] ?? listings[0]?.imageSrcs?.[0]}
+              title={listings[2]?.title ?? "Toyota HiAce camper for road trips"}
+              suburb={listings[2]?.suburb ?? "Brooklyn Park"}
+            />
+          </div>
+        </BrowserFrame>
+      ),
+    },
+    {
       eyebrow: "Message",
       title: "Talk to the host in real time.",
       body: "Live chat with typing indicators and read receipts. Sort out pick-up, questions and handover before the trip — all kept on-platform.",
@@ -65,7 +82,7 @@ export default function FeatureShowcase({ listings }: { listings: ListingCardDat
     {
       eyebrow: "Host",
       title: "List your vehicle in a few minutes.",
-      body: "A guided flow walks you through photos, pricing, registration and cancellation — one question per screen. Nothing goes live until you publish.",
+      body: "One question per screen, with a note on why each detail matters to guests. Photos, specs, trip rules, pricing and cancellation — nothing goes live until you publish.",
       cta: { label: "Start hosting", href: "/host" },
       visual: (
         <div className="flex justify-center">

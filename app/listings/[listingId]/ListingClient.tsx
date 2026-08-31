@@ -15,6 +15,7 @@ import ListingReservation from "@/app/components/listings/ListingReservation";
 import { Range } from "react-date-range";
 import Reviews from "@/app/components/reviews/Reviews";
 import useRecentlyViewed from "@/app/hooks/useRecentlyViewed";
+import { calculateServiceFee, redriveFee, REDRIVE_FEE_RATE } from "@/app/libs/pricing";
 
 const initialDateRange = {
     startDate: new Date(),
@@ -64,7 +65,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
 
     const [isLoading, setIsLoading] = useState(false);
     const [totalPrice, setTotalPrice] = useState(listing.price);
-    const initialFees = listing.price * 1.08 + (listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0);
+    const initialFees = listing.price * (1 + REDRIVE_FEE_RATE) + (listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0);
     const [totalFees, setTotalFees] = useState(initialFees);
     const [dateRange, setDateRange] = useState<Range>(initialDateRange);
     const [insuranceType, setInsuranceType] = useState("No Insurance");
@@ -120,22 +121,13 @@ const ListingClient: React.FC<ListingClientProps> = ({
     ]);
 
 
-    const calculateServiceFee = (totalPrice: number): number => {
-        if (totalPrice <= 200) return 10;
-        if (totalPrice <= 400) return 25;
-        if (totalPrice <= 800) return 40;
-        if (totalPrice <= 1200) return 60;
-        if (totalPrice <= 2000) return 80;
-        return 100;
-    };
-
     useEffect(() => {
         if (dateRange.startDate && dateRange.endDate) {
             const dayCount = differenceInCalendarDays(dateRange.endDate, dateRange.startDate);
 
             if (dayCount && listing.price) {
                 const newTotalPrice = (dayCount + 1) * listing.price;
-                const newRedriveFee = Math.round(newTotalPrice * 0.08);
+                const newRedriveFee = redriveFee(newTotalPrice);
                 const newServiceFee = calculateServiceFee(newTotalPrice);
 
                 setTotalPrice(newTotalPrice);

@@ -4,9 +4,16 @@ import { ArrowRight, CarFront } from "lucide-react";
 import type { ListingCardData } from "@/app/libs/listingCardData";
 import { BrowserFrame, PhoneFrame } from "./DeviceFrame";
 import { BookingMock, BrowseGridMock } from "./mockups";
+import Parallax from "./Parallax";
 import BecomeHostLink from "@/app/components/BecomeHostLink";
 
-export default function LandingHero({ listings }: { listings: ListingCardData[] }) {
+export default function LandingHero({
+  listings,
+  liveCount = 0,
+}: {
+  listings: ListingCardData[];
+  liveCount?: number;
+}) {
   return (
     <section className="aurora relative isolate flex min-h-[82svh] items-start overflow-hidden sm:min-h-[100svh] sm:items-center">
       {/* static monochrome wireframe cubes behind the headline */}
@@ -44,12 +51,21 @@ export default function LandingHero({ listings }: { listings: ListingCardData[] 
               Become a host
             </BecomeHostLink>
           </div>
-          <p className="mt-6 text-xs font-medium text-muted-soft">
-            No membership fees · Free to list · Cancel a request any time before it&rsquo;s accepted
+          <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-muted-soft">
+            {liveCount > 0 && (
+              <span className="inline-flex items-center gap-1.5 text-ink">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary opacity-60 motion-reduce:hidden" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-secondary" />
+                </span>
+                {liveCount.toLocaleString()} vehicles listed across Australia
+              </span>
+            )}
+            <span>No membership fees · Free to list · Cancel any time before a host accepts</span>
           </p>
         </div>
 
-        <div className="fade-in relative mx-auto w-full max-w-[560px]" style={{ animationDelay: "120ms" }}>
+        <Parallax distance={-28} className="fade-in relative mx-auto w-full max-w-[560px]">
           <BrowserFrame url="redrive.com.au/explore" label="Redrive vehicle marketplace" className="rotate-[-1.5deg]">
             <div className="max-h-[340px] overflow-hidden">
               <BrowseGridMock listings={listings.slice(0, 6)} />
@@ -65,7 +81,7 @@ export default function LandingHero({ listings }: { listings: ListingCardData[] 
               />
             </PhoneFrame>
           </div>
-        </div>
+        </Parallax>
       </div>
     </section>
   );

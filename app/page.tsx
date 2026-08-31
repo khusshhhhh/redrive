@@ -1,14 +1,21 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import getListings from "./actions/getListings";
-import { toListingCardData, type ListingCardData } from "./libs/listingCardData";
+import getHomeData from "./actions/getHomeData";
+import { type ListingCardData } from "./libs/listingCardData";
 import { buildSeoMetadata } from "./libs/seo";
 import BecomeHostLink from "./components/BecomeHostLink";
 import LandingHero from "./components/landing/LandingHero";
 import FeatureShowcase from "./components/landing/FeatureShowcase";
 import Reveal from "./components/landing/Reveal";
-import { CategoryMarquee, HomeFaq, HostCtaBand, HowItWorks, TrustBar, WhyRedrive } from "./components/landing/sections";
+import LiveStats from "./components/landing/LiveStats";
+import LiveListingsRail from "./components/landing/LiveListingsRail";
+import CategoryExplorer from "./components/landing/CategoryExplorer";
+import PriceEstimator from "./components/landing/PriceEstimator";
+import CoveragePanel from "./components/landing/CoveragePanel";
+import GuestVoices from "./components/landing/GuestVoices";
+import { FALLBACK_CARDS } from "./components/landing/fallbackCards";
+import { HomeFaq, HostCtaBand, HowItWorks, WhyRedrive } from "./components/landing/sections";
 
 export const revalidate = 1800;
 
@@ -28,36 +35,27 @@ export const metadata = buildSeoMetadata({
   imageAlt: "Redrive — useful vehicles shared locally across Australia",
 });
 
-/** Keeps the showcase grid full even before a region has many live listings. */
-const FALLBACK_CARDS: ListingCardData[] = [
-  { id: "s1", title: "Dual-cab ute — tow pack & tray", category: "Utes", suburb: "Brunswick", state: "VIC", price: 96, imageSrcs: [], badgeValue: null, reviewAverage: 4.9, reviewCount: 24, hostVerified: true, hostResponseHours: 0.5, instantBook: true },
-  { id: "s2", title: "Compact campervan — sleeps two", category: "Motorhomes", suburb: "Fremantle", state: "WA", price: 145, imageSrcs: [], badgeValue: null, reviewAverage: 4.8, reviewCount: 41, hostVerified: true, hostResponseHours: 2, instantBook: false },
-  { id: "s3", title: "City runabout — cheap on fuel", category: "Car", suburb: "Newtown", state: "NSW", price: 58, imageSrcs: [], badgeValue: null, reviewAverage: 4.7, reviewCount: 12, hostVerified: false, hostResponseHours: 6, instantBook: true },
-  { id: "s4", title: "Long-wheelbase cargo van", category: "Vans", suburb: "Bowen Hills", state: "QLD", price: 89, imageSrcs: [], badgeValue: null, reviewAverage: 5, reviewCount: 8, hostVerified: true, hostResponseHours: 1, instantBook: false },
-  { id: "s5", title: "Off-road wagon — roof tent ready", category: "Car", suburb: "Wanniassa", state: "ACT", price: 112, imageSrcs: [], badgeValue: null, reviewAverage: 4.9, reviewCount: 33, hostVerified: true, hostResponseHours: 3, instantBook: true },
-  { id: "s6", title: "Twin-axle box trailer", category: "Trucks", suburb: "Prospect", state: "SA", price: 34, imageSrcs: [], badgeValue: null, reviewAverage: 4.6, reviewCount: 5, hostVerified: false, hostResponseHours: 12, instantBook: false },
-];
-
 export default async function Home() {
-  let live: ListingCardData[] = [];
-  try {
-    const listings = await getListings({});
-    live = listings.map(toListingCardData);
-  } catch {
-    live = [];
-  }
+  const home = await getHomeData();
 
-  const seen = new Set(live.map((l) => l.id));
-  const showcase = [...live, ...FALLBACK_CARDS.filter((f) => !seen.has(f.id))].slice(0, 6);
+  const seen = new Set(home.cards.map((card) => card.id));
+  const showcase: ListingCardData[] = [
+    ...home.cards,
+    ...FALLBACK_CARDS.filter((card) => !seen.has(card.id)),
+  ].slice(0, 6);
 
   return (
     <div className="overflow-x-clip">
-      <LandingHero listings={showcase} />
-      <TrustBar />
+      <LandingHero listings={showcase} liveCount={home.stats.liveCount} />
+      <LiveStats stats={home.stats} />
+      <LiveListingsRail cards={home.fresh.length ? home.fresh : home.cards} liveCount={home.stats.liveCount} />
+      <CategoryExplorer byCategory={home.byCategory} />
       <FeatureShowcase listings={showcase} />
-      <CategoryMarquee />
+      <PriceEstimator />
       <HowItWorks />
+      <CoveragePanel byState={home.byState} />
       <WhyRedrive />
+      <GuestVoices reviews={home.reviews} />
       <HomeFaq />
 
       <section className="mx-auto max-w-6xl px-5 pb-4 sm:px-8">
@@ -82,9 +80,7 @@ export default async function Home() {
                   className="transition-[transform,color] duration-300 group-hover:translate-x-1.5 group-hover:text-yellow-500"
                 />
               </Link>
-              <BecomeHostLink
-                className="inline-flex h-12 items-center rounded-full border border-border-strong bg-white px-6 text-sm font-semibold text-ink transition-[border-color,transform] duration-300 hover:-translate-y-0.5 hover:border-ink"
-              >
+              <BecomeHostLink className="inline-flex h-12 items-center rounded-full border border-border-strong bg-white px-6 text-sm font-semibold text-ink transition-[border-color,transform] duration-300 hover:-translate-y-0.5 hover:border-ink">
                 List your vehicle
               </BecomeHostLink>
             </div>

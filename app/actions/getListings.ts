@@ -68,6 +68,7 @@ export default async function getListings(params: IListingsParams) {
 export function invalidatePublicListingsCache() {
   publicListingsMemoryCache.clear();
   revalidateTag(PUBLIC_LISTINGS_CACHE_TAG);
+  revalidateTag("home-data");
 }
 
 async function getListingsFromDatabase(params: IListingsParams) {

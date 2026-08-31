@@ -1,7 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { IconStar } from "@tabler/icons-react";
+import {
+  IconAlertTriangle,
+  IconAutomaticGearbox,
+  IconChargingPile,
+  IconCoin,
+  IconGauge,
+  IconRoad,
+  IconShieldCheck,
+  IconStar,
+  IconTruckDelivery,
+} from "@tabler/icons-react";
 import { ArrowRight, Check, ShieldCheck } from "lucide-react";
 
 import type { ListingCardData } from "@/app/libs/listingCardData";
@@ -90,6 +100,65 @@ export function BookingMock({ cover, title, suburb }: { cover?: string; title: s
   );
 }
 
+export function ListingDetailMock({ cover, title, suburb }: { cover?: string; title: string; suburb: string }) {
+  const chips = [
+    { icon: IconAutomaticGearbox, label: "Automatic" },
+    { icon: IconGauge, label: "68,000 km" },
+    { icon: IconChargingPile, label: "800 km range" },
+    { icon: IconRoad, label: "200 km/day" },
+    { icon: IconTruckDelivery, label: "Airport pickup" },
+    { icon: IconShieldCheck, label: "ANCAP 4/5" },
+    { icon: IconCoin, label: "AU$750 deposit" },
+  ];
+  return (
+    <div className="pointer-events-none select-none bg-white p-4 sm:p-6">
+      <div className="grid grid-cols-3 gap-1.5">
+        <div className="relative col-span-2 row-span-2 aspect-[4/3] overflow-hidden rounded-lg bg-surface-strong">
+          {cover ? <Image src={cover} alt="" fill sizes="320px" className="object-cover" /> : <div className="h-full w-full bg-mist" />}
+        </div>
+        <div className="aspect-square rounded-lg bg-surface-strong" />
+        <div className="aspect-square rounded-lg bg-surface-strong" />
+      </div>
+      <p className="mt-4 text-sm font-bold text-ink">{title}</p>
+      <p className="flex items-center gap-1 text-[11px] text-muted">
+        <IconStar size={12} className="fill-accent text-accent" /> 4.9 · Motorhome · {suburb}
+      </p>
+
+      <p className="mt-4 text-[11px] font-semibold text-ink">At a glance</p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {chips.map((chip) => (
+          <span
+            key={chip.label}
+            className="inline-flex items-center gap-1 rounded-full border border-hairline bg-white px-2 py-1 text-[10px] font-medium text-ink"
+          >
+            <chip.icon size={11} className="text-muted" />
+            {chip.label}
+          </span>
+        ))}
+      </div>
+
+      <div className="mt-4 rounded-xl border border-hairline bg-surface-soft p-3">
+        <div className="flex items-center gap-1.5 text-ink">
+          <IconAlertTriangle size={13} />
+          <span className="text-[11px] font-semibold">Before you book</span>
+        </div>
+        <ul className="mt-2 space-y-1.5">
+          {[
+            "Capped at 200 km/day — AU$0.33/km after that.",
+            "AU$750 security deposit is held, separate from the total.",
+            "No interstate travel; P-plate drivers not accepted.",
+          ].map((point) => (
+            <li key={point} className="flex gap-1.5 text-[10px] leading-snug text-body">
+              <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-muted" />
+              {point}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 export function ChatMock() {
   const messages = [
     { from: "them", text: "Hi! The ute is free that weekend 👍" },
@@ -136,28 +205,37 @@ export function HostStepMock() {
     <div className="pointer-events-none flex h-full select-none flex-col bg-white">
       <div className="border-b border-hairline-soft px-4 py-3">
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.14em] text-muted-soft">
-          <span>Part 2 · Make it stand out</span>
-          <span>6 / 15</span>
+          <span>Part 1 · Tell us about your vehicle</span>
+          <span>3 / 20</span>
         </div>
         <div className="mt-2 h-1 w-full rounded-full bg-surface-strong">
-          <div className="h-full rounded-full bg-primary" style={{ width: "40%" }} />
+          <div className="h-full rounded-full bg-primary" style={{ width: "15%" }} />
         </div>
       </div>
-      <div className="flex-1 p-4">
-        <p className="text-lg font-extrabold leading-tight tracking-tight text-ink">Add your photos</p>
-        <p className="mt-1.5 text-[11px] leading-snug text-muted">
-          Start with one strong main photo, then add up to nine more.
-        </p>
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <div className="col-span-2 flex aspect-[16/10] items-center justify-center rounded-lg bg-mist text-[10px] font-semibold text-muted">
-            Main photo
+      <div className="flex flex-1 flex-col">
+        <div className="border-b border-hairline-soft bg-surface-soft/40 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="h-6 w-9 rounded-sm border border-hairline bg-white" />
+            <span className="h-6 flex-1 rounded-sm bg-hairline-soft" />
           </div>
-          <div className="aspect-square rounded-lg bg-surface-strong" />
-          <div className="aspect-square rounded-lg bg-surface-strong" />
-          <div className="flex aspect-square items-center justify-center rounded-lg border-2 border-dashed border-hairline text-lg font-bold text-muted-soft">
-            +
+          <p className="mt-2 text-[9px] font-bold uppercase tracking-[0.14em] text-primary">Why it matters</p>
+          <p className="mt-1 text-[10px] leading-snug text-muted">
+            Automatic vs manual is a hard filter for a lot of drivers.
+          </p>
+        </div>
+        <div className="flex-1 p-4">
+          <p className="text-base font-extrabold leading-tight tracking-tight text-ink">Share a few basics</p>
+          <div className="mt-3 space-y-2">
+            <div className="flex items-center justify-between text-[11px] text-ink">
+              <span>People</span>
+              <span className="flex items-center gap-2 text-muted-soft">− <b className="text-ink">4</b> +</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <span className="rounded-sm border-2 border-ink bg-ink px-3 py-2 text-center text-[10px] font-semibold text-white">Automatic</span>
+              <span className="rounded-sm border border-hairline px-3 py-2 text-center text-[10px] font-semibold text-ink">Manual</span>
+            </div>
+            <div className="h-9 rounded-sm border border-hairline" />
           </div>
-          <div className="aspect-square rounded-lg bg-surface-strong" />
         </div>
       </div>
       <div className="flex items-center justify-between border-t border-hairline-soft px-4 py-3">
