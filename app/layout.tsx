@@ -24,7 +24,7 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: "Redrive",
-  authors: [{ name: "Redrive", url: siteUrl }, { name: "Khush Patel" }],
+  authors: [{ name: "Redrive", url: siteUrl }, { name: "Khush Patel" }, { name: "Hiral Mahida" }],
   creator: "Khush Patel",
   publisher: "Redrive",
   category: "Travel and transportation",
@@ -114,7 +114,10 @@ export default function RootLayout({
                   name: "Redrive",
                   url: siteUrl,
                   logo: new URL(favicon.src, siteUrl).toString(),
-                  founder: { "@type": "Person", name: "Khush Patel" },
+                  founder: [
+                    { "@type": "Person", name: "Khush Patel" },
+                    { "@type": "Person", name: "Hiral Mahida" },
+                  ],
                   areaServed: { "@type": "Country", name: "Australia" },
                 },
                 {

@@ -8,7 +8,7 @@ import BecomeHostLink from "@/app/components/BecomeHostLink";
 
 export default function LandingHero({ listings }: { listings: ListingCardData[] }) {
   return (
-    <section className="aurora relative isolate flex min-h-[100svh] items-center overflow-hidden">
+    <section className="aurora relative isolate flex min-h-[82svh] items-start overflow-hidden sm:min-h-[100svh] sm:items-center">
       {/* static monochrome wireframe cubes behind the headline */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <HeroCube size={128} className="right-[3%] top-14 hidden opacity-50 lg:block" />
@@ -17,7 +17,7 @@ export default function LandingHero({ listings }: { listings: ListingCardData[] 
         <HeroCube size={56} className="left-[2%] bottom-[16%] hidden opacity-40 xl:block" />
       </div>
 
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-5 pb-16 pt-24 sm:px-8 sm:pt-16 lg:grid-cols-[1fr_1.05fr] lg:gap-10 lg:pb-24 lg:pt-20">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-5 pb-16 pt-14 sm:gap-14 sm:px-8 sm:pt-16 lg:grid-cols-[1fr_1.05fr] lg:gap-10 lg:pb-24 lg:pt-20">
         <div className="fade-in">
           <span className="inline-flex items-center gap-2 rounded-full border border-yellow-500/40 bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-primary backdrop-blur">
             <CarFront size={13} className="text-yellow-500" /> Peer-to-peer vehicle hire · Australia
@@ -56,7 +56,7 @@ export default function LandingHero({ listings }: { listings: ListingCardData[] 
             </div>
           </BrowserFrame>
 
-          <div className="absolute -bottom-10 -left-4 hidden sm:block">
+          <div className="absolute -bottom-10 -left-4 hidden lg:block">
             <PhoneFrame label="Redrive booking screen" className="w-[188px] rotate-[3deg]">
               <BookingMock
                 cover={listings[0]?.imageSrcs?.[0]}
