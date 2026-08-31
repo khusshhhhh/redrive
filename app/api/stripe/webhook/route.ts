@@ -2,8 +2,10 @@ import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import type Stripe from "stripe";
 import { NextResponse } from "next/server";
 
+import { authorizeDeposit } from "@/app/libs/deposit";
 import prisma from "@/app/libs/prismadb";
 import { getStripe } from "@/app/libs/stripe";
+import { notificationService } from "@/app/services/notificationService";
 
 export const runtime = "nodejs";
 
@@ -80,6 +82,17 @@ async function POSTHandler(request: Request) {
             "Stripe payment does not match the reservation ledger",
           );
         }
+        const reservationRow = await prisma.reservation.findUnique({
+          where: { id: reservationId },
+          select: { endDate: true, confirmedAt: true },
+        });
+        const paidAt = new Date();
+        // The return handover normally releases the payout. If it stalls, this
+        // is the backstop the payouts cron uses to auto-resolve.
+        const autoReleaseAt = reservationRow
+          ? new Date(reservationRow.endDate.getTime() + 72 * 60 * 60_000)
+          : null;
+
         await prisma.$transaction([
           prisma.payment.update({
             where: { id: payment.id },
@@ -87,13 +100,18 @@ async function POSTHandler(request: Request) {
               status: "PAID_HELD",
               stripePaymentIntentId: paymentIntentId,
               stripeChargeId: chargeId,
-              paidAt: new Date(),
+              paidAt,
               failureMessage: null,
             },
           }),
           prisma.reservation.update({
             where: { id: reservationId },
-            data: { paymentStatus: "PAID_HELD", paidAt: new Date() },
+            data: {
+              paymentStatus: "PAID_HELD",
+              paidAt,
+              confirmedAt: paidAt,
+              ...(autoReleaseAt ? { autoReleaseAt } : {}),
+            },
           }),
           prisma.auditEvent.create({
             data: {
@@ -109,6 +127,33 @@ async function POSTHandler(request: Request) {
             },
           }),
         ]);
+
+        // Tell both sides the trip is locked in — only on the first capture.
+        if (!reservationRow?.confirmedAt) {
+          try {
+            await Promise.all([
+              notificationService.notifyBookingConfirmed(
+                payment.renterId,
+                "your booking",
+                reservationId,
+                "GUEST",
+              ),
+              notificationService.notifyBookingConfirmed(
+                payment.ownerId,
+                "your vehicle",
+                reservationId,
+                "HOST",
+              ),
+            ]);
+          } catch (notifyError) {
+            console.error("Booking-confirmed notification failed", notifyError);
+          }
+          // Pre-authorise the refundable security deposit (dormant unless
+          // DEPOSIT_PREAUTH_ENABLED=true).
+          await authorizeDeposit(reservationId).catch((depositError) =>
+            console.error("Deposit authorisation failed", depositError),
+          );
+        }
       }
     } else if (event.type === "checkout.session.expired") {
       const session = event.data.object as Stripe.Checkout.Session;
@@ -133,6 +178,23 @@ async function POSTHandler(request: Request) {
             "Payment failed",
         },
       });
+      const failedReservation = reservationId
+        ? await prisma.reservation.findUnique({
+            where: { id: reservationId },
+            select: { userId: true, status: true, listing: { select: { title: true } } },
+          })
+        : null;
+      if (failedReservation && failedReservation.status === "APPROVED") {
+        try {
+          await notificationService.notifyPaymentFailed(
+            failedReservation.userId,
+            failedReservation.listing.title,
+            reservationId!,
+          );
+        } catch (notifyError) {
+          console.error("Payment-failed notification failed", notifyError);
+        }
+      }
     }
     await prisma.stripeWebhookEvent.create({
       data: { stripeEventId: event.id, type: event.type },

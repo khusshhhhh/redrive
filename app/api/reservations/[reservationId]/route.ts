@@ -8,6 +8,8 @@ import { writeAuditEvent } from "@/app/libs/security";
 import { getStripe } from "@/app/libs/stripe";
 import { calculateCancellationOutcome } from "@/app/libs/cancellationPolicy";
 import { renterIdentityCheck } from "@/app/libs/bookingIdentity";
+import { mayRevealExactLocation } from "@/app/libs/reservationAccess";
+import { releaseDeposit } from "@/app/libs/deposit";
 
 async function GETHandler(
   request: NextRequest,
@@ -53,6 +55,13 @@ async function GETHandler(
     // for their vehicle before approving. Nobody else can reach this route.
     const identityCheck = renterIdentityCheck(reservation.user);
 
+    const maySeeExactLocation = mayRevealExactLocation({
+      isOwner: reservation.listing.userId === currentUser.id,
+      reservationStatus: reservation.status,
+      paymentStatus: reservation.paymentStatus,
+      releaseRule: reservation.listing.exactLocationReleaseRule,
+    });
+
     const safeReservation = {
       ...reservation,
       renterIdentity: identityCheck,
@@ -66,6 +75,9 @@ async function GETHandler(
         number: reservation.user.number,
         image: reservation.user.image,
         profileVerified: reservation.user.profileVerified,
+        guestRatingAvg: reservation.user.guestRatingAvg,
+        guestRatingCount: reservation.user.guestRatingCount,
+        tripsAsGuestCompleted: reservation.user.tripsAsGuestCompleted,
         createdAt: reservation.user.createdAt.toISOString(),
         updatedAt: reservation.user.updatedAt.toISOString(),
         emailVerified: reservation.user.emailVerified
@@ -80,21 +92,9 @@ async function GETHandler(
       },
       listing: {
         ...reservation.listing,
-        address:
-          reservation.listing.userId === currentUser.id ||
-          ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status)
-            ? reservation.listing.address
-            : "",
-        latitude:
-          reservation.listing.userId === currentUser.id ||
-          ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status)
-            ? reservation.listing.latitude
-            : null,
-        longitude:
-          reservation.listing.userId === currentUser.id ||
-          ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status)
-            ? reservation.listing.longitude
-            : null,
+        address: maySeeExactLocation ? reservation.listing.address : "",
+        latitude: maySeeExactLocation ? reservation.listing.latitude : null,
+        longitude: maySeeExactLocation ? reservation.listing.longitude : null,
         createdAt: reservation.listing.createdAt.toISOString(),
         lastServicedAt: reservation.listing.lastServicedAt ? reservation.listing.lastServicedAt.toISOString() : null,
       },
@@ -295,6 +295,11 @@ async function DELETEHandler(
       },
     });
 
+    // Release any pre-authorised security deposit back to the guest.
+    await releaseDeposit(reservationId).catch((error) =>
+      console.error("Deposit release on cancel failed", error),
+    );
+
     await writeAuditEvent({
       request,
       actorUserId: currentUser.id,
@@ -420,7 +425,10 @@ async function PATCHHandler(
           );
         }
       }
-      if (!payoutsEnabled)
+      if (!payoutsEnabled) {
+        notificationService
+          .notifyPayoutSetupRequired(currentUser.id)
+          .catch((error) => console.error("Payout-setup notification failed", error));
         return NextResponse.json(
           {
             error:
@@ -429,6 +437,7 @@ async function PATCHHandler(
           },
           { status: 409 },
         );
+      }
     }
 
     const updated = await prisma.reservation.update({

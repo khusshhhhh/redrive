@@ -21,7 +21,17 @@ async function GETHandler(
 
   try {
     const reviews = await prisma.review.findMany({
-      where: { listingId },
+      // Only reviews that have passed the blind-reveal step are public. Reviews
+      // created before two-way reviews existed have no reservationId and are
+      // always shown.
+      where: {
+        listingId,
+        OR: [
+          { publishedAt: { not: null } },
+          { reservationId: null },
+          { reservationId: { isSet: false } },
+        ],
+      },
       include: { user: { select: { name: true, image: true } } },
       orderBy: { createdAt: "desc" },
     });

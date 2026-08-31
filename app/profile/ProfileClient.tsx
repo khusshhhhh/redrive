@@ -48,6 +48,7 @@ import PayoutSettings from "@/app/components/payments/PayoutSettings";
 import EmailVerification from "@/app/components/profile/EmailVerification";
 import LicenseVerificationPanel from "@/app/components/profile/LicenseVerificationPanel";
 import DeleteAccountPanel from "@/app/components/profile/DeleteAccountPanel";
+import NotificationPreferences from "@/app/components/profile/NotificationPreferences";
 
 interface ProfileFormData {
   name: string;
@@ -691,6 +692,8 @@ export default function ProfileClient({
             </form>
 
             <PayoutSettings />
+
+            <NotificationPreferences />
 
             <SectionCard
               id="security"

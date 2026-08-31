@@ -61,6 +61,10 @@ export default function HandoverPanel({
   const [busy, setBusy] = useState(false);
   const [showIncident, setShowIncident] = useState(false);
   const [incidentSummary, setIncidentSummary] = useState("");
+  const [problemOpen, setProblemOpen] = useState(false);
+  const [problemType, setProblemType] = useState("DAMAGE");
+  const [problemText, setProblemText] = useState("");
+  const [problemBusy, setProblemBusy] = useState(false);
 
   const load = () =>
     axios
@@ -163,6 +167,36 @@ export default function HandoverPanel({
     }
   };
 
+  const isHost = reservation.listing.userId === currentUserId;
+  const tripStarted = new Date(reservation.startDate).getTime() <= Date.now();
+  const returnOverdue =
+    new Date(reservation.endDate).getTime() < Date.now() && reservation.status !== "COMPLETED";
+
+  const submitProblem = async () => {
+    if (problemText.trim().length < 10) {
+      return toast.error("Describe the problem in at least 10 characters");
+    }
+    setProblemBusy(true);
+    try {
+      await axios.post(`/api/reservations/${reservation.id}/incidents`, {
+        type: problemType,
+        summary: problemText.trim(),
+      });
+      toast.success("Reported. The other party has been notified and the payout is held for review.");
+      setProblemText("");
+      setProblemOpen(false);
+      onChanged();
+    } catch (error) {
+      toast.error(
+        axios.isAxiosError<{ error?: string }>(error)
+          ? error.response?.data?.error || "Could not report the problem"
+          : "Could not report the problem",
+      );
+    } finally {
+      setProblemBusy(false);
+    }
+  };
+
   const reportIncident = async () => {
     if (incidentSummary.trim().length < 10)
       return toast.error("Describe the issue in at least 10 characters");
@@ -197,6 +231,7 @@ export default function HandoverPanel({
           </p>
         </div>
       </div>
+      <VehicleHandoverNotes listing={reservation.listing} />
       <div className="mt-6 grid grid-cols-2 rounded-sm bg-surface-soft p-1">
         {(["PICKUP", "RETURN"] as const).map((item) => (
           <button
@@ -443,7 +478,114 @@ export default function HandoverPanel({
           </button>
         </div>
       )}
+
+      {tripStarted && ["PAID_HELD", "RELEASED"].includes(reservation.paymentStatus || "") && (
+        <div className="mt-6 border-t border-hairline-soft pt-5">
+          {isHost && returnOverdue && (
+            <p className="mb-3 rounded-sm border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900">
+              This trip&rsquo;s return time has passed.
+              {reservation.listing.lateReturnFeePerHour
+                ? ` Your listing lists a late fee of AU$${reservation.listing.lateReturnFeePerHour}/hour — report it below to start a record.`
+                : " Report a late return below to start a record."}
+            </p>
+          )}
+          {problemOpen ? (
+            <div className="rounded-sm border border-hairline-soft p-4">
+              <label className="text-xs font-semibold text-ink">
+                What&rsquo;s the problem?
+                <select
+                  value={problemType}
+                  onChange={(event) => setProblemType(event.target.value)}
+                  className="mt-2 h-10 w-full rounded-sm border border-hairline bg-white px-2 text-sm font-normal"
+                >
+                  <option value="DAMAGE">Damage</option>
+                  <option value="CLEANLINESS">Cleanliness</option>
+                  <option value="LATE_RETURN">Late return</option>
+                  <option value="FUEL_OR_CHARGE">Returned low on fuel / charge</option>
+                  <option value="RULES_BREACH">Trip rules not followed</option>
+                  <option value="OTHER">Something else</option>
+                </select>
+              </label>
+              <textarea
+                value={problemText}
+                onChange={(event) => setProblemText(event.target.value.slice(0, 3000))}
+                rows={3}
+                placeholder="What happened, and when. Handover photos are attached automatically."
+                className="mt-3 w-full rounded-sm border border-hairline bg-white p-3 text-sm leading-6 outline-none focus:border-ink"
+              />
+              <div className="mt-2 flex gap-2">
+                <button
+                  type="button"
+                  disabled={problemBusy || problemText.trim().length < 10}
+                  onClick={() => void submitProblem()}
+                  className="h-10 rounded-sm bg-error px-4 text-xs font-semibold text-white disabled:opacity-50"
+                >
+                  {problemBusy ? "Reporting…" : "Report problem · hold payout"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProblemOpen(false)}
+                  className="h-10 rounded-sm border border-hairline px-4 text-xs font-semibold text-muted"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setProblemOpen(true)}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-error underline underline-offset-4"
+            >
+              <ShieldAlert size={14} /> Report a problem with this trip
+            </button>
+          )}
+        </div>
+      )}
     </section>
+  );
+}
+
+// Category-relevant reminders pulled from the listing's specs, so both parties
+// check the right things at handover (misfuel, clearance, tolls, self-contained
+// certificate, key count, …).
+function VehicleHandoverNotes({ listing }: { listing: SafeReservation["listing"] }) {
+  const notes: string[] = [];
+  const fuel = (listing.fuelType || "").toLowerCase();
+  if (fuel.includes("diesel")) notes.push("Diesel — do not misfuel. Check for an AdBlue filler.");
+  if (fuel.includes("electric") || listing.chargePortType)
+    notes.push(`Electric — confirm charge level and that the charging cable${listing.portableChargerIncluded ? " and portable charger" : ""} is in the vehicle.`);
+  if (listing.keysProvided && listing.keysProvided > 1)
+    notes.push(`${listing.keysProvided} keys / fobs provided — count them both ways.`);
+  if (listing.vehicleHeightMeters)
+    notes.push(`Vehicle height ${listing.vehicleHeightMeters} m — mind car parks and low clearances.`);
+  if (listing.hasTollTag || listing.tollHandling)
+    notes.push(
+      listing.tollHandling === "TAG_INCLUDED" || listing.hasTollTag
+        ? "Toll tag is fitted — leave it in the vehicle."
+        : "No toll tag — tolls are billed back to the guest.",
+    );
+  if (listing.selfContained && listing.selfContainedCertNumber)
+    notes.push(`Self-contained certificate #${listing.selfContainedCertNumber} — keep it with the vehicle.`);
+  if (listing.spareTyre === false) notes.push("No spare tyre — note the tyre-repair kit location.");
+  if (listing.dailyKmAllowance)
+    notes.push(`${listing.dailyKmAllowance.toLocaleString()} km/day included${listing.excessKmFee ? `, then AU$${listing.excessKmFee}/km` : ""} — record the odometer carefully.`);
+
+  if (notes.length === 0) return null;
+  return (
+    <div className="mt-5 rounded-sm border border-hairline-soft bg-surface-soft p-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+        Check for this vehicle
+      </p>
+      <ul className="mt-2 space-y-1.5">
+        {notes.map((note) => (
+          <li key={note} className="flex gap-2 text-xs leading-5 text-body">
+            <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary" />
+            {note}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

@@ -1,6 +1,7 @@
 import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 
+import { syncDueCalendars } from "@/app/libs/calendarSync";
 import prisma from "@/app/libs/prismadb";
 import { getStripe } from "@/app/libs/stripe";
 
@@ -60,7 +61,13 @@ async function GETHandler(request: Request) {
     ]);
     expiredCount += 1;
   }
-  return NextResponse.json({ checked: expired.length, expired: expiredCount });
+
+  const calendars = await syncDueCalendars().catch((error) => {
+    console.error("Calendar sync failed", error);
+    return { synced: 0, failed: 0 };
+  });
+
+  return NextResponse.json({ checked: expired.length, expired: expiredCount, calendars });
 }
 
 export const GET = monitorApiRoute("/api/cron/booking-maintenance", GETHandler, "GET");

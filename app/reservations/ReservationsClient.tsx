@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import toast from "@/app/libs/toast";
 import { CalendarDays, ChevronRight, MapPin, UsersRound } from "lucide-react";
 
 import Container from "../components/Container";
+import CancelBookingDialog from "../components/reservations/CancelBookingDialog";
 import type { SafeReservation, SafeUser } from "../types";
 import { calculateCancellationOutcome } from "../libs/cancellationPolicy";
 
@@ -25,25 +24,11 @@ const statusStyle: Record<string, string> = {
 
 export default function ReservationsClient({ reservations }: ReservationsClientProps) {
   const router = useRouter();
-  const [deletingId, setDeletingId] = useState("");
+  const [cancelTarget, setCancelTarget] = useState<SafeReservation | null>(null);
 
-  const onCancel = useCallback(async (reservation: SafeReservation) => {
-    const hasPaid = ["PAID_HELD", "RELEASED"].includes(reservation.paymentStatus || "");
-    const paymentCopy = hasPaid ? `The guest will receive a full refund of AU$${reservation.totalFees.toLocaleString("en-AU")}.` : "The guest has not been charged.";
-    const confirmed = window.confirm(`Cancel this guest’s booking?\n\n${paymentCopy} Their dates will be released immediately. This action cannot be undone.`);
-    if (!confirmed) return;
-    const reason = window.prompt("Tell the guest why you need to cancel this booking.") || "Host cancelled the booking";
-    setDeletingId(reservation.id);
-    try {
-      await axios.delete(`/api/reservations/${reservation.id}`, { data: { reason } });
-      toast.success(hasPaid ? "Reservation cancelled · full guest refund started" : "Booking request cancelled");
-      router.refresh();
-    } catch (error: unknown) {
-      toast.error(axios.isAxiosError<{ error?: string }>(error) ? error.response?.data?.error || "Reservation could not be cancelled" : "Reservation could not be cancelled");
-    } finally {
-      setDeletingId("");
-    }
-  }, [router]);
+  const onCancel = useCallback((reservation: SafeReservation) => {
+    setCancelTarget(reservation);
+  }, []);
 
   return (
     <main className="bg-surface-soft/40 py-8 sm:py-12">
@@ -83,7 +68,7 @@ export default function ReservationsClient({ reservations }: ReservationsClientP
                     </div>
                     <div className="flex items-center gap-2 border-t border-hairline-soft p-4 md:w-44 md:flex-col md:justify-center md:border-l md:border-t-0">
                       <button onClick={() => router.push(`/reservations/${reservation.id}`)} className="flex h-11 flex-1 items-center justify-center gap-1 rounded-sm bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary-active md:w-full md:flex-none">Details <ChevronRight size={16} /></button>
-                      {canCancel && <button disabled={deletingId === reservation.id} onClick={() => void onCancel(reservation)} className="h-11 flex-1 rounded-sm border border-hairline px-4 text-sm font-semibold text-muted transition hover:border-error hover:text-error disabled:opacity-50 md:w-full md:flex-none">{deletingId === reservation.id ? "Cancelling…" : hasPaid ? "Cancel · full refund" : "Decline request"}</button>}
+                      {canCancel && <button onClick={() => onCancel(reservation)} className="h-11 flex-1 rounded-sm border border-hairline px-4 text-sm font-semibold text-muted transition hover:border-error hover:text-error disabled:opacity-50 md:w-full md:flex-none">{hasPaid ? "Cancel · full refund" : "Decline request"}</button>}
                     </div>
                   </div>
                 </article>
@@ -92,6 +77,13 @@ export default function ReservationsClient({ reservations }: ReservationsClientP
           </div>
         </div>
       </Container>
+      <CancelBookingDialog
+        reservation={cancelTarget}
+        role="HOST"
+        open={cancelTarget !== null}
+        onClose={() => setCancelTarget(null)}
+        onCancelled={() => router.refresh()}
+      />
     </main>
   );
 }

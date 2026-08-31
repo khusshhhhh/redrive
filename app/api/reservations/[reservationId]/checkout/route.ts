@@ -2,6 +2,7 @@ import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
+import { depositEnabled } from "@/app/libs/deposit";
 import prisma from "@/app/libs/prismadb";
 import { siteUrl } from "@/app/libs/siteUrl";
 import { getStripe } from "@/app/libs/stripe";
@@ -26,6 +27,8 @@ async function POSTHandler(request: Request, context: Context) {
           title: true,
           userId: true,
           imageSrcs: true,
+          securityDeposit: true,
+          depositHoldMethod: true,
           user: {
             select: {
               stripeConnectedAccountId: true,
@@ -112,6 +115,10 @@ async function POSTHandler(request: Request, context: Context) {
       );
     }
 
+    const needsDepositHold =
+      (reservation.listing.securityDeposit || 0) > 0 &&
+      reservation.listing.depositHoldMethod === "PRE_AUTH";
+
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",
       customer_email: reservation.user.email || undefined,
@@ -134,9 +141,17 @@ async function POSTHandler(request: Request, context: Context) {
         },
       ],
       metadata: { reservationId },
+      // Save the card when a refundable security deposit will be pre-authorised
+      // after payment (feature is dormant unless DEPOSIT_PREAUTH_ENABLED=true).
+      ...(depositEnabled() && needsDepositHold
+        ? { customer_creation: "always" as const }
+        : {}),
       payment_intent_data: {
         transfer_group: `reservation_${reservationId}`,
         metadata: { reservationId, ownerId: reservation.listing.userId },
+        ...(depositEnabled() && needsDepositHold
+          ? { setup_future_usage: "off_session" as const }
+          : {}),
       },
       success_url: `${siteUrl}/reservations/${reservationId}?payment=success`,
       cancel_url: `${siteUrl}/reservations/${reservationId}?payment=cancelled`,

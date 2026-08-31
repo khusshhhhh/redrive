@@ -1,5 +1,7 @@
 import type { Prisma } from "@prisma/client";
 
+import { mayRevealExactLocation } from "@/app/libs/reservationAccess";
+
 type MobileReservationRecord = Prisma.ReservationGetPayload<{
   include: {
     listing: true;
@@ -78,7 +80,12 @@ export function toPublicListing(listing: MobileListingRecord, favouriteIds: stri
 
 export function toMobileReservation(reservation: MobileReservationRecord, currentUserId: string) {
   const listing = reservation.listing;
-  const maySeeExactLocation = listing.userId === currentUserId || ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status);
+  const maySeeExactLocation = mayRevealExactLocation({
+    isOwner: listing.userId === currentUserId,
+    reservationStatus: reservation.status,
+    paymentStatus: reservation.paymentStatus,
+    releaseRule: listing.exactLocationReleaseRule,
+  });
   return {
     id: reservation.id,
     role: reservation.userId === currentUserId ? "renter" : "owner",

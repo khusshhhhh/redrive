@@ -26,6 +26,8 @@ import {
 import Container from "@/app/components/Container";
 import type { SafeReservation, SafeUser } from "@/app/types";
 import HandoverPanel from "@/app/components/reservations/HandoverPanel";
+import IncidentThread from "@/app/components/reservations/IncidentThread";
+import TripStatusTimeline from "@/app/components/reservations/TripStatusTimeline";
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
 import RenterIdentityCard from "@/app/components/reservations/RenterIdentityCard";
 
@@ -235,10 +237,12 @@ export default function ReservationDetails() {
                 </div>
               </section>
 
+              <TripStatusTimeline reservation={reservation} />
+
               <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
                 <SectionHeading
                   icon={<CalendarDays size={19} />}
-                  title="Booking timeline"
+                  title="Booking dates"
                   subtitle="Pickup and return dates for this reservation."
                 />
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -305,11 +309,23 @@ export default function ReservationDetails() {
                   identity={reservation.renterIdentity}
                   viewerIsOwner={isHost}
                   renterFirstName={reservation.user.name?.split(" ")[0] || "This guest"}
+                  guestTrack={{
+                    ratingAvg: reservation.user.guestRatingAvg ?? null,
+                    ratingCount: reservation.user.guestRatingCount ?? 0,
+                    tripsCompleted: reservation.user.tripsAsGuestCompleted ?? 0,
+                  }}
                 />
               )}
               {currentUser && (
                 <HandoverPanel
                   reservation={reservation}
+                  currentUserId={currentUser.id}
+                  onChanged={() => void refreshReservation()}
+                />
+              )}
+              {currentUser && (
+                <IncidentThread
+                  reservationId={reservation.id}
                   currentUserId={currentUser.id}
                   onChanged={() => void refreshReservation()}
                 />

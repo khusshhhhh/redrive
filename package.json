@@ -13,7 +13,7 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "test": "tsx --test app/libs/*.test.ts",
+    "test": "tsx --test app/libs/**/*.test.ts",
     "typecheck:contracts": "npm run typecheck --workspace @redrive/contracts",
     "typecheck:mobile": "npm run typecheck --workspace @redrive/mobile",
     "doctor:mobile": "npm exec --workspace @redrive/mobile -- expo-doctor",

@@ -204,7 +204,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                             </div>
                         </div>
                     </div>
-                    <Reviews listingId={listing.id} />
+                    <Reviews listingId={listing.id} canRespond={isOwner} />
                 </div>
             </div>
             {!isOwner && (

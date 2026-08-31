@@ -21,6 +21,7 @@ import StateSelector, { states as AU_STATES } from "@/app/components/inputs/Stat
 import SuburbSelector from "@/app/components/inputs/SuburbSelector";
 import DatePicker from "@/app/components/inputs/DatePicker";
 import CancellationPolicySelector from "@/app/components/listings/CancellationPolicySelector";
+import CalendarSyncPanel from "@/app/components/listings/CalendarSyncPanel";
 import OptionSelector from "@/app/components/inputs/OptionSelector";
 import ToggleRow from "@/app/components/inputs/ToggleRow";
 import ChipMultiSelect from "@/app/components/inputs/ChipMultiSelect";
@@ -727,6 +728,9 @@ const EditUtilityPage = () => {
                     </button>
                 </div>
             </form>
+            <div className="mt-5">
+                <CalendarSyncPanel listingId={listingId} />
+            </div>
             </div>
         </div>
         </main>

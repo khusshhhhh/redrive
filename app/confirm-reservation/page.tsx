@@ -15,9 +15,8 @@ import InlineRetry from "@/app/components/InlineRetry";
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
 import LicenseVerificationPanel from "@/app/components/profile/LicenseVerificationPanel";
 import { hasCurrentVerifiedLicense } from "@/app/libs/licenseVerification";
+import { calculateServiceFee, redriveFee as calcRedriveFee } from "@/app/libs/pricing";
 import type { SafeUser } from "@/app/types";
-
-const serviceFeeFor = (total: number) => total <= 200 ? 10 : total <= 400 ? 25 : total <= 800 ? 40 : total <= 1200 ? 60 : total <= 2000 ? 80 : 100;
 const money = (value: number) => `AU$${value.toLocaleString("en-AU")}`;
 
 export default function ConfirmReservation() {
@@ -62,8 +61,8 @@ export default function ConfirmReservation() {
   };
 
   const totals = useMemo(() => {
-    const serviceFee = serviceFeeFor(basePrice);
-    const redriveFee = Math.round(basePrice * 0.08);
+    const serviceFee = calculateServiceFee(basePrice);
+    const redriveFee = calcRedriveFee(basePrice);
     const cleaningFee = listing?.cleaningFeeOption === "YES" ? Number(listing.cleaningFeeAmount || 0) : 0;
     return { serviceFee, redriveFee, cleaningFee, total: basePrice + serviceFee + redriveFee + insuranceFee + cleaningFee };
   }, [basePrice, insuranceFee, listing]);
@@ -84,9 +83,14 @@ export default function ConfirmReservation() {
     }
     setSubmitting(true);
     try {
-      await axios.post("/api/reservations", { listingId, startDate, endDate, totalPrice: basePrice, insuranceType, insuranceFee, message });
-      toast.success("Booking request sent");
-      router.push("/trips");
+      const { data } = await axios.post("/api/reservations", { listingId, startDate, endDate, totalPrice: basePrice, insuranceType, insuranceFee, message });
+      if (data?.status === "APPROVED") {
+        toast.success("Booked — pay now to confirm your trip");
+        router.push(`/reservations/${data.id}`);
+      } else {
+        toast.success("Booking request sent");
+        router.push("/trips");
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Booking request could not be sent");
       if (error.response?.data?.code === "EMAIL_VERIFICATION_REQUIRED") {
@@ -197,7 +201,8 @@ export default function ConfirmReservation() {
                     Complete the identity check to send this request.
                   </p>
                 )}
-                <div className="mt-6"><Button label="Send booking request" disabled={!identityVerified} loading={submitting} loadingLabel="Sending request" onClick={confirmBooking} /></div>
+                <div className="mt-6"><Button label={listing?.instantBook ? "Book now" : "Send booking request"} disabled={!identityVerified} loading={submitting} loadingLabel={listing?.instantBook ? "Booking" : "Sending request"} onClick={confirmBooking} /></div>
+                <p className="mt-2 text-xs leading-5 text-muted">{listing?.instantBook ? "This vehicle books instantly. You'll pay on the next screen to confirm — your card isn't charged until then." : "The host reviews your request and you're only charged once they accept."}</p>
                 <p className="mt-3 text-center text-[11px] leading-5 text-muted">By requesting, you agree to Redrive’s booking and cancellation terms.</p>
               </section>
               <div className="flex gap-3 rounded-md bg-graphite p-5 text-white"><Clock3 size={19} className="mt-0.5 shrink-0 text-primary" /><div><p className="text-sm font-semibold">No charge yet</p><p className="mt-1 text-xs leading-5 text-white/70">The host must approve this request before the booking is confirmed.</p></div></div>

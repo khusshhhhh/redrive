@@ -8,6 +8,7 @@ import { buildBookingQuote, PRICING_POLICY_VERSION } from "@/app/libs/booking";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 import { notificationService } from "@/app/services/notificationService";
 import { cancellationPolicySnapshot, normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
+import { mayRevealExactLocation } from "@/app/libs/reservationAccess";
 
 const blockingStatuses = ["REVIEWING", "APPROVED", "ACTIVE"];
 
@@ -22,7 +23,7 @@ async function POSTHandler(request: NextRequest) {
     ]);
     if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
 
-    const renter = await prisma.user.findUnique({ where: { id: currentUser.id }, select: { emailVerified: true, licenseStatus: true, licenseExpiresAt: true } });
+    const renter = await prisma.user.findUnique({ where: { id: currentUser.id }, select: { emailVerified: true, licenseStatus: true, licenseExpiresAt: true, guestRatingAvg: true, guestRatingCount: true } });
     if (!renter?.emailVerified) {
       return NextResponse.json({ error: "Verify your email before requesting a booking.", code: "EMAIL_VERIFICATION_REQUIRED" }, { status: 403 });
     }
@@ -47,7 +48,7 @@ async function POSTHandler(request: NextRequest) {
 
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
-      select: { id: true, title: true, userId: true, price: true, cleaningFeeOption: true, cleaningFeeAmount: true, minimumNoticeHours: true, minimumTripDays: true, maximumTripDays: true, cancellationPolicy: true },
+      select: { id: true, title: true, userId: true, price: true, cleaningFeeOption: true, cleaningFeeAmount: true, minimumNoticeHours: true, minimumTripDays: true, maximumTripDays: true, cancellationPolicy: true, instantBook: true, user: { select: { stripePayoutsEnabled: true } } },
     });
     if (!listing) return NextResponse.json({ error: "Listing not found" }, { status: 404 });
     if (listing.userId === currentUser.id) return NextResponse.json({ error: "You cannot book your own listing" }, { status: 403 });
@@ -66,9 +67,38 @@ async function POSTHandler(request: NextRequest) {
     ]);
     if (reservationConflict || ownerBlock) return NextResponse.json({ error: "Those dates are no longer available", code: "DATES_UNAVAILABLE" }, { status: 409 });
 
+    // Instant Book: the host has opted in and can receive payouts, and the guest
+    // is already email- and licence-verified (checked above), so the request is
+    // auto-approved and goes straight to payment. Guests with a poor track
+    // record (a low average over a few host reviews) still go to manual review.
+    const guestBlockedFromInstant =
+      (renter.guestRatingCount ?? 0) >= 2 && (renter.guestRatingAvg ?? 5) < 3.5;
+    const instant =
+      listing.instantBook === true &&
+      listing.user.stripePayoutsEnabled === true &&
+      !guestBlockedFromInstant;
+
     const reservation = await prisma.$transaction(async (tx) => {
       const created = await tx.reservation.create({
-        data: { userId: currentUser.id, listingId, startDate, endDate, totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total, message: message || null, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION, cancellationPolicy: normalizeCancellationPolicy(listing.cancellationPolicy), cancellationPolicySnapshot: cancellationPolicySnapshot(listing.cancellationPolicy), status: "REVIEWING" },
+        data: {
+          userId: currentUser.id, listingId, startDate, endDate,
+          totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee,
+          insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total,
+          message: message || null, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION,
+          cancellationPolicy: normalizeCancellationPolicy(listing.cancellationPolicy),
+          cancellationPolicySnapshot: cancellationPolicySnapshot(listing.cancellationPolicy),
+          ...(instant
+            ? {
+                status: "APPROVED",
+                instantBooked: true,
+                respondedAt: new Date(),
+                paymentDueAt: new Date(Date.now() + 24 * 60 * 60_000),
+              }
+            : {
+                status: "REVIEWING",
+                autoDeclineAt: new Date(Date.now() + 48 * 60 * 60_000),
+              }),
+        },
       });
       await tx.bookingQuote.create({
         data: { userId: currentUser.id, listingId, reservationId: created.id, startDate, endDate, days: quote.days, dailyRate: quote.dailyRate, basePrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, cleaningFee: quote.cleaningFee, total: quote.total, currency: quote.currency, policyVersion: quote.policyVersion, expiresAt: new Date(Date.now() + 15 * 60_000) },
@@ -77,11 +107,22 @@ async function POSTHandler(request: NextRequest) {
     });
 
     try {
-      await notificationService.notifyBookingRequest(listing.userId, currentUser.name || "Someone", listing.title, reservation.id);
+      if (instant) {
+        await notificationService.notifyBookingApproved(currentUser.id, listing.title, reservation.id);
+        await notificationService.notifyPaymentRequired(currentUser.id, quote.total, listing.title, reservation.id);
+        await notificationService.notifySystemUpdate(
+          listing.userId,
+          "Instant booking",
+          `${currentUser.name || "A guest"} instant-booked your ${listing.title}. The trip is confirmed once they pay.`,
+          `/reservations`,
+        );
+      } else {
+        await notificationService.notifyBookingRequest(listing.userId, currentUser.name || "Someone", listing.title, reservation.id);
+      }
     } catch (notificationError) {
       console.error("Booking notification failed", notificationError);
     }
-    await writeAuditEvent({ request, actorUserId: currentUser.id, action: "RESERVATION_CREATED", targetType: "Reservation", targetId: reservation.id, metadata: { listingId, total: quote.total } });
+    await writeAuditEvent({ request, actorUserId: currentUser.id, action: "RESERVATION_CREATED", targetType: "Reservation", targetId: reservation.id, metadata: { listingId, total: quote.total, instant } });
     return NextResponse.json(reservation, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Error creating reservation", error);
@@ -103,8 +144,12 @@ async function GETHandler(request: NextRequest) {
       },
     });
     const safeReservations = reservations.map((reservation) => {
-      const maySeeExactLocation = reservation.listing.userId === currentUser.id
-        || ["APPROVED", "ACTIVE", "COMPLETED"].includes(reservation.status);
+      const maySeeExactLocation = mayRevealExactLocation({
+        isOwner: reservation.listing.userId === currentUser.id,
+        reservationStatus: reservation.status,
+        paymentStatus: reservation.paymentStatus,
+        releaseRule: reservation.listing.exactLocationReleaseRule,
+      });
       return {
         ...reservation,
         listing: {

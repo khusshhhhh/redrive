@@ -1,3 +1,4 @@
+import { releaseDeposit } from "@/app/libs/deposit";
 import prisma from "@/app/libs/prismadb";
 import { getStripe } from "@/app/libs/stripe";
 import { notificationService } from "@/app/services/notificationService";
@@ -20,6 +21,7 @@ export async function releaseReservationPayment(
           endDate: true,
           status: true,
           userId: true,
+          autoReleaseAt: true,
           listing: { select: { userId: true, title: true } },
         },
       },
@@ -76,10 +78,26 @@ export async function releaseReservationPayment(
     requiredAcknowledgements.every((id) =>
       returnReport.acknowledgedByIds.includes(id),
     );
-  if (!isCancellationPayout && !mutuallyAgreed)
+
+  // Deadlock backstop: once `autoReleaseAt` (end date + 72h) has passed and a
+  // return handover has at least been started by one party, release without the
+  // second acknowledgement so a host isn't held hostage by a ghosting guest. An
+  // open incident always blocks; a return with nothing submitted stays held for
+  // support to look at (users are chased by the lifecycle cron in the meantime).
+  const returnStarted =
+    returnReport?.status === "SUBMITTED" || returnReport?.status === "AGREED";
+  const autoReleaseDue = Boolean(
+    payment.reservation.autoReleaseAt &&
+      payment.reservation.autoReleaseAt.getTime() <= Date.now(),
+  );
+  const autoReleased = !mutuallyAgreed && autoReleaseDue && returnStarted;
+
+  if (!isCancellationPayout && !mutuallyAgreed && !autoReleased)
     return {
       released: false,
-      reason: "Both parties must agree to the return handover",
+      reason: returnStarted
+        ? "The return handover is awaiting the second confirmation"
+        : "Both parties must agree to the return handover",
     };
   if (!isCancellationPayout && openIncident)
     return { released: false, reason: "An incident is still under review" };
@@ -128,6 +146,7 @@ export async function releaseReservationPayment(
             transferId: transfer.id,
             amount: isCancellationPayout ? payment.cancellationPayoutAmount! : payment.ownerAmount,
             currency: payment.currency,
+            autoReleased,
           },
         },
       }),
@@ -139,14 +158,28 @@ export async function releaseReservationPayment(
           payment.reservation.listing.title,
           reservationId,
         )];
-      if (!isCancellationPayout) notifications.push(notificationService.notifyBookingCompleted(
+      if (!isCancellationPayout) {
+        notifications.push(notificationService.notifyBookingCompleted(
           payment.renterId,
           payment.reservation.listing.title,
           reservationId,
         ));
+        notifications.push(notificationService.notifyReviewReminder(
+          payment.reservation.listing.userId,
+          payment.reservation.listing.title,
+          reservationId,
+          "HOST",
+        ));
+      }
       await Promise.all(notifications);
     } catch (error) {
       console.error("Payout notifications failed", error);
+    }
+    // Clean completion — release any held security deposit back to the guest.
+    if (!isCancellationPayout) {
+      await releaseDeposit(reservationId).catch((error) =>
+        console.error("Deposit release failed", reservationId, error),
+      );
     }
     return { released: true, transferId: transfer.id };
   } catch (error) {

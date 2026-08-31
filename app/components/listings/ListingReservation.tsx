@@ -6,7 +6,7 @@ import Button from '../Button';
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
 import { useRouter } from 'next/navigation';
 import { SafeListing, SafeUser } from '@/app/types';
-import { Info } from "lucide-react";
+import { Info, Zap } from "lucide-react";
 import { Card, CardContent } from "../CardContent";
 import { useState } from 'react';
 import toast from "@/app/libs/toast";
@@ -99,6 +99,24 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                 <div className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">Estimated trip total</div>
                 <div className="mt-1 text-display-md font-semibold text-ink">AU$ {totalFees}</div>
                 <div className="mt-1 text-xs text-muted">AU$ {price} per day · {dayCount} day{dayCount === 1 ? "" : "s"} · fees shown below</div>
+                <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                    {listing.instantBook ? (
+                        <span className="inline-flex items-center gap-1 font-semibold text-secondary">
+                            <Zap size={13} className="fill-secondary" /> Instant Book
+                        </span>
+                    ) : (
+                        <span className="text-muted">Host reviews each request</span>
+                    )}
+                    {listing.hostResponseHours != null && (
+                        <span className="text-muted">
+                            {listing.hostResponseHours < 1
+                                ? "· Usually replies within an hour"
+                                : listing.hostResponseHours < 24
+                                    ? `· Usually replies in ~${Math.ceil(listing.hostResponseHours)}h`
+                                    : `· Usually replies in ~${Math.ceil(listing.hostResponseHours / 24)}d`}
+                        </span>
+                    )}
+                </div>
             </div>
             <hr className="border-hairline-soft" />
             <Calendar value={dateRange} disabledDates={disabledDates} onChange={(value) => onChangeDate(value.selection)} />

@@ -73,14 +73,38 @@ model User {
   profileVerified                 String?   @default("N")
   role                            String?   @default("USER") // USER or ADMIN; nullable for existing MongoDB records
 
-  accounts         Account[]
-  listings         Listing[]
-  reservations     Reservation[]
-  reviews          Review[]
-  messagesSent     Message[]      @relation("UserMessages")
-  notifications    Notification[]
-  paymentsAsRenter Payment[]      @relation("RenterPayments")
-  paymentsAsOwner  Payment[]      @relation("OwnerPayments")
+  // --- Communication preferences -----------------------------------------
+  // Transactional messages about a live booking (request, payment, safety)
+  // always send. These flags govern everything else.
+  emailUnsubscribeToken    String?   @unique // one-click list-unsubscribe (Spam Act 2003)
+  icalToken                String?   @unique // secret in the personal calendar-feed URL
+  notifyEmailEnabled       Boolean   @default(true)
+  notifyPushEnabled        Boolean   @default(true)
+  notifySmsEnabled         Boolean   @default(false)
+  marketingEmailConsent    Boolean   @default(false) // explicit opt-in for lifecycle / re-engagement mail
+  marketingEmailConsentAt  DateTime?
+  notificationPrefs        Json? // per-type channel overrides, e.g. { "REVIEW_REMINDER": { "email": false } }
+  quietHoursStart          Int? // 0-23 local hour; push / SMS held during the window
+  quietHoursEnd            Int?
+  timezone                 String?   @default("Australia/Adelaide")
+  licenseExpiryNoticeState String[]  @default([]) // reminder keys already sent, e.g. ["T-30", "T-7"]
+  lifecycleEmailsSent      String[]  @default([]) // onboarding / re-engagement drip keys already sent
+  lastReengagedAt          DateTime?
+  lastHostStatementMonth   String? // "2026-08" — dedupes the monthly host statement
+  guestRatingAvg           Float?
+  guestRatingCount         Int       @default(0)
+  tripsAsGuestCompleted    Int       @default(0)
+
+  accounts            Account[]
+  listings            Listing[]
+  reservations        Reservation[]
+  reviews             Review[]
+  guestReviewsWritten GuestReview[]  @relation("GuestReviewAuthor")
+  guestReviewsAbout   GuestReview[]  @relation("GuestReviewSubject")
+  messagesSent        Message[]      @relation("UserMessages")
+  notifications       Notification[]
+  paymentsAsRenter    Payment[]      @relation("RenterPayments")
+  paymentsAsOwner     Payment[]      @relation("OwnerPayments")
 
   @@index([createdAt])
   @@index([lastActiveAt])
@@ -149,7 +173,7 @@ model Listing {
   minimumTripDays          Int     @default(1)
   maximumTripDays          Int     @default(30)
   preparationBufferHours   Int     @default(2)
-  exactLocationReleaseRule String  @default("APPROVED_BOOKING")
+  exactLocationReleaseRule String  @default("PAID_BOOKING") // "PAID_BOOKING" | "APPROVED_BOOKING"
   cancellationPolicy       String? @default("MODERATE")
 
   // --- Core specs ----------------------------------------------------------
@@ -311,16 +335,24 @@ model Reservation {
   paidAt                     DateTime?
   completedAt                DateTime?
   paymentDueAt               DateTime?
+  confirmedAt                DateTime? // renter payment captured and held
+  instantBooked              Boolean   @default(false)
+  autoReleaseAt              DateTime? // return-handover deadlock auto-resolves at this time
+  autoDeclineAt              DateTime? // an unanswered REVIEWING request lapses at this time
+  remindersSent              String[]  @default([]) // lifecycle reminder keys already dispatched
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  listing Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  payment Payment?
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing     Listing      @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  payment     Payment?
+  guestReview GuestReview?
 
   @@index([userId, status, createdAt])
   @@index([listingId, status, startDate, endDate])
   @@index([listingId, respondedAt])
   @@index([createdAt])
   @@index([status, paymentDueAt])
+  @@index([status, autoDeclineAt])
+  @@index([status, autoReleaseAt])
 }
 
 model Payment {
@@ -340,6 +372,11 @@ model Payment {
   stripeRefundId           String?
   cancellationPayoutAmount Int?
   cancellationPayoutDueAt  DateTime?
+  // Refundable security deposit held via a separate manual-capture PaymentIntent.
+  depositAmount            Int? // cents
+  depositPaymentIntentId   String?
+  depositStatus            String? // AUTHORIZED | RELEASED | CAPTURED | FAILED
+  depositCapturedAmount    Int?
   failureMessage           String?
   paidAt                   DateTime?
   releasedAt               DateTime?
@@ -462,15 +499,33 @@ model AuditEvent {
 }
 
 model AvailabilityBlock {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  listingId String   @db.ObjectId
-  startDate DateTime
-  endDate   DateTime
-  type      String   @default("OWNER_BLOCK")
-  reason    String?
-  createdAt DateTime @default(now())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  listingId  String   @db.ObjectId
+  startDate  DateTime
+  endDate    DateTime
+  type       String   @default("OWNER_BLOCK") // OWNER_BLOCK | EXTERNAL_ICAL
+  reason     String?
+  externalUid String? // VEVENT UID, so an external sync can update/remove its own blocks
+  createdAt  DateTime @default(now())
 
   @@index([listingId, startDate, endDate])
+  @@index([listingId, type])
+}
+
+// One or more external iCal feeds (Airbnb, Camplify, Google, …) a host wants
+// mirrored into a listing's blocked dates.
+model ExternalCalendar {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  listingId    String    @db.ObjectId
+  url          String
+  label        String?
+  lastSyncedAt DateTime?
+  lastStatus   String? // OK | ERROR
+  lastError    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([listingId])
 }
 
 model BookingQuote {
@@ -634,19 +689,30 @@ model HandoverMedia {
 }
 
 model IncidentCase {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  reservationId  String   @db.ObjectId
-  reporterUserId String   @db.ObjectId
-  type           String
-  status         String   @default("OPEN")
-  summary        String
-  location       String?
-  evidence       Json?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  reservationId     String    @db.ObjectId
+  reporterUserId    String    @db.ObjectId
+  type              String
+  status            String    @default("OPEN") // OPEN | UNDER_REVIEW | RESOLVED | ESCALATED
+  summary           String
+  location          String?
+  evidence          Json?
+  // The other party's side of the story.
+  responderUserId   String?   @db.ObjectId
+  responderStatement String?
+  respondedAt       DateTime?
+  // How it was closed out.
+  resolution        String?
+  resolutionOutcome String? // NO_ACTION | DEPOSIT_DEDUCTION | PARTIAL_REFUND | GOODWILL | ESCALATED
+  resolutionAmount  Int? // AUD, informational — actual money movement is done by ops
+  resolvedByUserId  String?   @db.ObjectId
+  resolvedAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   @@index([reservationId, createdAt])
   @@index([reporterUserId, status, createdAt])
+  @@index([status, createdAt])
 }
 
 model SavedSearch {
@@ -688,17 +754,46 @@ model FeatureFlag {
 }
 
 model Review {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  listingId String   @db.ObjectId
-  rating    Int
-  text      String   @db.String
-  createdAt DateTime @default(now())
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @db.ObjectId // author (the guest)
+  listingId     String    @db.ObjectId
+  reservationId String?   @db.ObjectId // ties the review to a specific completed trip
+  rating        Int
+  text          String    @db.String
+  response      String?   @db.String // host's public reply
+  respondedAt   DateTime?
+  publishedAt   DateTime? // blind reveal — null until the guest-review counterpart lands or 14 days pass
+  createdAt     DateTime  @default(now())
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
   @@unique([userId, listingId])
+  @@index([listingId, publishedAt])
+  @@index([reservationId])
+}
+
+// Host's review of a guest. Kept separate from Review so existing guest→host
+// data and queries are untouched. Both sides reveal together (see the
+// review-reveal cron).
+model GuestReview {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  reservationId String    @unique @db.ObjectId
+  authorId      String    @db.ObjectId // host
+  subjectUserId String    @db.ObjectId // guest being reviewed
+  listingId     String    @db.ObjectId
+  rating        Int
+  text          String    @db.String
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  author      User        @relation("GuestReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  subject     User        @relation("GuestReviewSubject", fields: [subjectUserId], references: [id], onDelete: Cascade)
+
+  @@index([subjectUserId, publishedAt])
+  @@index([authorId, createdAt])
 }
 
 model Badge {
@@ -754,6 +849,23 @@ model Notification {
   @@index([userId, createdAt])
 }
 
+// One row per (event, channel) actually dispatched. Gives every lifecycle
+// message an idempotency key so retried crons and duplicate webhooks never
+// double-send, and a delivery log for support.
+model NotificationDelivery {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  dedupeKey String   @unique // e.g. "reservation:<id>:payment_confirmed:EMAIL"
+  channel   String // IN_APP | EMAIL | PUSH | SMS
+  type      String // NotificationType value or a lifecycle key
+  status    String   @default("SENT") // SENT | FAILED | SKIPPED
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
 enum NotificationType {
   BOOKING_REQUEST // New booking request received
   BOOKING_APPROVED // Your booking was approved
@@ -761,9 +873,12 @@ enum NotificationType {
   BOOKING_CANCELLED // Booking was cancelled
   BOOKING_REMINDER // Upcoming booking reminder
   BOOKING_COMPLETED // Booking completed
+  BOOKING_CONFIRMED // Payment captured — trip is locked in
+  BOOKING_REQUEST_EXPIRED // An unanswered request lapsed
 
   REVIEW_RECEIVED // New review on your listing
   REVIEW_REMINDER // Reminder to leave a review
+  REVIEW_PUBLISHED // A review you're part of is now visible
 
   MESSAGE_RECEIVED // New message in chat
 
@@ -773,6 +888,16 @@ enum NotificationType {
   PROFILE_VERIFIED // Profile verification status change
   PAYMENT_RECEIVED // Payment received
   PAYMENT_REQUIRED // Payment required
+  PAYMENT_WINDOW_CLOSING // Payment window is about to expire
+  PAYMENT_FAILED // A payment attempt failed
+  PAYOUT_RELEASED // Funds released to the host
+  PAYOUT_SETUP_REQUIRED // Host must finish Stripe onboarding
+
+  TRIP_STARTING // Pickup is coming up
+  TRIP_RETURNING // Return / drop-off is coming up
+  HANDOVER_ACTION // A handover step needs you
+  LICENCE_EXPIRING // Driver licence is about to expire
+  HOST_STATEMENT // Monthly host earnings statement
 
   SYSTEM_UPDATE // System notifications
   SECURITY_ALERT // Security-related notifications

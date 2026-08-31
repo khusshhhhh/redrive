@@ -1,8 +1,14 @@
 "use client";
 
-import { BadgeCheck, IdCard, ShieldAlert, X } from "lucide-react";
+import { BadgeCheck, IdCard, ShieldAlert, Star, X } from "lucide-react";
 
 import type { RenterIdentityCheck } from "@/app/libs/bookingIdentity";
+
+export interface GuestTrackRecord {
+  ratingAvg: number | null;
+  ratingCount: number;
+  tripsCompleted: number;
+}
 
 const STATE_NAMES: Record<string, string> = {
   ACT: "Australian Capital Territory",
@@ -55,10 +61,12 @@ export default function RenterIdentityCard({
   identity,
   viewerIsOwner,
   renterFirstName,
+  guestTrack,
 }: {
   identity: RenterIdentityCheck;
   viewerIsOwner: boolean;
   renterFirstName: string;
+  guestTrack?: GuestTrackRecord | null;
 }) {
   const issuer = identity.issuerState ? STATE_NAMES[identity.issuerState] || identity.issuerState : null;
   const expiry = formatDay(identity.expiryDate);
@@ -100,6 +108,26 @@ export default function RenterIdentityCard({
           {identity.unmetReason}
           {viewerIsOwner ? " Ask for a current licence in Messages before approving this request." : " Verify a current licence before sending another request."}
         </p>
+      )}
+
+      {viewerIsOwner && guestTrack && (guestTrack.tripsCompleted > 0 || guestTrack.ratingCount > 0) && (
+        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-hairline-soft pt-4">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+            On Redrive
+          </span>
+          {guestTrack.ratingCount > 0 && guestTrack.ratingAvg != null && (
+            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink">
+              <Star size={14} className="fill-amber-400 text-amber-400" />
+              {guestTrack.ratingAvg.toFixed(1)}
+              <span className="font-normal text-muted">
+                ({guestTrack.ratingCount} host review{guestTrack.ratingCount === 1 ? "" : "s"})
+              </span>
+            </span>
+          )}
+          <span className="text-sm text-ink">
+            {guestTrack.tripsCompleted} completed trip{guestTrack.tripsCompleted === 1 ? "" : "s"}
+          </span>
+        </div>
       )}
 
       {viewerIsOwner && (

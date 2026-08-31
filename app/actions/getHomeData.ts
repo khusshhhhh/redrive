@@ -95,11 +95,19 @@ async function loadHomeData(): Promise<HomeData> {
       },
       orderBy: { createdAt: "desc" },
     }),
-    // Every Review row is already gated on a COMPLETED reservation that ended
-    // 1+ day ago (see app/api/reviews/route.ts), so these are genuine trip
-    // reviews. GuestVoices discloses that this is a recent selection.
+    // Every Review row is gated on a COMPLETED reservation that ended 1+ day
+    // ago (see app/api/reviews/route.ts), so these are genuine trip reviews.
+    // Only ones past the two-way blind-reveal (or pre-dating it) are shown.
+    // GuestVoices discloses that this is a recent selection.
     prisma.review.findMany({
-      where: { rating: { gte: 4 } },
+      where: {
+        rating: { gte: 4 },
+        OR: [
+          { publishedAt: { not: null } },
+          { reservationId: null },
+          { reservationId: { isSet: false } },
+        ],
+      },
       orderBy: { createdAt: "desc" },
       take: 16,
       select: {

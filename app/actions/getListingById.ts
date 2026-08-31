@@ -12,6 +12,13 @@ const fetchListingById = cache(async (listingId: string) => {
   const listing = await prisma.listing.findUnique({
     where: { id: listingId },
     include: {
+      reviews: { where: { OR: [{ publishedAt: { not: null } }, { reservationId: null }, { reservationId: { isSet: false } }] }, select: { rating: true } },
+      reservations: {
+        where: { respondedAt: { not: null } },
+        select: { createdAt: true, respondedAt: true },
+        orderBy: { respondedAt: "desc" },
+        take: 20,
+      },
       user: {
         select: {
           id: true,
@@ -31,8 +38,29 @@ const fetchListingById = cache(async (listingId: string) => {
     return null;
   }
 
+  const reviewCount = listing.reviews.length;
+  const reviewAverage = reviewCount
+    ? Math.round((listing.reviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount) * 10) / 10
+    : 0;
+  const responseSamples = listing.reservations
+    .map((reservation) =>
+      reservation.respondedAt
+        ? Math.max(0, (reservation.respondedAt.getTime() - reservation.createdAt.getTime()) / 3_600_000)
+        : null,
+    )
+    .filter((value): value is number => value !== null);
+  const hostResponseHours = responseSamples.length
+    ? Math.round((responseSamples.reduce((sum, value) => sum + value, 0) / responseSamples.length) * 10) / 10
+    : null;
+
   return {
     ...listing,
+    reviews: undefined,
+    reservations: undefined,
+    reviewAverage,
+    reviewCount,
+    hostVerified: listing.user.profileVerified === "Y",
+    hostResponseHours,
     address: `${listing.suburb}, ${listing.state}`,
     latitude: null,
     longitude: null,

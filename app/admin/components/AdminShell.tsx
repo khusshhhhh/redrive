@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { BarChart3, CalendarCheck2, CarFront, ExternalLink, LayoutDashboard, LogOut, RadioTower, ShieldCheck, Users } from "lucide-react";
+import { AlertTriangle, BarChart3, CalendarCheck2, CarFront, ExternalLink, LayoutDashboard, LogOut, RadioTower, ShieldCheck, Users } from "lucide-react";
 
 export default function AdminShell({ children, adminName, adminEmail }: { children: React.ReactNode; adminName?: string | null; adminEmail?: string | null }) {
   const links = [
@@ -11,6 +11,7 @@ export default function AdminShell({ children, adminName, adminEmail }: { childr
     { href: "/admin#bookings", label: "Bookings", icon: CalendarCheck2 },
     { href: "/admin#listings", label: "Listings", icon: CarFront },
     { href: "/admin#users", label: "Users", icon: Users },
+    { href: "/admin/incidents", label: "Incidents", icon: AlertTriangle },
     { href: "/admin/monitoring", label: "API monitoring", icon: RadioTower },
   ];
   return <div className="min-h-screen bg-[#f7f6f3] lg:grid lg:grid-cols-[248px_1fr]">

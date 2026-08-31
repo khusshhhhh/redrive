@@ -1,19 +1,18 @@
+import { calculateServiceFee, redriveFee } from "@/app/libs/pricing";
+
+// The fee primitives (service-fee tiers, the percentage Redrive fee) live in
+// `pricing.ts` so the booking panel, the listing page, the home-page estimator
+// and the server quote can never disagree. This module adds the parts that are
+// specific to a real booking: insurance, cleaning and the policy version.
 export const PRICING_POLICY_VERSION = "2026-08-17";
+
+export { calculateServiceFee };
 
 const insuranceDailyRates: Record<string, number> = {
   "No Insurance": 0,
   "Risk Taker": 20,
   "Happy Driver": 40,
 };
-
-export function calculateServiceFee(basePrice: number) {
-  if (basePrice <= 200) return 10;
-  if (basePrice <= 400) return 25;
-  if (basePrice <= 800) return 40;
-  if (basePrice <= 1200) return 60;
-  if (basePrice <= 2000) return 80;
-  return 100;
-}
 
 function inclusiveDays(startDate: Date, endDate: Date) {
   return Math.floor((Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate())
@@ -33,7 +32,7 @@ export function buildBookingQuote(input: {
     : "No Insurance";
   const basePrice = input.dailyRate * days;
   const insuranceFee = insuranceDailyRates[insuranceType] * days;
-  const redriveFee = Math.round(basePrice * 0.08);
+  const bookingRedriveFee = redriveFee(basePrice);
   const serviceFee = calculateServiceFee(basePrice);
   const cleaningFee = Math.max(0, Math.round(input.cleaningFee || 0));
 
@@ -41,14 +40,13 @@ export function buildBookingQuote(input: {
     days,
     dailyRate: input.dailyRate,
     basePrice,
-    redriveFee,
+    redriveFee: bookingRedriveFee,
     serviceFee,
     insuranceType,
     insuranceFee,
     cleaningFee,
-    total: basePrice + redriveFee + serviceFee + insuranceFee + cleaningFee,
+    total: basePrice + bookingRedriveFee + serviceFee + insuranceFee + cleaningFee,
     currency: "AUD",
     policyVersion: PRICING_POLICY_VERSION,
   };
 }
-

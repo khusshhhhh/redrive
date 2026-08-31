@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import { notificationService } from "@/app/services/notificationService";
+import { maybePublishTripReviews } from "@/app/libs/reviews";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 
 async function POSTHandler(request: Request) {
@@ -33,14 +34,21 @@ async function POSTHandler(request: Request) {
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
+    const requestedReservationId =
+      typeof body.reservationId === "string" && /^[a-f\d]{24}$/i.test(body.reservationId)
+        ? body.reservationId
+        : null;
+
     // Check if user has completed a reservation for this listing at least 1 day ago
     const completedBooking = await prisma.reservation.findFirst({
       where: {
+        ...(requestedReservationId ? { id: requestedReservationId } : {}),
         userId: currentUser.id,
         listingId: listingId,
         status: "COMPLETED",
         endDate: { lte: oneDayAgo }, // Ensures the review can be left only after one day
       },
+      select: { id: true },
     });
 
     if (!completedBooking) {
@@ -73,19 +81,28 @@ async function POSTHandler(request: Request) {
       data: {
         userId: currentUser.id,
         listingId,
+        reservationId: completedBooking.id,
         rating,
         text,
       },
     });
 
+    // Reveal both sides now if the host has already reviewed the guest.
+    const published = await maybePublishTripReviews(completedBooking.id).catch((error) => {
+      console.error("Review publish check failed", error);
+      return false;
+    });
+
     try {
-      await notificationService.notifyReviewReceived(
-        listing.userId,
-        currentUser.name || "Someone",
-        listing.title,
-        rating,
-        listingId
-      );
+      if (!published) {
+        await notificationService.notifyReviewReceived(
+          listing.userId,
+          currentUser.name || "Someone",
+          listing.title,
+          rating,
+          listingId,
+        );
+      }
     } catch (notificationError) {
       console.error("Error sending review notification:", notificationError);
       // Don't fail the review creation if notification fails

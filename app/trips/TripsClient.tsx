@@ -5,9 +5,8 @@ import Container from "../components/Container";
 import Heading from "../components/Heading";
 import { SafeReservation, SafeUser } from "../types";
 import { useCallback, useState } from "react";
-import axios from "axios";
-import toast from "@/app/libs/toast";
 import ListingCard from "../components/listings/ListingCard";
+import CancelBookingDialog from "../components/reservations/CancelBookingDialog";
 import { calculateCancellationOutcome } from "../libs/cancellationPolicy";
 
 interface TripsClientProps {
@@ -17,31 +16,11 @@ interface TripsClientProps {
 
 const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) => {
     const router = useRouter();
-    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [cancelTarget, setCancelTarget] = useState<SafeReservation | null>(null);
 
     const onCancel = useCallback((reservation: SafeReservation) => {
-        const outcome = calculateCancellationOutcome({ policy: reservation.cancellationPolicy, pickupAt: reservation.startDate });
-        const hasPaid = ["PAID_HELD", "RELEASED"].includes(reservation.paymentStatus || "");
-        const refund = hasPaid ? Math.round(reservation.totalFees * outcome.refundPercentage / 100) : 0;
-        const paymentCopy = hasPaid ? `Estimated refund: AU$${refund.toLocaleString("en-AU")} (${outcome.refundPercentage}%).` : "No payment has been collected for this request.";
-        const confirmed = window.confirm(`Cancel this booking?\n\n${outcome.explanation}\n\n${paymentCopy} This action cannot be undone.`);
-        if (!confirmed) return;
-        const reason = window.prompt("Optional: tell the host why you are cancelling. This will be kept with the booking record.") || "";
-        setDeletingId(reservation.id);
-
-        axios.delete(`/api/reservations/${reservation.id}`, { data: { reason } })
-            .then((response) => {
-                toast.success(response.data.refundAmount > 0 ? `Booking cancelled · AU$${response.data.refundAmount} refund started` : "Booking cancelled");
-                router.refresh();
-            })
-            .catch((error) => {
-                console.error("Cancel Error:", error);
-                toast.error(error?.response?.data?.error || "Error canceling booking.");
-            })
-            .finally(() => {
-                setDeletingId(null);
-            });
-    }, [router]);
+        setCancelTarget(reservation);
+    }, []);
 
     const handleReviewRedirect = useCallback((reservationId: string) => {
         router.push(`/review/${reservationId}`);
@@ -79,7 +58,7 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
                                         ? () => onCancel(reservation)
                                         : undefined // No action if cancellation is not allowed
                             }
-                            disabled={deletingId === reservation.id || (!canCancel && !canReview)}
+                            disabled={!canCancel && !canReview}
                             actionLabel={canReview ? "Review booking" : canCancel ? hasPaid ? `Cancel · ${cancellation.refundPercentage}% refund` : "Cancel request" : undefined}
                             currentUser={currentUser}
                             compact
@@ -88,6 +67,13 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
                 })}
             </div>
           </div>
+          <CancelBookingDialog
+            reservation={cancelTarget}
+            role="GUEST"
+            open={cancelTarget !== null}
+            onClose={() => setCancelTarget(null)}
+            onCancelled={() => router.refresh()}
+          />
         </Container>
     );
 };

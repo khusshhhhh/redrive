@@ -117,6 +117,9 @@ export type SafeUser = Pick<
   licenseVerifiedAt?: string | null;
   licenseRejectionReason?: string | null;
   hasPassword?: boolean;
+  guestRatingAvg?: number | null;
+  guestRatingCount?: number | null;
+  tripsAsGuestCompleted?: number | null;
 };
 
 export type PublicHost = Pick<
