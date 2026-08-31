@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -33,7 +33,7 @@ import CategoryInput from "@/app/components/inputs/CategoryInput";
 import AddressAutocomplete, { ParsedAddress } from "@/app/components/inputs/AddressAutocomplete";
 import StateSelector, { states as AU_STATES } from "@/app/components/inputs/StateSelector";
 import SuburbSelector from "@/app/components/inputs/SuburbSelector";
-import DateSelector from "@/app/components/inputs/DateSelector";
+import DatePicker from "@/app/components/inputs/DatePicker";
 import Counter from "@/app/components/inputs/Counter";
 import Input from "@/app/components/inputs/Input";
 import TextArea from "@/app/components/inputs/TextArea";
@@ -48,6 +48,7 @@ import { CANCELLATION_POLICIES } from "@/app/libs/cancellationPolicy";
 import OptionSelector from "@/app/components/inputs/OptionSelector";
 import ToggleRow from "@/app/components/inputs/ToggleRow";
 import ChipMultiSelect from "@/app/components/inputs/ChipMultiSelect";
+import HostIllustration, { type HostPhaseKey } from "@/app/components/host/HostIllustration";
 import {
   TRANSMISSION_OPTIONS,
   TYRE_CONDITION_OPTIONS,
@@ -86,11 +87,37 @@ type StepId =
   | "cancellation"
   | "review";
 
-const PHASES: { key: string; label: string; name: string; steps: StepId[] }[] = [
+const PHASES: { key: HostPhaseKey; label: string; name: string; steps: StepId[] }[] = [
   { key: "about", label: "Part 1", name: "Tell us about your vehicle", steps: ["category", "location", "basics", "vehicle", "powertrain", "capacity", "category-specs"] },
   { key: "standout", label: "Part 2", name: "Make it stand out", steps: ["photos", "title", "description", "information", "amenities", "safety", "condition"] },
   { key: "finish", label: "Part 3", name: "Finish up and publish", steps: ["registration", "rules", "delivery", "price", "cleaning", "cancellation", "review"] },
 ];
+
+/** A short "why guests care" note shown beside each step. Keeps hosts filling
+ *  things in that actually change whether a guest books. */
+const HOST_STEP_TIPS: Partial<Record<StepId, string>> = {
+  category: "Guests browse by category first — it decides which searches you show up in.",
+  location: "Only the suburb is public. The exact address stays hidden until a booking is confirmed.",
+  basics: "Automatic vs manual is a hard filter for a lot of drivers. Seatbelt count matters to families.",
+  vehicle: "The exact make, model and year lets guests check reviews and running costs before they ask.",
+  powertrain: "Fuel type, drivetrain and range tell a guest whether the vehicle suits their trip.",
+  capacity: "Boot space, child-seat points and vehicle height decide whether their gear and plans fit.",
+  "category-specs": "Towing, payload, bed layout and water capacity are the make-or-break numbers for this category.",
+  photos: "Listings with a bright, wide main photo get far more views. Aim for 5+ clear shots.",
+  title: "A specific title (“Reliable ute for weekend loads”) beats a vague one every time.",
+  description: "Say what it's genuinely great for and any quirks. Honesty here prevents disputes later.",
+  information: "Handover and care notes set expectations so pickup and return go smoothly.",
+  amenities: "Every amenity you tick is another filter you can appear in.",
+  safety: "Safety ratings and driver-assist features reassure guests and the people they travel with.",
+  condition: "Logging existing damage and service history protects you at return and builds trust up front.",
+  registration: "Kept private — it's only used to confirm the vehicle is road-legal.",
+  rules: "Clear limits (km allowance, interstate, unsealed roads, pets) prevent the disputes that hurt reviews.",
+  delivery: "Delivery and airport pickup are strong booking drivers for travellers without a car.",
+  price: "Set a daily rate that covers cleaning and wear. Add a deposit and discounts to attract longer trips.",
+  cleaning: "A fair cleaning policy, stated up front, is better received than a surprise charge on return.",
+  cancellation: "Guests see this before they request. More flexibility usually means more bookings.",
+  review: "Check everything reads well. You can edit any section now or after publishing.",
+};
 
 const ALL_STEPS: StepId[] = PHASES.flatMap((phase) => phase.steps);
 
@@ -103,6 +130,7 @@ export default function HostFlow() {
 
   const [view, setView] = useState<"intro" | "flow">("intro");
   const [stepIndex, setStepIndex] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [published, setPublished] = useState(false);
 
@@ -142,7 +170,7 @@ export default function HostFlow() {
       company: "",
       modal: "",
       regoNumber: "",
-      regoEndDate: new Date(),
+      regoEndDate: new Date().toISOString().slice(0, 10),
       cleaningFeeOption: "NO",
       cleaningFeeAmount: "",
       returnCleaningFeeAmount: "",
@@ -315,6 +343,11 @@ export default function HostFlow() {
   const totalSteps = stepOrder.length;
   const progress = view === "intro" ? 0 : Math.round(((clampedStepIndex + 1) / totalSteps) * 100);
 
+  // The page itself doesn't scroll; reset the inner form region on every step.
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 });
+  }, [currentStep]);
+
   const validateStep = useCallback(
     async (id: StepId): Promise<string | null> => {
       const values = getValues();
@@ -444,7 +477,7 @@ export default function HostFlow() {
 
   if (sessionLoading) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center">
+      <div className="flex h-full items-center justify-center">
         <Loader2 className="animate-spin text-primary" size={30} aria-label="Loading" />
       </div>
     );
@@ -452,7 +485,7 @@ export default function HostFlow() {
 
   if (!currentUser) {
     return (
-      <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-6 text-center">
+      <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center px-6 text-center">
         <span className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-strong text-primary">
           <CarFront size={30} />
         </span>
@@ -473,7 +506,7 @@ export default function HostFlow() {
 
   if (published) {
     return (
-      <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-6 text-center">
+      <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center px-6 text-center">
         <span className="animate-pop flex h-20 w-20 items-center justify-center rounded-full bg-primary text-white">
           <CheckCircle2 size={38} />
         </span>
@@ -487,7 +520,8 @@ export default function HostFlow() {
 
   if (view === "intro") {
     return (
-      <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-16 lg:py-20">
+      <div className="h-full overflow-y-auto">
+        <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="host-step">
             <span className="inline-flex items-center gap-2 rounded-full border border-hairline bg-surface-soft px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-primary">
@@ -500,6 +534,9 @@ export default function HostFlow() {
               Answer a few questions, add some photos and set your price. You can pause any time &mdash; nothing goes
               live until you publish.
             </p>
+            <div className="mt-8 max-w-sm">
+              <HostIllustration phase="about" />
+            </div>
             <button
               type="button"
               onClick={() => {
@@ -535,6 +572,7 @@ export default function HostFlow() {
             ))}
           </ol>
         </div>
+        </div>
       </div>
     );
   }
@@ -545,13 +583,10 @@ export default function HostFlow() {
   const isLast = clampedStepIndex >= totalSteps - 1;
 
   return (
-    <div className="min-h-screen">
+    <div className="flex h-full flex-col bg-white">
       {/* progress */}
-      <div
-        className="sticky z-20 border-b border-hairline-soft bg-white/90 backdrop-blur"
-        style={{ top: "var(--app-header-height, 64px)" }}
-      >
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-3 sm:px-8">
+      <div className="shrink-0 border-b border-hairline-soft bg-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3 sm:px-8">
           <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-soft">
             {phase.label} &middot; {phase.name}
           </p>
@@ -564,9 +599,29 @@ export default function HostFlow() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-3xl px-5 pb-40 pt-8 sm:px-8 sm:pt-12">
-        <div key={currentStep} className="host-step">
-          <StepBody
+      {/* body: idle illustration + the single scrollable region */}
+      <div className="mx-auto grid min-h-0 w-full max-w-5xl flex-1 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+        <aside className="hidden min-h-0 flex-col justify-center border-r border-hairline-soft px-8 py-8 lg:flex">
+          <HostIllustration phase={phase.key} />
+          <div className="host-illustration-road mt-6 h-0.5 w-full opacity-70" />
+          <p className="mt-6 text-xs font-bold uppercase tracking-[0.16em] text-primary">{phase.name}</p>
+          {HOST_STEP_TIPS[currentStep] && (
+            <p key={currentStep} className="host-step mt-2 text-sm leading-6 text-muted">
+              {HOST_STEP_TIPS[currentStep]}
+            </p>
+          )}
+        </aside>
+
+        <div ref={scrollRef} className="min-h-0 overflow-y-auto px-5 py-8 sm:px-10 sm:py-10">
+          <div className="mx-auto max-w-xl">
+            {HOST_STEP_TIPS[currentStep] && (
+              <p className="mb-6 rounded-xl bg-surface-soft px-4 py-3 text-sm leading-6 text-muted lg:hidden">
+                <span className="font-semibold text-ink">Why it matters — </span>
+                {HOST_STEP_TIPS[currentStep]}
+              </p>
+            )}
+            <div key={currentStep} className="host-step">
+              <StepBody
             step={currentStep}
             register={register}
             errors={errors}
@@ -606,13 +661,15 @@ export default function HostFlow() {
             address={address}
             goToStep={goToStep}
             submitting={submitting}
-          />
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* sticky action bar */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-hairline bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+      {/* action bar — pinned to the bottom of the fixed-height flow */}
+      <div className="shrink-0 border-t border-hairline bg-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
           <button
             type="button"
             onClick={back}
@@ -1181,7 +1238,13 @@ function StepBody(props: StepBodyProps) {
           <FieldGroup title="Servicing">
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted">Last serviced — optional</label>
-              <DateSelector value={watch("lastServicedAt") || ""} onChange={(value) => setCustom("lastServicedAt", value)} />
+              <DatePicker
+                value={watch("lastServicedAt") || ""}
+                onChange={(value) => setCustom("lastServicedAt", value)}
+                maxDate={new Date()}
+                placeholder="Select the last service date"
+                ariaLabel="Last service date"
+              />
             </div>
             <NumberField id="lastServiceOdometer" label="Odometer at last service (km) — optional" register={register} errors={errors} />
           </FieldGroup>
@@ -1212,7 +1275,13 @@ function StepBody(props: StepBodyProps) {
           />
           <div>
             <label className="mb-1.5 block text-xs font-medium text-muted">Registration expiry date</label>
-            <DateSelector value={regoEndDate} onChange={(value) => setCustom("regoEndDate", value)} />
+            <DatePicker
+              value={typeof regoEndDate === "string" ? regoEndDate : ""}
+              onChange={(value) => setCustom("regoEndDate", value)}
+              minDate={new Date()}
+              placeholder="Select the expiry date"
+              ariaLabel="Registration expiry date"
+            />
           </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium text-muted">Registration document — optional</label>

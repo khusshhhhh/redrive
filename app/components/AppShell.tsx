@@ -12,20 +12,23 @@ interface AppShellProps {
 
 export default function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
-  const isMessagesRoute = pathname.startsWith("/messages");
+  // Focused, self-contained flows: no footer, no chrome, and the viewport is
+  // pinned so only the flow's own content region scrolls.
+  const isFocusedFlow =
+    pathname.startsWith("/messages") || pathname === "/host" || pathname.startsWith("/host/");
 
   return (
     <>
       <main
         className={
-          isMessagesRoute
+          isFocusedFlow
             ? "app-content h-[calc(100dvh-var(--app-header-height,64px))] min-h-0 overflow-hidden bg-surface-soft/55"
             : "app-content min-h-screen pb-20 md:pb-0"
         }
       >
         {children}
       </main>
-      {!isMessagesRoute && (
+      {!isFocusedFlow && (
         <>
           <Footer />
           <MobileBottomNav />

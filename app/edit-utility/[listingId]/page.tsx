@@ -19,7 +19,7 @@ import TextArea from "@/app/components/inputs/TextArea";
 import { AMENITIES_LIST } from "@/app/hooks/useAmenities";
 import StateSelector, { states as AU_STATES } from "@/app/components/inputs/StateSelector";
 import SuburbSelector from "@/app/components/inputs/SuburbSelector";
-import DateSelector from "@/app/components/inputs/DateSelector";
+import DatePicker from "@/app/components/inputs/DatePicker";
 import CancellationPolicySelector from "@/app/components/listings/CancellationPolicySelector";
 import OptionSelector from "@/app/components/inputs/OptionSelector";
 import ToggleRow from "@/app/components/inputs/ToggleRow";
@@ -441,7 +441,7 @@ const EditUtilityPage = () => {
                     />
                     <div className="mt-5">
                         <label className="mb-1.5 block text-xs font-medium text-muted">Registration expiry date</label>
-                        <DateSelector value={regoEndDate} onChange={(date) => setRegoEndDate(date)} />
+                        <DatePicker value={regoEndDate} onChange={(date) => setRegoEndDate(date)} minDate={new Date()} placeholder="Select the expiry date" ariaLabel="Registration expiry date" />
                     </div>
                 </div>
 
@@ -589,7 +589,7 @@ const EditUtilityPage = () => {
                     <div className="grid gap-5 sm:grid-cols-2">
                         <div>
                             <label className="mb-1.5 block text-xs font-medium text-muted">Last serviced</label>
-                            <DateSelector value={(watch("lastServicedAt") as string) || ""} onChange={(date) => setValue("lastServicedAt", date)} />
+                            <DatePicker value={(watch("lastServicedAt") as string) || ""} onChange={(date) => setValue("lastServicedAt", date)} maxDate={new Date()} placeholder="Select the last service date" ariaLabel="Last service date" />
                         </div>
                         <Input id="lastServiceOdometer" label="Odometer at last service (km)" type="number" register={register} errors={errors} />
                     </div>

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import type { ComponentType } from "react";
 import {
+  IconAlertTriangle,
   IconCar4wd,
   IconChargingPile,
   IconGauge,
@@ -78,6 +79,57 @@ function Facts({ rows }: { rows: Row[] }) {
 const hasAny = (...values: unknown[]) =>
   values.some((value) => value === true || (typeof value === "number" && value > 0) || (typeof value === "string" && value.trim() !== ""));
 
+/** The rules and commitments a guest could get caught out by — collected into
+ *  one prominent block so they are seen before the neutral spec sections. */
+function BeforeYouBook({ listing: l }: { listing: SafeListing }) {
+  const points: string[] = [];
+
+  if (l.dailyKmAllowance) {
+    points.push(
+      `Distance is capped at ${l.dailyKmAllowance.toLocaleString()} km/day${l.excessKmFee ? ` — AU$${l.excessKmFee}/km after that` : ""}.`,
+    );
+  }
+  if (l.securityDeposit) {
+    points.push(
+      `A AU$${l.securityDeposit.toLocaleString()} security deposit is held${l.depositHoldMethod ? ` (${optionLabel("depositHoldMethod", l.depositHoldMethod).toLowerCase()})` : ""}, separate from the trip total.`,
+    );
+  }
+  if (l.interstateAllowed === false) {
+    points.push(`Interstate travel is not allowed${l.interstateNotes ? ` — ${l.interstateNotes}` : ""}.`);
+  }
+  if (l.additionalDriversAllowed === false) points.push("Additional drivers are not allowed on this vehicle.");
+  else if (l.additionalDriverFee) points.push(`Adding a second driver costs AU$${l.additionalDriverFee}.`);
+  if (l.minimumDriverAge) points.push(`Drivers must be at least ${l.minimumDriverAge}.`);
+  if (l.minimumLicenceYears) points.push(`Drivers must have held a licence for ${l.minimumLicenceYears}+ years.`);
+  if (l.provisionalLicenceAllowed === false) points.push("Provisional (P-plate) drivers are not accepted.");
+  if (l.internationalLicenceAccepted === false) points.push("International licences are not accepted.");
+  if (l.requiresSpecialLicence) points.push("A special licence is required to drive this vehicle.");
+  if (l.tollHandling === "BILLED_BACK") points.push("Tolls incurred during the trip are billed back to you afterwards.");
+  else if (l.tollHandling === "GUEST_ARRANGES") points.push("You need to arrange your own toll coverage for this vehicle.");
+
+  if (points.length === 0) return null;
+
+  return (
+    <>
+      <div className="rounded-xl border border-hairline bg-surface-soft p-4">
+        <div className="flex items-center gap-2.5 text-ink">
+          <IconAlertTriangle size={17} />
+          <span className="text-body-md font-medium">Before you book</span>
+        </div>
+        <ul className="mt-3 flex flex-col gap-2">
+          {points.map((point) => (
+            <li key={point} className="flex gap-2.5 text-body-sm text-body">
+              <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-muted" />
+              {point}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <hr className="border-hairline-soft" />
+    </>
+  );
+}
+
 const ListingDetails: React.FC<{ listing: SafeListing }> = ({ listing }) => {
   const l = listing;
   const isElectrified = l.fuelType === "EV" || l.fuelType === "Hybrid";
@@ -103,6 +155,8 @@ const ListingDetails: React.FC<{ listing: SafeListing }> = ({ listing }) => {
 
   return (
     <>
+      <BeforeYouBook listing={l} />
+
       {showSpecs && (
         <Section icon={IconGauge} title="Specifications">
           <Facts

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 
 import Input from "@/app/components/inputs/Input";
+import DatePicker from "@/app/components/inputs/DatePicker";
 import AddressAutocomplete, {
   type ParsedAddress,
 } from "@/app/components/inputs/AddressAutocomplete";
@@ -501,17 +502,23 @@ export default function ProfileClient({
                       Date of birth
                     </label>
                     <input
-                      id="dateOfBirth"
-                      type="date"
-                      max={new Date().toISOString().slice(0, 10)}
+                      type="hidden"
                       {...register("dateOfBirth", {
                         validate: (value) =>
                           !value ||
                           (isValidDateOfBirth(value) && isAtLeast18(value)) ||
                           "Account holders must be at least 18",
                       })}
-                      aria-invalid={Boolean(errors.dateOfBirth)}
-                      className={`h-12 w-full rounded-sm border bg-white px-4 text-base text-ink outline-none transition ${errors.dateOfBirth ? "border-error focus:border-error focus:ring-1 focus:ring-error" : "border-hairline focus:border-ink focus:ring-1 focus:ring-ink"}`}
+                    />
+                    <DatePicker
+                      id="dateOfBirth"
+                      value={watch("dateOfBirth") || ""}
+                      onChange={(value) => setValue("dateOfBirth", value, { shouldValidate: true, shouldDirty: true })}
+                      maxDate={new Date()}
+                      defaultView={new Date(new Date().getFullYear() - 30, 0, 1)}
+                      placeholder="Select your date of birth"
+                      ariaLabel="Date of birth"
+                      error={Boolean(errors.dateOfBirth)}
                     />
                     {errors.dateOfBirth && (
                       <p className="mt-1 text-xs text-error">

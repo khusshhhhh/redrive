@@ -21,6 +21,7 @@ import useLoginModal from "@/app/hooks/useLoginModal";
 import HostCard from "./HostCard";
 import CancellationPolicyDisplay from "./CancellationPolicyDisplay";
 import ListingDetails from "./ListingDetails";
+import ListingHighlights from "./ListingHighlights";
 import type { SafeListing } from "@/app/types";
 
 interface ListingInfoProps {
@@ -163,6 +164,8 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                 </div>
             </div>
             <hr className="border-hairline-soft" />
+
+            <ListingHighlights listing={listing} />
 
             {/* Build Information */}
             <div className="flex flex-col gap-2">
