@@ -88,6 +88,19 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
 
     const totalFees = totalPrice + redriveFee + serviceFee + insuranceFee + upfrontCleaningFee; // include cleaning fee if charged now
 
+    const goodToKnow: { label: string; value: string }[] = [];
+    if (listing.securityDeposit) goodToKnow.push({ label: "Security deposit", value: `AU$ ${listing.securityDeposit.toLocaleString()} (held, not charged)` });
+    goodToKnow.push({
+        label: "Kilometres",
+        value: listing.dailyKmAllowance
+            ? `${listing.dailyKmAllowance.toLocaleString()} km/day${listing.excessKmFee ? `, then AU$ ${listing.excessKmFee}/km` : ""}`
+            : "Unlimited",
+    });
+    if (listing.deliveryAvailable && listing.deliveryFee) goodToKnow.push({ label: "Delivery", value: `AU$ ${listing.deliveryFee.toLocaleString()}` });
+    if (listing.airportPickup) goodToKnow.push({ label: "Airport pickup", value: listing.airportPickupFee ? `AU$ ${listing.airportPickupFee.toLocaleString()}` : "Available" });
+    if (listing.weeklyDiscountPercent) goodToKnow.push({ label: "Weekly discount", value: `${listing.weeklyDiscountPercent}%` });
+    if (listing.roadsideAssistanceIncluded) goodToKnow.push({ label: "Roadside assistance", value: "Included" });
+
     return (
         <div className="bg-white shadow-card rounded-md border border-hairline-soft overflow-hidden mt-10 md:mt-0">
             <div className="p-4">
@@ -162,6 +175,23 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                 </div>
             </div>
             <hr className="border-hairline-soft" />
+            {goodToKnow.length > 0 && (
+                <>
+                    <div className="p-4">
+                        <div className="mb-3 font-semibold text-ink">Good to know</div>
+                        <div className="flex flex-col gap-2">
+                            {goodToKnow.map((item) => (
+                                <div key={item.label} className="flex flex-row items-start justify-between gap-4 text-body-sm">
+                                    <div className="text-muted">{item.label}</div>
+                                    <div className="text-right font-medium text-ink">{item.value}</div>
+                                </div>
+                            ))}
+                        </div>
+                        <p className="mt-3 text-xs leading-5 text-muted">Set by the host. Not included in the estimated total above.</p>
+                    </div>
+                    <hr className="border-hairline-soft" />
+                </>
+            )}
             <div className="p-4">
                 <Button
                     disabled={disabled}

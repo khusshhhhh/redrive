@@ -171,6 +171,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                         <div className="md:col-span-2">
                             <ListingInfo
                                 listingId={listing.id}
+                                listing={listing}
                                 user={listing.user}
                                 currentUser={currentUser}
                                 category={category}

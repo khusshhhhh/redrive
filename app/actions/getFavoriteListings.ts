@@ -21,6 +21,7 @@ export default async function getFavoriteListings() {
     const safeFavorites = favorites.map((favorite) => ({
       ...favorite,
       createdAt: favorite.createdAt.toISOString(),
+      lastServicedAt: favorite.lastServicedAt ? favorite.lastServicedAt.toISOString() : null,
     }));
 
     // User.favoriteIds is append-only when a vehicle is saved. Reconstruct the

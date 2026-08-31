@@ -6,6 +6,7 @@ export type SavedSearchFrequency = typeof SAVED_SEARCH_FREQUENCIES[number];
 const ALLOWED_FILTERS = [
   "state", "suburb", "category", "information", "startDate", "endDate",
   "guestCount", "sleepCount", "minPrice", "maxPrice",
+  "transmission", "delivery", "petsAllowed", "unsealed",
 ] as const;
 
 export type SavedSearchFilters = Partial<Record<typeof ALLOWED_FILTERS[number], string | number>>;
@@ -34,6 +35,12 @@ export const savedSearchFiltersToQuery = (filters: SavedSearchFilters) => {
   if (filters.category) query.category = filters.category;
   if (filters.guestCount) query.guestCount = { gte: Number(filters.guestCount) };
   if (filters.sleepCount) query.sleepCount = { gte: Number(filters.sleepCount) };
+  const and: Record<string, unknown>[] = [];
+  if (filters.transmission) and.push({ transmission: filters.transmission });
+  if (filters.delivery) and.push({ OR: [{ deliveryAvailable: true }, { airportPickup: true }] });
+  if (filters.petsAllowed) and.push({ petsAllowed: true });
+  if (filters.unsealed) and.push({ OR: [{ unsealedRoadsAllowed: true }, { offRoadAllowed: true }] });
+  if (and.length) query.AND = and;
   if (filters.minPrice || filters.maxPrice) {
     query.price = {
       ...(filters.minPrice ? { gte: Number(filters.minPrice) } : {}),

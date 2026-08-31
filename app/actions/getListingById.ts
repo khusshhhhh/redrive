@@ -40,6 +40,7 @@ const fetchListingById = cache(async (listingId: string) => {
     regoEndDate: null,
     regoImage: "",
     createdAt: listing.createdAt.toISOString(),
+    lastServicedAt: listing.lastServicedAt ? listing.lastServicedAt.toISOString() : null,
     user: {
       ...listing.user,
       createdAt: listing.user.createdAt.toISOString(),

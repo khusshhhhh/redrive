@@ -26,9 +26,19 @@ const CompareClient = ({ vehicles, tripDays }: { vehicles: ComparisonVehicle[]; 
     ] },
     { title: "Vehicle details", copy: "What you will be driving", rows: [
       ["Doors", (v: ComparisonVehicle) => String(v.doorCount)],
-      ["Transmission / drive", (v: ComparisonVehicle) => v.driveChain],
+      ["Transmission", (v: ComparisonVehicle) => v.transmission === "AUTOMATIC" ? "Automatic" : v.transmission === "MANUAL" ? "Manual" : "Not specified"],
+      ["Drivetrain", (v: ComparisonVehicle) => v.driveChain],
       ["Fuel", (v: ComparisonVehicle) => `${v.fuelType}${v.fuelEconomy ? ` · ${v.fuelEconomy} L/100km` : ""}`],
+      ["Odometer", (v: ComparisonVehicle) => v.odometer ? `${v.odometer.toLocaleString()} km` : "Not specified"],
+      ["ANCAP", (v: ComparisonVehicle) => v.ancapRating ? `${v.ancapRating}/5` : "Not specified"],
       ["Year", (v: ComparisonVehicle) => String(v.year)],
+    ] },
+    { title: "Rules & extras", copy: "Limits and conveniences set by the host", rows: [
+      ["Km allowance", (v: ComparisonVehicle) => v.dailyKmAllowance ? `${v.dailyKmAllowance.toLocaleString()} km/day` : "Unlimited"],
+      ["Security deposit", (v: ComparisonVehicle) => v.securityDeposit ? `AU$${v.securityDeposit.toLocaleString()}` : "None"],
+      ["Delivery / airport", (v: ComparisonVehicle) => v.deliveryOrAirport ? "Available" : "Pickup only"],
+      ["Pet-friendly", (v: ComparisonVehicle) => v.petsAllowed ? "Yes" : "No"],
+      ["Unsealed / off-road", (v: ComparisonVehicle) => v.unsealedOrOffRoad ? "Allowed" : "Not allowed"],
     ] },
     { title: "Trust & booking", copy: "Signals to help you decide", rows: [
       ["Reviews", (v: ComparisonVehicle) => v.reviewCount ? `${v.reviewAverage.toFixed(1)} from ${v.reviewCount}` : "No reviews yet"],

@@ -4,6 +4,8 @@ export interface ComparisonVehicle {
   id: string; title: string; imageSrc: string; price: number; category: string; suburb: string; state: string;
   guestCount: number; sleepCount: number; doorCount: number; driveChain: string; fuelType: string; fuelEconomy: number | null;
   year: number; amenities: string[]; instantBook: boolean; reviewAverage: number; reviewCount: number; hostVerified: boolean; hostResponseHours: number | null;
+  transmission: string | null; odometer: number | null; dailyKmAllowance: number | null; securityDeposit: number | null;
+  ancapRating: number | null; deliveryOrAirport: boolean; petsAllowed: boolean; unsealedOrOffRoad: boolean;
 }
 
 export default async function getComparisonListings(ids: string[]) {
@@ -52,6 +54,14 @@ export default async function getComparisonListings(ids: string[]) {
       reviewCount: listing.reviews.length,
       hostVerified: listing.user.profileVerified === "Y",
       hostResponseHours: responseHours.length ? Math.round((responseHours.reduce((sum, value) => sum + value, 0) / responseHours.length) * 10) / 10 : null,
+      transmission: listing.transmission,
+      odometer: listing.odometer,
+      dailyKmAllowance: listing.dailyKmAllowance,
+      securityDeposit: listing.securityDeposit,
+      ancapRating: listing.ancapRating,
+      deliveryOrAirport: listing.deliveryAvailable || listing.airportPickup,
+      petsAllowed: listing.petsAllowed,
+      unsealedOrOffRoad: listing.unsealedRoadsAllowed || listing.offRoadAllowed,
     }];
   });
 }

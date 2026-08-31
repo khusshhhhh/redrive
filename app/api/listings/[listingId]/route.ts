@@ -5,6 +5,7 @@ import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
 import { invalidatePublicListingsCache } from "@/app/actions/getListings";
+import { sanitizeListingExtras } from "@/app/libs/listingExtras";
 
 /**
  * GET: Fetch a specific listing by ID (Includes state, suburb, amenities, images, and rego details)
@@ -42,6 +43,7 @@ async function GETHandler(
       regoNumber: isOwner ? listing.regoNumber : null,
       regoEndDate: isOwner ? listing.regoEndDate : null,
       regoImage: isOwner ? listing.regoImage : null,
+      lastServicedAt: listing.lastServicedAt ? listing.lastServicedAt.toISOString() : null,
     }, { status: 200, headers: { "Cache-Control": isOwner ? "private, no-store" : "public, max-age=60" } });
   } catch (error) {
     return NextResponse.json(
@@ -166,6 +168,7 @@ async function PUTHandler(
         cleaningFeeAmount: cleaningFeeAmount ? parseInt(cleaningFeeAmount, 10) : null,
         returnCleaningFeeAmount: returnCleaningFeeAmount ? parseInt(returnCleaningFeeAmount, 10) : null,
         cancellationPolicy: normalizeCancellationPolicy(cancellationPolicy),
+        ...sanitizeListingExtras(body),
       },
     });
 

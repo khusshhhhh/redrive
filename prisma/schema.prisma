@@ -152,6 +152,124 @@ model Listing {
   exactLocationReleaseRule String  @default("APPROVED_BOOKING")
   cancellationPolicy       String? @default("MODERATE")
 
+  // --- Core specs ----------------------------------------------------------
+  transmission        String? // "AUTOMATIC" | "MANUAL"
+  odometer            Int? // km
+  seatbeltCount       Int?
+  colour              String?
+  keysProvided        Int?
+  fuelTankLitres      Int?
+  drivingRangeKm      Int? // also used as EV range
+  vehicleHeightMeters Float?
+  vehicleLengthMeters Float?
+  groundClearanceMm   Int?
+  hasTollTag          Boolean @default(false)
+
+  // --- Passengers & luggage ---------------------------------------------
+  isofixPoints        Int?
+  childSeatsAvailable Int?
+  luggageLargeBags    Int?
+  luggageCabinBags    Int?
+
+  // --- EV / charging ---------------------------------------------------
+  batteryCapacityKwh      Float?
+  chargePortType          String? // "TYPE_2" | "CCS2" | "CHADEMO" | "TESLA_NACS"
+  maxChargingKw           Float?
+  portableChargerIncluded Boolean @default(false)
+
+  // --- Condition & history -------------------------------------------
+  damageNotes         String?
+  damagePhotos        String[]  @default([])
+  lastServicedAt      DateTime?
+  lastServiceOdometer Int?
+  tyreCondition       String? // "NEW" | "GOOD" | "FAIR"
+  spareTyre           Boolean   @default(false)
+  modifications       String?
+  smokeFree           Boolean   @default(true)
+  petFree             Boolean   @default(true)
+  hasDashcam          Boolean   @default(false)
+  hasGpsTracker       Boolean   @default(false)
+
+  // --- Safety --------------------------------------------------------
+  ancapRating      Int? // 1..5
+  safetyFeatures   String[] @default([]) // ids from SAFETY_FEATURES_LIST
+  firstAidKit      Boolean  @default(false)
+  fireExtinguisher Boolean  @default(false)
+
+  // --- Trip rules & limits ---------------------------------------
+  dailyKmAllowance             Int? // null = unlimited
+  excessKmFee                  Float? // AUD per km
+  interstateAllowed            Boolean @default(true)
+  interstateNotes              String?
+  unsealedRoadsAllowed         Boolean @default(false)
+  offRoadAllowed               Boolean @default(false)
+  petsAllowed                  Boolean @default(false)
+  smokingAllowed               Boolean @default(false)
+  festivalsAllowed             Boolean @default(true)
+  trackDaysAllowed             Boolean @default(false)
+  additionalDriversAllowed     Boolean @default(true)
+  additionalDriverFee          Int?
+  minimumDriverAge             Int?
+  minimumLicenceYears          Int?
+  provisionalLicenceAllowed    Boolean @default(true)
+  internationalLicenceAccepted Boolean @default(true)
+
+  // --- Logistics & handover ------------------------------------
+  deliveryAvailable  Boolean  @default(false)
+  deliveryRadiusKm   Int?
+  deliveryFee        Int?
+  airportPickup      Boolean  @default(false)
+  airportPickupFee   Int?
+  handoverMethod     String? // "IN_PERSON" | "LOCKBOX" | "SELF_CHECKIN"
+  pickupInstructions String?
+  pickupWindowStart  String? // "08:00"
+  pickupWindowEnd    String? // "20:00"
+  languagesSpoken    String[] @default([])
+
+  // --- Costs to expect (display only) ------------------------
+  securityDeposit            Int?
+  depositHoldMethod          String? // "PRE_AUTH" | "MANUAL_TRANSFER"
+  weeklyDiscountPercent      Int?
+  monthlyDiscountPercent     Int?
+  lateReturnFeePerHour       Int?
+  refuellingFeePerLitre      Float?
+  tollHandling               String? // "TAG_INCLUDED" | "BILLED_BACK" | "GUEST_ARRANGES"
+  finesAdminFee              Int?
+  roadsideAssistanceIncluded Boolean @default(false)
+  roadsideAssistanceProvider String?
+
+  // --- Utes ---------------------------------------------------
+  payloadKg                Int?
+  gvmKg                    Int?
+  towingCapacityBrakedKg   Int?
+  towingCapacityUnbrakedKg Int?
+  towBarFitted             Boolean @default(false)
+  trayLengthMm             Int?
+  trayWidthMm              Int?
+  canopyFitted             Boolean @default(false)
+
+  // --- Vans -------------------------------------------------
+  loadVolumeCubicMetres Float?
+  loadLengthMm          Int?
+  internalHeightMm      Int?
+  plyLined              Boolean @default(false)
+
+  // --- Campervans / caravans / motorhomes ---------------
+  sleepingConfiguration   String?
+  bedDimensions           String?
+  selfContained           Boolean @default(false)
+  selfContainedCertNumber String?
+  freshWaterLitres        Int?
+  greyWaterLitres         Int?
+  gasBottleKg             Float?
+  solarWatts              Int?
+  houseBatteryAmpHours    Int?
+  awningFitted            Boolean @default(false)
+  showerType              String? // "INTERNAL" | "EXTERNAL" | "NONE"
+  toiletType              String? // "CASSETTE" | "COMPOSTING" | "PORTABLE" | "NONE"
+  requiresSpecialLicence  Boolean @default(false)
+  towVehicleRequirements  String?
+
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   reservations Reservation[]
   reviews      Review[]
@@ -159,6 +277,7 @@ model Listing {
   @@index([state, suburb, category, price])
   @@index([userId, createdAt])
   @@index([category, createdAt])
+  @@index([category, transmission])
 }
 
 model Reservation {

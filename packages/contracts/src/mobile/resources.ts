@@ -11,6 +11,10 @@ export const listingsQuerySchema = z.object({
   minPriceCents: z.coerce.number().int().nonnegative().optional(),
   maxPriceCents: z.coerce.number().int().nonnegative().optional(),
   guestCount: z.coerce.number().int().min(1).max(100).optional(),
+  transmission: z.enum(["AUTOMATIC", "MANUAL"]).optional(),
+  delivery: z.coerce.boolean().optional(),
+  petsAllowed: z.coerce.boolean().optional(),
+  unsealed: z.coerce.boolean().optional(),
 });
 
 export const publicListingSchema = z.object({
@@ -28,6 +32,16 @@ export const publicListingSchema = z.object({
   sleepCount: z.number().int(),
   fuelType: z.string(),
   driveChain: z.string(),
+  transmission: z.string().nullable(),
+  odometer: z.number().int().nullable(),
+  seatbeltCount: z.number().int().nullable(),
+  dailyKmAllowance: z.number().int().nullable(),
+  securityDeposit: z.number().int().nullable(),
+  delivery: z.boolean(),
+  petsAllowed: z.boolean(),
+  unsealedRoadsAllowed: z.boolean(),
+  ancapRating: z.number().int().nullable(),
+  safetyFeatures: z.array(z.string()),
   amenities: z.array(z.string()),
   approximateLocation: z.object({ suburb: z.string(), state: z.string() }),
   isFavourite: z.boolean(),

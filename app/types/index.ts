@@ -11,6 +11,7 @@ import type { RenterIdentityCheck } from "@/app/libs/bookingIdentity";
 export type SafeListing = Omit<
   Listing,
   | "createdAt"
+  | "lastServicedAt"
   | "regoImage"
   | "instantBook"
   | "minimumNoticeHours"
@@ -20,6 +21,7 @@ export type SafeListing = Omit<
   | "exactLocationReleaseRule"
 > & {
   createdAt: string;
+  lastServicedAt?: string | null;
   regoImage: string;
   badgeValue?: string;
   cleaningFeeOption?: string | null;

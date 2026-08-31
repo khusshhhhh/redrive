@@ -45,6 +45,23 @@ import ListingPhotoManager from "@/app/components/inputs/ListingPhotoManager";
 import ImageUpload from "@/app/components/inputs/ImageUpload";
 import CancellationPolicySelector from "@/app/components/listings/CancellationPolicySelector";
 import { CANCELLATION_POLICIES } from "@/app/libs/cancellationPolicy";
+import OptionSelector from "@/app/components/inputs/OptionSelector";
+import ToggleRow from "@/app/components/inputs/ToggleRow";
+import ChipMultiSelect from "@/app/components/inputs/ChipMultiSelect";
+import {
+  TRANSMISSION_OPTIONS,
+  TYRE_CONDITION_OPTIONS,
+  CHARGE_PORT_OPTIONS,
+  HANDOVER_METHOD_OPTIONS,
+  TOLL_HANDLING_OPTIONS,
+  DEPOSIT_HOLD_OPTIONS,
+  SHOWER_TYPE_OPTIONS,
+  TOILET_TYPE_OPTIONS,
+  SAFETY_FEATURES_LIST,
+  LANGUAGE_OPTIONS,
+  categorySpecGroup,
+  optionLabel,
+} from "@/app/libs/vehicleFacts";
 
 type StepId =
   | "category"
@@ -52,24 +69,30 @@ type StepId =
   | "basics"
   | "vehicle"
   | "powertrain"
+  | "capacity"
+  | "category-specs"
   | "photos"
   | "title"
   | "description"
   | "information"
   | "amenities"
+  | "safety"
+  | "condition"
   | "registration"
+  | "rules"
+  | "delivery"
   | "price"
   | "cleaning"
   | "cancellation"
   | "review";
 
 const PHASES: { key: string; label: string; name: string; steps: StepId[] }[] = [
-  { key: "about", label: "Part 1", name: "Tell us about your vehicle", steps: ["category", "location", "basics", "vehicle", "powertrain"] },
-  { key: "standout", label: "Part 2", name: "Make it stand out", steps: ["photos", "title", "description", "information", "amenities"] },
-  { key: "finish", label: "Part 3", name: "Finish up and publish", steps: ["registration", "price", "cleaning", "cancellation", "review"] },
+  { key: "about", label: "Part 1", name: "Tell us about your vehicle", steps: ["category", "location", "basics", "vehicle", "powertrain", "capacity", "category-specs"] },
+  { key: "standout", label: "Part 2", name: "Make it stand out", steps: ["photos", "title", "description", "information", "amenities", "safety", "condition"] },
+  { key: "finish", label: "Part 3", name: "Finish up and publish", steps: ["registration", "rules", "delivery", "price", "cleaning", "cancellation", "review"] },
 ];
 
-const STEP_ORDER: StepId[] = PHASES.flatMap((phase) => phase.steps);
+const ALL_STEPS: StepId[] = PHASES.flatMap((phase) => phase.steps);
 
 const phaseForStep = (id: StepId) => PHASES.find((phase) => phase.steps.includes(id))!;
 
@@ -90,6 +113,9 @@ export default function HostFlow() {
   const [imageSrcs, setImageSrcs] = useState<string[]>([]);
   const [regoImage, setRegoImage] = useState("");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [damagePhotos, setDamagePhotos] = useState<string[]>([]);
+  const [safetyFeatures, setSafetyFeatures] = useState<string[]>([]);
+  const [languagesSpoken, setLanguagesSpoken] = useState<string[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
 
   const {
@@ -121,6 +147,110 @@ export default function HostFlow() {
       cleaningFeeAmount: "",
       returnCleaningFeeAmount: "",
       cancellationPolicy: "MODERATE",
+
+      // --- Core specs ---
+      transmission: "",
+      odometer: "",
+      seatbeltCount: "",
+      colour: "",
+      keysProvided: "",
+      fuelTankLitres: "",
+      drivingRangeKm: "",
+      vehicleHeightMeters: "",
+      groundClearanceMm: "",
+      hasTollTag: false,
+      // --- Passengers & luggage ---
+      isofixPoints: "",
+      childSeatsAvailable: "",
+      luggageLargeBags: "",
+      luggageCabinBags: "",
+      // --- EV / charging ---
+      batteryCapacityKwh: "",
+      chargePortType: "",
+      maxChargingKw: "",
+      portableChargerIncluded: false,
+      // --- Condition & history ---
+      damageNotes: "",
+      lastServicedAt: "",
+      lastServiceOdometer: "",
+      tyreCondition: "",
+      spareTyre: false,
+      modifications: "",
+      smokeFree: true,
+      petFree: true,
+      hasDashcam: false,
+      hasGpsTracker: false,
+      // --- Safety ---
+      ancapRating: "",
+      firstAidKit: false,
+      fireExtinguisher: false,
+      // --- Trip rules ---
+      dailyKmAllowance: "",
+      excessKmFee: "",
+      interstateAllowed: true,
+      interstateNotes: "",
+      unsealedRoadsAllowed: false,
+      offRoadAllowed: false,
+      petsAllowed: false,
+      smokingAllowed: false,
+      festivalsAllowed: true,
+      trackDaysAllowed: false,
+      additionalDriversAllowed: true,
+      additionalDriverFee: "",
+      minimumDriverAge: "",
+      minimumLicenceYears: "",
+      provisionalLicenceAllowed: true,
+      internationalLicenceAccepted: true,
+      // --- Logistics & handover ---
+      deliveryAvailable: false,
+      deliveryRadiusKm: "",
+      deliveryFee: "",
+      airportPickup: false,
+      airportPickupFee: "",
+      handoverMethod: "",
+      pickupInstructions: "",
+      pickupWindowStart: "",
+      pickupWindowEnd: "",
+      // --- Costs to expect ---
+      securityDeposit: "",
+      depositHoldMethod: "",
+      weeklyDiscountPercent: "",
+      monthlyDiscountPercent: "",
+      lateReturnFeePerHour: "",
+      refuellingFeePerLitre: "",
+      tollHandling: "",
+      finesAdminFee: "",
+      roadsideAssistanceIncluded: false,
+      roadsideAssistanceProvider: "",
+      // --- Utes ---
+      payloadKg: "",
+      gvmKg: "",
+      towingCapacityBrakedKg: "",
+      towingCapacityUnbrakedKg: "",
+      towBarFitted: false,
+      trayLengthMm: "",
+      trayWidthMm: "",
+      canopyFitted: false,
+      // --- Vans ---
+      loadVolumeCubicMetres: "",
+      loadLengthMm: "",
+      internalHeightMm: "",
+      plyLined: false,
+      // --- Campervans / caravans / motorhomes ---
+      sleepingConfiguration: "",
+      bedDimensions: "",
+      selfContained: false,
+      selfContainedCertNumber: "",
+      freshWaterLitres: "",
+      greyWaterLitres: "",
+      gasBottleKg: "",
+      solarWatts: "",
+      houseBatteryAmpHours: "",
+      awningFitted: false,
+      showerType: "",
+      toiletType: "",
+      requiresSpecialLicence: false,
+      towVehicleRequirements: "",
     },
   });
 
@@ -137,6 +267,13 @@ export default function HostFlow() {
   const regoEndDate = watch("regoEndDate");
   const cleaningFeeOption = watch("cleaningFeeOption");
   const cancellationPolicy = watch("cancellationPolicy");
+  const fuelType = watch("fuelType");
+
+  // The "category-specs" step only applies to utes, vans and campers.
+  const stepOrder = useMemo(
+    () => ALL_STEPS.filter((step) => step !== "category-specs" || categorySpecGroup(category) !== null),
+    [category],
+  );
 
   const Map = useMemo(
     () => dynamic(() => import("@/app/components/Map"), { ssr: false }),
@@ -170,9 +307,13 @@ export default function HostFlow() {
   const toggleAmenity = (id: string) =>
     setSelectedAmenities((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
 
-  const currentStep = STEP_ORDER[stepIndex];
-  const totalSteps = STEP_ORDER.length;
-  const progress = view === "intro" ? 0 : Math.round(((stepIndex + 1) / totalSteps) * 100);
+  const toggleFrom = (setter: React.Dispatch<React.SetStateAction<string[]>>) => (id: string) =>
+    setter((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+
+  const clampedStepIndex = Math.min(stepIndex, stepOrder.length - 1);
+  const currentStep = stepOrder[clampedStepIndex];
+  const totalSteps = stepOrder.length;
+  const progress = view === "intro" ? 0 : Math.round(((clampedStepIndex + 1) / totalSteps) * 100);
 
   const validateStep = useCallback(
     async (id: StepId): Promise<string | null> => {
@@ -180,6 +321,8 @@ export default function HostFlow() {
       switch (id) {
         case "category":
           return values.category ? null : "Choose the category that fits your vehicle.";
+        case "basics":
+          return values.transmission ? null : "Select the transmission.";
         case "location":
           if (!address.trim()) return "Add the street address so we can place your vehicle.";
           if (!selectedSuburb?.value) return "Select the suburb.";
@@ -230,7 +373,7 @@ export default function HostFlow() {
   );
 
   const goToStep = (id: StepId) => {
-    const index = STEP_ORDER.indexOf(id);
+    const index = stepOrder.indexOf(id);
     if (index >= 0) {
       setStepIndex(index);
       setView("flow");
@@ -246,6 +389,9 @@ export default function HostFlow() {
       imageSrcs,
       regoImage,
       amenities: selectedAmenities,
+      damagePhotos,
+      safetyFeatures,
+      languagesSpoken,
       state: selectedState?.value,
       suburb: selectedSuburb?.value,
       address: address.trim() !== "" ? address : "Unknown",
@@ -269,7 +415,7 @@ export default function HostFlow() {
       toast.error(message || "Something went wrong while publishing. Please try again.");
       setSubmitting(false);
     }
-  }, [address, coords, getValues, imageSrcs, regoImage, router, selectedAmenities, selectedState, selectedSuburb]);
+  }, [address, coords, damagePhotos, getValues, imageSrcs, languagesSpoken, regoImage, router, safetyFeatures, selectedAmenities, selectedState, selectedSuburb]);
 
   const next = useCallback(async () => {
     const error = await validateStep(currentStep);
@@ -277,22 +423,22 @@ export default function HostFlow() {
       toast.error(error);
       return;
     }
-    if (stepIndex === totalSteps - 1) {
+    if (clampedStepIndex >= totalSteps - 1) {
       void publish();
       return;
     }
-    setStepIndex((value) => value + 1);
+    setStepIndex(clampedStepIndex + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentStep, publish, stepIndex, totalSteps, validateStep]);
+  }, [currentStep, clampedStepIndex, publish, totalSteps, validateStep]);
 
   const back = useCallback(() => {
-    if (stepIndex === 0) {
+    if (clampedStepIndex === 0) {
       setView("intro");
       return;
     }
-    setStepIndex((value) => value - 1);
+    setStepIndex(clampedStepIndex - 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [stepIndex]);
+  }, [clampedStepIndex]);
 
   /* ---- gates ------------------------------------------------------------- */
 
@@ -369,9 +515,9 @@ export default function HostFlow() {
 
           <ol className="host-step space-y-3" style={{ animationDelay: "90ms" }}>
             {[
-              { n: 1, name: "Tell us about your vehicle", copy: "Category, location and the specs guests filter by.", icon: CarFront },
-              { n: 2, name: "Make it stand out", copy: "Add photos, a title, a description and amenities.", icon: Camera },
-              { n: 3, name: "Finish up and publish", copy: "Registration, price, cleaning fees and cancellation.", icon: BadgeCheck },
+              { n: 1, name: "Tell us about your vehicle", copy: "Category, location, transmission and the specs guests filter by.", icon: CarFront },
+              { n: 2, name: "Make it stand out", copy: "Photos, description, amenities, safety and condition.", icon: Camera },
+              { n: 3, name: "Finish up and publish", copy: "Trip rules, delivery, price, deposit and cancellation.", icon: BadgeCheck },
             ].map((row) => (
               <li
                 key={row.n}
@@ -396,7 +542,7 @@ export default function HostFlow() {
   /* ---- flow ---------------------------------------------------------------- */
 
   const phase = phaseForStep(currentStep);
-  const isLast = stepIndex === totalSteps - 1;
+  const isLast = clampedStepIndex >= totalSteps - 1;
 
   return (
     <div className="min-h-screen">
@@ -410,7 +556,7 @@ export default function HostFlow() {
             {phase.label} &middot; {phase.name}
           </p>
           <p className="text-[11px] font-semibold text-muted">
-            {stepIndex + 1} / {totalSteps}
+            {clampedStepIndex + 1} / {totalSteps}
           </p>
         </div>
         <div className="h-1 w-full bg-surface-strong">
@@ -450,6 +596,13 @@ export default function HostFlow() {
             setRegoImage={setRegoImage}
             selectedAmenities={selectedAmenities}
             toggleAmenity={toggleAmenity}
+            fuelType={fuelType}
+            damagePhotos={damagePhotos}
+            setDamagePhotos={setDamagePhotos}
+            safetyFeatures={safetyFeatures}
+            toggleSafetyFeature={toggleFrom(setSafetyFeatures)}
+            languagesSpoken={languagesSpoken}
+            toggleLanguage={toggleFrom(setLanguagesSpoken)}
             address={address}
             goToStep={goToStep}
             submitting={submitting}
@@ -536,9 +689,45 @@ interface StepBodyProps {
   setRegoImage: (v: string) => void;
   selectedAmenities: string[];
   toggleAmenity: (id: string) => void;
+  fuelType: string;
+  damagePhotos: string[];
+  setDamagePhotos: (v: string[]) => void;
+  safetyFeatures: string[];
+  toggleSafetyFeature: (id: string) => void;
+  languagesSpoken: string[];
+  toggleLanguage: (id: string) => void;
   address: string;
   goToStep: (id: StepId) => void;
   submitting: boolean;
+}
+
+/** Compact optional number field bound to the RHF form (default value is ""). */
+function NumberField({
+  id,
+  label,
+  register,
+  errors,
+  placeholder,
+}: {
+  id: string;
+  label: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  register: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  errors: any;
+  placeholder?: string;
+}) {
+  return <Input id={id} label={label} type="number" register={register} errors={errors} placeholder={placeholder} />;
+}
+
+/** A titled group wrapper inside a step. */
+function FieldGroup({ title, children }: { title?: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-5">
+      {title && <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-soft">{title}</p>}
+      {children}
+    </div>
+  );
 }
 
 function StepShell({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
@@ -704,10 +893,20 @@ function StepBody(props: StepBodyProps) {
     setRegoImage,
     selectedAmenities,
     toggleAmenity,
+    fuelType,
+    damagePhotos,
+    setDamagePhotos,
+    safetyFeatures,
+    toggleSafetyFeature,
+    languagesSpoken,
+    toggleLanguage,
     address,
     goToStep,
     submitting,
   } = props;
+
+  const isElectrified = fuelType === "EV" || fuelType === "Hybrid";
+  const specGroup = categorySpecGroup(category);
 
   switch (step) {
     case "category":
@@ -746,7 +945,7 @@ function StepBody(props: StepBodyProps) {
 
     case "basics":
       return (
-        <StepShell title="Share a few basics" subtitle="Set these to zero if they don't apply to your vehicle.">
+        <StepShell title="Share a few basics" subtitle="Set the counters to zero if they don't apply to your vehicle.">
           <div className="flex flex-col divide-y divide-hairline-soft">
             <div className="pb-6">
               <Counter title="People" subtitle="How many passengers can travel?" value={guestCount} onChange={(v) => setCustom("guestCount", v)} />
@@ -757,6 +956,15 @@ function StepBody(props: StepBodyProps) {
             <div className="pt-6">
               <Counter title="Sleeping space" subtitle="How many people can sleep in it?" value={sleepCount} onChange={(v) => setCustom("sleepCount", v)} />
             </div>
+          </div>
+          <FieldGroup title="Transmission">
+            <OptionSelector options={TRANSMISSION_OPTIONS} value={watch("transmission")} onChange={(v) => setCustom("transmission", v)} disabled={submitting} />
+          </FieldGroup>
+          <div className="grid gap-6 sm:grid-cols-2">
+            <NumberField id="odometer" label="Odometer (km)" register={register} errors={errors} placeholder="e.g. 85000" />
+            <NumberField id="seatbeltCount" label="Seatbelts" register={register} errors={errors} placeholder="e.g. 5" />
+            <Input id="colour" label="Colour" register={register} errors={errors} placeholder="e.g. Silver" />
+            <NumberField id="keysProvided" label="Sets of keys provided" register={register} errors={errors} placeholder="e.g. 2" />
           </div>
         </StepShell>
       );
@@ -791,9 +999,102 @@ function StepBody(props: StepBodyProps) {
         <StepShell title="How does it drive?" subtitle="Guests filter on fuel type and drivetrain when they plan trips.">
           <FuelSelector id="fuelType" label="Fuel type" watch={watch} setValue={setValue} errors={errors} required />
           <DriveChainSelector id="driveChain" label="Drive chain" watch={watch} setValue={setValue} errors={errors} required />
-          <Input id="fuelEconomy" label="Fuel economy (L/100km) — optional" type="number" register={register} errors={errors} required={false} />
+          <div className="grid gap-6 sm:grid-cols-2">
+            <Input id="fuelEconomy" label="Fuel economy (L/100km) — optional" type="number" register={register} errors={errors} required={false} />
+            <NumberField id="fuelTankLitres" label={isElectrified ? "Usable range (km)" : "Fuel tank (L)"} register={register} errors={errors} />
+            {!isElectrified && <NumberField id="drivingRangeKm" label="Typical driving range (km) — optional" register={register} errors={errors} />}
+          </div>
+          {isElectrified && (
+            <FieldGroup title="Charging">
+              <div className="grid gap-6 sm:grid-cols-2">
+                <NumberField id="batteryCapacityKwh" label="Battery capacity (kWh)" register={register} errors={errors} />
+                <NumberField id="drivingRangeKm" label="Real-world range (km)" register={register} errors={errors} />
+                <NumberField id="maxChargingKw" label="Max DC charge rate (kW)" register={register} errors={errors} />
+              </div>
+              <OptionSelector label="Charge port" options={CHARGE_PORT_OPTIONS} value={watch("chargePortType")} onChange={(v) => setCustom("chargePortType", v)} allowDeselect />
+              <ToggleRow title="Portable charger included" subtitle="A granny/travel charger travels with the vehicle" value={!!watch("portableChargerIncluded")} onChange={(v) => setCustom("portableChargerIncluded", v)} />
+            </FieldGroup>
+          )}
         </StepShell>
       );
+
+    case "capacity":
+      return (
+        <StepShell title="Space and access" subtitle="Every field here is optional — fill in what you know.">
+          <FieldGroup title="Passengers & luggage">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <NumberField id="isofixPoints" label="ISOFIX child-seat points" register={register} errors={errors} />
+              <NumberField id="childSeatsAvailable" label="Child seats you can provide" register={register} errors={errors} />
+              <NumberField id="luggageLargeBags" label="Large suitcases it fits" register={register} errors={errors} />
+              <NumberField id="luggageCabinBags" label="Cabin bags it fits" register={register} errors={errors} />
+            </div>
+          </FieldGroup>
+          <FieldGroup title="Dimensions">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <NumberField id="vehicleHeightMeters" label="Vehicle height (m)" register={register} errors={errors} placeholder="e.g. 1.9" />
+              <NumberField id="groundClearanceMm" label="Ground clearance (mm)" register={register} errors={errors} />
+            </div>
+          </FieldGroup>
+          <ToggleRow title="E-tag / toll tag fitted" subtitle="An electronic toll tag is in the vehicle" value={!!watch("hasTollTag")} onChange={(v) => setCustom("hasTollTag", v)} />
+        </StepShell>
+      );
+
+    case "category-specs": {
+      if (specGroup === "UTE") {
+        return (
+          <StepShell title="Ute & towing specs" subtitle="What can this ute carry and tow? All optional.">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <NumberField id="payloadKg" label="Payload (kg)" register={register} errors={errors} />
+              <NumberField id="gvmKg" label="GVM (kg)" register={register} errors={errors} />
+              <NumberField id="towingCapacityBrakedKg" label="Towing — braked (kg)" register={register} errors={errors} />
+              <NumberField id="towingCapacityUnbrakedKg" label="Towing — unbraked (kg)" register={register} errors={errors} />
+              <NumberField id="trayLengthMm" label="Tray length (mm)" register={register} errors={errors} />
+              <NumberField id="trayWidthMm" label="Tray width (mm)" register={register} errors={errors} />
+            </div>
+            <ToggleRow title="Tow bar fitted" value={!!watch("towBarFitted")} onChange={(v) => setCustom("towBarFitted", v)} />
+            <ToggleRow title="Canopy fitted" value={!!watch("canopyFitted")} onChange={(v) => setCustom("canopyFitted", v)} />
+          </StepShell>
+        );
+      }
+      if (specGroup === "VAN") {
+        return (
+          <StepShell title="Cargo specs" subtitle="Help tradies and movers judge fit. All optional.">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <NumberField id="loadVolumeCubicMetres" label="Load volume (m³)" register={register} errors={errors} placeholder="e.g. 6.2" />
+              <NumberField id="loadLengthMm" label="Load length (mm)" register={register} errors={errors} />
+              <NumberField id="internalHeightMm" label="Internal height (mm)" register={register} errors={errors} />
+            </div>
+            <ToggleRow title="Ply-lined" subtitle="Walls and floor are lined to protect cargo" value={!!watch("plyLined")} onChange={(v) => setCustom("plyLined", v)} />
+          </StepShell>
+        );
+      }
+      return (
+        <StepShell title="Camp & touring setup" subtitle="The details caravan and motorhome guests care about. All optional.">
+          <Input id="sleepingConfiguration" label="Sleeping configuration" register={register} errors={errors} placeholder="e.g. 1 queen + convertible dinette" />
+          <Input id="bedDimensions" label="Main bed dimensions" register={register} errors={errors} placeholder="e.g. 1900 x 1500 mm" />
+          <FieldGroup title="Self-contained">
+            <ToggleRow title="Self-contained certified" value={!!watch("selfContained")} onChange={(v) => setCustom("selfContained", v)} />
+            {watch("selfContained") && <Input id="selfContainedCertNumber" label="Certification number" register={register} errors={errors} />}
+          </FieldGroup>
+          <FieldGroup title="Water, gas & power">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <NumberField id="freshWaterLitres" label="Fresh water (L)" register={register} errors={errors} />
+              <NumberField id="greyWaterLitres" label="Grey water (L)" register={register} errors={errors} />
+              <NumberField id="gasBottleKg" label="Gas bottle (kg)" register={register} errors={errors} />
+              <NumberField id="solarWatts" label="Solar (W)" register={register} errors={errors} />
+              <NumberField id="houseBatteryAmpHours" label="House battery (Ah)" register={register} errors={errors} />
+            </div>
+          </FieldGroup>
+          <OptionSelector label="Shower" options={SHOWER_TYPE_OPTIONS} value={watch("showerType")} onChange={(v) => setCustom("showerType", v)} columns={3} allowDeselect />
+          <OptionSelector label="Toilet" options={TOILET_TYPE_OPTIONS} value={watch("toiletType")} onChange={(v) => setCustom("toiletType", v)} allowDeselect />
+          <ToggleRow title="Awning fitted" value={!!watch("awningFitted")} onChange={(v) => setCustom("awningFitted", v)} />
+          <FieldGroup title="Licence & tow vehicle">
+            <ToggleRow title="Requires a special licence to drive" value={!!watch("requiresSpecialLicence")} onChange={(v) => setCustom("requiresSpecialLicence", v)} />
+            <Input id="towVehicleRequirements" label="Tow vehicle requirements — optional" register={register} errors={errors} placeholder="e.g. 3.5t braked towing capacity, WDH recommended" />
+          </FieldGroup>
+        </StepShell>
+      );
+    }
 
     case "photos":
       return (
@@ -849,6 +1150,53 @@ function StepBody(props: StepBodyProps) {
         </StepShell>
       );
 
+    case "safety":
+      return (
+        <StepShell title="Safety" subtitle="Optional, but safety details reassure guests and their families.">
+          <FieldGroup title="ANCAP rating">
+            <OptionSelector
+              options={[1, 2, 3, 4, 5].map((n) => ({ value: String(n), label: `${n}★` }))}
+              value={watch("ancapRating") ? String(watch("ancapRating")) : ""}
+              onChange={(v) => setCustom("ancapRating", v)}
+              columns={3}
+              allowDeselect
+            />
+          </FieldGroup>
+          <FieldGroup title="Driver-assist & safety features">
+            <ChipMultiSelect items={SAFETY_FEATURES_LIST} selected={safetyFeatures} onToggle={toggleSafetyFeature} disabled={submitting} />
+          </FieldGroup>
+          <ToggleRow title="First-aid kit on board" value={!!watch("firstAidKit")} onChange={(v) => setCustom("firstAidKit", v)} />
+          <ToggleRow title="Fire extinguisher on board" value={!!watch("fireExtinguisher")} onChange={(v) => setCustom("fireExtinguisher", v)} />
+        </StepShell>
+      );
+
+    case "condition":
+      return (
+        <StepShell title="Condition & history" subtitle="Being upfront here protects you at return and builds trust before the booking.">
+          <TextArea id="damageNotes" label="Existing damage & cosmetic quirks — optional" placeholder="e.g. Small scratch on the rear bumper, stone chip on the windscreen (not in driver's view)." register={register} errors={errors} />
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-muted">Photos of existing damage — optional</label>
+            <ListingPhotoManager images={damagePhotos} onChange={setDamagePhotos} disabled={submitting} />
+          </div>
+          <FieldGroup title="Servicing">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted">Last serviced — optional</label>
+              <DateSelector value={watch("lastServicedAt") || ""} onChange={(value) => setCustom("lastServicedAt", value)} />
+            </div>
+            <NumberField id="lastServiceOdometer" label="Odometer at last service (km) — optional" register={register} errors={errors} />
+          </FieldGroup>
+          <OptionSelector label="Tyre condition" options={TYRE_CONDITION_OPTIONS} value={watch("tyreCondition")} onChange={(v) => setCustom("tyreCondition", v)} columns={3} allowDeselect />
+          <ToggleRow title="Spare tyre & tools on board" value={!!watch("spareTyre")} onChange={(v) => setCustom("spareTyre", v)} />
+          <Input id="modifications" label="Modifications — optional" register={register} errors={errors} placeholder="e.g. Lift kit, bull bar, dual battery system" />
+          <FieldGroup title="Care & disclosure">
+            <ToggleRow title="Smoke-free vehicle" value={!!watch("smokeFree")} onChange={(v) => setCustom("smokeFree", v)} />
+            <ToggleRow title="Pet-free vehicle" value={!!watch("petFree")} onChange={(v) => setCustom("petFree", v)} />
+            <ToggleRow title="Dashcam fitted" subtitle="Guests are told a dashcam may record" value={!!watch("hasDashcam")} onChange={(v) => setCustom("hasDashcam", v)} />
+            <ToggleRow title="GPS tracker fitted" subtitle="Guests are told the vehicle has a tracker" value={!!watch("hasGpsTracker")} onChange={(v) => setCustom("hasGpsTracker", v)} />
+          </FieldGroup>
+        </StepShell>
+      );
+
     case "registration":
       return (
         <StepShell title="Registration details" subtitle="We use this to confirm the vehicle is road-legal. It is never shown publicly.">
@@ -887,10 +1235,103 @@ function StepBody(props: StepBodyProps) {
         </StepShell>
       );
 
+    case "rules":
+      return (
+        <StepShell title="Trip rules" subtitle="Set clear expectations up front. Guests see these before they request.">
+          <FieldGroup title="Distance">
+            <ToggleRow
+              title="Unlimited kilometres"
+              subtitle="Turn off to set a daily allowance and excess fee"
+              value={watch("dailyKmAllowance") === "" || watch("dailyKmAllowance") === null}
+              onChange={(unlimited) => setCustom("dailyKmAllowance", unlimited ? "" : 200)}
+            />
+            {watch("dailyKmAllowance") !== "" && watch("dailyKmAllowance") !== null && (
+              <div className="grid gap-6 sm:grid-cols-2">
+                <NumberField id="dailyKmAllowance" label="Daily km allowance" register={register} errors={errors} />
+                <NumberField id="excessKmFee" label="Excess km fee (AUD/km)" register={register} errors={errors} placeholder="e.g. 0.33" />
+              </div>
+            )}
+          </FieldGroup>
+          <FieldGroup title="Where it can go">
+            <ToggleRow title="Interstate travel allowed" value={!!watch("interstateAllowed")} onChange={(v) => setCustom("interstateAllowed", v)} />
+            {watch("interstateAllowed") && <Input id="interstateNotes" label="Interstate notes — optional" register={register} errors={errors} placeholder="e.g. NSW and VIC only, let me know before you cross a border" />}
+            <ToggleRow title="Unsealed / gravel roads allowed" value={!!watch("unsealedRoadsAllowed")} onChange={(v) => setCustom("unsealedRoadsAllowed", v)} />
+            <ToggleRow title="Off-road / 4WD tracks allowed" value={!!watch("offRoadAllowed")} onChange={(v) => setCustom("offRoadAllowed", v)} />
+            <ToggleRow title="Festivals & events allowed" value={!!watch("festivalsAllowed")} onChange={(v) => setCustom("festivalsAllowed", v)} />
+            <ToggleRow title="Track days allowed" value={!!watch("trackDaysAllowed")} onChange={(v) => setCustom("trackDaysAllowed", v)} />
+          </FieldGroup>
+          <FieldGroup title="Who can drive">
+            <ToggleRow title="Additional drivers allowed" value={!!watch("additionalDriversAllowed")} onChange={(v) => setCustom("additionalDriversAllowed", v)} />
+            {watch("additionalDriversAllowed") && <NumberField id="additionalDriverFee" label="Additional driver fee (AUD) — optional" register={register} errors={errors} />}
+            <div className="grid gap-6 sm:grid-cols-2">
+              <NumberField id="minimumDriverAge" label="Minimum driver age" register={register} errors={errors} placeholder="e.g. 21" />
+              <NumberField id="minimumLicenceYears" label="Min. years licensed" register={register} errors={errors} placeholder="e.g. 2" />
+            </div>
+            <ToggleRow title="Provisional (P-plate) drivers allowed" value={!!watch("provisionalLicenceAllowed")} onChange={(v) => setCustom("provisionalLicenceAllowed", v)} />
+            <ToggleRow title="International licences accepted" value={!!watch("internationalLicenceAccepted")} onChange={(v) => setCustom("internationalLicenceAccepted", v)} />
+          </FieldGroup>
+          <FieldGroup title="Pets & smoking">
+            <ToggleRow title="Pets allowed" value={!!watch("petsAllowed")} onChange={(v) => setCustom("petsAllowed", v)} />
+            <ToggleRow title="Smoking allowed" value={!!watch("smokingAllowed")} onChange={(v) => setCustom("smokingAllowed", v)} />
+          </FieldGroup>
+        </StepShell>
+      );
+
+    case "delivery":
+      return (
+        <StepShell title="Pickup & delivery" subtitle="How does the guest get the vehicle? All optional.">
+          <FieldGroup title="Delivery">
+            <ToggleRow title="I can deliver the vehicle" value={!!watch("deliveryAvailable")} onChange={(v) => setCustom("deliveryAvailable", v)} />
+            {watch("deliveryAvailable") && (
+              <div className="grid gap-6 sm:grid-cols-2">
+                <NumberField id="deliveryRadiusKm" label="Delivery radius (km)" register={register} errors={errors} />
+                <NumberField id="deliveryFee" label="Delivery fee (AUD)" register={register} errors={errors} />
+              </div>
+            )}
+            <ToggleRow title="Airport pickup / drop-off" value={!!watch("airportPickup")} onChange={(v) => setCustom("airportPickup", v)} />
+            {watch("airportPickup") && <NumberField id="airportPickupFee" label="Airport fee (AUD) — optional" register={register} errors={errors} />}
+          </FieldGroup>
+          <FieldGroup title="Handover">
+            <OptionSelector label="Handover method" options={HANDOVER_METHOD_OPTIONS} value={watch("handoverMethod")} onChange={(v) => setCustom("handoverMethod", v)} columns={3} allowDeselect />
+            <div className="grid gap-6 sm:grid-cols-2">
+              <Input id="pickupWindowStart" label="Pickup from (time)" register={register} errors={errors} placeholder="e.g. 08:00" />
+              <Input id="pickupWindowEnd" label="Pickup until (time)" register={register} errors={errors} placeholder="e.g. 20:00" />
+            </div>
+            <Input id="pickupInstructions" label="Pickup instructions — optional" register={register} errors={errors} placeholder="e.g. Meet at the front of the building, parking is on level 2" />
+          </FieldGroup>
+          <FieldGroup title="Languages you speak">
+            <ChipMultiSelect items={LANGUAGE_OPTIONS} selected={languagesSpoken} onToggle={toggleLanguage} disabled={submitting} />
+          </FieldGroup>
+        </StepShell>
+      );
+
     case "price":
       return (
         <StepShell title="Set your daily price" subtitle="This is what a guest pays per day, before Redrive's service fee. You can adjust it whenever you like.">
           <Input id="price" label="Daily price (AUD)" formatPrice type="number" register={register} errors={errors} required />
+          <FieldGroup title="Longer-trip discounts — optional">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <NumberField id="weeklyDiscountPercent" label="Weekly discount (%)" register={register} errors={errors} placeholder="e.g. 10" />
+              <NumberField id="monthlyDiscountPercent" label="Monthly discount (%)" register={register} errors={errors} placeholder="e.g. 25" />
+            </div>
+            <p className="text-xs leading-5 text-muted">Discounts are shown to guests now. They&rsquo;ll be applied automatically in the quote in a later update.</p>
+          </FieldGroup>
+          <FieldGroup title="Security deposit — optional">
+            <NumberField id="securityDeposit" label="Security deposit / bond (AUD)" register={register} errors={errors} />
+            <OptionSelector label="How it's held" options={DEPOSIT_HOLD_OPTIONS} value={watch("depositHoldMethod")} onChange={(v) => setCustom("depositHoldMethod", v)} allowDeselect />
+          </FieldGroup>
+          <FieldGroup title="Other fees guests should expect — optional">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <NumberField id="lateReturnFeePerHour" label="Late return (AUD/hour)" register={register} errors={errors} />
+              <NumberField id="refuellingFeePerLitre" label="Refuelling (AUD/L)" register={register} errors={errors} />
+              <NumberField id="finesAdminFee" label="Fine / infringement admin fee (AUD)" register={register} errors={errors} />
+            </div>
+            <OptionSelector label="Tolls" options={TOLL_HANDLING_OPTIONS} value={watch("tollHandling")} onChange={(v) => setCustom("tollHandling", v)} columns={3} allowDeselect />
+          </FieldGroup>
+          <FieldGroup title="Roadside assistance">
+            <ToggleRow title="Roadside assistance included" value={!!watch("roadsideAssistanceIncluded")} onChange={(v) => setCustom("roadsideAssistanceIncluded", v)} />
+            {watch("roadsideAssistanceIncluded") && <Input id="roadsideAssistanceProvider" label="Provider — optional" register={register} errors={errors} placeholder="e.g. NRMA, RACV" />}
+          </FieldGroup>
         </StepShell>
       );
 
@@ -947,10 +1388,25 @@ function StepBody(props: StepBodyProps) {
         { label: "Location", value: [selectedSuburb?.value, selectedState?.value].filter(Boolean).join(", ") || "—", step: "location", icon: MapPin },
         { label: "Vehicle", value: [v.company, v.modal, v.year].filter(Boolean).join(" ") || "—", step: "vehicle", icon: PencilLine },
         { label: "Powertrain", value: [v.fuelType, v.driveChain].filter(Boolean).join(" · ") || "—", step: "powertrain", icon: Gauge },
+        { label: "Transmission", value: optionLabel("transmission", v.transmission) || "—", step: "basics", icon: Gauge },
         { label: "Photos", value: `${imageSrcs.length} added`, step: "photos", icon: ImagePlus },
         { label: "Title", value: v.title || "—", step: "title", icon: PencilLine },
         { label: "Amenities", value: selectedAmenities.length ? `${selectedAmenities.length} selected` : "None", step: "amenities", icon: ListChecks },
+        { label: "Safety features", value: safetyFeatures.length ? `${safetyFeatures.length} selected` : "None", step: "safety", icon: BadgeCheck },
+        {
+          label: "Km allowance",
+          value: v.dailyKmAllowance ? `${v.dailyKmAllowance} km/day` : "Unlimited",
+          step: "rules",
+          icon: Gauge,
+        },
+        {
+          label: "Pickup & delivery",
+          value: [v.deliveryAvailable ? "Delivery" : null, v.airportPickup ? "Airport" : null].filter(Boolean).join(" · ") || "Pickup only",
+          step: "delivery",
+          icon: MapPin,
+        },
         { label: "Daily price", value: v.price ? `AU$${v.price}` : "—", step: "price", icon: Wallet },
+        { label: "Security deposit", value: v.securityDeposit ? `AU$${v.securityDeposit}` : "None", step: "price", icon: Wallet },
         {
           label: "Cancellation",
           value: CANCELLATION_POLICIES.find((p) => p.key === (v.cancellationPolicy || "MODERATE"))?.name || "—",

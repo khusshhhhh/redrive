@@ -96,6 +96,7 @@ async function GETHandler(
             ? reservation.listing.longitude
             : null,
         createdAt: reservation.listing.createdAt.toISOString(),
+        lastServicedAt: reservation.listing.lastServicedAt ? reservation.listing.lastServicedAt.toISOString() : null,
       },
     };
 

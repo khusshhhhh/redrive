@@ -21,7 +21,32 @@ import StateSelector, { states as AU_STATES } from "@/app/components/inputs/Stat
 import SuburbSelector from "@/app/components/inputs/SuburbSelector";
 import DateSelector from "@/app/components/inputs/DateSelector";
 import CancellationPolicySelector from "@/app/components/listings/CancellationPolicySelector";
+import OptionSelector from "@/app/components/inputs/OptionSelector";
+import ToggleRow from "@/app/components/inputs/ToggleRow";
+import ChipMultiSelect from "@/app/components/inputs/ChipMultiSelect";
+import {
+  TRANSMISSION_OPTIONS,
+  TYRE_CONDITION_OPTIONS,
+  CHARGE_PORT_OPTIONS,
+  HANDOVER_METHOD_OPTIONS,
+  TOLL_HANDLING_OPTIONS,
+  DEPOSIT_HOLD_OPTIONS,
+  SHOWER_TYPE_OPTIONS,
+  TOILET_TYPE_OPTIONS,
+  SAFETY_FEATURES_LIST,
+  LANGUAGE_OPTIONS,
+  categorySpecGroup,
+} from "@/app/libs/vehicleFacts";
+import { LISTING_EXTRA_FIELDS, LISTING_EXTRA_ARRAY_FIELDS } from "@/app/libs/listingExtras";
 import { ArrowLeft, BadgeCheck, CarFront, Eye, ShieldCheck, Sparkles } from "lucide-react";
+
+const EXTRA_BOOL_DEFAULT_TRUE = new Set<string>([
+  "smokeFree", "petFree", "interstateAllowed", "festivalsAllowed",
+  "additionalDriversAllowed", "provisionalLicenceAllowed", "internationalLicenceAccepted",
+]);
+const EXTRA_SCALAR_FIELDS = LISTING_EXTRA_FIELDS.filter(
+  (field) => !(LISTING_EXTRA_ARRAY_FIELDS as readonly string[]).includes(field),
+);
 
 interface Listing {
     id: string;
@@ -66,6 +91,9 @@ const EditUtilityPage = () => {
     const [cleaningFeeAmount, setCleaningFeeAmount] = useState('');
     const [returnCleaningFeeAmount, setReturnCleaningFeeAmount] = useState('');
     const [cancellationPolicy, setCancellationPolicy] = useState('MODERATE');
+    const [damagePhotos, setDamagePhotos] = useState<string[]>([]);
+    const [safetyFeatures, setSafetyFeatures] = useState<string[]>([]);
+    const [languagesSpoken, setLanguagesSpoken] = useState<string[]>([]);
 
     const {
         register,
@@ -97,6 +125,7 @@ const EditUtilityPage = () => {
             cleaningFeeAmount: '',
             returnCleaningFeeAmount: '',
             cancellationPolicy: 'MODERATE',
+            ...Object.fromEntries(EXTRA_SCALAR_FIELDS.map((field) => [field, EXTRA_BOOL_DEFAULT_TRUE.has(field) ? true : ""])),
         },
     });
 
@@ -107,7 +136,7 @@ const EditUtilityPage = () => {
         axios
             .get(`/api/listings/${listingId}`)
             .then((response) => {
-                const data: Listing = response.data;
+                const data = response.data as Listing & Record<string, unknown>;
                 setValue("title", data.title);
                 setValue("description", data.description);
                 setValue("information", data.information);
@@ -141,6 +170,23 @@ const EditUtilityPage = () => {
                 setSelectedState({ value: data.state, label: data.state });
                 setSelectedSuburb({ value: data.suburb, label: data.suburb });
                 setSelectedAmenities(data.amenities || []);
+
+                // Extended vehicle fields.
+                EXTRA_SCALAR_FIELDS.forEach((field) => {
+                    const raw = data[field];
+                    if (field === "lastServicedAt") {
+                        setValue(field, raw ? new Date(String(raw)).toISOString().split("T")[0] : "");
+                    } else if (typeof raw === "boolean") {
+                        setValue(field, raw);
+                    } else if (raw === null || raw === undefined) {
+                        setValue(field, EXTRA_BOOL_DEFAULT_TRUE.has(field) ? true : "");
+                    } else {
+                        setValue(field, raw as string | number);
+                    }
+                });
+                setDamagePhotos(Array.isArray(data.damagePhotos) ? (data.damagePhotos as string[]) : []);
+                setSafetyFeatures(Array.isArray(data.safetyFeatures) ? (data.safetyFeatures as string[]) : []);
+                setLanguagesSpoken(Array.isArray(data.languagesSpoken) ? (data.languagesSpoken as string[]) : []);
             })
             .catch(() => toast.error("Failed to load listing."));
     }, [listingId, setValue]);
@@ -186,6 +232,9 @@ const EditUtilityPage = () => {
                 cleaningFeeAmount: cleaningFeeAmount || null,
                 returnCleaningFeeAmount: returnCleaningFeeAmount || null,
                 cancellationPolicy,
+                damagePhotos,
+                safetyFeatures,
+                languagesSpoken,
             });
             toast.success("Utility updated successfully!");
             router.push("/properties");
@@ -487,6 +536,178 @@ const EditUtilityPage = () => {
                     </div>
                     <CancellationPolicySelector value={cancellationPolicy} onChange={setCancellationPolicy} disabled={loading} />
                 </div>
+
+                {/* Specifications */}
+                <div className="mb-8 space-y-5">
+                    <p className="font-semibold text-ink">Specifications</p>
+                    <OptionSelector label="Transmission" options={TRANSMISSION_OPTIONS} value={watch("transmission") as string} onChange={(v) => setValue("transmission", v)} />
+                    <div className="grid gap-5 sm:grid-cols-2">
+                        <Input id="odometer" label="Odometer (km)" type="number" register={register} errors={errors} />
+                        <Input id="seatbeltCount" label="Seatbelts" type="number" register={register} errors={errors} />
+                        <Input id="colour" label="Colour" register={register} errors={errors} />
+                        <Input id="keysProvided" label="Sets of keys" type="number" register={register} errors={errors} />
+                        <Input id="fuelTankLitres" label="Fuel tank (L)" type="number" register={register} errors={errors} />
+                        <Input id="drivingRangeKm" label="Driving range (km)" type="number" register={register} errors={errors} />
+                        <Input id="isofixPoints" label="ISOFIX points" type="number" register={register} errors={errors} />
+                        <Input id="childSeatsAvailable" label="Child seats available" type="number" register={register} errors={errors} />
+                        <Input id="luggageLargeBags" label="Large bags it fits" type="number" register={register} errors={errors} />
+                        <Input id="luggageCabinBags" label="Cabin bags it fits" type="number" register={register} errors={errors} />
+                        <Input id="vehicleHeightMeters" label="Vehicle height (m)" type="number" register={register} errors={errors} />
+                        <Input id="groundClearanceMm" label="Ground clearance (mm)" type="number" register={register} errors={errors} />
+                    </div>
+                    <ToggleRow title="E-tag / toll tag fitted" value={!!watch("hasTollTag")} onChange={(v) => setValue("hasTollTag", v)} />
+                    {(watch("fuelType") === "EV" || watch("fuelType") === "Hybrid") && (
+                        <div className="space-y-5 rounded-lg border border-hairline-soft p-4">
+                            <p className="text-sm font-semibold text-ink">Charging</p>
+                            <div className="grid gap-5 sm:grid-cols-2">
+                                <Input id="batteryCapacityKwh" label="Battery capacity (kWh)" type="number" register={register} errors={errors} />
+                                <Input id="maxChargingKw" label="Max DC charge rate (kW)" type="number" register={register} errors={errors} />
+                            </div>
+                            <OptionSelector label="Charge port" options={CHARGE_PORT_OPTIONS} value={watch("chargePortType") as string} onChange={(v) => setValue("chargePortType", v)} allowDeselect />
+                            <ToggleRow title="Portable charger included" value={!!watch("portableChargerIncluded")} onChange={(v) => setValue("portableChargerIncluded", v)} />
+                        </div>
+                    )}
+                </div>
+
+                {/* Safety */}
+                <div className="mb-8 space-y-5">
+                    <p className="font-semibold text-ink">Safety</p>
+                    <OptionSelector label="ANCAP rating" columns={3} options={[1, 2, 3, 4, 5].map((n) => ({ value: String(n), label: `${n}★` }))} value={watch("ancapRating") ? String(watch("ancapRating")) : ""} onChange={(v) => setValue("ancapRating", v)} allowDeselect />
+                    <ChipMultiSelect items={SAFETY_FEATURES_LIST} selected={safetyFeatures} onToggle={(id) => setSafetyFeatures((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])} />
+                    <ToggleRow title="First-aid kit on board" value={!!watch("firstAidKit")} onChange={(v) => setValue("firstAidKit", v)} />
+                    <ToggleRow title="Fire extinguisher on board" value={!!watch("fireExtinguisher")} onChange={(v) => setValue("fireExtinguisher", v)} />
+                </div>
+
+                {/* Condition & history */}
+                <div className="mb-8 space-y-5">
+                    <p className="font-semibold text-ink">Condition &amp; history</p>
+                    <TextArea id="damageNotes" label="Existing damage & cosmetic quirks" register={register} errors={errors} />
+                    <div>
+                        <label className="mb-1.5 block text-xs font-medium text-muted">Photos of existing damage</label>
+                        <ListingPhotoManager images={damagePhotos} onChange={setDamagePhotos} disabled={loading} />
+                    </div>
+                    <div className="grid gap-5 sm:grid-cols-2">
+                        <div>
+                            <label className="mb-1.5 block text-xs font-medium text-muted">Last serviced</label>
+                            <DateSelector value={(watch("lastServicedAt") as string) || ""} onChange={(date) => setValue("lastServicedAt", date)} />
+                        </div>
+                        <Input id="lastServiceOdometer" label="Odometer at last service (km)" type="number" register={register} errors={errors} />
+                    </div>
+                    <OptionSelector label="Tyre condition" columns={3} options={TYRE_CONDITION_OPTIONS} value={watch("tyreCondition") as string} onChange={(v) => setValue("tyreCondition", v)} allowDeselect />
+                    <Input id="modifications" label="Modifications" register={register} errors={errors} />
+                    <ToggleRow title="Spare tyre & tools on board" value={!!watch("spareTyre")} onChange={(v) => setValue("spareTyre", v)} />
+                    <ToggleRow title="Smoke-free vehicle" value={!!watch("smokeFree")} onChange={(v) => setValue("smokeFree", v)} />
+                    <ToggleRow title="Pet-free vehicle" value={!!watch("petFree")} onChange={(v) => setValue("petFree", v)} />
+                    <ToggleRow title="Dashcam fitted" value={!!watch("hasDashcam")} onChange={(v) => setValue("hasDashcam", v)} />
+                    <ToggleRow title="GPS tracker fitted" value={!!watch("hasGpsTracker")} onChange={(v) => setValue("hasGpsTracker", v)} />
+                </div>
+
+                {/* Trip rules */}
+                <div className="mb-8 space-y-5">
+                    <p className="font-semibold text-ink">Trip rules</p>
+                    <div className="grid gap-5 sm:grid-cols-2">
+                        <Input id="dailyKmAllowance" label="Daily km allowance (blank = unlimited)" type="number" register={register} errors={errors} />
+                        <Input id="excessKmFee" label="Excess km fee (AUD/km)" type="number" register={register} errors={errors} />
+                        <Input id="minimumDriverAge" label="Minimum driver age" type="number" register={register} errors={errors} />
+                        <Input id="minimumLicenceYears" label="Minimum years licensed" type="number" register={register} errors={errors} />
+                        <Input id="additionalDriverFee" label="Additional driver fee (AUD)" type="number" register={register} errors={errors} />
+                    </div>
+                    <Input id="interstateNotes" label="Interstate notes" register={register} errors={errors} />
+                    <ToggleRow title="Interstate travel allowed" value={!!watch("interstateAllowed")} onChange={(v) => setValue("interstateAllowed", v)} />
+                    <ToggleRow title="Unsealed / gravel roads allowed" value={!!watch("unsealedRoadsAllowed")} onChange={(v) => setValue("unsealedRoadsAllowed", v)} />
+                    <ToggleRow title="Off-road / 4WD tracks allowed" value={!!watch("offRoadAllowed")} onChange={(v) => setValue("offRoadAllowed", v)} />
+                    <ToggleRow title="Festivals & events allowed" value={!!watch("festivalsAllowed")} onChange={(v) => setValue("festivalsAllowed", v)} />
+                    <ToggleRow title="Track days allowed" value={!!watch("trackDaysAllowed")} onChange={(v) => setValue("trackDaysAllowed", v)} />
+                    <ToggleRow title="Additional drivers allowed" value={!!watch("additionalDriversAllowed")} onChange={(v) => setValue("additionalDriversAllowed", v)} />
+                    <ToggleRow title="Provisional (P) drivers allowed" value={!!watch("provisionalLicenceAllowed")} onChange={(v) => setValue("provisionalLicenceAllowed", v)} />
+                    <ToggleRow title="International licences accepted" value={!!watch("internationalLicenceAccepted")} onChange={(v) => setValue("internationalLicenceAccepted", v)} />
+                    <ToggleRow title="Pets allowed" value={!!watch("petsAllowed")} onChange={(v) => setValue("petsAllowed", v)} />
+                    <ToggleRow title="Smoking allowed" value={!!watch("smokingAllowed")} onChange={(v) => setValue("smokingAllowed", v)} />
+                </div>
+
+                {/* Pickup & delivery */}
+                <div className="mb-8 space-y-5">
+                    <p className="font-semibold text-ink">Pickup &amp; delivery</p>
+                    <div className="grid gap-5 sm:grid-cols-2">
+                        <Input id="deliveryRadiusKm" label="Delivery radius (km)" type="number" register={register} errors={errors} />
+                        <Input id="deliveryFee" label="Delivery fee (AUD)" type="number" register={register} errors={errors} />
+                        <Input id="airportPickupFee" label="Airport fee (AUD)" type="number" register={register} errors={errors} />
+                        <Input id="pickupWindowStart" label="Pickup from (time)" register={register} errors={errors} />
+                        <Input id="pickupWindowEnd" label="Pickup until (time)" register={register} errors={errors} />
+                    </div>
+                    <Input id="pickupInstructions" label="Pickup instructions" register={register} errors={errors} />
+                    <ToggleRow title="I can deliver the vehicle" value={!!watch("deliveryAvailable")} onChange={(v) => setValue("deliveryAvailable", v)} />
+                    <ToggleRow title="Airport pickup / drop-off" value={!!watch("airportPickup")} onChange={(v) => setValue("airportPickup", v)} />
+                    <OptionSelector label="Handover method" columns={3} options={HANDOVER_METHOD_OPTIONS} value={watch("handoverMethod") as string} onChange={(v) => setValue("handoverMethod", v)} allowDeselect />
+                    <ChipMultiSelect items={LANGUAGE_OPTIONS} selected={languagesSpoken} onToggle={(id) => setLanguagesSpoken((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])} />
+                </div>
+
+                {/* Costs to expect */}
+                <div className="mb-8 space-y-5">
+                    <p className="font-semibold text-ink">Costs to expect</p>
+                    <div className="grid gap-5 sm:grid-cols-2">
+                        <Input id="securityDeposit" label="Security deposit (AUD)" type="number" register={register} errors={errors} />
+                        <Input id="weeklyDiscountPercent" label="Weekly discount (%)" type="number" register={register} errors={errors} />
+                        <Input id="monthlyDiscountPercent" label="Monthly discount (%)" type="number" register={register} errors={errors} />
+                        <Input id="lateReturnFeePerHour" label="Late return (AUD/hour)" type="number" register={register} errors={errors} />
+                        <Input id="refuellingFeePerLitre" label="Refuelling (AUD/L)" type="number" register={register} errors={errors} />
+                        <Input id="finesAdminFee" label="Fine admin fee (AUD)" type="number" register={register} errors={errors} />
+                        <Input id="roadsideAssistanceProvider" label="Roadside assistance provider" register={register} errors={errors} />
+                    </div>
+                    <OptionSelector label="Deposit hold method" options={DEPOSIT_HOLD_OPTIONS} value={watch("depositHoldMethod") as string} onChange={(v) => setValue("depositHoldMethod", v)} allowDeselect />
+                    <OptionSelector label="Tolls" columns={3} options={TOLL_HANDLING_OPTIONS} value={watch("tollHandling") as string} onChange={(v) => setValue("tollHandling", v)} allowDeselect />
+                    <ToggleRow title="Roadside assistance included" value={!!watch("roadsideAssistanceIncluded")} onChange={(v) => setValue("roadsideAssistanceIncluded", v)} />
+                </div>
+
+                {categorySpecGroup(watch("category") as string) === "UTE" && (
+                    <div className="mb-8 space-y-5">
+                        <p className="font-semibold text-ink">Ute &amp; towing</p>
+                        <div className="grid gap-5 sm:grid-cols-2">
+                            <Input id="payloadKg" label="Payload (kg)" type="number" register={register} errors={errors} />
+                            <Input id="gvmKg" label="GVM (kg)" type="number" register={register} errors={errors} />
+                            <Input id="towingCapacityBrakedKg" label="Towing — braked (kg)" type="number" register={register} errors={errors} />
+                            <Input id="towingCapacityUnbrakedKg" label="Towing — unbraked (kg)" type="number" register={register} errors={errors} />
+                            <Input id="trayLengthMm" label="Tray length (mm)" type="number" register={register} errors={errors} />
+                            <Input id="trayWidthMm" label="Tray width (mm)" type="number" register={register} errors={errors} />
+                        </div>
+                        <ToggleRow title="Tow bar fitted" value={!!watch("towBarFitted")} onChange={(v) => setValue("towBarFitted", v)} />
+                        <ToggleRow title="Canopy fitted" value={!!watch("canopyFitted")} onChange={(v) => setValue("canopyFitted", v)} />
+                    </div>
+                )}
+
+                {categorySpecGroup(watch("category") as string) === "VAN" && (
+                    <div className="mb-8 space-y-5">
+                        <p className="font-semibold text-ink">Cargo</p>
+                        <div className="grid gap-5 sm:grid-cols-2">
+                            <Input id="loadVolumeCubicMetres" label="Load volume (m³)" type="number" register={register} errors={errors} />
+                            <Input id="loadLengthMm" label="Load length (mm)" type="number" register={register} errors={errors} />
+                            <Input id="internalHeightMm" label="Internal height (mm)" type="number" register={register} errors={errors} />
+                        </div>
+                        <ToggleRow title="Ply-lined" value={!!watch("plyLined")} onChange={(v) => setValue("plyLined", v)} />
+                    </div>
+                )}
+
+                {categorySpecGroup(watch("category") as string) === "CAMPER" && (
+                    <div className="mb-8 space-y-5">
+                        <p className="font-semibold text-ink">Camp &amp; touring setup</p>
+                        <Input id="sleepingConfiguration" label="Sleeping configuration" register={register} errors={errors} />
+                        <Input id="bedDimensions" label="Main bed dimensions" register={register} errors={errors} />
+                        <Input id="selfContainedCertNumber" label="Self-contained certification number" register={register} errors={errors} />
+                        <div className="grid gap-5 sm:grid-cols-2">
+                            <Input id="freshWaterLitres" label="Fresh water (L)" type="number" register={register} errors={errors} />
+                            <Input id="greyWaterLitres" label="Grey water (L)" type="number" register={register} errors={errors} />
+                            <Input id="gasBottleKg" label="Gas bottle (kg)" type="number" register={register} errors={errors} />
+                            <Input id="solarWatts" label="Solar (W)" type="number" register={register} errors={errors} />
+                            <Input id="houseBatteryAmpHours" label="House battery (Ah)" type="number" register={register} errors={errors} />
+                        </div>
+                        <OptionSelector label="Shower" columns={3} options={SHOWER_TYPE_OPTIONS} value={watch("showerType") as string} onChange={(v) => setValue("showerType", v)} allowDeselect />
+                        <OptionSelector label="Toilet" options={TOILET_TYPE_OPTIONS} value={watch("toiletType") as string} onChange={(v) => setValue("toiletType", v)} allowDeselect />
+                        <Input id="towVehicleRequirements" label="Tow vehicle requirements" register={register} errors={errors} />
+                        <ToggleRow title="Self-contained certified" value={!!watch("selfContained")} onChange={(v) => setValue("selfContained", v)} />
+                        <ToggleRow title="Awning fitted" value={!!watch("awningFitted")} onChange={(v) => setValue("awningFitted", v)} />
+                        <ToggleRow title="Requires a special licence to drive" value={!!watch("requiresSpecialLicence")} onChange={(v) => setValue("requiresSpecialLicence", v)} />
+                    </div>
+                )}
 
                 {/* Submit and Go Back Buttons */}
                 <div className="sticky bottom-3 z-10 flex flex-col gap-3 rounded-xl border border-hairline bg-white/95 p-4 shadow-[0_18px_55px_rgba(22, 22, 22,0.16)] backdrop-blur sm:flex-row">

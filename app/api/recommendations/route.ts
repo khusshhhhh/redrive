@@ -72,6 +72,7 @@ async function GETHandler(request: NextRequest) {
         regoEndDate: null,
         regoImage: "",
         createdAt: listing.createdAt.toISOString(),
+        lastServicedAt: listing.lastServicedAt ? listing.lastServicedAt.toISOString() : null,
         reviewAverage: Math.round(reviewAverage * 10) / 10,
         reviewCount: listing.reviews.length,
         hostVerified: listing.user.profileVerified === "Y",

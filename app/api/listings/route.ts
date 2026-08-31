@@ -5,6 +5,7 @@ import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
 import { normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
 import { invalidatePublicListingsCache } from "@/app/actions/getListings";
+import { sanitizeListingExtras } from "@/app/libs/listingExtras";
 
 async function POSTHandler(request: NextRequest) {
   try {
@@ -135,6 +136,7 @@ async function POSTHandler(request: NextRequest) {
         cleaningFeeAmount: parsedCleaningFeeAmount,
         returnCleaningFeeAmount: parsedReturnCleaningFeeAmount,
         cancellationPolicy: normalizeCancellationPolicy(cancellationPolicy),
+        ...sanitizeListingExtras(body),
         createdAt: new Date(),
       },
     });

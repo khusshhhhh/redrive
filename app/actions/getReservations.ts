@@ -94,6 +94,7 @@ export default async function getReservations(params: IParams) {
       listing: {
         ...reservation.listing,
         createdAt: reservation.listing.createdAt.toISOString(),
+        lastServicedAt: reservation.listing.lastServicedAt ? reservation.listing.lastServicedAt.toISOString() : null,
         regoImage: "",
       },
     }));

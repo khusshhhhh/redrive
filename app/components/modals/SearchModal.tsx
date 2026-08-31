@@ -30,7 +30,17 @@ interface SearchDraft {
   endDate?: string;
   minPrice?: number;
   maxPrice?: number;
+  transmission?: string;
+  delivery?: boolean;
+  petsAllowed?: boolean;
+  unsealed?: boolean;
 }
+
+const TRANSMISSION_CHOICES = [
+  { value: "", label: "Any" },
+  { value: "AUTOMATIC", label: "Automatic" },
+  { value: "MANUAL", label: "Manual" },
+];
 
 const readDraft = (): SearchDraft => {
   if (typeof window === "undefined") return {};
@@ -66,6 +76,10 @@ const SearchModal = () => {
     draft.minPrice ?? Number(params?.get("minPrice") || 100),
     draft.maxPrice ?? Number(params?.get("maxPrice") || 5000),
   ]);
+  const [transmission, setTransmission] = useState(draft.transmission || params?.get("transmission") || "");
+  const [delivery, setDelivery] = useState(draft.delivery ?? params?.get("delivery") === "true");
+  const [petsAllowed, setPetsAllowed] = useState(draft.petsAllowed ?? params?.get("petsAllowed") === "true");
+  const [unsealed, setUnsealed] = useState(draft.unsealed ?? params?.get("unsealed") === "true");
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 639px)");
@@ -86,9 +100,13 @@ const SearchModal = () => {
       endDate: dateRange.endDate ? formatISO(dateRange.endDate) : undefined,
       minPrice: priceRange[0],
       maxPrice: priceRange[1],
+      transmission: transmission || undefined,
+      delivery: delivery || undefined,
+      petsAllowed: petsAllowed || undefined,
+      unsealed: unsealed || undefined,
     };
     window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(next));
-  }, [selectedState, selectedSuburb, category, guestCount, sleepCount, dateRange, priceRange]);
+  }, [selectedState, selectedSuburb, category, guestCount, sleepCount, dateRange, priceRange, transmission, delivery, petsAllowed, unsealed]);
 
   const submit = useCallback(() => {
     if (isMobile && step < 2) {
@@ -107,6 +125,10 @@ const SearchModal = () => {
       maxPrice: priceRange[1],
       startDate: dateRange.startDate ? formatISO(dateRange.startDate) : undefined,
       endDate: dateRange.endDate ? formatISO(dateRange.endDate) : undefined,
+      transmission: transmission || undefined,
+      delivery: delivery ? "true" : undefined,
+      petsAllowed: petsAllowed ? "true" : undefined,
+      unsealed: unsealed ? "true" : undefined,
     };
     const url = qs.stringifyUrl({ url: "/explore", query }, { skipNull: true, skipEmptyString: true });
     saveLastSearch({
@@ -119,10 +141,14 @@ const SearchModal = () => {
       maxPrice: priceRange[1],
       startDate: dateRange.startDate ? formatISO(dateRange.startDate) : undefined,
       endDate: dateRange.endDate ? formatISO(dateRange.endDate) : undefined,
+      transmission: transmission || undefined,
+      delivery: delivery ? "true" : undefined,
+      petsAllowed: petsAllowed ? "true" : undefined,
+      unsealed: unsealed ? "true" : undefined,
     });
     searchModal.onClose();
     router.push(url);
-  }, [isMobile, step, params, selectedState, selectedSuburb, category, guestCount, sleepCount, priceRange, dateRange, searchModal, router]);
+  }, [isMobile, step, params, selectedState, selectedSuburb, category, guestCount, sleepCount, priceRange, dateRange, transmission, delivery, petsAllowed, unsealed, searchModal, router]);
 
   const show = (target: number) => !isMobile || step === target;
   const stepMeta = [
@@ -165,6 +191,34 @@ const SearchModal = () => {
           <div><h3 id="search-details-heading" className="text-xl font-semibold text-ink">Trip details</h3><p className="mt-1 text-sm text-muted">Set capacity and a daily budget.</p></div>
           <div className="space-y-2"><Counter title="People" subtitle="How many people are coming?" value={guestCount} onChange={setGuestCount} /><Counter title="Sleep spaces" subtitle="How many sleeping spaces do you need?" value={sleepCount} onChange={setSleepCount} /></div>
           <div><p className="text-sm font-semibold text-ink">Daily price range</p><div className="mt-4 rounded-sm bg-surface-soft px-4 pb-3 pt-5"><Slider value={priceRange} onChange={(_event, value) => setPriceRange(value as number[])} valueLabelDisplay="auto" min={50} max={10000} step={50} sx={{ color: "#3B3B3B" }} /></div><div className="mt-3 flex gap-3"><TextField label="Minimum AUD" type="number" value={priceRange[0]} onChange={(event) => { const value = Number(event.target.value); if (value >= 50 && value <= priceRange[1]) setPriceRange([value, priceRange[1]]); }} inputProps={{ min: 50, max: priceRange[1], step: 50 }} size="small" fullWidth /><TextField label="Maximum AUD" type="number" value={priceRange[1]} onChange={(event) => { const value = Number(event.target.value); if (value >= priceRange[0] && value <= 10000) setPriceRange([priceRange[0], value]); }} inputProps={{ min: priceRange[0], max: 10000, step: 50 }} size="small" fullWidth /></div></div>
+          <div>
+            <p className="mb-3 text-sm font-semibold text-ink">Transmission</p>
+            <div className="grid grid-cols-3 gap-2">
+              {TRANSMISSION_CHOICES.map((choice) => (
+                <button
+                  key={choice.value || "any"}
+                  type="button"
+                  onClick={() => setTransmission(choice.value)}
+                  aria-pressed={transmission === choice.value}
+                  className={`min-h-11 rounded-sm border px-2 text-xs font-semibold outline-none transition focus-visible:ring-2 focus-visible:ring-primary ${transmission === choice.value ? "border-primary bg-primary text-white" : "border-hairline bg-white text-ink hover:bg-surface-soft"}`}
+                >
+                  {choice.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-2">
+            {[
+              { label: "Delivery or airport pickup", checked: delivery, set: setDelivery },
+              { label: "Pet-friendly", checked: petsAllowed, set: setPetsAllowed },
+              { label: "Unsealed / off-road allowed", checked: unsealed, set: setUnsealed },
+            ].map((item) => (
+              <label key={item.label} className="flex cursor-pointer items-center gap-3 rounded-sm border border-hairline px-3 py-3 text-sm font-medium text-ink transition hover:bg-surface-soft">
+                <input type="checkbox" className="h-4 w-4 accent-primary" checked={item.checked} onChange={(event) => item.set(event.target.checked)} />
+                {item.label}
+              </label>
+            ))}
+          </div>
         </section>}
       </div>}
     />

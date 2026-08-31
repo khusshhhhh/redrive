@@ -16,7 +16,14 @@ export interface IListingsParams {
   information?: string;
   minPrice?: number | string; // Ensure this accepts both number & string
   maxPrice?: number | string;
+  transmission?: string;
+  delivery?: string | boolean;
+  petsAllowed?: string | boolean;
+  unsealed?: string | boolean;
 }
+
+const isTruthyParam = (value: unknown) =>
+  value === true || value === "true" || value === "1" || value === "on";
 
 const getCachedPublicListings = unstable_cache(
   async (params: IListingsParams) => getListingsFromDatabase(params),
@@ -77,15 +84,27 @@ async function getListingsFromDatabase(params: IListingsParams) {
       information,
       minPrice,
       maxPrice,
+      transmission,
+      delivery,
+      petsAllowed,
+      unsealed,
     } = params || {};
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const query: any = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const and: any[] = [];
 
     if (userId) query.userId = userId;
     if (category) query.category = category;
     if (guestCount) query.guestCount = { gte: +guestCount };
     if (sleepCount) query.sleepCount = { gte: +sleepCount };
+
+    if (transmission) and.push({ transmission });
+    if (isTruthyParam(delivery)) and.push({ OR: [{ deliveryAvailable: true }, { airportPickup: true }] });
+    if (isTruthyParam(petsAllowed)) and.push({ petsAllowed: true });
+    if (isTruthyParam(unsealed)) and.push({ OR: [{ unsealedRoadsAllowed: true }, { offRoadAllowed: true }] });
+    if (and.length) query.AND = and;
 
     if (state && state !== "Anywhere") {
       query.state = state;
@@ -164,6 +183,7 @@ async function getListingsFromDatabase(params: IListingsParams) {
       regoImage: "",
       badgeValue: badgeMap[listing.badge] || null,
       createdAt: listing.createdAt.toISOString(),
+      lastServicedAt: listing.lastServicedAt ? listing.lastServicedAt.toISOString() : null,
       reviewAverage: Math.round(reviewAverage * 10) / 10,
       reviewCount: reviews.length,
       hostVerified: user.profileVerified === "Y",

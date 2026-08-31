@@ -15,6 +15,10 @@ export interface LastSearchFilters {
   sleepCount?: number;
   minPrice?: number;
   maxPrice?: number;
+  transmission?: string;
+  delivery?: string;
+  petsAllowed?: string;
+  unsealed?: string;
 }
 
 export interface LastSearch {

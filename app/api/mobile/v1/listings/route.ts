@@ -11,9 +11,12 @@ async function GETHandler(request: Request) {
   const query = Object.fromEntries([...url.searchParams.entries()].filter(([, value]) => value !== ""));
   const parsed = listingsQuerySchema.safeParse(query);
   if (!parsed.success) return mobileValidationError(request, parsed.error);
-  const { cursor, limit, state, suburb, category, minPriceCents, maxPriceCents, guestCount } = parsed.data;
+  const { cursor, limit, state, suburb, category, minPriceCents, maxPriceCents, guestCount, transmission, delivery, petsAllowed, unsealed } = parsed.data;
   try {
     const identity = await optionalIdentity(request);
+    const and: Record<string, unknown>[] = [];
+    if (delivery) and.push({ OR: [{ deliveryAvailable: true }, { airportPickup: true }] });
+    if (unsealed) and.push({ OR: [{ unsealedRoadsAllowed: true }, { offRoadAllowed: true }] });
     const [rows, user] = await Promise.all([
       prisma.listing.findMany({
         where: {
@@ -21,6 +24,9 @@ async function GETHandler(request: Request) {
           ...(suburb ? { suburb: { equals: suburb, mode: "insensitive" } } : {}),
           ...(category ? { category } : {}),
           ...(guestCount ? { guestCount: { gte: guestCount } } : {}),
+          ...(transmission ? { transmission } : {}),
+          ...(petsAllowed ? { petsAllowed: true } : {}),
+          ...(and.length ? { AND: and } : {}),
           ...(minPriceCents !== undefined || maxPriceCents !== undefined ? { price: { ...(minPriceCents !== undefined ? { gte: Math.ceil(minPriceCents / 100) } : {}), ...(maxPriceCents !== undefined ? { lte: Math.floor(maxPriceCents / 100) } : {}) } } : {}),
         },
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],

@@ -20,9 +20,12 @@ import RatingDisplay from "./RatingDisplay";
 import useLoginModal from "@/app/hooks/useLoginModal";
 import HostCard from "./HostCard";
 import CancellationPolicyDisplay from "./CancellationPolicyDisplay";
+import ListingDetails from "./ListingDetails";
+import type { SafeListing } from "@/app/types";
 
 interface ListingInfoProps {
     listingId: string;
+    listing: SafeListing;
     user: PublicHost;
     currentUser?: SafeUser | null;
     description: string;
@@ -54,6 +57,7 @@ interface ReviewSummary {
 
 const ListingInfo: React.FC<ListingInfoProps> = ({
     listingId,
+    listing,
     user,
     currentUser,
     description,
@@ -269,6 +273,9 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                     <p className="ml-7 mt-4 text-muted">No amenities available for this listing.</p>
                 )}
             </div>
+            <hr className="border-hairline-soft" />
+
+            <ListingDetails listing={listing} />
 
             <HostCard
                 user={user}
