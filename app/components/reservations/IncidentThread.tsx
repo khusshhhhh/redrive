@@ -150,7 +150,7 @@ export default function IncidentThread({
                     type="button"
                     disabled={busyId === incident.id || (statement[incident.id] ?? "").trim().length < 10}
                     onClick={() => act(incident.id, { action: "RESPOND", statement: statement[incident.id] })}
-                    className="mt-2 h-9 rounded-sm bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"
+                    className="mt-2 h-9 rounded-sm bg-accent px-3 text-xs font-semibold text-ink disabled:opacity-50"
                   >
                     Submit response
                   </button>
@@ -182,7 +182,7 @@ export default function IncidentThread({
                           resolution: resolution[incident.id],
                         })
                       }
-                      className="h-9 rounded-sm bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"
+                      className="h-9 rounded-sm bg-accent px-3 text-xs font-semibold text-ink disabled:opacity-50"
                     >
                       Close — nothing owed
                     </button>

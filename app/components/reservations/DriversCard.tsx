@@ -154,7 +154,7 @@ export default function DriversCard({
                   type="button"
                   disabled={busy !== null || !check || name.trim().length < 2}
                   onClick={() => void saveDriver()}
-                  className="h-9 rounded-sm bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"
+                  className="h-9 rounded-sm bg-accent px-3 text-xs font-semibold text-ink disabled:opacity-50"
                 >
                   {busy === "save" ? "Adding…" : "Add driver"}
                 </button>
@@ -184,7 +184,7 @@ export default function DriversCard({
           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">On Redrive</span>
           {guestTrack.ratingCount > 0 && guestTrack.ratingAvg != null && (
             <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink">
-              <Star size={14} className="fill-amber-400 text-amber-400" />
+              <Star size={14} className="fill-accent text-accent" />
               {guestTrack.ratingAvg.toFixed(1)}
               <span className="font-normal text-muted">
                 ({guestTrack.ratingCount} host review{guestTrack.ratingCount === 1 ? "" : "s"})

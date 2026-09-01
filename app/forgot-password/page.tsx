@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
         />
         <button
           disabled={loading}
-          className="h-12 w-full rounded-sm bg-primary font-semibold text-white transition hover:bg-primary-active disabled:opacity-50"
+          className="h-12 w-full rounded-sm bg-accent font-semibold text-ink transition hover:bg-accent-active hover:text-white disabled:opacity-50"
         >
           {loading ? "Sending…" : "Send reset link"}
         </button>

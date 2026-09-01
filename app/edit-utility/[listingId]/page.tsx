@@ -714,14 +714,14 @@ const EditUtilityPage = () => {
                 <div className="sticky bottom-3 z-10 flex flex-col gap-3 rounded-xl border border-hairline bg-white/95 p-4 shadow-[0_18px_55px_rgba(22, 22, 22,0.16)] backdrop-blur sm:flex-row">
                     <button
                         type="submit"
-                        className="w-full bg-primary text-white font-semibold px-6 py-4 rounded-sm hover:bg-primary-active transition-all disabled:opacity-50"
+                        className="w-full bg-accent text-ink font-semibold px-6 py-4 rounded-sm hover:bg-accent-active hover:text-white transition-all disabled:opacity-50"
                         disabled={loading}
                     >
                         {loading ? "Saving changes…" : "Save listing changes"}
                     </button>
                     <button
                         type="button"
-                        className="border border-ink hover:bg-ink hover:text-white w-full bg-white text-ink font-semibold px-6 py-4 rounded-sm transition-all disabled:opacity-50"
+                        className="border border-ink hover:bg-accent hover:text-ink w-full bg-white text-ink font-semibold px-6 py-4 rounded-sm transition-all disabled:opacity-50"
                         onClick={() => router.back()}
                     >
                         Discard and go back

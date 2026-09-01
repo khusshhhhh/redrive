@@ -98,7 +98,7 @@ const THEME = {
   body: "#4A4A4A",
   muted: "#6E6E6E",
   faint: "#9A9A9A",
-  accent: "#EAB308",
+  accent: "#FF9900",
   panel: "#FFFFFF",
 } as const;
 

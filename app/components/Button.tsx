@@ -53,7 +53,7 @@ const Button: React.FC<ButtonProps> = ({
             disabled={disabled || loading}
             aria-busy={loading}
             className={`group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-sm font-medium transition-all duration-200 disabled:cursor-not-allowed
-                ${outline ? 'bg-white border border-ink text-ink hover:bg-surface-soft' : 'bg-graphite border border-primary text-white hover:brightness-110'}
+                ${outline ? 'bg-white border border-ink text-ink hover:bg-surface-soft' : 'bg-accent border border-accent-active text-ink hover:bg-[#E88A00]'}
                 ${loading ? 'opacity-90 cursor-wait' : 'disabled:opacity-70'}
                 ${small ? 'my-1 h-11 py-2 text-button-sm' : 'my-2 h-12 py-3 text-button-md'}
                 ${className || ''}`}
@@ -62,10 +62,7 @@ const Button: React.FC<ButtonProps> = ({
             {loading && <span className="button-loading-sheen" aria-hidden="true" />}
             {loading ? (
                 <span className="relative z-10 flex items-center gap-2 animate-loadingFadeIn">
-                    <DotLoader
-                        size={small ? "sm" : "md"}
-                        color={outline ? "#1F1F1F" : "#ffffff"}
-                    />
+                    <DotLoader size={small ? "sm" : "md"} color="#181818" />
                     <span>{loadingLabel || "Please wait"}</span>
                 </span>
             ) : Icon ? (

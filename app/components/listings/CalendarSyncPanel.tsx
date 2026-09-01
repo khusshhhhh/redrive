@@ -182,7 +182,7 @@ export default function CalendarSyncPanel({ listingId }: { listingId: string }) 
             type="button"
             disabled={busy || !newUrl.trim()}
             onClick={addCalendar}
-            className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-sm bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"
+            className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-sm bg-accent px-3 text-xs font-semibold text-ink disabled:opacity-50"
           >
             {busy ? <RefreshCw size={13} className="animate-spin" /> : null} Add calendar
           </button>

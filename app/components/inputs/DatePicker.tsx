@@ -277,12 +277,12 @@ export default function DatePicker({
               onFocus={() => setFocusDate(day)}
               className={`relative flex h-10 items-center justify-center text-sm outline-none transition-colors
                 ${disabledDay ? "cursor-not-allowed text-muted-soft line-through" : "text-ink hover:bg-surface-soft"}
-                ${isSelected ? "rounded-full bg-ink font-semibold text-white hover:bg-ink" : ""}
+                ${isSelected ? "rounded-full bg-accent font-semibold text-ink hover:bg-accent" : ""}
                 ${!isSelected && isToday ? "font-semibold text-ink" : ""}
                 focus-visible:ring-1 focus-visible:ring-ink`}
             >
               {format(day, "d")}
-              {!isSelected && isToday && <span className="absolute bottom-1 h-1 w-1 rounded-full bg-ink" aria-hidden="true" />}
+              {!isSelected && isToday && <span className="absolute bottom-1 h-1 w-1 rounded-full bg-accent" aria-hidden="true" />}
             </button>
           );
         })}
@@ -350,7 +350,7 @@ export default function DatePicker({
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="h-12 w-full rounded-sm bg-primary text-sm font-semibold text-white transition hover:bg-primary-active"
+              className="h-12 w-full rounded-sm bg-accent text-sm font-semibold text-ink transition hover:bg-accent-active hover:text-white"
             >
               Done
             </button>

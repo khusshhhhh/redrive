@@ -45,7 +45,7 @@ async function GETHandler(_request: Request, context: Context) {
 <style>
   *{box-sizing:border-box}
   body{font:14px/1.6 -apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#111111;max-width:640px;margin:0 auto;padding:40px 24px}
-  .bar{width:44px;height:4px;background:#eab308;border-radius:2px;margin-bottom:18px}
+  .bar{width:44px;height:4px;background:#ff9900;border-radius:2px;margin-bottom:18px}
   h1{font-size:22px;margin:0 0 2px}
   .muted{color:#6e6e6e}
   table{width:100%;border-collapse:collapse;margin:22px 0}

@@ -30,7 +30,7 @@ function page(body: string): NextResponse {
     `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Redrive email preferences</title><style>
       body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:#f4f4f4;color:#111111;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
       .card{max-width:440px;border:1px solid #e7e7e7;border-radius:18px;padding:32px}
-      .bar{width:44px;height:3px;background:#eab308;border-radius:2px;margin-bottom:18px}
+      .bar{width:44px;height:3px;background:#ff9900;border-radius:2px;margin-bottom:18px}
       h1{font-size:22px;margin:0 0 10px;letter-spacing:-0.4px}
       p{font-size:15px;line-height:24px;color:#4a4a4a;margin:0 0 8px}
       a{color:#111111}

@@ -491,7 +491,7 @@ export default function HostFlow() {
         <button
           type="button"
           onClick={() => loginModal.onOpen("/host")}
-          className="mt-7 inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-white transition hover:bg-primary-active"
+          className="mt-7 inline-flex h-12 items-center gap-2 rounded-full bg-accent px-7 text-sm font-semibold text-ink transition hover:bg-accent-active hover:text-white"
         >
           Sign in to continue <ArrowRight size={17} />
         </button>
@@ -539,7 +539,7 @@ export default function HostFlow() {
                 setView("flow");
                 setStepIndex(0);
               }}
-              className="group mt-8 inline-flex h-14 items-center gap-2.5 rounded-full bg-primary px-8 text-base font-semibold text-white transition hover:bg-primary-active"
+              className="group mt-8 inline-flex h-14 items-center gap-2.5 rounded-full bg-accent px-8 text-base font-semibold text-ink transition hover:bg-accent-active hover:text-white"
             >
               Get started
               <ArrowRight size={19} className="transition-transform group-hover:translate-x-1" />
@@ -680,7 +680,7 @@ export default function HostFlow() {
             type="button"
             onClick={() => void next()}
             disabled={submitting}
-            className="inline-flex h-12 min-w-[140px] items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-white transition hover:bg-primary-active disabled:opacity-60"
+            className="inline-flex h-12 min-w-[140px] items-center justify-center gap-2 rounded-full bg-accent px-7 text-sm font-semibold text-ink transition hover:bg-accent-active hover:text-white disabled:opacity-60"
           >
             {submitting ? (
               <>

@@ -35,7 +35,7 @@ const CompareTray = () => {
             </div>
           ))}
         </div>
-        <button type="button" onClick={compare} disabled={vehicles.length < 2} className="inline-flex h-10 shrink-0 items-center gap-2 rounded-sm bg-primary px-3 text-xs font-semibold text-white hover:bg-primary-active disabled:cursor-not-allowed disabled:opacity-50 sm:px-4"><IconArrowsExchange size={17} /> <span>{vehicles.length < 2 ? "Add one more" : "Compare"}</span></button>
+        <button type="button" onClick={compare} disabled={vehicles.length < 2} className="inline-flex h-10 shrink-0 items-center gap-2 rounded-sm bg-accent px-3 text-xs font-semibold text-ink hover:bg-accent-active hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:px-4"><IconArrowsExchange size={17} /> <span>{vehicles.length < 2 ? "Add one more" : "Compare"}</span></button>
         <button type="button" onClick={clear} className="hidden text-xs font-medium text-muted hover:text-ink sm:block">Clear</button>
       </div>
     </aside>

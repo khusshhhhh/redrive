@@ -17,7 +17,7 @@ export default function NotFound() {
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/explore"
-            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-5 text-sm font-semibold text-ink transition hover:bg-accent-active hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             Explore vehicles <IconArrowRight size={17} />
           </Link>

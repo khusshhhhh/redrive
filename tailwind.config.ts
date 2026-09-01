@@ -9,46 +9,54 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Monochrome, pulled close to black. Four source greys carry the
-        // identity -- Mist #CBCBCB, Ash #9C9C9C, Slate #454545 and near-black
-        // Graphite #1F1F1F -- and every token below is derived from them.
-        // The "white" ground is a soft neutral grey; recessed surfaces sit a
-        // step darker than it so cards still read.
+        // Near-black greys carry the structure -- Ash #818181, Slate #454545,
+        // Graphite #313131 and near-black Ink #181818. One warm orange
+        // (#FF9900) is the primary action + accent; used sparingly, never as a
+        // large fill for structure.
         white: "#F4F4F4",
-        primary: "#1F1F1F",
-        "primary-active": "#111111",
-        "primary-disabled": "#9C9C9C",
+        primary: "#181818",
+        "primary-active": "#050505",
+        "primary-disabled": "#818181",
         secondary: "#454545",
-        "secondary-active": "#1F1F1F",
-        "secondary-soft": "#E7E7E7",
-        accent: "#9C9C9C",
-        "accent-active": "#454545",
-        "accent-soft": "#E7E7E7",
-        ink: "#1F1F1F",
-        body: "#1F1F1F",
+        "secondary-active": "#313131",
+        "secondary-soft": "#E4E4E4",
+        // The accent slot is the brand orange. It also backs the primary CTA
+        // button (see Button.tsx) -- one strong action per screen.
+        accent: "#FF9900",
+        "accent-active": "#B25E00",
+        "accent-soft": "#FFF1DE",
+        ink: "#181818",
+        body: "#313131",
         muted: "#454545",
         "muted-soft": "#6E6E6E",
         hairline: "#CBCBCB",
         "hairline-soft": "#DCDCDC",
-        "border-strong": "#9C9C9C",
+        "border-strong": "#818181",
         "surface-soft": "#ECECEC",
         "surface-strong": "#DFDFDF",
         error: "#C0281B",
         "error-hover": "#9B1F15",
-        "legal-link": "#1F1F1F",
+        "legal-link": "#181818",
         luxe: "#454545",
-        plus: "#9C9C9C",
-        favorite: "#1F1F1F",
-        "favorite-active": "#111111",
-        "favorite-soft": "#E7E7E7",
+        plus: "#818181",
+        favorite: "#FF9900",
+        "favorite-active": "#E07E00",
+        "favorite-soft": "#FFF1DE",
+        // The old yellow accent is folded into the brand orange so existing
+        // `yellow-500` utilities (landing eyebrows, wordmark dots) stay on-brand.
+        // `amber-*` is left as Tailwind's default -- it stays the warning hue.
+        yellow: {
+          400: "#FFB84D",
+          500: "#FF9900",
+          600: "#E07E00",
+        },
       },
       backgroundImage: {
-        // Monochrome gradients drawn from the four source greys.
-        graphite: "linear-gradient(135deg, #1F1F1F 0%, #454545 100%)",
-        "graphite-vivid": "linear-gradient(135deg, #111111 0%, #454545 100%)",
+        graphite: "linear-gradient(135deg, #181818 0%, #313131 100%)",
+        "graphite-vivid": "linear-gradient(135deg, #050505 0%, #313131 100%)",
         mist: "linear-gradient(160deg, #F4F4F4 0%, #E4E4E4 100%)",
-        "mist-strong": "linear-gradient(160deg, #E7E7E7 0%, #D9D9D9 100%)",
-        "ash-ring": "linear-gradient(135deg, #9C9C9C 0%, #454545 100%)",
+        "mist-strong": "linear-gradient(160deg, #E4E4E4 0%, #D9D9D9 100%)",
+        "ash-ring": "linear-gradient(135deg, #818181 0%, #454545 100%)",
       },
       borderRadius: {
         none: "0px",

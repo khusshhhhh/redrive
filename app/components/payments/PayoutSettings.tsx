@@ -142,7 +142,7 @@ export default function PayoutSettings() {
                 onClick={() =>
                   void openStripe(status?.payoutsEnabled ? "manage" : "onboard")
                 }
-                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-sm bg-primary px-5 text-sm font-semibold text-white hover:bg-primary-active disabled:opacity-50"
+                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-sm bg-accent px-5 text-sm font-semibold text-ink hover:bg-accent-active hover:text-white disabled:opacity-50"
               >
                 {opening
                   ? "Opening Stripe…"

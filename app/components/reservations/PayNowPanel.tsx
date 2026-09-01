@@ -95,7 +95,7 @@ export default function PayNowPanel({
             type="button"
             disabled={busy}
             onClick={() => void pay(card.id)}
-            className="inline-flex min-h-12 w-full flex-wrap items-center justify-center gap-x-2 gap-y-0.5 rounded-sm bg-primary px-4 py-2 text-center text-sm font-semibold text-white hover:bg-primary-active disabled:opacity-50"
+            className="inline-flex min-h-12 w-full flex-wrap items-center justify-center gap-x-2 gap-y-0.5 rounded-sm bg-accent px-4 py-2 text-center text-sm font-semibold text-ink hover:bg-accent-active hover:text-white disabled:opacity-50"
           >
             {busy ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
             <span>Pay {money(total)}</span>
@@ -112,7 +112,7 @@ export default function PayNowPanel({
         className={
           hasCards
             ? "inline-flex h-11 w-full items-center justify-center gap-2 rounded-sm border border-hairline bg-white px-4 text-sm font-semibold text-muted hover:border-border-strong disabled:opacity-50"
-            : "inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-active disabled:opacity-50"
+            : "inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-accent px-4 text-sm font-semibold text-ink hover:bg-accent-active hover:text-white disabled:opacity-50"
         }
       >
         {busy && !hasCards ? (

@@ -73,7 +73,7 @@ export default function GuestReviewReply({
             <Star
               key={i}
               size={14}
-              className={i < review.rating ? "fill-amber-400 text-amber-400" : "text-hairline"}
+              className={i < review.rating ? "fill-accent text-accent" : "text-hairline"}
             />
           ))}
         </div>
@@ -96,7 +96,7 @@ export default function GuestReviewReply({
               type="button"
               disabled={busy || reply.trim().length < 3}
               onClick={() => void submit()}
-              className="mt-2 h-9 rounded-sm bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"
+              className="mt-2 h-9 rounded-sm bg-accent px-3 text-xs font-semibold text-ink disabled:opacity-50"
             >
               {busy ? "Posting…" : "Post reply"}
             </button>

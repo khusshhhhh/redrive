@@ -67,7 +67,7 @@ export default function ReservationsClient({ reservations }: ReservationsClientP
                       </div>
                     </div>
                     <div className="flex items-center gap-2 border-t border-hairline-soft p-4 md:w-44 md:flex-col md:justify-center md:border-l md:border-t-0">
-                      <button onClick={() => router.push(`/reservations/${reservation.id}`)} className="flex h-11 flex-1 items-center justify-center gap-1 rounded-sm bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary-active md:w-full md:flex-none">Details <ChevronRight size={16} /></button>
+                      <button onClick={() => router.push(`/reservations/${reservation.id}`)} className="flex h-11 flex-1 items-center justify-center gap-1 rounded-sm bg-accent px-4 text-sm font-semibold text-ink transition hover:bg-accent-active hover:text-white md:w-full md:flex-none">Details <ChevronRight size={16} /></button>
                       {canCancel && <button onClick={() => onCancel(reservation)} className="h-11 flex-1 rounded-sm border border-hairline px-4 text-sm font-semibold text-muted transition hover:border-error hover:text-error disabled:opacity-50 md:w-full md:flex-none">{hasPaid ? "Cancel · full refund" : "Decline request"}</button>}
                     </div>
                   </div>
