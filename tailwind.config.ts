@@ -9,44 +9,43 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Monochrome. Four source greys carry the identity --
-        // Mist #D9D9D9, Ash #B5B5B5, Slate #636363 and Graphite #3B3B3B --
-        // and every token below is derived from them, holding the contrast
-        // ratios the previous palette had.
-        primary: "#3B3B3B",
-        "primary-active": "#2E2E2E",
-        "primary-disabled": "#B5B5B5",
-        secondary: "#636363",
-        "secondary-active": "#3B3B3B",
-        "secondary-soft": "#EDEDED",
-        accent: "#B5B5B5",
-        "accent-active": "#636363",
-        "accent-soft": "#EDEDED",
-        ink: "#3B3B3B",
-        body: "#3B3B3B",
-        muted: "#636363",
-        "muted-soft": "#8A8A8A",
-        hairline: "#D9D9D9",
-        "hairline-soft": "#E7E7E7",
-        "border-strong": "#B5B5B5",
+        // Monochrome, pulled close to black. Four source greys carry the
+        // identity -- Mist #CBCBCB, Ash #9C9C9C, Slate #454545 and near-black
+        // Graphite #1F1F1F -- and every token below is derived from them.
+        primary: "#1F1F1F",
+        "primary-active": "#111111",
+        "primary-disabled": "#9C9C9C",
+        secondary: "#454545",
+        "secondary-active": "#1F1F1F",
+        "secondary-soft": "#E7E7E7",
+        accent: "#9C9C9C",
+        "accent-active": "#454545",
+        "accent-soft": "#E7E7E7",
+        ink: "#1F1F1F",
+        body: "#1F1F1F",
+        muted: "#454545",
+        "muted-soft": "#6E6E6E",
+        hairline: "#CBCBCB",
+        "hairline-soft": "#E2E2E2",
+        "border-strong": "#9C9C9C",
         "surface-soft": "#F4F4F4",
         "surface-strong": "#E4E4E4",
         error: "#C0281B",
         "error-hover": "#9B1F15",
-        "legal-link": "#3B3B3B",
-        luxe: "#636363",
-        plus: "#B5B5B5",
-        favorite: "#3B3B3B",
-        "favorite-active": "#2E2E2E",
-        "favorite-soft": "#EDEDED",
+        "legal-link": "#1F1F1F",
+        luxe: "#454545",
+        plus: "#9C9C9C",
+        favorite: "#1F1F1F",
+        "favorite-active": "#111111",
+        "favorite-soft": "#E7E7E7",
       },
       backgroundImage: {
         // Monochrome gradients drawn from the four source greys.
-        graphite: "linear-gradient(135deg, #3B3B3B 0%, #636363 100%)",
-        "graphite-vivid": "linear-gradient(135deg, #2E2E2E 0%, #636363 100%)",
+        graphite: "linear-gradient(135deg, #1F1F1F 0%, #454545 100%)",
+        "graphite-vivid": "linear-gradient(135deg, #111111 0%, #454545 100%)",
         mist: "linear-gradient(160deg, #F4F4F4 0%, #E4E4E4 100%)",
         "mist-strong": "linear-gradient(160deg, #E7E7E7 0%, #D9D9D9 100%)",
-        "ash-ring": "linear-gradient(135deg, #B5B5B5 0%, #636363 100%)",
+        "ash-ring": "linear-gradient(135deg, #9C9C9C 0%, #454545 100%)",
       },
       borderRadius: {
         none: "0px",

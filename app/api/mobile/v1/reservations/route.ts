@@ -3,7 +3,6 @@ import { paginationQuerySchema, reservationRequestSchema } from "@redrive/contra
 import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { buildBookingQuote, PRICING_POLICY_VERSION } from "@/app/libs/booking";
 import { cancellationPolicySnapshot, normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
-import { hasCurrentVerifiedLicense } from "@/app/libs/licenseVerification";
 import { mobileIdentityOrResponse } from "@/app/libs/mobile-auth/route-utils";
 import { executeIdempotent } from "@/app/libs/mobile-api/idempotency";
 import { mobileError, mobileJson, mobileUnexpectedError, mobileValidationError, parseMobileJson } from "@/app/libs/mobile-api/responses";
@@ -48,9 +47,8 @@ async function POSTHandler(request: Request) {
   if (!rateLimit.allowed) return mobileError(request, 429, "RATE_LIMITED", "Too many booking attempts. Wait and try again.", undefined, { "Retry-After": String(rateLimit.retryAfterSeconds) });
 
   return executeIdempotent({ request, actorUserId: auth.identity.userId, scope: "reservation:create", payload: parsed.data, handler: async () => {
-    const renter = await prisma.user.findUnique({ where: { id: auth.identity.userId }, select: { emailVerified: true, licenseStatus: true, licenseExpiresAt: true, name: true } });
+    const renter = await prisma.user.findUnique({ where: { id: auth.identity.userId }, select: { emailVerified: true, name: true } });
     if (!renter?.emailVerified) return { status: 403, body: { error: { code: "EMAIL_VERIFICATION_REQUIRED", message: "Verify your email before requesting a booking.", requestId: "idempotent" } } };
-    if (!hasCurrentVerifiedLicense(renter.licenseStatus, renter.licenseExpiresAt)) return { status: 403, body: { error: { code: "LICENSE_NOT_VERIFIED", message: "Verify a current Australian driver licence to send this booking request.", requestId: "idempotent" } } };
     const startDate = new Date(parsed.data.startDate);
     const endDate = new Date(parsed.data.endDate);
     const today = new Date(); today.setHours(0, 0, 0, 0);

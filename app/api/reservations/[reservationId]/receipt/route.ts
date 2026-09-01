@@ -44,14 +44,14 @@ async function GETHandler(_request: Request, context: Context) {
 <title>Redrive receipt · ${reservation.id}</title>
 <style>
   *{box-sizing:border-box}
-  body{font:14px/1.6 -apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#2e2e2e;max-width:640px;margin:0 auto;padding:40px 24px}
+  body{font:14px/1.6 -apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#111111;max-width:640px;margin:0 auto;padding:40px 24px}
   .bar{width:44px;height:4px;background:#eab308;border-radius:2px;margin-bottom:18px}
   h1{font-size:22px;margin:0 0 2px}
   .muted{color:#6e6e6e}
   table{width:100%;border-collapse:collapse;margin:22px 0}
   td{padding:8px 0;border-bottom:1px solid #ededed}
   td:last-child{text-align:right;font-variant-numeric:tabular-nums}
-  .total td{border-bottom:0;border-top:2px solid #2e2e2e;font-weight:700;font-size:16px;padding-top:12px}
+  .total td{border-bottom:0;border-top:2px solid #111111;font-weight:700;font-size:16px;padding-top:12px}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;margin-top:18px}
   .k{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#6e6e6e}
   .foot{margin-top:28px;font-size:12px;color:#9a9a9a}

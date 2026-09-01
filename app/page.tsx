@@ -8,7 +8,6 @@ import BecomeHostLink from "./components/BecomeHostLink";
 import LandingHero from "./components/landing/LandingHero";
 import FeatureShowcase from "./components/landing/FeatureShowcase";
 import Reveal from "./components/landing/Reveal";
-import LiveStats from "./components/landing/LiveStats";
 import LiveListingsRail from "./components/landing/LiveListingsRail";
 import CategoryExplorer from "./components/landing/CategoryExplorer";
 import PriceEstimator from "./components/landing/PriceEstimator";
@@ -46,14 +45,13 @@ export default async function Home() {
 
   return (
     <div className="overflow-x-clip">
-      <LandingHero listings={showcase} liveCount={home.stats.liveCount} />
-      <LiveStats stats={home.stats} />
-      <LiveListingsRail cards={home.fresh.length ? home.fresh : home.cards} liveCount={home.stats.liveCount} />
-      <CategoryExplorer byCategory={home.byCategory} />
+      <LandingHero listings={showcase} />
+      <LiveListingsRail cards={home.fresh.length ? home.fresh : home.cards} />
+      <CategoryExplorer />
       <FeatureShowcase listings={showcase} />
       <PriceEstimator />
       <HowItWorks />
-      <CoveragePanel byState={home.byState} />
+      <CoveragePanel />
       <WhyRedrive />
       <GuestVoices reviews={home.reviews} />
       <HomeFaq />

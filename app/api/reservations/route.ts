@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
-import { hasCurrentVerifiedLicense } from "@/app/libs/licenseVerification";
 import { buildBookingQuote, PRICING_POLICY_VERSION } from "@/app/libs/booking";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 import { notificationService } from "@/app/services/notificationService";
@@ -23,16 +22,73 @@ async function POSTHandler(request: NextRequest) {
     ]);
     if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
 
-    const renter = await prisma.user.findUnique({ where: { id: currentUser.id }, select: { emailVerified: true, licenseStatus: true, licenseExpiresAt: true, guestRatingAvg: true, guestRatingCount: true } });
+    const renter = await prisma.user.findUnique({ where: { id: currentUser.id }, select: { emailVerified: true, guestRatingAvg: true, guestRatingCount: true } });
     if (!renter?.emailVerified) {
       return NextResponse.json({ error: "Verify your email before requesting a booking.", code: "EMAIL_VERIFICATION_REQUIRED" }, { status: 403 });
-    }
-    if (!hasCurrentVerifiedLicense(renter?.licenseStatus, renter?.licenseExpiresAt)) {
-      return NextResponse.json({ error: "Complete the identity check on this page before sending the request.", code: "LICENSE_NOT_VERIFIED" }, { status: 403 });
     }
 
     const body = await request.json();
     const listingId = typeof body.listingId === "string" ? body.listingId : "";
+
+    // Drivers: the primary driver (the guest by default) must have an uploaded
+    // licence that read as Australian; a second driver is optional. Each licence
+    // was analysed and stashed in a short-lived LicenceCheck by
+    // /api/reservations/driver-licence — we trust that record, not the client.
+    type DriverInput = { role?: unknown; name?: unknown; frontPublicId?: unknown };
+    const driverInputs: DriverInput[] = Array.isArray(body.drivers) ? body.drivers.slice(0, 2) : [];
+    const primaryInput = driverInputs.find((d) => d.role === "PRIMARY");
+    const secondaryInput = driverInputs.find((d) => d.role === "SECONDARY");
+    if (!primaryInput || typeof primaryInput.name !== "string" || primaryInput.name.trim().length < 2 || typeof primaryInput.frontPublicId !== "string") {
+      return NextResponse.json({ error: "Add the primary driver's name and a photo of their licence.", code: "DRIVER_LICENCE_REQUIRED" }, { status: 400 });
+    }
+
+    const wantedPublicIds = [primaryInput.frontPublicId, secondaryInput?.frontPublicId].filter(
+      (value): value is string => typeof value === "string",
+    );
+    const checks = await prisma.licenceCheck.findMany({
+      where: { frontPublicId: { in: wantedPublicIds }, ownerUserId: currentUser.id, expiresAt: { gt: new Date() } },
+    });
+    const checkFor = (publicId?: string) => checks.find((c) => c.frontPublicId === publicId);
+    const primaryCheck = checkFor(primaryInput.frontPublicId);
+    if (!primaryCheck || !primaryCheck.looksAustralian) {
+      return NextResponse.json(
+        { error: "Re-upload the primary driver's licence — it didn't pass the Australian licence check or the upload has expired.", code: "DRIVER_LICENCE_REQUIRED" },
+        { status: 400 },
+      );
+    }
+    const secondaryCheck =
+      secondaryInput && typeof secondaryInput.name === "string" && secondaryInput.name.trim().length >= 2
+        ? checkFor(typeof secondaryInput.frontPublicId === "string" ? secondaryInput.frontPublicId : undefined)
+        : undefined;
+    if (secondaryInput && !secondaryCheck) {
+      return NextResponse.json(
+        { error: "The second driver needs a name and a valid Australian licence photo, or remove them.", code: "DRIVER_LICENCE_REQUIRED" },
+        { status: 400 },
+      );
+    }
+
+    const driverRows = [
+      {
+        role: "PRIMARY",
+        name: primaryInput.name.trim().slice(0, 120),
+        licenceImagePublicId: primaryCheck.frontPublicId,
+        licenceBackImagePublicId: primaryCheck.backPublicId,
+        looksAustralian: primaryCheck.looksAustralian,
+        detectedState: primaryCheck.detectedState,
+      },
+      ...(secondaryCheck && secondaryInput
+        ? [
+            {
+              role: "SECONDARY",
+              name: (secondaryInput.name as string).trim().slice(0, 120),
+              licenceImagePublicId: secondaryCheck.frontPublicId,
+              licenceBackImagePublicId: secondaryCheck.backPublicId,
+              looksAustralian: secondaryCheck.looksAustralian,
+              detectedState: secondaryCheck.detectedState,
+            },
+          ]
+        : []),
+    ];
     const message = typeof body.message === "string" ? body.message.trim() : "";
     const startDate = new Date(body.startDate);
     const endDate = new Date(body.endDate);
@@ -102,6 +158,12 @@ async function POSTHandler(request: NextRequest) {
       });
       await tx.bookingQuote.create({
         data: { userId: currentUser.id, listingId, reservationId: created.id, startDate, endDate, days: quote.days, dailyRate: quote.dailyRate, basePrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, cleaningFee: quote.cleaningFee, total: quote.total, currency: quote.currency, policyVersion: quote.policyVersion, expiresAt: new Date(Date.now() + 15 * 60_000) },
+      });
+      await tx.reservationDriver.createMany({
+        data: driverRows.map((driver) => ({ ...driver, reservationId: created.id })),
+      });
+      await tx.licenceCheck.deleteMany({
+        where: { frontPublicId: { in: driverRows.map((driver) => driver.licenceImagePublicId) } },
       });
       return created;
     });

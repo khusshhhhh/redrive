@@ -341,10 +341,11 @@ model Reservation {
   autoDeclineAt              DateTime? // an unanswered REVIEWING request lapses at this time
   remindersSent              String[]  @default([]) // lifecycle reminder keys already dispatched
 
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  listing     Listing      @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing     Listing             @relation(fields: [listingId], references: [id], onDelete: Cascade)
   payment     Payment?
   guestReview GuestReview?
+  drivers     ReservationDriver[]
 
   @@index([userId, status, createdAt])
   @@index([listingId, status, startDate, endDate])
@@ -353,6 +354,42 @@ model Reservation {
   @@index([status, paymentDueAt])
   @@index([status, autoDeclineAt])
   @@index([status, autoReleaseAt])
+}
+
+// A named driver on a booking (primary = the guest by default, plus an optional
+// second driver), with the licence images they uploaded during the request.
+// The check is lightweight: does this read as a current Australian licence?
+model ReservationDriver {
+  id                       String   @id @default(auto()) @map("_id") @db.ObjectId
+  reservationId            String   @db.ObjectId
+  role                     String // PRIMARY | SECONDARY
+  name                     String
+  licenceImagePublicId     String
+  licenceBackImagePublicId String?
+  looksAustralian          Boolean  @default(false)
+  detectedState            String? // "SA", "NSW", ...
+  createdAt                DateTime @default(now())
+
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  @@unique([reservationId, role])
+  @@index([reservationId])
+}
+
+// Short-lived result of a driver-licence upload + analysis, held between the
+// upload step and the booking submit so the client can't fake the outcome.
+model LicenceCheck {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  ownerUserId      String   @db.ObjectId
+  frontPublicId    String   @unique
+  backPublicId     String?
+  looksAustralian  Boolean  @default(false)
+  detectedState    String?
+  expiresAt        DateTime
+  createdAt        DateTime @default(now())
+
+  @@index([ownerUserId, createdAt])
+  @@index([expiresAt])
 }
 
 model Payment {

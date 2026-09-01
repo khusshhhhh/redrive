@@ -11,10 +11,8 @@ import Reveal from "./Reveal";
 
 export default function LiveListingsRail({
   cards,
-  liveCount,
 }: {
   cards: ListingCardData[];
-  liveCount: number;
 }) {
   const seen = new Set(cards.map((card) => card.id));
   const rail = cards.length >= 4 ? cards.slice(0, 12) : [...cards, ...FALLBACK_CARDS.filter((card) => !seen.has(card.id))].slice(0, 12);
@@ -44,10 +42,10 @@ export default function LiveListingsRail({
           <div>
             <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-yellow-500" />
-              {liveCount > 0 ? `${liveCount} live right now` : "Fresh on Redrive"}
+              Fresh on Redrive
             </p>
             <h2 className="mt-3 text-display-2xl font-extrabold tracking-tight text-ink">
-              Available across Australia right now.
+              Vehicles shared by locals across Australia.
             </h2>
           </div>
           <div className="hidden shrink-0 items-center gap-2 sm:flex">

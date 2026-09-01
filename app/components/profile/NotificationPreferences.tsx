@@ -55,15 +55,31 @@ function Toggle({
       aria-label={label}
       disabled={disabled}
       onClick={onChange}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-40 ${
-        checked ? "bg-primary" : "bg-hairline"
-      }`}
+      className={`group relative inline-flex h-[26px] w-[46px] shrink-0 items-center rounded-full border transition-colors duration-200 ease-out
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2
+        disabled:cursor-not-allowed disabled:opacity-40
+        ${checked ? "border-primary bg-primary" : "border-hairline bg-surface-strong"}`}
     >
       <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-          checked ? "translate-x-[22px]" : "translate-x-0.5"
-        }`}
-      />
+        className={`pointer-events-none absolute left-[3px] flex h-[18px] w-[18px] items-center justify-center rounded-full bg-white shadow-[0_1px_3px_rgba(31,31,31,0.35)] transition-transform duration-200 ease-out
+          ${checked ? "translate-x-[20px]" : "translate-x-0"}`}
+      >
+        <svg
+          viewBox="0 0 12 12"
+          className={`h-[9px] w-[9px] transition-opacity duration-150 ${checked ? "opacity-100" : "opacity-0"}`}
+          aria-hidden="true"
+        >
+          <path
+            d="M2.5 6.2 4.7 8.5 9.5 3.5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.9"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-primary"
+          />
+        </svg>
+      </span>
     </button>
   );
 }

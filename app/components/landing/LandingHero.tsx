@@ -9,10 +9,8 @@ import BecomeHostLink from "@/app/components/BecomeHostLink";
 
 export default function LandingHero({
   listings,
-  liveCount = 0,
 }: {
   listings: ListingCardData[];
-  liveCount?: number;
 }) {
   return (
     <section className="aurora relative isolate flex min-h-[82svh] items-start overflow-hidden sm:min-h-[100svh] sm:items-center">
@@ -51,17 +49,8 @@ export default function LandingHero({
               Become a host
             </BecomeHostLink>
           </div>
-          <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-muted-soft">
-            {liveCount > 0 && (
-              <span className="inline-flex items-center gap-1.5 text-ink">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary opacity-60 motion-reduce:hidden" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-secondary" />
-                </span>
-                {liveCount.toLocaleString()} vehicles listed across Australia
-              </span>
-            )}
-            <span>No membership fees · Free to list · Cancel any time before a host accepts</span>
+          <p className="mt-6 text-xs font-medium text-muted-soft">
+            No membership fees · Free to list · Cancel any time before a host accepts
           </p>
         </div>
 

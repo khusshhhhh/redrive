@@ -6,7 +6,14 @@ import {
   NotificationType,
 } from "@prisma/client";
 
-import type { RenterIdentityCheck } from "@/app/libs/bookingIdentity";
+export interface SafeReservationDriver {
+  role: string;
+  name: string;
+  looksAustralian: boolean;
+  detectedState: string | null;
+  frontUrl: string;
+  backUrl: string | null;
+}
 
 export type SafeListing = Omit<
   Listing,
@@ -77,7 +84,7 @@ export type SafeReservation = Omit<
   paidAt?: string | null;
   completedAt?: string | null;
   paymentDueAt?: string | null;
-  renterIdentity?: RenterIdentityCheck;
+  drivers?: SafeReservationDriver[];
 };
 
 export type SafeUser = Pick<

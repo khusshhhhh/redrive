@@ -29,7 +29,7 @@ import HandoverPanel from "@/app/components/reservations/HandoverPanel";
 import IncidentThread from "@/app/components/reservations/IncidentThread";
 import TripStatusTimeline from "@/app/components/reservations/TripStatusTimeline";
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
-import RenterIdentityCard from "@/app/components/reservations/RenterIdentityCard";
+import DriversCard from "@/app/components/reservations/DriversCard";
 
 const statusCopy: Record<
   string,
@@ -304,11 +304,10 @@ export default function ReservationDetails() {
                   </button>
                 </div>
               </section>
-              {reservation.renterIdentity && (
-                <RenterIdentityCard
-                  identity={reservation.renterIdentity}
+              {reservation.drivers && reservation.drivers.length > 0 && (
+                <DriversCard
+                  drivers={reservation.drivers}
                   viewerIsOwner={isHost}
-                  renterFirstName={reservation.user.name?.split(" ")[0] || "This guest"}
                   guestTrack={{
                     ratingAvg: reservation.user.guestRatingAvg ?? null,
                     ratingCount: reservation.user.guestRatingCount ?? 0,

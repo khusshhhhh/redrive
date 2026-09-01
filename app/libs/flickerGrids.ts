@@ -64,7 +64,7 @@ export type FlickerTone = "primary" | "ink" | "inverse";
 // brand colour and the unlit dots sit at hairline weight, so the loader reads as
 // part of the page rather than as a borrowed widget.
 export const FLICKER_TONES: Record<FlickerTone, { on: string; off: string }> = {
-  primary: { on: "#3B3B3B", off: "#D9D9D9" },
-  ink: { on: "#3B3B3B", off: "#D9D9D9" },
-  inverse: { on: "#F4F4F4", off: "#3B3B3B" },
+  primary: { on: "#1F1F1F", off: "#CBCBCB" },
+  ink: { on: "#1F1F1F", off: "#CBCBCB" },
+  inverse: { on: "#F4F4F4", off: "#1F1F1F" },
 };

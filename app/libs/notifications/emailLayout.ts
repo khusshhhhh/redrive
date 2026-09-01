@@ -12,7 +12,7 @@ const THEME = {
   card: "#FFFFFF",
   border: "#E7E7E7",
   hairline: "#EDEDED",
-  ink: "#2E2E2E",
+  ink: "#111111",
   body: "#4A4A4A",
   muted: "#6E6E6E",
   faint: "#9A9A9A",

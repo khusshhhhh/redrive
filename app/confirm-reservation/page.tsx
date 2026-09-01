@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -7,14 +6,13 @@ import axios from "axios";
 import Image from "next/image";
 import { differenceInCalendarDays, format } from "date-fns";
 import { toast } from "@/app/libs/toast";
-import { BadgeCheck, CalendarDays, ChevronLeft, Clock3, IdCard, Info, MapPin, MessageCircle, Send, ShieldCheck, Sparkles } from "lucide-react";
+import { CalendarDays, ChevronLeft, Clock3, IdCard, Info, MapPin, MessageCircle, Send, ShieldCheck, Sparkles } from "lucide-react";
 
 import Container from "@/app/components/Container";
 import Button from "@/app/components/Button";
 import InlineRetry from "@/app/components/InlineRetry";
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
-import LicenseVerificationPanel from "@/app/components/profile/LicenseVerificationPanel";
-import { hasCurrentVerifiedLicense } from "@/app/libs/licenseVerification";
+import BookingDrivers, { type DriverPayload } from "@/app/components/reservations/BookingDrivers";
 import { calculateServiceFee, redriveFee as calcRedriveFee } from "@/app/libs/pricing";
 import type { SafeUser } from "@/app/types";
 const money = (value: number) => `AU$${value.toLocaleString("en-AU")}`;
@@ -36,6 +34,8 @@ export default function ConfirmReservation() {
   const [message, setMessage] = useState("");
   const [loadError, setLoadError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [drivers, setDrivers] = useState<DriverPayload[]>([]);
+  const [driversReady, setDriversReady] = useState(false);
 
   useEffect(() => {
     if (!listingId) { setLoading(false); return; }
@@ -56,10 +56,6 @@ export default function ConfirmReservation() {
       .finally(() => setLoading(false));
   }, [listingId, reloadKey]);
 
-  const refreshUser = () => {
-    axios.get("/api/auth/user").then((response) => setCurrentUser(response.data)).catch(() => undefined);
-  };
-
   const totals = useMemo(() => {
     const serviceFee = calculateServiceFee(basePrice);
     const redriveFee = calcRedriveFee(basePrice);
@@ -69,21 +65,20 @@ export default function ConfirmReservation() {
 
   const bookingDays = startDate && endDate ? Math.max(1, differenceInCalendarDays(new Date(endDate), new Date(startDate)) + 1) : 0;
   const validRequest = listingId && startDate && endDate && basePrice > 0;
-  const identityVerified = hasCurrentVerifiedLicense(currentUser?.licenseStatus, currentUser?.licenseExpiresAt);
 
   const confirmBooking = async () => {
     if (!validRequest) {
       toast.error("This booking request is incomplete");
       return;
     }
-    if (!identityVerified) {
-      toast.error("Complete the identity check to send this request");
-      document.getElementById("identity-check")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (!driversReady) {
+      toast.error("Add the primary driver's name and licence to send this request");
+      document.getElementById("drivers")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
     setSubmitting(true);
     try {
-      const { data } = await axios.post("/api/reservations", { listingId, startDate, endDate, totalPrice: basePrice, insuranceType, insuranceFee, message });
+      const { data } = await axios.post("/api/reservations", { listingId, startDate, endDate, totalPrice: basePrice, insuranceType, insuranceFee, message, drivers });
       if (data?.status === "APPROVED") {
         toast.success("Booked — pay now to confirm your trip");
         router.push(`/reservations/${data.id}`);
@@ -96,9 +91,8 @@ export default function ConfirmReservation() {
       if (error.response?.data?.code === "EMAIL_VERIFICATION_REQUIRED") {
         router.push("/profile#email-verification");
       }
-      if (error.response?.data?.code === "LICENSE_NOT_VERIFIED") {
-        refreshUser();
-        document.getElementById("identity-check")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (error.response?.data?.code === "DRIVER_LICENCE_REQUIRED") {
+        document.getElementById("drivers")?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     } finally { setSubmitting(false); }
   };
@@ -155,31 +149,22 @@ export default function ConfirmReservation() {
                 <p className="mt-2 text-xs leading-5 text-muted">This will be attached to your booking request. Avoid sharing payment or identity details.</p>
               </section>
 
-              <section id="identity-check" className="scroll-mt-28 rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
-                <SectionTitle
-                  icon={identityVerified ? <BadgeCheck size={19} /> : <IdCard size={19} />}
-                  title="Identity check"
-                  subtitle={identityVerified ? "Your licence is checked and shared with the host for this request." : "Hosts only receive requests from drivers with a checked licence."}
+              {currentUser ? (
+                <BookingDrivers
+                  defaultName={currentUser.name}
+                  onChange={(next, ready) => {
+                    setDrivers(next);
+                    setDriversReady(ready);
+                  }}
                 />
-                {identityVerified && currentUser ? (
-                  <div className="mt-6 rounded-sm border border-emerald-200 bg-emerald-50 p-5">
-                    <p className="flex items-center gap-2 text-sm font-semibold text-emerald-900"><BadgeCheck size={17} /> Licence verified</p>
-                    <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-                      <div><dt className="text-xs text-emerald-800/80">Name on licence</dt><dd className="mt-0.5 font-semibold text-emerald-900">{currentUser.licenseHolderName || currentUser.name}</dd></div>
-                      <div><dt className="text-xs text-emerald-800/80">Issuer and expiry</dt><dd className="mt-0.5 font-semibold text-emerald-900">{currentUser.licenseIssuerState} · {currentUser.licenseExpiryDate}</dd></div>
-                    </dl>
-                    <p className="mt-4 text-xs leading-5 text-emerald-900/80">The host sees these details and the first-name and date-of-birth match when reviewing your request. Your licence photos are never shared.</p>
-                  </div>
-                ) : currentUser ? (
-                  <div className="mt-6">
-                    <LicenseVerificationPanel user={currentUser} context="BOOKING" onVerified={refreshUser} />
-                  </div>
-                ) : (
+              ) : (
+                <section id="drivers" className="scroll-mt-28 rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+                  <SectionTitle icon={<IdCard size={19} />} title="Who's driving?" subtitle="Sign in to add drivers and send this request." />
                   <p className="mt-6 rounded-sm border border-hairline bg-surface-soft p-4 text-sm leading-6 text-muted">
-                    Sign in to verify your licence and send this request.
+                    Sign in to add the driver details and send this request.
                   </p>
-                )}
-              </section>
+                </section>
+              )}
 
               <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
                 <SectionTitle icon={<Sparkles size={19} />} title="What happens next" subtitle="This sends a request—it does not instantly confirm the booking." />
@@ -195,13 +180,13 @@ export default function ConfirmReservation() {
               <section className="rounded-md border border-hairline-soft bg-white p-6 shadow-card">
                 <h2 className="text-lg font-semibold text-ink">Price details</h2>
                 <div className="mt-5 space-y-3 text-sm"><PriceRow label={`Vehicle hire · ${bookingDays} days`} value={basePrice} /><PriceRow label="Service fee" value={totals.serviceFee} /><PriceRow label="Redrive fee" value={totals.redriveFee} /><PriceRow label={`Protection · ${insuranceType}`} value={insuranceFee} />{totals.cleaningFee > 0 && <PriceRow label="Cleaning fee" value={totals.cleaningFee} />}{listing.cleaningFeeOption === "UPON_RETURNING" && <div className="flex gap-2 rounded-sm bg-surface-soft p-3 text-xs leading-5 text-muted"><Info size={15} className="mt-0.5 shrink-0" />A {money(Number(listing.returnCleaningFeeAmount || 0))} cleaning fee may be charged after return.</div>}<div className="border-t border-hairline-soft pt-4"><div className="flex items-center justify-between text-lg font-semibold text-ink"><span>Total</span><span>{money(totals.total)}</span></div><p className="mt-1 text-xs text-muted">AUD · final request total</p></div></div>
-                {!identityVerified && (
+                {!driversReady && (
                   <p className="mt-6 flex gap-2 rounded-sm border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900">
                     <IdCard size={15} className="mt-0.5 shrink-0" />
-                    Complete the identity check to send this request.
+                    Add the primary driver&rsquo;s name and licence photo to send this request.
                   </p>
                 )}
-                <div className="mt-6"><Button label={listing?.instantBook ? "Book now" : "Send booking request"} disabled={!identityVerified} loading={submitting} loadingLabel={listing?.instantBook ? "Booking" : "Sending request"} onClick={confirmBooking} /></div>
+                <div className="mt-6"><Button label={listing?.instantBook ? "Book now" : "Send booking request"} disabled={!driversReady} loading={submitting} loadingLabel={listing?.instantBook ? "Booking" : "Sending request"} onClick={confirmBooking} /></div>
                 <p className="mt-2 text-xs leading-5 text-muted">{listing?.instantBook ? "This vehicle books instantly. You'll pay on the next screen to confirm — your card isn't charged until then." : "The host reviews your request and you're only charged once they accept."}</p>
                 <p className="mt-3 text-center text-[11px] leading-5 text-muted">By requesting, you agree to Redrive’s booking and cancellation terms.</p>
               </section>

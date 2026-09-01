@@ -28,12 +28,12 @@ async function unsubscribe(token: string | null): Promise<"ok" | "unknown" | "mi
 function page(body: string): NextResponse {
   return new NextResponse(
     `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Redrive email preferences</title><style>
-      body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:#fff;color:#2e2e2e;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+      body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:#fff;color:#111111;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
       .card{max-width:440px;border:1px solid #e7e7e7;border-radius:18px;padding:32px}
       .bar{width:44px;height:3px;background:#eab308;border-radius:2px;margin-bottom:18px}
       h1{font-size:22px;margin:0 0 10px;letter-spacing:-0.4px}
       p{font-size:15px;line-height:24px;color:#4a4a4a;margin:0 0 8px}
-      a{color:#2e2e2e}
+      a{color:#111111}
     </style></head><body><div class="card"><div class="bar"></div>${body}<p style="margin-top:16px"><a href="${siteUrl}/profile#notifications">Manage all notification settings</a></p></div></body></html>`,
     { status: 200, headers: { "content-type": "text/html; charset=utf-8" } },
   );
