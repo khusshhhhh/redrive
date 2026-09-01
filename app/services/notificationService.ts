@@ -119,7 +119,7 @@ class NotificationService {
       title: "Booking approved",
       message: `Your booking for ${listingTitle} has been approved — pay within 24 hours to lock it in`,
       data: { reservationId, listingTitle },
-      actionUrl: `/reservations/${reservationId}`,
+      actionUrl: `/reservations/${reservationId}?pay=1`,
       dedupeKey: `res:${reservationId}:approved`,
       email: {
         subject: `Approved — pay to confirm your ${listingTitle} booking`,
@@ -134,7 +134,7 @@ class NotificationService {
           facts: card
             ? [...tripFacts(card), { label: "Total", value: formatMoney(card.totalFees) }]
             : undefined,
-          primaryButton: { label: "Pay & confirm", url: `${origin()}/reservations/${reservationId}` },
+          primaryButton: { label: "Pay & confirm", url: `${origin()}/reservations/${reservationId}?pay=1` },
           footnote: card?.cancellationSummary ?? undefined,
         },
       },
@@ -516,14 +516,43 @@ class NotificationService {
     listingTitle: string,
     reservationId: string,
   ) {
+    const card = await loadReservationCard(reservationId);
+    const vehicle = card?.listingTitle || listingTitle;
     return this.createNotification({
       userId,
       type: NotificationType.PAYMENT_REQUIRED,
       title: "Payment needed",
-      message: `Pay ${formatMoney(amount)} within 24 hours to confirm ${listingTitle}`,
+      message: `Pay ${formatMoney(amount)} within 24 hours to confirm ${vehicle}`,
       data: { amount, listingTitle, reservationId },
-      actionUrl: `/reservations/${reservationId}`,
+      actionUrl: `/reservations/${reservationId}?pay=1`,
       dedupeKey: `res:${reservationId}:payment-required`,
+      email: {
+        subject: `Pay to confirm your ${vehicle} booking`,
+        content: {
+          preheader: `${formatMoney(amount)} due in 24 hours. Your card isn't charged until you pay.`,
+          eyebrow: "Payment needed",
+          title: "One step to lock in your trip",
+          paragraphs: [
+            `Your booking for <strong>${vehicle}</strong> is approved. Pay <strong>${formatMoney(amount)}</strong> within <strong>24 hours</strong> to confirm it — after that the dates are released.`,
+            `Payment is by card on a secure Stripe page. The funds are held by Redrive and only paid to the host once the return handover is agreed.`,
+          ],
+          facts: card
+            ? [
+                ...tripFacts(card),
+                { label: "Total due", value: formatMoney(amount) },
+              ]
+            : [{ label: "Total due", value: formatMoney(amount) }],
+          primaryButton: {
+            label: "Pay now",
+            url: `${origin()}/reservations/${reservationId}?pay=1`,
+          },
+          secondaryLink: {
+            label: "See the full booking details",
+            url: `${origin()}/reservations/${reservationId}`,
+          },
+          footnote: card?.cancellationSummary ?? undefined,
+        },
+      },
     });
   }
 
@@ -539,11 +568,11 @@ class NotificationService {
       title: "Payment window closing",
       message: `About ${hoursLeft} hour${hoursLeft === 1 ? "" : "s"} left to pay for ${listingTitle} before the dates are released`,
       data: { listingTitle, reservationId, hoursLeft },
-      actionUrl: `/reservations/${reservationId}`,
+      actionUrl: `/reservations/${reservationId}?pay=1`,
       dedupeKey: `res:${reservationId}:payment-closing:${hoursLeft <= 3 ? "final" : "warn"}`,
       forceSms: hoursLeft <= 3,
       sms: {
-        body: `Redrive: ~${hoursLeft}h left to pay for ${listingTitle} or you'll lose the dates. ${origin()}/reservations/${reservationId}`,
+        body: `Redrive: ~${hoursLeft}h left to pay for ${listingTitle} or you'll lose the dates. ${origin()}/reservations/${reservationId}?pay=1`,
       },
       email: {
         subject: `Last chance — pay for ${listingTitle}`,
@@ -554,7 +583,7 @@ class NotificationService {
           paragraphs: [
             `Your booking for <strong>${listingTitle}</strong> was approved but hasn't been paid yet. If payment isn't completed in about <strong>${hoursLeft} hours</strong>, the dates go back on sale.`,
           ],
-          primaryButton: { label: "Pay now", url: `${origin()}/reservations/${reservationId}` },
+          primaryButton: { label: "Pay now", url: `${origin()}/reservations/${reservationId}?pay=1` },
         },
       },
     });

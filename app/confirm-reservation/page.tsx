@@ -80,8 +80,8 @@ export default function ConfirmReservation() {
     try {
       const { data } = await axios.post("/api/reservations", { listingId, startDate, endDate, totalPrice: basePrice, insuranceType, insuranceFee, message, drivers });
       if (data?.status === "APPROVED") {
-        toast.success("Booked — pay now to confirm your trip");
-        router.push(`/reservations/${data.id}`);
+        toast.success("Booked — opening secure checkout to confirm your trip");
+        router.push(`/reservations/${data.id}?pay=1`);
       } else {
         toast.success("Booking request sent");
         router.push("/trips");

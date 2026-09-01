@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
@@ -80,6 +80,22 @@ export default function ReservationDetails() {
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [startingPayment, setStartingPayment] = useState(false);
+  const autoPayTried = useRef(false);
+
+  const openCheckout = useCallback(async (id: string) => {
+    setStartingPayment(true);
+    try {
+      const response = await axios.post<{ url: string }>(`/api/reservations/${id}/checkout`);
+      window.location.assign(response.data.url);
+    } catch (error) {
+      toast.error(
+        axios.isAxiosError<{ error?: string }>(error)
+          ? error.response?.data?.error || "Secure payment could not be opened"
+          : "Secure payment could not be opened",
+      );
+      setStartingPayment(false);
+    }
+  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -89,10 +105,21 @@ export default function ReservationDetails() {
       .then(([userResponse, reservationResponse]) => {
         setCurrentUser(userResponse.data);
         setReservation(reservationResponse.data);
+
+        // Landed here from a "Pay now" link — open secure checkout straight away.
+        const wantsPay = new URLSearchParams(window.location.search).get("pay") === "1";
+        const res = reservationResponse.data;
+        const paid = ["PAID_HELD", "RELEASED"].includes(res?.paymentStatus || "");
+        const isGuest = userResponse.data?.id === res?.userId;
+        if (wantsPay && isGuest && res?.status === "APPROVED" && !paid && !autoPayTried.current) {
+          autoPayTried.current = true;
+          router.replace(`/reservations/${reservationId}`);
+          void openCheckout(res.id);
+        }
       })
       .catch(() => toast.error("Failed to load reservation details"))
       .finally(() => setLoading(false));
-  }, [reservationId]);
+  }, [reservationId, router, openCheckout]);
 
   if (loading) return <ReservationSkeleton />;
   if (!reservation)
@@ -154,20 +181,7 @@ export default function ReservationDetails() {
     axios
       .get(`/api/reservations/${reservation.id}`)
       .then((response) => setReservation(response.data));
-  const startPayment = async () => {
-    setStartingPayment(true);
-    try {
-      const response = await axios.post<{ url: string }>(
-        `/api/reservations/${reservation.id}/checkout`,
-      );
-      window.location.assign(response.data.url);
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.error || "Secure payment could not be opened",
-      );
-      setStartingPayment(false);
-    }
-  };
+  const startPayment = () => openCheckout(reservation.id);
 
   return (
     <main className="bg-surface-soft/40 py-8 sm:py-12">

@@ -50,6 +50,7 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
                             key={reservation.id}
                             data={reservation.listing}
                             reservation={reservation}
+                            detailHref={`/reservations/${reservation.id}`}
                             actionId={reservation.id}
                             onAction={
                                 canReview

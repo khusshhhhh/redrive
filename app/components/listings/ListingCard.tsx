@@ -31,7 +31,19 @@ interface ListingCardProps {
     tripDays?: number | null;
     /** Image sizes hint. Override it when a grid runs at a different density. */
     sizes?: string;
+    /** When set (e.g. a booking card), the card navigates here instead of the public listing. */
+    detailHref?: string;
 }
+
+const RESERVATION_STATUS: Record<string, { label: string; className: string }> = {
+    REVIEWING: { label: "Awaiting host approval", className: "bg-surface-strong text-ink" },
+    APPROVED: { label: "Approved", className: "bg-amber-50 text-amber-800" },
+    ACTIVE: { label: "Trip in progress", className: "bg-blue-50 text-blue-700" },
+    COMPLETED: { label: "Completed", className: "bg-emerald-50 text-emerald-700" },
+    DECLINED: { label: "Declined", className: "bg-red-50 text-red-700" },
+    CANCELLED: { label: "Cancelled", className: "bg-red-50 text-red-700" },
+    EXPIRED: { label: "Payment expired", className: "bg-red-50 text-red-700" },
+};
 
 const DEFAULT_CARD_SIZES = "(max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 25vw, (max-width: 1535px) 20vw, 17vw";
 
@@ -48,10 +60,15 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
     compact = false,
     tripDays = null,
     sizes = DEFAULT_CARD_SIZES,
+    detailHref,
 }) => {
     const router = useRouter();
     const { toggle, includes } = useCompareVehicles();
     const isCompared = includes(data.id);
+    const target = detailHref ?? `/listings/${data.id}`;
+    const paymentDue =
+        reservation?.status === "APPROVED" &&
+        !["PAID_HELD", "RELEASED"].includes(reservation.paymentStatus || "");
 
     const handleCancel = useCallback(
         (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -88,16 +105,16 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
     return (
         <div
             data-scroll-reveal
-            onClick={() => router.push(`/listings/${data.id}`)}
+            onClick={() => router.push(target)}
             onKeyDown={(event) => {
                 if (event.currentTarget === event.target && (event.key === "Enter" || event.key === " ")) {
                     event.preventDefault();
-                    router.push(`/listings/${data.id}`);
+                    router.push(target);
                 }
             }}
             role="link"
             tabIndex={0}
-            aria-label={`View ${data.title} in ${data.suburb}, ${data.state}`}
+            aria-label={reservation ? `Open booking for ${data.title}` : `View ${data.title} in ${data.suburb}, ${data.state}`}
             className="group col-span-1 cursor-pointer rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
         >
             <div className="flex w-full flex-col gap-2">
@@ -157,7 +174,20 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                     </div>
                 )}
                 {reservation && (
-                    <div className="text-xs font-semibold text-ink">Status: {reservation.status}</div>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                        <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                                RESERVATION_STATUS[reservation.status]?.className ?? "bg-surface-strong text-ink"
+                            }`}
+                        >
+                            {RESERVATION_STATUS[reservation.status]?.label ?? reservation.status}
+                        </span>
+                        {paymentDue && (
+                            <span className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-white">
+                                Payment due
+                            </span>
+                        )}
+                    </div>
                 )}
                 <div className="gap-0">
                     {showEditButton && (
@@ -166,6 +196,16 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                             onClick={(e) => {
                                 e.stopPropagation();
                                 router.push(`/edit-utility/${data.id}`);
+                            }}
+                        />
+                    )}
+
+                    {reservation && detailHref && (
+                        <ListingCardButton
+                            label={paymentDue ? "Pay & view booking" : "View booking"}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(paymentDue ? `${detailHref}?pay=1` : detailHref);
                             }}
                         />
                     )}
