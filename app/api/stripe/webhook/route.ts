@@ -167,6 +167,38 @@ async function POSTHandler(request: Request) {
     } else if (event.type === "payment_intent.payment_failed") {
       const intent = event.data.object as Stripe.PaymentIntent;
       const reservationId = intent.metadata?.reservationId;
+
+      // A security-deposit authorisation failing must never touch the hire
+      // payment ledger — record it on the deposit fields and tell the host.
+      if (intent.metadata?.kind === "security_deposit") {
+        const failureMessage =
+          intent.last_payment_error?.message?.slice(0, 500) || "Deposit hold failed";
+        await prisma.payment.updateMany({
+          where: { depositPaymentIntentId: intent.id },
+          data: { depositStatus: "FAILED" },
+        });
+        if (reservationId) {
+          const res = await prisma.reservation.findUnique({
+            where: { id: reservationId },
+            select: { listing: { select: { userId: true, title: true } } },
+          });
+          if (res) {
+            await notificationService
+              .notifySecurityAlert(
+                res.listing.userId,
+                "Security deposit hold failed",
+                `The refundable deposit hold for the ${res.listing.title} trip did not go through (${failureMessage}). The trip is still confirmed; consider following up with the guest about a bond.`,
+                `/reservations`,
+              )
+              .catch(() => undefined);
+          }
+        }
+        await prisma.stripeWebhookEvent.create({
+          data: { stripeEventId: event.id, type: event.type },
+        });
+        return NextResponse.json({ received: true });
+      }
+
       await prisma.payment.updateMany({
         where: reservationId
           ? { reservationId }
