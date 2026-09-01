@@ -12,6 +12,9 @@ const config: Config = {
         // Monochrome, pulled close to black. Four source greys carry the
         // identity -- Mist #CBCBCB, Ash #9C9C9C, Slate #454545 and near-black
         // Graphite #1F1F1F -- and every token below is derived from them.
+        // The "white" ground is a warm off-white; recessed surfaces sit a step
+        // darker than it so cards still read.
+        white: "#F0F0EC",
         primary: "#1F1F1F",
         "primary-active": "#111111",
         "primary-disabled": "#9C9C9C",
@@ -26,10 +29,10 @@ const config: Config = {
         muted: "#454545",
         "muted-soft": "#6E6E6E",
         hairline: "#CBCBCB",
-        "hairline-soft": "#E2E2E2",
+        "hairline-soft": "#DDDDD7",
         "border-strong": "#9C9C9C",
-        "surface-soft": "#F4F4F4",
-        "surface-strong": "#E4E4E4",
+        "surface-soft": "#E8E8E2",
+        "surface-strong": "#DCDCD5",
         error: "#C0281B",
         "error-hover": "#9B1F15",
         "legal-link": "#1F1F1F",

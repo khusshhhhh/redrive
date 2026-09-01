@@ -228,7 +228,7 @@ textarea::placeholder {
 .skeleton-wave {
   position: relative;
   overflow: hidden;
-  background: #EDEDED;
+  background: #E3E3DD;
 }
 
 .shimmer::after,
@@ -237,7 +237,7 @@ textarea::placeholder {
   position: absolute;
   inset: 0;
   transform: translateX(-110%);
-  background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / 88%) 48%, transparent 76%);
+  background: linear-gradient(100deg, transparent 20%, rgb(240 240 236 / 92%) 48%, transparent 76%);
   animation: shimmerSweep 1.65s cubic-bezier(.4, 0, .2, 1) infinite;
 }
 
@@ -322,7 +322,7 @@ textarea::placeholder {
 /* Messaging owns the available app viewport. Only its conversation panes
    scroll, matching the stable desktop/mobile behaviour of focused chat apps. */
 .chat-canvas {
-  background-color: #F4F4F4;
+  background-color: #E8E8E2;
   background-image:
     radial-gradient(circle at 18% 20%, rgb(69 69 69 / 5%) 0 1px, transparent 1.5px),
     radial-gradient(circle at 82% 72%, rgb(156 156 156 / 6%) 0 1px, transparent 1.5px);
@@ -376,7 +376,7 @@ textarea::placeholder {
   border: 1px solid rgb(223 220 213 / 90%);
   border-left: 3px solid var(--toast-accent);
   border-radius: 16px;
-  background: rgb(255 255 255 / 96%);
+  background: rgb(240 240 236 / 96%);
   padding: .9rem .85rem .85rem;
   color: #1F1F1F;
   box-shadow: 0 18px 50px rgb(31 31 31 / 16%), 0 2px 8px rgb(31 31 31 / 8%);
@@ -525,9 +525,9 @@ textarea::placeholder {
   .star-fill { transition: none; }
 }
 
-/* Plain white ground behind the hero headline. No gradient wash. */
+/* Plain warm off-white ground behind the hero headline. No gradient wash. */
 .aurora {
-  background-color: #FFFFFF;
+  background-color: #F0F0EC;
   background-image: none;
 }
 
@@ -622,6 +622,52 @@ textarea::placeholder {
   to { background-position-x: 16px; }
 }
 
+/* ── Success burst: shown once on a milestone (listing live, request sent,
+   payment secured) then it hands off to navigation. ──────────────────────── */
+.success-burst {
+  animation: successBurstIn 260ms cubic-bezier(.16, 1, .3, 1) both;
+}
+@keyframes successBurstIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.success-badge {
+  animation: successBadgePop 520ms cubic-bezier(.34, 1.56, .64, 1) both;
+}
+@keyframes successBadgePop {
+  0% { opacity: 0; transform: scale(.4); }
+  60% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.success-check {
+  stroke-dasharray: 28;
+  stroke-dashoffset: 28;
+  animation: successCheckDraw 420ms cubic-bezier(.16, 1, .3, 1) 220ms both;
+}
+@keyframes successCheckDraw {
+  to { stroke-dashoffset: 0; }
+}
+.success-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid var(--tw-ring-color, #1F1F1F);
+  border-color: #1F1F1F;
+  opacity: 0;
+  animation: successRing 900ms ease-out 260ms both;
+}
+.success-ring--2 { animation-delay: 440ms; }
+@keyframes successRing {
+  0% { opacity: .35; transform: scale(.7); }
+  100% { opacity: 0; transform: scale(1.9); }
+}
+.success-fade-1 { animation: successTextUp 420ms cubic-bezier(.16, 1, .3, 1) 420ms both; }
+.success-fade-2 { animation: successTextUp 420ms cubic-bezier(.16, 1, .3, 1) 520ms both; }
+@keyframes successTextUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fade-in { animation: none; }
   .marquee-track { animation: none !important; }
@@ -631,6 +677,12 @@ textarea::placeholder {
   .host-illustration-swap,
   .host-illustration-road { animation: none; }
   .route-dash { animation: none; }
+  .success-burst,
+  .success-badge,
+  .success-fade-1,
+  .success-fade-2 { animation: none; }
+  .success-check { stroke-dashoffset: 0; animation: none; }
+  .success-ring { display: none; }
 }
 
 /* ── Landing: a couple of plain hover states ────────────────────────────── */

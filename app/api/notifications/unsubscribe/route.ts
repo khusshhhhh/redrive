@@ -28,7 +28,7 @@ async function unsubscribe(token: string | null): Promise<"ok" | "unknown" | "mi
 function page(body: string): NextResponse {
   return new NextResponse(
     `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Redrive email preferences</title><style>
-      body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:#fff;color:#111111;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+      body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:#f0f0ec;color:#111111;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
       .card{max-width:440px;border:1px solid #e7e7e7;border-radius:18px;padding:32px}
       .bar{width:44px;height:3px;background:#eab308;border-radius:2px;margin-bottom:18px}
       h1{font-size:22px;margin:0 0 10px;letter-spacing:-0.4px}

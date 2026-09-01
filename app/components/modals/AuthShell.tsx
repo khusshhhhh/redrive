@@ -128,7 +128,7 @@ export default function AuthShell({
         />
 
         {/* Brand rail */}
-        <aside className="shrink-0 bg-graphite px-6 pb-5 pt-7 text-white sm:px-8 md:w-[300px] md:py-9">
+        <aside className="shrink-0 bg-primary px-6 pb-5 pt-7 text-white sm:px-8 md:w-[300px] md:py-9">
           <div className="flex items-end gap-0.5" role="img" aria-label="Redrive">
             <span aria-hidden="true" className="login-wordmark text-2xl font-bold tracking-[-0.045em]">
               redrive

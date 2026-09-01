@@ -6,6 +6,7 @@ import axios, { AxiosError } from "axios";
 import Image from "next/image";
 import toast from "@/app/libs/toast";
 import StarRating from "@/app/components/inputs/StarRating";
+import SuccessBurst from "@/app/components/SuccessBurst";
 
 type Role = "GUEST" | "HOST";
 
@@ -27,6 +28,7 @@ const ReviewPage = () => {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     if (!reservationId) return;
@@ -90,8 +92,7 @@ const ReviewPage = () => {
           text: text.trim(),
         });
       }
-      toast.success("Thanks — your review is in.");
-      router.push(role === "HOST" ? "/reservations" : "/trips");
+      setDone(true);
     } catch (error) {
       toast.error(
         (error as AxiosError<{ error: string }>).response?.data?.error || "Something went wrong.",
@@ -99,6 +100,16 @@ const ReviewPage = () => {
       setLoading(false);
     }
   };
+
+  if (done) {
+    return (
+      <SuccessBurst
+        title="Thanks — your review is in"
+        subtitle="It helps the next person on Redrive know what to expect."
+        onDone={() => router.push(role === "HOST" ? "/reservations" : "/trips")}
+      />
+    );
+  }
 
   if (loadFailed) {
     return (

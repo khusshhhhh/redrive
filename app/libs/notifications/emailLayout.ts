@@ -8,7 +8,7 @@
  */
 
 const THEME = {
-  ground: "#FFFFFF",
+  ground: "#F0F0EC",
   card: "#FFFFFF",
   border: "#E7E7E7",
   hairline: "#EDEDED",
@@ -26,7 +26,8 @@ const HEAD_STYLE = `
     .title { font-size:26px !important; line-height:32px !important; }
   }
   @media (prefers-color-scheme: dark) {
-    .shell, .pad, .ground, .rowbg { background:#FFFFFF !important; }
+    .shell, .pad, .rowbg { background:#FFFFFF !important; }
+    .ground { background:#F0F0EC !important; }
   }
 `;
 
@@ -130,7 +131,7 @@ export function renderEmail(input: RenderEmailInput): string {
 
   const cta = primaryButton
     ? `<tr><td class="pad" align="center" style="padding:26px 40px 6px;">
-        <a href="${primaryButton.url}" style="display:inline-block;min-width:200px;padding:15px 28px;border-radius:999px;background:${THEME.ink};color:#ffffff;font-size:15px;line-height:20px;font-weight:700;text-align:center;text-decoration:none;">${escapeHtml(primaryButton.label)}</a>
+        <a href="${primaryButton.url}" style="display:inline-block;min-width:200px;padding:15px 28px;border-radius:999px;background:${THEME.accent};color:${THEME.ink};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:15px;line-height:20px;font-weight:700;text-align:center;text-decoration:none;">${escapeHtml(primaryButton.label)}</a>
         ${secondaryLink ? `<p style="margin:14px 0 0;font-size:13px;line-height:20px;"><a href="${secondaryLink.url}" style="color:${THEME.muted};text-decoration:underline;">${escapeHtml(secondaryLink.label)}</a></p>` : ""}
       </td></tr>`
     : secondaryLink

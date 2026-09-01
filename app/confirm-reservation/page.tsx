@@ -13,6 +13,7 @@ import Button from "@/app/components/Button";
 import InlineRetry from "@/app/components/InlineRetry";
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
 import BookingDrivers, { type DriverPayload } from "@/app/components/reservations/BookingDrivers";
+import SuccessBurst from "@/app/components/SuccessBurst";
 import { PROTECTION_TIERS } from "@/app/components/listings/ProtectionSelector";
 import { calculateServiceFee, redriveFee as calcRedriveFee } from "@/app/libs/pricing";
 import type { SafeUser } from "@/app/types";
@@ -37,6 +38,7 @@ export default function ConfirmReservation() {
   const [reloadKey, setReloadKey] = useState(0);
   const [drivers, setDrivers] = useState<DriverPayload[]>([]);
   const [driversReady, setDriversReady] = useState(false);
+  const [celebrate, setCelebrate] = useState<{ title: string; subtitle: string; next: () => void } | null>(null);
 
   useEffect(() => {
     if (!listingId) { setLoading(false); return; }
@@ -81,12 +83,19 @@ export default function ConfirmReservation() {
     try {
       const { data } = await axios.post("/api/reservations", { listingId, startDate, endDate, totalPrice: basePrice, insuranceType, insuranceFee, message, drivers });
       if (data?.status === "APPROVED") {
-        toast.success("Booked — opening secure checkout to confirm your trip");
-        router.push(`/reservations/${data.id}?pay=1`);
+        setCelebrate({
+          title: "You’re booked!",
+          subtitle: "Opening secure checkout to confirm your trip…",
+          next: () => router.push(`/reservations/${data.id}?pay=1`),
+        });
       } else {
-        toast.success("Booking request sent");
-        router.push("/trips");
+        setCelebrate({
+          title: "Booking request sent",
+          subtitle: `${listing?.user?.name?.split(" ")[0] || "The host"} has been notified. We’ll let you know as soon as they respond.`,
+          next: () => router.push("/trips"),
+        });
       }
+      return;
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Booking request could not be sent");
       if (error.response?.data?.code === "EMAIL_VERIFICATION_REQUIRED") {
@@ -106,6 +115,7 @@ export default function ConfirmReservation() {
 
   return (
     <main className="bg-surface-soft/40 py-8 sm:py-12">
+      {celebrate && <SuccessBurst title={celebrate.title} subtitle={celebrate.subtitle} onDone={celebrate.next} />}
       <Container>
         <div className="mx-auto max-w-[1120px]">
           <button onClick={() => router.back()} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-ink"><ChevronLeft size={17} /> Back to vehicle</button>

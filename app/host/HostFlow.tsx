@@ -12,7 +12,6 @@ import {
   BadgeCheck,
   Camera,
   CarFront,
-  CheckCircle2,
   Gauge,
   ImagePlus,
   ListChecks,
@@ -49,6 +48,7 @@ import OptionSelector from "@/app/components/inputs/OptionSelector";
 import ToggleRow from "@/app/components/inputs/ToggleRow";
 import ChipMultiSelect from "@/app/components/inputs/ChipMultiSelect";
 import HostIllustration, { type HostPhaseKey } from "@/app/components/host/HostIllustration";
+import SuccessBurst from "@/app/components/SuccessBurst";
 import {
   TRANSMISSION_OPTIONS,
   TYRE_CONDITION_OPTIONS,
@@ -438,11 +438,6 @@ export default function HostFlow() {
     try {
       await axios.post("/api/listings", payload, { headers: { "Content-Type": "application/json" } });
       setPublished(true);
-      toast.success("Your listing is live!");
-      setTimeout(() => {
-        router.push("/properties");
-        router.refresh();
-      }, 1400);
     } catch (error) {
       const message = axios.isAxiosError(error) ? error.response?.data?.error : null;
       toast.error(message || "Something went wrong while publishing. Please try again.");
@@ -506,13 +501,14 @@ export default function HostFlow() {
 
   if (published) {
     return (
-      <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center px-6 text-center">
-        <span className="animate-pop flex h-20 w-20 items-center justify-center rounded-full bg-primary text-white">
-          <CheckCircle2 size={38} />
-        </span>
-        <h1 className="mt-6 text-display-2xl font-extrabold tracking-tight text-ink">Your listing is live</h1>
-        <p className="mt-3 text-sm leading-6 text-muted">Taking you to your listings so you can set availability…</p>
-      </div>
+      <SuccessBurst
+        title="Your listing is live"
+        subtitle="Taking you to your listings so you can set availability…"
+        onDone={() => {
+          router.push("/properties");
+          router.refresh();
+        }}
+      />
     );
   }
 

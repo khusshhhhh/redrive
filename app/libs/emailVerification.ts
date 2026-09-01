@@ -90,7 +90,7 @@ function safeName(recipientName?: string | null) {
  * ------------------------------------------------------------------------ */
 
 const THEME = {
-  ground: "#FFFFFF",
+  ground: "#F0F0EC",
   card: "#FFFFFF",
   border: "#E7E7E7",
   hairline: "#EDEDED",
@@ -115,7 +115,8 @@ const EMAIL_HEAD_STYLE = `
     .hide-sm { display:none !important; }
   }
   @media (prefers-color-scheme: dark) {
-    .shell, .pad, .ground { background:#FFFFFF !important; }
+    .shell, .pad { background:#FFFFFF !important; }
+    .ground { background:#F0F0EC !important; }
   }
 `;
 
@@ -221,7 +222,7 @@ function headlineRow({
 
 function ctaRow(label: string, url: string) {
   return `<tr><td class="pad" align="center" style="padding:26px 40px 6px;">
-    <a href="${url}" style="display:inline-block;min-width:180px;padding:15px 28px;border-radius:999px;background:${THEME.ink};color:#ffffff;font-size:15px;line-height:20px;font-weight:700;text-align:center;text-decoration:none;">${escapeHtml(label)}</a>
+    <a href="${url}" style="display:inline-block;min-width:180px;padding:15px 28px;border-radius:999px;background:${THEME.accent};color:${THEME.ink};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:15px;line-height:20px;font-weight:700;text-align:center;text-decoration:none;">${escapeHtml(label)}</a>
   </td></tr>`;
 }
 

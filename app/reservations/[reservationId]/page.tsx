@@ -33,6 +33,7 @@ import TripStatusTimeline from "@/app/components/reservations/TripStatusTimeline
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
 import DriversCard from "@/app/components/reservations/DriversCard";
 import PayNowPanel from "@/app/components/reservations/PayNowPanel";
+import SuccessBurst from "@/app/components/SuccessBurst";
 
 const statusCopy: Record<
   string,
@@ -83,6 +84,7 @@ export default function ReservationDetails() {
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [startingPayment, setStartingPayment] = useState(false);
+  const [celebrate, setCelebrate] = useState<{ title: string; subtitle: string } | null>(null);
   const autoPayTried = useRef(false);
 
   const openCheckout = useCallback(async (id: string, paymentMethodId?: string) => {
@@ -97,12 +99,15 @@ export default function ReservationDetails() {
         return;
       }
       if (response.data.paid) {
-        toast.success("Payment secured — your booking is confirmed.");
         await axios
           .get(`/api/reservations/${id}`)
           .then((r) => setReservation(r.data))
           .catch(() => undefined);
         router.refresh();
+        setCelebrate({
+          title: "Payment secured",
+          subtitle: "Redrive holds the funds until the return handover is agreed. Your trip is confirmed.",
+        });
       }
       setStartingPayment(false);
     } catch (error) {
@@ -126,9 +131,18 @@ export default function ReservationDetails() {
 
         const params = new URLSearchParams(window.location.search);
         if (params.get("extension") === "paid") {
-          toast.success("Trip extended — the new dates are confirmed.");
+          setCelebrate({
+            title: "Trip extended",
+            subtitle: "The new dates are confirmed and the top-up is held with Redrive.",
+          });
           router.replace(`/reservations/${reservationId}`);
         } else if (params.get("extension") === "cancelled") {
+          router.replace(`/reservations/${reservationId}`);
+        } else if (params.get("payment") === "success") {
+          setCelebrate({
+            title: "Payment secured",
+            subtitle: "Redrive holds the funds until the return handover is agreed. Your trip is confirmed.",
+          });
           router.replace(`/reservations/${reservationId}`);
         }
 
@@ -210,6 +224,13 @@ export default function ReservationDetails() {
 
   return (
     <main className="bg-surface-soft/40 py-8 sm:py-12">
+      {celebrate && (
+        <SuccessBurst
+          title={celebrate.title}
+          subtitle={celebrate.subtitle}
+          onDone={() => setCelebrate(null)}
+        />
+      )}
       <Container>
         <div className="mx-auto max-w-[1120px]">
           <button
