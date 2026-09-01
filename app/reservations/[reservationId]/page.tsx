@@ -27,6 +27,7 @@ import type { SafeReservation, SafeUser } from "@/app/types";
 import HandoverPanel from "@/app/components/reservations/HandoverPanel";
 import IncidentThread from "@/app/components/reservations/IncidentThread";
 import TripExtensionPanel from "@/app/components/reservations/TripExtensionPanel";
+import TripShortenPanel from "@/app/components/reservations/TripShortenPanel";
 import GuestReviewReply from "@/app/components/reservations/GuestReviewReply";
 import TripStatusTimeline from "@/app/components/reservations/TripStatusTimeline";
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
@@ -364,6 +365,16 @@ export default function ReservationDetails() {
                 ["PAID_HELD", "RELEASED"].includes(reservation.paymentStatus || "") &&
                 ["APPROVED", "ACTIVE"].includes(reservation.status) && (
                   <TripExtensionPanel
+                    reservationId={reservation.id}
+                    isHost={isHost}
+                    isGuest={currentUser.id === reservation.userId}
+                    onChanged={() => void refreshReservation()}
+                  />
+                )}
+              {currentUser &&
+                reservation.paymentStatus === "PAID_HELD" &&
+                ["APPROVED", "ACTIVE"].includes(reservation.status) && (
+                  <TripShortenPanel
                     reservationId={reservation.id}
                     isHost={isHost}
                     isGuest={currentUser.id === reservation.userId}

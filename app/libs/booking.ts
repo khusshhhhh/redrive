@@ -75,3 +75,42 @@ export function buildExtensionQuote(input: {
   const extraTotal = extraBase + extraInsuranceFee + extraRedriveFee + extraServiceFee;
   return { extraBase, extraInsuranceFee, extraRedriveFee, extraServiceFee, extraTotal };
 }
+
+/**
+ * The refund for pulling a paid trip's end date IN by `removedDays`. Unused
+ * daily hire + protection are refunded at the cancellation policy's percentage
+ * for the tail; the platform fees for those days (Redrive fee + service fee) are
+ * always credited back in full since the guest never used them. The host keeps
+ * the non-refunded hire portion as short-notice compensation.
+ */
+export function buildShortenQuote(input: {
+  dailyRate: number;
+  paidDays: number;
+  removedDays: number;
+  insuranceType?: string | null;
+  refundPercentage: number; // 0..100, from the reservation's cancellation policy
+}) {
+  const factor = Math.max(0, Math.min(100, input.refundPercentage)) / 100;
+  const removedDays = Math.max(0, Math.min(input.removedDays, input.paidDays - 1));
+  const remainingDays = input.paidDays - removedDays;
+  const oldBase = input.dailyRate * input.paidDays;
+  const newBase = input.dailyRate * remainingDays;
+  const removedBase = oldBase - newBase;
+  const removedInsuranceFee = insuranceDailyRate(input.insuranceType) * removedDays;
+  const redriveFeeCredit = Math.max(0, redriveFee(oldBase) - redriveFee(newBase));
+  const serviceFeeCredit = Math.max(0, calculateServiceFee(oldBase) - calculateServiceFee(newBase));
+  const hireRefund = Math.round((removedBase + removedInsuranceFee) * factor);
+  const refundTotal = hireRefund + redriveFeeCredit + serviceFeeCredit;
+  const ownerReduction = Math.round(removedBase * factor);
+  return {
+    removedDays,
+    remainingDays,
+    removedBase,
+    removedInsuranceFee,
+    redriveFeeCredit,
+    serviceFeeCredit,
+    hireRefund,
+    refundTotal,
+    ownerReduction,
+  };
+}

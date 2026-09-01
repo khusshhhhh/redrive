@@ -389,17 +389,20 @@ model TripExtension {
   id                      String    @id @default(auto()) @map("_id") @db.ObjectId
   reservationId           String    @db.ObjectId
   requestedById           String    @db.ObjectId
+  kind                    String    @default("EXTEND") // EXTEND | SHORTEN
   previousEndDate         DateTime
   newEndDate              DateTime
-  extraDays               Int
-  extraBase               Int // owner portion (daily rate x extra days)
+  extraDays               Int // EXTEND: days added. SHORTEN: negative days removed.
+  extraBase               Int // EXTEND: owner top-up. SHORTEN: negative owner reduction.
   extraInsuranceFee       Int
   extraRedriveFee         Int
   extraServiceFee         Int
-  extraTotal              Int
-  status                  String    @default("PENDING") // PENDING | APPROVED | DECLINED | PAID | EXPIRED
+  extraTotal              Int // EXTEND: extra to pay. SHORTEN: negative refund total.
+  refundAmount            Int? // SHORTEN: cents refunded to the guest on apply
+  status                  String    @default("PENDING") // PENDING | APPROVED | DECLINED | PAID | APPLIED | EXPIRED
   stripeCheckoutSessionId String?
   stripeChargeId          String?
+  stripeRefundId          String?
   paidAt                  DateTime?
   respondedAt             DateTime?
   expiresAt               DateTime

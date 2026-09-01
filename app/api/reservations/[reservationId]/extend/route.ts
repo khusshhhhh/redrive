@@ -62,10 +62,11 @@ async function GETHandler(request: Request, context: Context) {
   const url = new URL(request.url);
   const newEndParam = url.searchParams.get("newEnd");
 
-  const extensions = await prisma.tripExtension.findMany({
+  const allChanges = await prisma.tripExtension.findMany({
     where: { reservationId },
     orderBy: { createdAt: "desc" },
   });
+  const extensions = allChanges.filter((c) => c.kind !== "SHORTEN");
 
   let quote: ReturnType<typeof buildExtensionQuote> | null = null;
   let extraDays = 0;
@@ -96,7 +97,7 @@ async function GETHandler(request: Request, context: Context) {
         ctx.isGuest &&
         ["PAID_HELD", "RELEASED"].includes(ctx.reservation.paymentStatus || "") &&
         ["APPROVED", "ACTIVE"].includes(ctx.reservation.status) &&
-        !extensions.some((e) => ["PENDING", "APPROVED"].includes(e.status)),
+        !allChanges.some((c) => ["PENDING", "APPROVED"].includes(c.status)),
       extraDays,
       quote,
       extensions,
