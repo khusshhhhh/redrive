@@ -71,7 +71,6 @@ export default function PayNowPanel({
         return;
       }
       if (response.data.paid) {
-        toast.success("Payment secured — your booking is confirmed.");
         onPaid?.();
       }
       setBusy(false);

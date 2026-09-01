@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
@@ -83,51 +83,75 @@ export default function ReservationDetails() {
   const [currentUser, setCurrentUser] = useState<SafeUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
-  const [startingPayment, setStartingPayment] = useState(false);
   const [celebrate, setCelebrate] = useState<{ title: string; subtitle: string } | null>(null);
   const autoPayTried = useRef(false);
 
-  const openCheckout = useCallback(async (id: string, paymentMethodId?: string) => {
-    setStartingPayment(true);
-    try {
-      const response = await axios.post<{ url?: string; paid?: boolean }>(
-        `/api/reservations/${id}/checkout`,
-        paymentMethodId ? { paymentMethodId } : undefined,
-      );
-      if (response.data.url) {
-        window.location.assign(response.data.url);
-        return;
-      }
-      if (response.data.paid) {
-        await axios
-          .get(`/api/reservations/${id}`)
-          .then((r) => setReservation(r.data))
-          .catch(() => undefined);
-        router.refresh();
-        setCelebrate({
-          title: "Payment secured",
-          subtitle: "Redrive holds the funds until the return handover is agreed. Your trip is confirmed.",
-        });
-      }
-      setStartingPayment(false);
-    } catch (error) {
-      toast.error(
-        axios.isAxiosError<{ error?: string }>(error)
-          ? error.response?.data?.error || "Secure payment could not be opened"
-          : "Secure payment could not be opened",
-      );
-      setStartingPayment(false);
-    }
-  }, [router]);
-
   useEffect(() => {
+    const paid = (r: SafeReservation | null | undefined) =>
+      ["PAID_HELD", "RELEASED"].includes(r?.paymentStatus || "");
+
+    // Background: catch up on a payment the webhook may have missed (common in
+    // local / sandbox). Non-blocking so the page still renders straight away.
+    const reconcileFlow = async (res: SafeReservation, isGuest: boolean) => {
+      const params = new URLSearchParams(window.location.search);
+      const cameFromPayment =
+        params.get("payment") === "success" || params.get("pay") === "1";
+      const wantsReconcile =
+        isGuest &&
+        res.status === "APPROVED" &&
+        !paid(res) &&
+        (cameFromPayment || res.paymentStatus === "CHECKOUT_PENDING");
+
+      let latest = res;
+      if (wantsReconcile) {
+        const attempts = cameFromPayment ? 3 : 1;
+        for (let i = 0; i < attempts; i += 1) {
+          const check = await axios
+            .get(`/api/reservations/${reservationId}/checkout`)
+            .then((r) => r.data)
+            .catch(() => null);
+          if (["PAID_HELD", "RELEASED"].includes(check?.paymentStatus || "")) break;
+          if (i < attempts - 1) await new Promise((r) => setTimeout(r, 2500));
+        }
+        latest = await axios
+          .get(`/api/reservations/${reservationId}`)
+          .then((r) => r.data as SafeReservation)
+          .catch(() => res);
+        setReservation(latest);
+        router.refresh();
+      }
+
+      if (cameFromPayment) {
+        router.replace(`/reservations/${reservationId}`);
+        if (paid(latest)) {
+          setCelebrate({
+            title: "Payment secured",
+            subtitle:
+              "Redrive holds the funds until the return handover is agreed. Your trip is confirmed.",
+          });
+        } else if (params.get("payment") === "success") {
+          toast.error("Your payment is still confirming — this page will update once it clears.");
+        } else {
+          setTimeout(
+            () =>
+              document
+                .getElementById("pay-panel")
+                ?.scrollIntoView({ behavior: "smooth", block: "center" }),
+            250,
+          );
+        }
+      }
+    };
+
     Promise.all([
       axios.get("/api/auth/user"),
       axios.get(`/api/reservations/${reservationId}`),
     ])
       .then(([userResponse, reservationResponse]) => {
         setCurrentUser(userResponse.data);
-        setReservation(reservationResponse.data);
+        const res: SafeReservation = reservationResponse.data;
+        setReservation(res);
+        setLoading(false);
 
         const params = new URLSearchParams(window.location.search);
         if (params.get("extension") === "paid") {
@@ -136,30 +160,23 @@ export default function ReservationDetails() {
             subtitle: "The new dates are confirmed and the top-up is held with Redrive.",
           });
           router.replace(`/reservations/${reservationId}`);
-        } else if (params.get("extension") === "cancelled") {
-          router.replace(`/reservations/${reservationId}`);
-        } else if (params.get("payment") === "success") {
-          setCelebrate({
-            title: "Payment secured",
-            subtitle: "Redrive holds the funds until the return handover is agreed. Your trip is confirmed.",
-          });
+        } else if (
+          params.get("extension") === "cancelled" ||
+          params.get("payment") === "cancelled"
+        ) {
           router.replace(`/reservations/${reservationId}`);
         }
 
-        // Landed here from a "Pay now" link — open secure checkout straight away.
-        const wantsPay = params.get("pay") === "1";
-        const res = reservationResponse.data;
-        const paid = ["PAID_HELD", "RELEASED"].includes(res?.paymentStatus || "");
-        const isGuest = userResponse.data?.id === res?.userId;
-        if (wantsPay && isGuest && res?.status === "APPROVED" && !paid && !autoPayTried.current) {
+        if (!autoPayTried.current) {
           autoPayTried.current = true;
-          router.replace(`/reservations/${reservationId}`);
-          void openCheckout(res.id);
+          void reconcileFlow(res, userResponse.data?.id === res?.userId);
         }
       })
-      .catch(() => toast.error("Failed to load reservation details"))
-      .finally(() => setLoading(false));
-  }, [reservationId, router, openCheckout]);
+      .catch(() => {
+        toast.error("Failed to load reservation details");
+        setLoading(false);
+      });
+  }, [reservationId, router]);
 
   if (loading) return <ReservationSkeleton />;
   if (!reservation)
@@ -477,11 +494,20 @@ export default function ReservationDetails() {
                 !["PAID_HELD", "RELEASED"].includes(
                   reservation.paymentStatus || "",
                 ) && (
-                  <PayNowPanel
-                    reservationId={reservation.id}
-                    total={reservation.totalFees}
-                    onPaid={() => void refreshReservation()}
-                  />
+                  <div id="pay-panel" className="scroll-mt-28">
+                    <PayNowPanel
+                      reservationId={reservation.id}
+                      total={reservation.totalFees}
+                      onPaid={() => {
+                        void refreshReservation();
+                        setCelebrate({
+                          title: "Payment secured",
+                          subtitle:
+                            "Redrive holds the funds until the return handover is agreed. Your trip is confirmed.",
+                        });
+                      }}
+                    />
+                  </div>
                 )}
               {reservation.paymentStatus === "PAID_HELD" && (
                 <div className="rounded-md border border-green-200 bg-green-50 p-4 text-sm text-green-900">

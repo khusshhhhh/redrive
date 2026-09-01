@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import { PAYMENT_WINDOW_HOURS } from "@/app/libs/bookingWindows";
 import prisma from "@/app/libs/prismadb";
-import { markReservationPaidHeld } from "@/app/libs/payments";
+import { markReservationPaidHeld, reconcileReservationPayment } from "@/app/libs/payments";
 import { siteUrl } from "@/app/libs/siteUrl";
 import { getStripe } from "@/app/libs/stripe";
 import { getOrCreateStripeCustomer } from "@/app/libs/stripeCustomer";
@@ -92,14 +92,14 @@ async function POSTHandler(request: Request, context: Context) {
       { status: 409 },
     );
   }
-  if (
-    reservation.payment?.status === "PAID_HELD" ||
-    reservation.payment?.status === "RELEASED"
-  ) {
-    return NextResponse.json(
-      { error: "This reservation has already been paid" },
-      { status: 409 },
-    );
+  // If a previous attempt already went through on Stripe but the webhook was
+  // missed, catch up here so a second "Pay" click finalises the booking instead
+  // of looping on an error.
+  if (reservation.payment) {
+    const reconcile = await reconcileReservationPayment(reservationId);
+    if (reconcile.ok) {
+      return NextResponse.json({ paid: true });
+    }
   }
 
   const quote = reservation.quoteSnapshot as { cleaningFee?: number } | null;
@@ -219,6 +219,8 @@ async function POSTHandler(request: Request, context: Context) {
       if (existing.status === "open" && existing.url)
         return NextResponse.json({ url: existing.url });
       if (existing.payment_status === "paid") {
+        const reconcile = await reconcileReservationPayment(reservationId);
+        if (reconcile.ok) return NextResponse.json({ paid: true });
         return NextResponse.json(
           {
             error:
@@ -286,4 +288,39 @@ async function POSTHandler(request: Request, context: Context) {
   }
 }
 
+/**
+ * Poll Stripe for a payment the webhook may have missed and finalise it.
+ * Called by the reservation page after a hosted-checkout return and once on a
+ * plain load while a payment is still pending.
+ */
+async function GETHandler(request: Request, context: Context) {
+  const currentUser = await getCurrentUserEnhanced(request);
+  if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { reservationId } = await context.params;
+
+  const reservation = await prisma.reservation.findUnique({
+    where: { id: reservationId },
+    select: { userId: true },
+  });
+  if (!reservation) return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
+  if (reservation.userId !== currentUser.id) {
+    return NextResponse.json({ error: "Only the renter can check this" }, { status: 403 });
+  }
+
+  const result = await reconcileReservationPayment(reservationId);
+  const fresh = await prisma.reservation.findUnique({
+    where: { id: reservationId },
+    select: { status: true, paymentStatus: true },
+  });
+  return NextResponse.json(
+    {
+      reconciled: result.ok,
+      status: fresh?.status ?? null,
+      paymentStatus: fresh?.paymentStatus ?? null,
+    },
+    { headers: { "Cache-Control": "private, no-store" } },
+  );
+}
+
+export const GET = monitorApiRoute("/api/reservations/[reservationId]/checkout", GETHandler, "GET");
 export const POST = monitorApiRoute("/api/reservations/[reservationId]/checkout", POSTHandler, "POST");

@@ -205,7 +205,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                             label={paymentDue ? "Pay & view booking" : "View booking"}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(paymentDue ? `${detailHref}?pay=1` : detailHref);
+                                router.push(paymentDue ? `${detailHref}?pay=1#pay-panel` : detailHref);
                             }}
                         />
                     )}

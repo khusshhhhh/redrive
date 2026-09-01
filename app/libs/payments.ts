@@ -111,6 +111,82 @@ export async function markReservationPaidHeld(input: {
   return { ok: true };
 }
 
+/**
+ * Ask Stripe directly whether this reservation has been paid and, if so, move
+ * the ledger to PAID_HELD. This is the self-healing path for when the
+ * `checkout.session.completed` webhook is missed (common in local / sandbox
+ * without Stripe CLI forwarding, or a transient webhook failure). Safe to call
+ * on every page load / pay click — idempotent, and a no-op once PAID_HELD.
+ */
+export async function reconcileReservationPayment(
+  reservationId: string,
+): Promise<CaptureResult> {
+  const payment = await prisma.payment.findUnique({ where: { reservationId } });
+  if (!payment) return { ok: false, reason: "No payment ledger for this reservation" };
+  if (payment.status === "PAID_HELD" || payment.status === "RELEASED") {
+    return { ok: true };
+  }
+
+  const stripe = getStripe();
+
+  // A hosted Checkout Session is the usual route.
+  if (payment.stripeCheckoutSessionId) {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(payment.stripeCheckoutSessionId);
+      if (session.payment_status === "paid") {
+        const intentId =
+          typeof session.payment_intent === "string"
+            ? session.payment_intent
+            : session.payment_intent?.id;
+        if (intentId) {
+          const intent = await stripe.paymentIntents.retrieve(intentId, {
+            expand: ["latest_charge"],
+          });
+          const chargeId =
+            typeof intent.latest_charge === "string"
+              ? intent.latest_charge
+              : intent.latest_charge?.id;
+          return markReservationPaidHeld({
+            reservationId,
+            paymentIntentId: intentId,
+            chargeId: chargeId || "",
+            amountTotal: session.amount_total,
+            currency: session.currency,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Payment reconcile via checkout session failed", reservationId, error);
+    }
+  }
+
+  // The off-session (saved-card) charge may have succeeded but lost its response.
+  if (payment.stripePaymentIntentId) {
+    try {
+      const intent = await stripe.paymentIntents.retrieve(payment.stripePaymentIntentId, {
+        expand: ["latest_charge"],
+      });
+      if (intent.status === "succeeded") {
+        const chargeId =
+          typeof intent.latest_charge === "string"
+            ? intent.latest_charge
+            : intent.latest_charge?.id;
+        return markReservationPaidHeld({
+          reservationId,
+          paymentIntentId: intent.id,
+          chargeId: chargeId || "",
+          amountTotal: intent.amount_received || intent.amount,
+          currency: intent.currency,
+        });
+      }
+    } catch (error) {
+      console.error("Payment reconcile via payment intent failed", reservationId, error);
+    }
+  }
+
+  return { ok: false, reason: "No completed Stripe payment found yet" };
+}
+
 export async function releaseReservationPayment(
   reservationId: string,
 ): Promise<ReleaseResult> {

@@ -84,8 +84,8 @@ export default function ConfirmReservation() {
       const { data } = await axios.post("/api/reservations", { listingId, startDate, endDate, totalPrice: basePrice, insuranceType, insuranceFee, message, drivers });
       if (data?.status === "APPROVED") {
         setCelebrate({
-          title: "You’re booked!",
-          subtitle: "Opening secure checkout to confirm your trip…",
+          title: "You’re approved!",
+          subtitle: "Review your booking and pay to lock in the dates.",
           next: () => router.push(`/reservations/${data.id}?pay=1`),
         });
       } else {
