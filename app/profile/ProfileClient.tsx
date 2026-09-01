@@ -383,7 +383,7 @@ export default function ProfileClient({
           <aside className="space-y-5 lg:sticky lg:top-32">
             <div className="rounded-md border border-hairline-soft bg-white p-6 text-center">
               <div className="relative mx-auto h-28 w-28">
-                <div className="h-full w-full overflow-hidden rounded-full border border-hairline bg-surface-soft">
+                <div className="h-full w-full overflow-hidden rounded-[28%] border border-hairline bg-surface-soft">
                   <img
                     src={image}
                     alt={`${name || "Your"} profile photo`}

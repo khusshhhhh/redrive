@@ -1,5 +1,5 @@
 import { depositEnabled, reauthorizeDeposit } from "@/app/libs/deposit";
-import { releaseReservationPayment } from "@/app/libs/payments";
+import { reconcileReservationPayment, releaseReservationPayment } from "@/app/libs/payments";
 import prisma from "@/app/libs/prismadb";
 import { revealDueReviews } from "@/app/libs/reviews";
 import { notificationService } from "@/app/services/notificationService";
@@ -315,6 +315,24 @@ export async function runLifecycleSweep(now = new Date()): Promise<LifecycleStat
   for (const reservation of windowClosed) {
     await releaseReservationPayment(reservation.id).catch((error) =>
       console.error("Claim-window payout release failed", reservation.id, error),
+    );
+  }
+
+  // 5b-ii. Catch up on payments that succeeded on Stripe but never landed on
+  // PAID_HELD (a missed checkout.session.completed webhook). Self-heals even if
+  // the guest never revisits the page.
+  const pendingPayments = await prisma.reservation.findMany({
+    where: {
+      status: "APPROVED",
+      paymentStatus: "CHECKOUT_PENDING",
+      updatedAt: { lt: new Date(now.getTime() - 5 * 60_000) },
+    },
+    select: { id: true },
+    take: 50,
+  });
+  for (const reservation of pendingPayments) {
+    await reconcileReservationPayment(reservation.id).catch((error) =>
+      console.error("Payment reconcile sweep failed", reservation.id, error),
     );
   }
 

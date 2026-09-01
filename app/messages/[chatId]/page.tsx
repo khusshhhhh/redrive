@@ -316,7 +316,7 @@ const ChatPage = () => {
             <header className="flex h-[72px] shrink-0 items-center gap-3 border-b border-hairline-soft bg-white/95 px-3 backdrop-blur sm:px-6">
               <button onClick={() => router.push("/messages")} className="rounded-full p-2 text-ink hover:bg-surface-soft md:hidden" aria-label="Back to conversations"><IconArrowLeft size={20} /></button>
               <div className="relative shrink-0">
-                <Image src={otherUser?.image || "/images/placeholder.png"} alt={`${otherUser?.name || "Conversation member"} profile photo`} width={44} height={44} className="h-11 w-11 rounded-full object-cover" />
+                <Image src={otherUser?.image || "/images/placeholder.png"} alt={`${otherUser?.name || "Conversation member"} profile photo`} width={44} height={44} className="h-11 w-11 rounded-[28%] object-cover" />
                 {online && <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500" />}
               </div>
               <div className="min-w-0 flex-1">

@@ -50,7 +50,7 @@ const HostCard: React.FC<HostCardProps> = ({
                         </span>
                     )}
 
-                    <div className="relative rounded-full border-4 border-white shadow-[0_10px_28px_rgba(22, 22, 22,0.16)]">
+                    <div className="relative rounded-[30%] border-4 border-white shadow-[0_10px_28px_rgba(22, 22, 22,0.16)]">
                         <Avatar src={user.image} size={104} alt={`${user.name || "Redrive host"} profile photo`} />
                         {isVerified && (
                             <span className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-sm" aria-label="Profile verified">

@@ -12,7 +12,7 @@ interface AvatarProps {
 const Avatar: React.FC<AvatarProps> = ({ src, size = 30, alt = "Redrive member profile photo" }) => {
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <div className="rounded-full overflow-hidden w-full h-full">
+      <div className="rounded-[28%] overflow-hidden w-full h-full">
         <Image
           src={src || "/images/placeholder.png"}
           alt={alt}

@@ -118,7 +118,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ prominent = false }) => {
           <IconMenu3 className="hidden md:block" size={18} />
           <div>
             {isSessionLoading ? (
-              <span className="block h-[30px] w-[30px] animate-pulse rounded-full bg-hairline" aria-hidden="true" />
+              <span className="block h-[30px] w-[30px] animate-pulse rounded-[28%] bg-hairline" aria-hidden="true" />
             ) : currentUser?.image ? (
               <Avatar src={currentUser.image} alt={`${currentUser.name || "Your"} profile photo`} />
             ) : (
@@ -150,7 +150,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ prominent = false }) => {
             onClick={() => go("/profile")}
             className="group relative flex w-full items-center gap-3 overflow-hidden rounded-t-xl border-b border-hairline-soft bg-mist px-4 py-4 text-left outline-none transition hover:brightness-[0.97] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/60"
           >
-            <span className="relative shrink-0 rounded-full bg-ash-ring p-[2px]">
+            <span className="relative shrink-0 rounded-[34%] bg-ash-ring p-[2px]">
               {currentUser.image ? (
                 <Avatar src={currentUser.image} size={40} alt={`${currentUser.name || "Your"} profile photo`} />
               ) : (

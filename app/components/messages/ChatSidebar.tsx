@@ -101,7 +101,7 @@ export default function ChatSidebar({ activeChatId, className = "" }: ChatSideba
               className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${active ? "bg-surface-strong shadow-[inset_3px_0_0_#1F1F1F]" : "hover:bg-surface-soft"}`}
             >
               <span className="relative shrink-0">
-                <Image src={chat.otherUser?.image || "/images/placeholder.png"} alt={`${chat.otherUser?.name || "Conversation member"} profile photo`} width={48} height={48} className="h-12 w-12 rounded-full object-cover" />
+                <Image src={chat.otherUser?.image || "/images/placeholder.png"} alt={`${chat.otherUser?.name || "Conversation member"} profile photo`} width={48} height={48} className="h-12 w-12 rounded-[28%] object-cover" />
                 {online && <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-green-500" />}
               </span>
               <span className="min-w-0 flex-1">

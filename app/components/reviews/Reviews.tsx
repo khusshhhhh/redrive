@@ -62,7 +62,7 @@ const ReviewCard = ({
 
             <header className="relative flex items-start justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-3">
-                    <div className="shrink-0 rounded-full ring-2 ring-surface-strong ring-offset-2 ring-offset-white">
+                    <div className="shrink-0 rounded-[32%] ring-2 ring-surface-strong ring-offset-2 ring-offset-white">
                         <Avatar src={review.user.image} size={44} alt={`${review.user.name || "Redrive member"} profile photo`} />
                     </div>
                     <div className="min-w-0">

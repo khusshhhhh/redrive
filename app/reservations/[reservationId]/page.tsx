@@ -353,7 +353,7 @@ export default function ReservationDetails() {
                     alt={`${reservation.user.name || "Redrive guest"} profile photo`}
                     width={72}
                     height={72}
-                    className="h-18 w-18 rounded-full object-cover"
+                    className="h-18 w-18 rounded-[28%] object-cover"
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
