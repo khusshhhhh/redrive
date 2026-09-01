@@ -100,11 +100,11 @@ export default function IncidentThread({
           return (
             <div key={incident.id} className="rounded-md border border-hairline-soft bg-white p-4">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+                <span className="min-w-0 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
                   {incident.type.replace(/_/g, " ")}
                 </span>
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                  className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
                     incident.status === "RESOLVED"
                       ? "bg-emerald-50 text-emerald-700"
                       : incident.status === "ESCALATED"

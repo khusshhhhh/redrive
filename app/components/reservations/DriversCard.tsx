@@ -204,15 +204,15 @@ function DriverRow({ driver }: { driver: ReservationDriver }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="rounded-md border border-hairline-soft p-4">
-      <div className="flex items-center justify-between gap-3">
-        <div>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
             {driver.role === "PRIMARY" ? "Primary driver" : "Second driver"}
           </p>
-          <p className="mt-0.5 text-sm font-semibold text-ink">{driver.name}</p>
+          <p className="mt-0.5 truncate text-sm font-semibold text-ink">{driver.name}</p>
         </div>
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+          className={`inline-flex shrink-0 items-center gap-1.5 self-start rounded-full px-2.5 py-1 text-xs font-semibold sm:self-auto ${
             driver.looksAustralian
               ? "bg-emerald-50 text-emerald-700"
               : "bg-amber-50 text-amber-800"

@@ -64,7 +64,7 @@ export default function ProtectionSelector({
         <ShieldCheck size={17} className="text-primary" /> Damage protection
       </div>
 
-      <div className="grid gap-2.5 sm:grid-cols-3">
+      <div className="space-y-2">
         {PROTECTION_TIERS.map((tier) => {
           const active = tier.value === value;
           return (
@@ -73,41 +73,42 @@ export default function ProtectionSelector({
               type="button"
               onClick={() => onChange(tier)}
               aria-pressed={active}
-              className={`flex h-full flex-col rounded-md border p-3 text-left transition ${
+              className={`flex w-full gap-3 rounded-md border p-3 text-left transition ${
                 active
                   ? "border-ink bg-surface-soft ring-1 ring-ink"
                   : "border-hairline hover:border-border-strong"
               }`}
             >
-              <div className="flex items-start justify-between gap-2">
-                <span className="text-sm font-semibold text-ink">{tier.label}</span>
-                <span
-                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
-                    active ? "border-ink bg-ink text-white" : "border-hairline"
-                  }`}
-                >
-                  {active && <Check size={11} />}
-                </span>
-              </div>
-              <span className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-muted">
-                {tier.tagline}
+              <span
+                className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+                  active ? "border-ink bg-ink text-white" : "border-hairline"
+                }`}
+              >
+                {active && <Check size={11} />}
               </span>
-              <span className="mt-2 text-sm font-semibold text-ink">
-                {tier.perDay === 0 ? "No fee" : `${money(tier.perDay)}/day`}
-              </span>
-              {tier.perDay > 0 && (
-                <span className="text-[11px] text-muted">
-                  {money(tier.perDay * Math.max(1, dayCount))} for this trip
+              <span className="min-w-0 flex-1">
+                <span className="flex flex-wrap items-baseline justify-between gap-x-2">
+                  <span className="text-sm font-semibold text-ink">{tier.label}</span>
+                  <span className="text-sm font-semibold text-ink">
+                    {tier.perDay === 0 ? "No fee" : `${money(tier.perDay)}/day`}
+                  </span>
                 </span>
-              )}
-              <ul className="mt-2 space-y-1">
-                {tier.points.map((point) => (
-                  <li key={point} className="flex gap-1.5 text-[11px] leading-4 text-muted">
-                    <span className="mt-[3px] h-1 w-1 shrink-0 rounded-full bg-border-strong" />
-                    {point}
-                  </li>
-                ))}
-              </ul>
+                <span className="mt-0.5 flex flex-wrap items-baseline justify-between gap-x-2">
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-muted">
+                    {tier.tagline}
+                  </span>
+                  {tier.perDay > 0 && (
+                    <span className="text-[11px] text-muted">
+                      {money(tier.perDay * Math.max(1, dayCount))} this trip
+                    </span>
+                  )}
+                </span>
+                <span className="mt-1.5 block text-[11px] leading-4 text-muted">
+                  {tier.excess != null
+                    ? `${tier.points[0]} · excess ${money(tier.excess)}`
+                    : tier.points[0]}
+                </span>
+              </span>
             </button>
           );
         })}

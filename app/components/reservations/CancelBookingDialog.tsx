@@ -146,9 +146,9 @@ function Row({
   emphasise?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-hairline-soft px-4 py-2.5 last:border-b-0">
-      <span className="text-xs text-muted">{label}</span>
-      <span className={`text-right ${emphasise ? "font-semibold text-ink" : "text-ink"}`}>{value}</span>
+    <div className="flex items-start justify-between gap-4 border-b border-hairline-soft px-4 py-2.5 last:border-b-0">
+      <span className="shrink-0 pt-0.5 text-xs text-muted">{label}</span>
+      <span className={`min-w-0 break-words text-right ${emphasise ? "font-semibold text-ink" : "text-ink"}`}>{value}</span>
     </div>
   );
 }

@@ -20,9 +20,9 @@ const brandLabel = (brand: string) =>
   ({
     visa: "Visa",
     mastercard: "Mastercard",
-    amex: "American Express",
+    amex: "Amex",
     discover: "Discover",
-    diners: "Diners Club",
+    diners: "Diners",
     jcb: "JCB",
     unionpay: "UnionPay",
   })[brand?.toLowerCase()] || "Card";
@@ -96,10 +96,13 @@ export default function PayNowPanel({
             type="button"
             disabled={busy}
             onClick={() => void pay(card.id)}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-active disabled:opacity-50"
+            className="inline-flex min-h-12 w-full flex-wrap items-center justify-center gap-x-2 gap-y-0.5 rounded-sm bg-primary px-4 py-2 text-center text-sm font-semibold text-white hover:bg-primary-active disabled:opacity-50"
           >
             {busy ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
-            Pay {money(total)} · {brandLabel(card.brand)} ···· {card.last4}
+            <span>Pay {money(total)}</span>
+            <span className="font-normal text-white/80">
+              {brandLabel(card.brand)} ···· {card.last4}
+            </span>
           </button>
         ))}
 
