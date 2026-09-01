@@ -9,6 +9,7 @@ import { getStripe } from "@/app/libs/stripe";
 import { calculateCancellationOutcome } from "@/app/libs/cancellationPolicy";
 import { mayRevealExactLocation } from "@/app/libs/reservationAccess";
 import { releaseDeposit } from "@/app/libs/deposit";
+import { PAYMENT_WINDOW_HOURS, hoursFromNow } from "@/app/libs/bookingWindows";
 
 async function GETHandler(
   request: NextRequest,
@@ -463,7 +464,7 @@ async function PATCHHandler(
           ? {
               respondedAt: new Date(),
               ...(status === "APPROVED"
-                ? { paymentDueAt: new Date(Date.now() + 24 * 60 * 60_000) }
+                ? { paymentDueAt: hoursFromNow(PAYMENT_WINDOW_HOURS) }
                 : {}),
             }
           : {}),

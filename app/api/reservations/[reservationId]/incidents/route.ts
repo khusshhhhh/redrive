@@ -14,7 +14,9 @@ async function participant(request: Request, id: string) {
     where: { id },
     select: {
       userId: true,
+      status: true,
       autoReleaseAt: true,
+      claimWindowEndsAt: true,
       listing: { select: { userId: true, title: true } },
     },
   });
@@ -41,6 +43,22 @@ async function POSTHandler(request: Request, context: Context) {
   const access = await participant(request, reservationId);
   if (!access) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const { user, reservation } = access;
+
+  // Claims close once the payout is released. During an open trip and the
+  // 24-hour post-handover window they're allowed.
+  if (
+    reservation.status === "COMPLETED" ||
+    (reservation.claimWindowEndsAt && reservation.claimWindowEndsAt.getTime() < Date.now())
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "The claim window for this trip has closed. Contact Redrive support if there's a serious issue.",
+        code: "CLAIM_WINDOW_CLOSED",
+      },
+      { status: 409 },
+    );
+  }
 
   const body = await request.json().catch(() => ({}));
   const summary = typeof body.summary === "string" ? body.summary.trim() : "";

@@ -62,7 +62,7 @@ const statusCopy: Record<
     label: "Payment expired",
     className: "bg-red-50 text-red-700",
     description:
-      "The booking was released because payment was not completed within 24 hours.",
+      "The booking was released because payment was not completed within 48 hours.",
   },
   DECLINED: {
     label: "Declined",

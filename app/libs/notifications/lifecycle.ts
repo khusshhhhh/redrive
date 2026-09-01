@@ -1,3 +1,4 @@
+import { releaseReservationPayment } from "@/app/libs/payments";
 import prisma from "@/app/libs/prismadb";
 import { revealDueReviews } from "@/app/libs/reviews";
 import { notificationService } from "@/app/services/notificationService";
@@ -135,14 +136,14 @@ export async function runLifecycleSweep(now = new Date()): Promise<LifecycleStat
   for (const reservation of awaitingPayment) {
     if (!reservation.paymentDueAt) continue;
     const hoursLeft = (reservation.paymentDueAt.getTime() - now.getTime()) / HOUR;
-    if (hoursLeft <= 12 && hoursLeft > 3 && !reservation.remindersSent.includes("pay-12")) {
+    if (hoursLeft <= 24 && hoursLeft > 3 && !reservation.remindersSent.includes("pay-24")) {
       await notificationService.notifyPaymentWindowClosing(
         reservation.userId,
         reservation.listing.title,
         reservation.id,
-        12,
+        Math.max(4, Math.round(hoursLeft)),
       );
-      await mark(reservation.id, "pay-12");
+      await mark(reservation.id, "pay-24");
       stats.paymentWarnings += 1;
     }
     if (hoursLeft <= 3 && !reservation.remindersSent.includes("pay-3")) {
@@ -298,6 +299,22 @@ export async function runLifecycleSweep(now = new Date()): Promise<LifecycleStat
       stats.reviewReminders += 1;
     }
     await mark(reservation.id, "review-req");
+  }
+
+  // 5b. Release payouts whose post-handover claim window has just closed.
+  const windowClosed = await prisma.reservation.findMany({
+    where: {
+      claimWindowEndsAt: { lt: now },
+      status: { in: ["ACTIVE", "APPROVED"] },
+      paymentStatus: "PAID_HELD",
+    },
+    select: { id: true },
+    take: 100,
+  });
+  for (const reservation of windowClosed) {
+    await releaseReservationPayment(reservation.id).catch((error) =>
+      console.error("Claim-window payout release failed", reservation.id, error),
+    );
   }
 
   // 6b. Reveal one-sided reviews whose 14-day blind window has closed.

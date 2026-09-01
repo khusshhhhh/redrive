@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import { buildExtensionQuote } from "@/app/libs/booking";
+import { EXTENSION_REQUEST_TTL_HOURS, hoursFromNow } from "@/app/libs/bookingWindows";
 import { notificationService } from "@/app/services/notificationService";
 import prisma from "@/app/libs/prismadb";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
@@ -179,9 +180,15 @@ async function POSTHandler(request: Request, context: Context) {
   const extraDays = newTotalDays - paidDays;
   const q = buildExtensionQuote({ dailyRate, paidDays, extraDays, insuranceType: reservation.insuranceType });
 
-  // Instant Book hosts auto-approve when the days are free and payouts are ready.
+  // Auto-approve when the extra days are free and the host can be paid, if the
+  // host runs Instant Book OR this guest has completed a trip before. The host
+  // is told, not asked.
+  const payoutsReady = reservation.listing.user.stripePayoutsEnabled === true;
+  const guestCompletedTrips = await prisma.reservation.count({
+    where: { userId: currentUser.id, status: "COMPLETED" },
+  });
   const autoApprove =
-    reservation.listing.instantBook === true && reservation.listing.user.stripePayoutsEnabled === true;
+    payoutsReady && (reservation.listing.instantBook === true || guestCompletedTrips > 0);
 
   const extension = await prisma.tripExtension.create({
     data: {
@@ -197,7 +204,7 @@ async function POSTHandler(request: Request, context: Context) {
       extraTotal: q.extraTotal,
       status: autoApprove ? "APPROVED" : "PENDING",
       respondedAt: autoApprove ? new Date() : null,
-      expiresAt: new Date(Date.now() + 48 * 60 * 60_000),
+      expiresAt: hoursFromNow(EXTENSION_REQUEST_TTL_HOURS),
     },
   });
 
@@ -213,6 +220,12 @@ async function POSTHandler(request: Request, context: Context) {
   try {
     if (autoApprove) {
       await notificationService.notifyExtensionApproved(currentUser.id, reservation.listing.title, reservationId, extension.id, q.extraTotal);
+      await notificationService.notifySystemUpdate(
+        reservation.listing.userId,
+        "Trip extension",
+        `${currentUser.name || "Your guest"} extended the ${reservation.listing.title} trip by ${extraDays} day${extraDays === 1 ? "" : "s"} — the dates were free, so it's confirmed once they pay.`,
+        `/reservations/${reservationId}`,
+      );
     } else {
       await notificationService.notifyExtensionRequested(
         reservation.listing.userId,

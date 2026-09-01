@@ -339,6 +339,8 @@ model Reservation {
   instantBooked              Boolean   @default(false)
   autoReleaseAt              DateTime? // return-handover deadlock auto-resolves at this time
   autoDeclineAt              DateTime? // an unanswered REVIEWING request lapses at this time
+  returnHandoverAgreedAt     DateTime? // both parties agreed the return handover
+  claimWindowEndsAt          DateTime? // payout holds until here so the host can inspect / claim
   remindersSent              String[]  @default([]) // lifecycle reminder keys already dispatched
 
   user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)

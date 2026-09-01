@@ -2,8 +2,9 @@ import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
-import { releaseReservationPayment } from "@/app/libs/payments";
+import { CLAIM_WINDOW_HOURS, hoursFromNow } from "@/app/libs/bookingWindows";
 import prisma from "@/app/libs/prismadb";
+import { notificationService } from "@/app/services/notificationService";
 import { consumeRateLimits, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 
 type Context = { params: Promise<{ reservationId: string }> };
@@ -156,19 +157,38 @@ async function PUTHandler(request: Request, context: Context) {
         data: { status: "ACTIVE" },
       });
     }
-    const release =
-      agreed && phase === "RETURN"
-        ? await releaseReservationPayment(reservationId)
-        : null;
+
+    // Return handover agreed → hold the payout for a fixed claim window so the
+    // host can inspect the vehicle. The payouts cron releases it after the
+    // window if no incident was opened.
+    let claimWindowEndsAt: Date | null = null;
+    if (agreed && phase === "RETURN") {
+      claimWindowEndsAt = hoursFromNow(CLAIM_WINDOW_HOURS);
+      await prisma.reservation.update({
+        where: { id: reservationId },
+        data: { returnHandoverAgreedAt: now, claimWindowEndsAt },
+      });
+      await notificationService
+        .notifyClaimWindow(
+          auth.reservation.listing.userId,
+          auth.reservation.userId,
+          reservationId,
+        )
+        .catch(() => undefined);
+    }
+
     await writeAuditEvent({
       request,
       actorUserId: auth.user.id,
       action: "HANDOVER_ACKNOWLEDGED",
       targetType: "Reservation",
       targetId: reservationId,
-      metadata: { phase, agreed, payoutReleased: release?.released || false },
+      metadata: { phase, agreed, claimWindow: Boolean(claimWindowEndsAt) },
     });
-    return NextResponse.json({ ...report, release });
+    return NextResponse.json({
+      ...report,
+      claimWindowEndsAt: claimWindowEndsAt?.toISOString() ?? null,
+    });
   }
 
   if (existing?.status !== "DRAFT")

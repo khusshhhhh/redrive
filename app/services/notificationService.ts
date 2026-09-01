@@ -117,18 +117,18 @@ class NotificationService {
       userId: bookerId,
       type: NotificationType.BOOKING_APPROVED,
       title: "Booking approved",
-      message: `Your booking for ${listingTitle} has been approved — pay within 24 hours to lock it in`,
+      message: `Your booking for ${listingTitle} has been approved — pay within 48 hours to lock it in`,
       data: { reservationId, listingTitle },
       actionUrl: `/reservations/${reservationId}?pay=1`,
       dedupeKey: `res:${reservationId}:approved`,
       email: {
         subject: `Approved — pay to confirm your ${listingTitle} booking`,
         content: {
-          preheader: "Your request was approved. Pay within 24 hours to confirm the trip.",
+          preheader: "Your request was approved. Pay within 48 hours to confirm the trip.",
           eyebrow: "Booking approved",
           title: "You're approved — one step left",
           paragraphs: [
-            `The host approved your booking for <strong>${listingTitle}</strong>. To confirm the trip, complete payment within <strong>24 hours</strong>. After that the dates are released.`,
+            `The host approved your booking for <strong>${listingTitle}</strong>. To confirm the trip, complete payment within <strong>48 hours</strong>. After that the dates are released.`,
             `Your card is charged now and the funds are held securely by Redrive until the return handover is agreed.`,
           ],
           facts: card
@@ -481,6 +481,42 @@ class NotificationService {
     });
   }
 
+  async notifyClaimWindow(hostId: string, guestId: string, reservationId: string) {
+    const card = await loadReservationCard(reservationId);
+    const vehicle = card?.listingTitle || "the vehicle";
+    await this.createNotification({
+      userId: hostId,
+      type: NotificationType.HANDOVER_ACTION,
+      title: "Payout releasing soon — inspect now",
+      message: `The return handover for ${vehicle} is agreed. Check the vehicle over — you have about 24 hours to report any damage before the payout is released.`,
+      data: { reservationId },
+      actionUrl: `/reservations/${reservationId}`,
+      dedupeKey: `res:${reservationId}:claim-window`,
+      email: {
+        subject: `Inspect ${vehicle} — payout releases in ~24 hours`,
+        content: {
+          preheader: "Report any new damage now; after the window the payout is final.",
+          eyebrow: "Return complete",
+          title: "Give it a once-over",
+          paragraphs: [
+            `The return handover for <strong>${vehicle}</strong> is agreed. Redrive holds your payout for about <strong>24 hours</strong> so you can check the vehicle in daylight.`,
+            `If you find new damage, open an issue from the trip page before the window closes — the handover photos are attached automatically. No issue, and the payout releases on its own.`,
+          ],
+          primaryButton: { label: "Open the trip", url: `${origin()}/reservations/${reservationId}` },
+        },
+      },
+    });
+    return this.createNotification({
+      userId: guestId,
+      type: NotificationType.BOOKING_COMPLETED,
+      title: "Trip returned",
+      message: `Your ${vehicle} return is confirmed. You can review the trip now.`,
+      data: { reservationId },
+      actionUrl: `/review/${reservationId}`,
+      dedupeKey: `res:${reservationId}:returned`,
+    });
+  }
+
   async notifyExtensionDeclined(guestId: string, listingTitle: string, reservationId: string) {
     return this.createNotification({
       userId: guestId,
@@ -596,18 +632,18 @@ class NotificationService {
       userId,
       type: NotificationType.PAYMENT_REQUIRED,
       title: "Payment needed",
-      message: `Pay ${formatMoney(amount)} within 24 hours to confirm ${vehicle}`,
+      message: `Pay ${formatMoney(amount)} within 48 hours to confirm ${vehicle}`,
       data: { amount, listingTitle, reservationId },
       actionUrl: `/reservations/${reservationId}?pay=1`,
       dedupeKey: `res:${reservationId}:payment-required`,
       email: {
         subject: `Pay to confirm your ${vehicle} booking`,
         content: {
-          preheader: `${formatMoney(amount)} due in 24 hours. Your card isn't charged until you pay.`,
+          preheader: `${formatMoney(amount)} due in 48 hours. Your card isn't charged until you pay.`,
           eyebrow: "Payment needed",
           title: "One step to lock in your trip",
           paragraphs: [
-            `Your booking for <strong>${vehicle}</strong> is approved. Pay <strong>${formatMoney(amount)}</strong> within <strong>24 hours</strong> to confirm it — after that the dates are released.`,
+            `Your booking for <strong>${vehicle}</strong> is approved. Pay <strong>${formatMoney(amount)}</strong> within <strong>48 hours</strong> to confirm it — after that the dates are released.`,
             `Payment is by card on a secure Stripe page. The funds are held by Redrive and only paid to the host once the return handover is agreed.`,
           ],
           facts: card

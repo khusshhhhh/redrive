@@ -22,6 +22,7 @@ export async function releaseReservationPayment(
           status: true,
           userId: true,
           autoReleaseAt: true,
+          claimWindowEndsAt: true,
           listing: { select: { userId: true, title: true } },
         },
       },
@@ -101,6 +102,17 @@ export async function releaseReservationPayment(
     };
   if (!isCancellationPayout && openIncident)
     return { released: false, reason: "An incident is still under review" };
+
+  // Hold through the post-handover claim window so the host can inspect and
+  // raise a damage claim. `autoReleased` (72h+ deadlock) skips the wait.
+  if (
+    !isCancellationPayout &&
+    !autoReleased &&
+    payment.reservation.claimWindowEndsAt &&
+    payment.reservation.claimWindowEndsAt.getTime() > Date.now()
+  ) {
+    return { released: false, reason: "The claim window is still open" };
+  }
 
   try {
     const transfer = await getStripe().transfers.create(

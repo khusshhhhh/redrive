@@ -4,6 +4,7 @@ import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import { buildBookingQuote, PRICING_POLICY_VERSION } from "@/app/libs/booking";
+import { PAYMENT_WINDOW_HOURS, REQUEST_AUTO_DECLINE_HOURS, hoursFromNow } from "@/app/libs/bookingWindows";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 import { notificationService } from "@/app/services/notificationService";
 import { cancellationPolicySnapshot, normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
@@ -148,11 +149,11 @@ async function POSTHandler(request: NextRequest) {
                 status: "APPROVED",
                 instantBooked: true,
                 respondedAt: new Date(),
-                paymentDueAt: new Date(Date.now() + 24 * 60 * 60_000),
+                paymentDueAt: hoursFromNow(PAYMENT_WINDOW_HOURS),
               }
             : {
                 status: "REVIEWING",
-                autoDeclineAt: new Date(Date.now() + 48 * 60 * 60_000),
+                autoDeclineAt: hoursFromNow(REQUEST_AUTO_DECLINE_HOURS),
               }),
         },
       });

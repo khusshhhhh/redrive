@@ -36,7 +36,7 @@ async function POSTHandler(request: Request, context: Context) {
       }
       if (!payoutsEnabled) return { status: 409, body: { error: { code: "PAYOUT_SETUP_REQUIRED", message: "Set up and verify payouts before approving bookings.", requestId: "idempotent" } } };
     }
-    const updated = await prisma.reservation.update({ where: { id: reservation.id }, data: { status: parsed.data.status, respondedAt: new Date(), ...(parsed.data.status === "APPROVED" ? { paymentDueAt: new Date(Date.now() + 24 * 60 * 60_000) } : {}) } });
+    const updated = await prisma.reservation.update({ where: { id: reservation.id }, data: { status: parsed.data.status, respondedAt: new Date(), ...(parsed.data.status === "APPROVED" ? { paymentDueAt: new Date(Date.now() + 48 * 60 * 60_000) } : {}) } });
     await writeAuditEvent({ request, actorUserId: auth.identity.userId, action: "RESERVATION_STATUS_CHANGED", targetType: "Reservation", targetId: reservation.id, metadata: { from: reservation.status, to: parsed.data.status } });
     if (parsed.data.status === "APPROVED") {
       await notificationService.notifyBookingApproved(reservation.userId, reservation.listing.title, reservation.id).catch(() => undefined);
