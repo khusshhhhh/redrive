@@ -8,12 +8,17 @@ import { getStripe } from "@/app/libs/stripe";
  * This whole feature is dormant until `DEPOSIT_PREAUTH_ENABLED=true` is set —
  * every function is a safe no-op without it, and without a stored
  * `depositPaymentIntentId`. Enable it only after testing the card-hold flow in
- * Stripe test mode. Card authorisations typically expire after ~7 days, so
- * pre-auth deposits should be limited to short trips at the checkout layer.
+ * Stripe test mode. Card authorisations typically expire after ~7 days;
+ * `reauthorizeDeposit` (run from the lifecycle cron) refreshes the hold on
+ * longer trips so the initial authorisation is no longer capped to short ones.
  */
 export function depositEnabled(): boolean {
   return process.env.DEPOSIT_PREAUTH_ENABLED === "true";
 }
+
+/** A card authorisation is treated as needing a refresh this many ms after it
+ *  was created (Stripe lets most auths stand ~7 days). */
+const REAUTH_AFTER_MS = 5 * 86_400_000;
 
 /**
  * Called from the Stripe webhook after the hire payment succeeds. Creates an
@@ -39,12 +44,6 @@ export async function authorizeDeposit(reservationId: string): Promise<void> {
 
   const deposit = payment.reservation.listing.securityDeposit || 0;
   if (deposit <= 0 || payment.reservation.listing.depositHoldMethod !== "PRE_AUTH") return;
-
-  // Card authorisations lapse — keep pre-auth deposits to short trips.
-  const nights = Math.round(
-    (payment.reservation.endDate.getTime() - payment.reservation.startDate.getTime()) / 86_400_000,
-  );
-  if (nights > 6) return;
 
   try {
     const intent = await getStripe().paymentIntents.retrieve(payment.stripePaymentIntentId!, {
@@ -83,6 +82,65 @@ export async function authorizeDeposit(reservationId: string): Promise<void> {
     await prisma.payment
       .update({ where: { id: payment.id }, data: { depositStatus: "FAILED" } })
       .catch(() => undefined);
+  }
+}
+
+/**
+ * Refresh a deposit hold that is getting old so a long trip stays covered.
+ * Creates a fresh manual-capture authorisation on the same card, then cancels
+ * the previous one. No-op unless the feature is on, the hold is AUTHORIZED and
+ * old enough, and the trip still has a couple of days to run.
+ */
+export async function reauthorizeDeposit(reservationId: string): Promise<boolean> {
+  if (!depositEnabled()) return false;
+  const payment = await prisma.payment.findUnique({
+    where: { reservationId },
+    include: { reservation: { select: { endDate: true } } },
+  });
+  if (!payment?.depositPaymentIntentId || payment.depositStatus !== "AUTHORIZED") return false;
+  // If the trip ends within two days the current hold will see it out.
+  if (payment.reservation.endDate.getTime() - Date.now() < 2 * 86_400_000) return false;
+
+  try {
+    const current = await getStripe().paymentIntents.retrieve(payment.depositPaymentIntentId, {
+      expand: ["payment_method"],
+    });
+    if (current.status !== "requires_capture") return false;
+    if (Date.now() - current.created * 1000 < REAUTH_AFTER_MS) return false;
+
+    const paymentMethod =
+      typeof current.payment_method === "string" ? current.payment_method : current.payment_method?.id;
+    const customer = typeof current.customer === "string" ? current.customer : current.customer?.id;
+    if (!paymentMethod) return false;
+
+    const fresh = await getStripe().paymentIntents.create(
+      {
+        amount: payment.depositAmount || current.amount,
+        currency: payment.currency,
+        capture_method: "manual",
+        confirm: true,
+        off_session: true,
+        customer: customer || undefined,
+        payment_method: paymentMethod,
+        metadata: { reservationId, kind: "security_deposit", reauth: "true" },
+        description: `Refundable security deposit (renewed) · reservation ${reservationId}`,
+      },
+      { idempotencyKey: `reservation-${reservationId}-deposit-reauth-${Math.floor(Date.now() / 86_400_000)}` },
+    );
+    if (fresh.status !== "requires_capture") {
+      await getStripe().paymentIntents.cancel(fresh.id).catch(() => undefined);
+      return false;
+    }
+
+    await prisma.payment.update({
+      where: { id: payment.id },
+      data: { depositPaymentIntentId: fresh.id, depositAmount: fresh.amount },
+    });
+    await getStripe().paymentIntents.cancel(payment.depositPaymentIntentId).catch(() => undefined);
+    return true;
+  } catch (error) {
+    console.error("Deposit re-authorisation failed", reservationId, error);
+    return false;
   }
 }
 

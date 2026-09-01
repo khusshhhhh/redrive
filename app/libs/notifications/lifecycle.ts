@@ -1,3 +1,4 @@
+import { depositEnabled, reauthorizeDeposit } from "@/app/libs/deposit";
 import { releaseReservationPayment } from "@/app/libs/payments";
 import prisma from "@/app/libs/prismadb";
 import { revealDueReviews } from "@/app/libs/reviews";
@@ -315,6 +316,24 @@ export async function runLifecycleSweep(now = new Date()): Promise<LifecycleStat
     await releaseReservationPayment(reservation.id).catch((error) =>
       console.error("Claim-window payout release failed", reservation.id, error),
     );
+  }
+
+  // 5c. Refresh ageing security-deposit holds on longer trips (no-op unless
+  // DEPOSIT_PREAUTH_ENABLED). Card authorisations lapse after ~7 days.
+  if (depositEnabled()) {
+    const holds = await prisma.payment.findMany({
+      where: {
+        depositStatus: "AUTHORIZED",
+        reservation: { status: { in: ["ACTIVE", "APPROVED"] }, endDate: { gt: new Date(now.getTime() + 2 * DAY) } },
+      },
+      select: { reservationId: true },
+      take: 50,
+    });
+    for (const hold of holds) {
+      await reauthorizeDeposit(hold.reservationId).catch((error) =>
+        console.error("Deposit re-auth failed", hold.reservationId, error),
+      );
+    }
   }
 
   // 6b. Reveal one-sided reviews whose 14-day blind window has closed.

@@ -6,11 +6,10 @@ import Button from '../Button';
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
 import { useRouter } from 'next/navigation';
 import { SafeListing, SafeUser } from '@/app/types';
-import { Info, Zap } from "lucide-react";
-import { Card, CardContent } from "../CardContent";
-import { useState } from 'react';
+import { Zap } from "lucide-react";
 import toast from "@/app/libs/toast";
 import { calculateServiceFee, redriveFee as calcRedriveFee } from "@/app/libs/pricing";
+import ProtectionSelector from "./ProtectionSelector";
 
 interface ListingReservationProps {
     listing: SafeListing;
@@ -50,28 +49,9 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     const serviceFee = calculateServiceFee(totalPrice);
     const dayCount = differenceInCalendarDays(dateRange.endDate, dateRange.startDate) + 1;
     const router = useRouter();
-    const [infoPopup, setInfoPopup] = useState<string | null>(null);
 
     const upfrontCleaningFee = listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0;
     const returnCleaningFee = listing.cleaningFeeOption === 'UPON_RETURNING' ? (listing.returnCleaningFeeAmount || 0) : 0;
-
-    const insuranceDetails = {
-        "Risk Taker": {
-            price: "AU$ 20/day",
-            description: "Covers minor damages but has a higher liability.",
-            excess: "Excess of AU$ 4000 applies."
-        },
-        "Happy Driver": {
-            price: "AU$ 40/day",
-            description: "Full coverage for damages and reduced liability.",
-            excess: "Excess of AU$ 500 applies."
-        },
-        "No Insurance": {
-            price: "AU$ 0/day",
-            description: "You are responsible for all damages."
-        }
-    };
-
 
     const handleInsuranceChange = (type: string, fee: number) => {
         setInsuranceType(type);
@@ -149,31 +129,12 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                 <hr className="mt-6 border-hairline-soft" />
 
                 <div className="mt-6">
-                    <div className="font-semibold mb-4">Insurance Options</div>
-                    <div className="flex flex-col space-y-3 relative">
-                        {Object.keys(insuranceDetails).map((type) => (
-                            <label key={type} className="flex flex-row gap-3 items-center cursor-pointer transition-all duration-300">
-                                <input type="radio" name="insurance" value={type} checked={insuranceType === type} onChange={() => handleInsuranceChange(type, type === "Risk Taker" ? 20 : type === "Happy Driver" ? 40 : 0)} className="hidden" />
-                                <div className={`mt-1 w-4 h-4 flex justify-center items-center border-2 rounded-full transition-all duration-300 ${insuranceType === type ? "border-ink bg-ink" : "border-hairline bg-white"}`}>{insuranceType === type && <div className="w-2 h-2 bg-white rounded-full"></div>}</div>
-                                <div className="flex flex-row items-center gap-3">
-                                    <span className="text-body-sm font-medium">{type}</span>
-                                    <button type="button" onClick={() => setInfoPopup(infoPopup === type ? null : type)}>
-                                        <Info size={16} className="text-muted hover:text-ink" />
-                                    </button>
-                                </div>
-                            </label>
-                        ))}
-                        {infoPopup && (
-                            <Card className="absolute left-2 p-4 w-72 max-w-[calc(100vw-2rem)] z-10" onClose={() => setInfoPopup(null)}>
-                                <CardContent>
-                                    <div className="font-medium text-lg mb-2 text-ink">{infoPopup}</div>
-                                    <div className="text-sm text-muted">{insuranceDetails[infoPopup].description}</div>
-                                    {insuranceDetails[infoPopup].excess && <div className="text-sm text-muted mt-1">{insuranceDetails[infoPopup].excess}</div>}
-                                    <div className="text-sm font-semibold mt-2 text-ink">{insuranceDetails[infoPopup].price}</div>
-                                </CardContent>
-                            </Card>
-                        )}
-                    </div>
+                    <ProtectionSelector
+                        value={insuranceType}
+                        dayCount={dayCount}
+                        securityDeposit={listing.securityDeposit}
+                        onChange={(tier) => handleInsuranceChange(tier.value, tier.perDay)}
+                    />
                 </div>
 
 

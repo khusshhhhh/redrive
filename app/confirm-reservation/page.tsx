@@ -13,6 +13,7 @@ import Button from "@/app/components/Button";
 import InlineRetry from "@/app/components/InlineRetry";
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
 import BookingDrivers, { type DriverPayload } from "@/app/components/reservations/BookingDrivers";
+import { PROTECTION_TIERS } from "@/app/components/listings/ProtectionSelector";
 import { calculateServiceFee, redriveFee as calcRedriveFee } from "@/app/libs/pricing";
 import type { SafeUser } from "@/app/types";
 const money = (value: number) => `AU$${value.toLocaleString("en-AU")}`;
@@ -129,6 +130,23 @@ export default function ConfirmReservation() {
               <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
                 <SectionTitle icon={<ShieldCheck size={19} />} title="Protection selection" subtitle="Review the cover selected on the listing page." />
                 <div className="mt-6 flex items-start justify-between gap-5 rounded-sm bg-surface-soft p-5"><div><p className="font-semibold text-ink">{insuranceType}</p><p className="mt-1 text-xs leading-5 text-muted">{insuranceType === "No Insurance" ? "You selected no additional protection. Review your responsibility before continuing." : "Your selected protection is included for the full booking period."}</p></div><span className="shrink-0 font-semibold text-ink">{money(insuranceFee)}</span></div>
+                {(() => {
+                  const tier = PROTECTION_TIERS.find((t) => t.value === insuranceType);
+                  const deposit = Number(listing.securityDeposit || 0);
+                  if (!tier && !deposit) return null;
+                  return (
+                    <p className="mt-3 text-xs leading-5 text-muted">
+                      {tier?.excess != null
+                        ? `Your excess — the most you'd pay for damage — is ${money(tier.excess)}. `
+                        : tier
+                          ? "With no cover you're responsible for the full repair cost of any damage. "
+                          : ""}
+                      {deposit
+                        ? `The host holds a refundable ${money(deposit)} security deposit against the excess; it's only charged if there's a claim.`
+                        : ""}
+                    </p>
+                  );
+                })()}
               </section>
 
               <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
