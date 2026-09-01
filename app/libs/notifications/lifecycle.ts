@@ -303,6 +303,12 @@ export async function runLifecycleSweep(now = new Date()): Promise<LifecycleStat
   // 6b. Reveal one-sided reviews whose 14-day blind window has closed.
   stats.reviewsRevealed = await revealDueReviews(now);
 
+  // 6c. Expire stale trip-extension requests.
+  await prisma.tripExtension.updateMany({
+    where: { status: { in: ["PENDING", "APPROVED"] }, expiresAt: { lt: now } },
+    data: { status: "EXPIRED" },
+  });
+
   // 6c. Nudge hosts whose listing has been up a while with no booking.
   if (now.getUTCHours() === 9) {
     const dormant = await prisma.listing.findMany({

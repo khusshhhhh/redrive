@@ -115,6 +115,32 @@ export async function releaseReservationPayment(
       { idempotencyKey: `reservation-${reservationId}-${isCancellationPayout ? "cancellation" : "owner"}-release` },
     );
 
+    // Each paid trip extension was its own charge — transfer its owner portion
+    // (the extra base) from that charge. Fees stay with Redrive.
+    if (!isCancellationPayout) {
+      const extensions = await prisma.tripExtension.findMany({
+        where: { reservationId, status: "PAID", stripeChargeId: { not: null } },
+        select: { id: true, extraBase: true, stripeChargeId: true },
+      });
+      for (const extension of extensions) {
+        try {
+          await getStripe().transfers.create(
+            {
+              amount: extension.extraBase * 100,
+              currency: payment.currency,
+              destination: payment.owner.stripeConnectedAccountId,
+              source_transaction: extension.stripeChargeId!,
+              transfer_group: `reservation_${reservationId}`,
+              metadata: { reservationId, extensionId: extension.id },
+            },
+            { idempotencyKey: `reservation-${reservationId}-extension-${extension.id}-release` },
+          );
+        } catch (extError) {
+          console.error("Extension payout transfer failed", extension.id, extError);
+        }
+      }
+    }
+
     await prisma.$transaction([
       prisma.payment.update({
         where: { id: payment.id },

@@ -346,6 +346,7 @@ model Reservation {
   payment     Payment?
   guestReview GuestReview?
   drivers     ReservationDriver[]
+  extensions  TripExtension[]
 
   @@index([userId, status, createdAt])
   @@index([listingId, status, startDate, endDate])
@@ -356,24 +357,55 @@ model Reservation {
   @@index([status, autoReleaseAt])
 }
 
-// A named driver on a booking (primary = the guest by default, plus an optional
-// second driver), with the licence images they uploaded during the request.
-// The check is lightweight: does this read as a current Australian licence?
+// A named driver on a booking. Primary = the guest by default; further drivers
+// can be added at request time or after (SECONDARY, THIRD, ...). The check is
+// lightweight: does the photo read as a current Australian licence?
 model ReservationDriver {
   id                       String   @id @default(auto()) @map("_id") @db.ObjectId
   reservationId            String   @db.ObjectId
-  role                     String // PRIMARY | SECONDARY
+  role                     String // PRIMARY | SECONDARY | THIRD | FOURTH
   name                     String
   licenceImagePublicId     String
   licenceBackImagePublicId String?
   looksAustralian          Boolean  @default(false)
   detectedState            String? // "SA", "NSW", ...
+  addedAfterBooking        Boolean  @default(false)
   createdAt                DateTime @default(now())
 
   reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
 
   @@unique([reservationId, role])
   @@index([reservationId])
+}
+
+// A guest's request to extend a paid trip by moving the end date out. The host
+// approves (or Instant Book auto-approves if the dates are free), then the guest
+// pays the pro-rata difference in its own checkout. On payment the reservation's
+// dates and totals move and the extra owner amount is transferred at release.
+model TripExtension {
+  id                      String    @id @default(auto()) @map("_id") @db.ObjectId
+  reservationId           String    @db.ObjectId
+  requestedById           String    @db.ObjectId
+  previousEndDate         DateTime
+  newEndDate              DateTime
+  extraDays               Int
+  extraBase               Int // owner portion (daily rate x extra days)
+  extraInsuranceFee       Int
+  extraRedriveFee         Int
+  extraServiceFee         Int
+  extraTotal              Int
+  status                  String    @default("PENDING") // PENDING | APPROVED | DECLINED | PAID | EXPIRED
+  stripeCheckoutSessionId String?
+  stripeChargeId          String?
+  paidAt                  DateTime?
+  respondedAt             DateTime?
+  expiresAt               DateTime
+  createdAt               DateTime  @default(now())
+
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  @@index([reservationId, status])
+  @@index([status, expiresAt])
 }
 
 // Short-lived result of a driver-licence upload + analysis, held between the
@@ -821,6 +853,8 @@ model GuestReview {
   listingId     String    @db.ObjectId
   rating        Int
   text          String    @db.String
+  response      String?   @db.String // the guest's public reply
+  respondedAt   DateTime?
   publishedAt   DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

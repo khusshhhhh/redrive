@@ -419,6 +419,80 @@ class NotificationService {
     });
   }
 
+  async notifyExtensionRequested(
+    hostId: string,
+    guestName: string,
+    listingTitle: string,
+    reservationId: string,
+    extraDays: number,
+  ) {
+    return this.createNotification({
+      userId: hostId,
+      type: NotificationType.SYSTEM_UPDATE,
+      title: "Extension requested",
+      message: `${guestName} wants to keep ${listingTitle} for ${extraDays} more day${extraDays === 1 ? "" : "s"}.`,
+      data: { reservationId, extraDays },
+      actionUrl: `/reservations/${reservationId}`,
+      dedupeKey: `res:${reservationId}:ext-requested:${extraDays}`,
+      email: {
+        subject: `${guestName} wants to extend the ${listingTitle} trip`,
+        content: {
+          preheader: `${extraDays} more day${extraDays === 1 ? "" : "s"} — approve or decline on the trip page.`,
+          eyebrow: "Trip change",
+          title: "An extension request",
+          paragraphs: [
+            `<strong>${guestName}</strong> asked to keep <strong>${listingTitle}</strong> for <strong>${extraDays} more day${extraDays === 1 ? "" : "s"}</strong>. Redrive has checked the extra days are free on your calendar.`,
+            `If you approve, the guest pays the pro-rata difference and the dates move automatically. If it doesn't suit, decline and the trip ends as booked.`,
+          ],
+          primaryButton: { label: "Review the request", url: `${origin()}/reservations/${reservationId}` },
+        },
+      },
+    });
+  }
+
+  async notifyExtensionApproved(
+    guestId: string,
+    listingTitle: string,
+    reservationId: string,
+    extensionId: string,
+    extraTotal: number,
+  ) {
+    return this.createNotification({
+      userId: guestId,
+      type: NotificationType.PAYMENT_REQUIRED,
+      title: "Extension approved — pay to lock it in",
+      message: `Pay ${formatMoney(extraTotal)} to extend ${listingTitle}.`,
+      data: { reservationId, extensionId, extraTotal },
+      actionUrl: `/reservations/${reservationId}?extpay=${extensionId}`,
+      dedupeKey: `res:${reservationId}:ext-approved:${extensionId}`,
+      email: {
+        subject: `Extension approved — pay ${formatMoney(extraTotal)} to confirm`,
+        content: {
+          preheader: "Your host said yes. Pay the difference to move your return date.",
+          eyebrow: "Trip change",
+          title: "Your extra days are approved",
+          paragraphs: [
+            `The host approved extending <strong>${listingTitle}</strong>. Pay <strong>${formatMoney(extraTotal)}</strong> to confirm — the return date moves as soon as the payment clears.`,
+            `The extra amount is held by Redrive alongside the rest of the trip and released to the host with the return handover.`,
+          ],
+          primaryButton: { label: "Pay & extend", url: `${origin()}/reservations/${reservationId}?extpay=${extensionId}` },
+        },
+      },
+    });
+  }
+
+  async notifyExtensionDeclined(guestId: string, listingTitle: string, reservationId: string) {
+    return this.createNotification({
+      userId: guestId,
+      type: NotificationType.SYSTEM_UPDATE,
+      title: "Extension declined",
+      message: `The host can't extend ${listingTitle}. The trip ends as booked.`,
+      data: { reservationId },
+      actionUrl: `/reservations/${reservationId}`,
+      dedupeKey: `res:${reservationId}:ext-declined:${Date.now()}`,
+    });
+  }
+
   async notifyMessageReceived(
     userId: string,
     senderName: string,

@@ -308,6 +308,12 @@ async function DELETEHandler(
       console.error("Deposit release on cancel failed", error),
     );
 
+    // Void any pending / approved-but-unpaid extension on this trip.
+    await prisma.tripExtension.updateMany({
+      where: { reservationId, status: { in: ["PENDING", "APPROVED"] } },
+      data: { status: "EXPIRED" },
+    });
+
     await writeAuditEvent({
       request,
       actorUserId: currentUser.id,

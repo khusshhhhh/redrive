@@ -51,6 +51,67 @@ async function POSTHandler(request: Request) {
           },
         });
       }
+    } else if (
+      event.type === "checkout.session.completed" &&
+      (event.data.object as Stripe.Checkout.Session).metadata?.kind === "trip_extension"
+    ) {
+      // Trip-extension top-up: move the dates + totals and record the charge.
+      const session = event.data.object as Stripe.Checkout.Session;
+      const extensionId = session.metadata?.extensionId;
+      const reservationId = session.metadata?.reservationId;
+      if (extensionId && reservationId && session.payment_status === "paid") {
+        const paymentIntentId =
+          typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
+        const intent = paymentIntentId
+          ? await getStripe().paymentIntents.retrieve(paymentIntentId, { expand: ["latest_charge"] })
+          : null;
+        const chargeId =
+          typeof intent?.latest_charge === "string" ? intent.latest_charge : intent?.latest_charge?.id;
+        const extension = await prisma.tripExtension.findUnique({ where: { id: extensionId } });
+        if (extension && extension.status !== "PAID" && chargeId) {
+          const reservationRow = await prisma.reservation.findUnique({
+            where: { id: reservationId },
+            select: { totalPrice: true, totalFees: true, endDate: true, listing: { select: { title: true, userId: true } } },
+          });
+          const now = new Date();
+          await prisma.$transaction([
+            prisma.tripExtension.update({
+              where: { id: extensionId },
+              data: { status: "PAID", paidAt: now, stripeChargeId: chargeId },
+            }),
+            prisma.reservation.update({
+              where: { id: reservationId },
+              data: {
+                endDate: extension.newEndDate,
+                totalPrice: (reservationRow?.totalPrice ?? 0) + extension.extraBase,
+                totalFees: (reservationRow?.totalFees ?? 0) + extension.extraTotal,
+                autoReleaseAt: new Date(extension.newEndDate.getTime() + 72 * 60 * 60_000),
+              },
+            }),
+            prisma.auditEvent.create({
+              data: {
+                actorUserId: extension.requestedById,
+                action: "TRIP_EXTENSION_PAID",
+                targetType: "TripExtension",
+                targetId: extensionId,
+                metadata: { reservationId, amount: extension.extraTotal, chargeId },
+              },
+            }),
+          ]);
+          try {
+            await notificationService.notifySystemUpdate(
+              reservationRow?.listing.userId ?? extension.requestedById,
+              "Trip extended",
+              `The ${reservationRow?.listing.title ?? "trip"} is now booked to ${extension.newEndDate.toLocaleDateString("en-AU")}.`,
+              `/reservations/${reservationId}`,
+            );
+          } catch (notifyError) {
+            console.error("Extension-paid notification failed", notifyError);
+          }
+        }
+      }
+      await prisma.stripeWebhookEvent.create({ data: { stripeEventId: event.id, type: event.type } });
+      return NextResponse.json({ received: true });
     } else if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const reservationId = session.metadata?.reservationId;
@@ -167,6 +228,14 @@ async function POSTHandler(request: Request) {
     } else if (event.type === "payment_intent.payment_failed") {
       const intent = event.data.object as Stripe.PaymentIntent;
       const reservationId = intent.metadata?.reservationId;
+
+      // A trip-extension top-up failing must not touch the hire payment ledger.
+      if (intent.metadata?.kind === "trip_extension") {
+        await prisma.stripeWebhookEvent.create({
+          data: { stripeEventId: event.id, type: event.type },
+        });
+        return NextResponse.json({ received: true });
+      }
 
       // A security-deposit authorisation failing must never touch the hire
       // payment ledger — record it on the deposit fields and tell the host.

@@ -27,6 +27,8 @@ import Container from "@/app/components/Container";
 import type { SafeReservation, SafeUser } from "@/app/types";
 import HandoverPanel from "@/app/components/reservations/HandoverPanel";
 import IncidentThread from "@/app/components/reservations/IncidentThread";
+import TripExtensionPanel from "@/app/components/reservations/TripExtensionPanel";
+import GuestReviewReply from "@/app/components/reservations/GuestReviewReply";
 import TripStatusTimeline from "@/app/components/reservations/TripStatusTimeline";
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
 import DriversCard from "@/app/components/reservations/DriversCard";
@@ -106,8 +108,16 @@ export default function ReservationDetails() {
         setCurrentUser(userResponse.data);
         setReservation(reservationResponse.data);
 
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("extension") === "paid") {
+          toast.success("Trip extended — the new dates are confirmed.");
+          router.replace(`/reservations/${reservationId}`);
+        } else if (params.get("extension") === "cancelled") {
+          router.replace(`/reservations/${reservationId}`);
+        }
+
         // Landed here from a "Pay now" link — open secure checkout straight away.
-        const wantsPay = new URLSearchParams(window.location.search).get("pay") === "1";
+        const wantsPay = params.get("pay") === "1";
         const res = reservationResponse.data;
         const paid = ["PAID_HELD", "RELEASED"].includes(res?.paymentStatus || "");
         const isGuest = userResponse.data?.id === res?.userId;
@@ -322,6 +332,13 @@ export default function ReservationDetails() {
                 <DriversCard
                   drivers={reservation.drivers}
                   viewerIsOwner={isHost}
+                  reservationId={reservation.id}
+                  canAddDriver={
+                    currentUser?.id === reservation.userId &&
+                    ["APPROVED", "ACTIVE"].includes(reservation.status) &&
+                    ["PAID_HELD", "RELEASED"].includes(reservation.paymentStatus || "")
+                  }
+                  onChanged={() => void refreshReservation()}
                   guestTrack={{
                     ratingAvg: reservation.user.guestRatingAvg ?? null,
                     ratingCount: reservation.user.guestRatingCount ?? 0,
@@ -329,6 +346,16 @@ export default function ReservationDetails() {
                   }}
                 />
               )}
+              {currentUser &&
+                ["PAID_HELD", "RELEASED"].includes(reservation.paymentStatus || "") &&
+                ["APPROVED", "ACTIVE"].includes(reservation.status) && (
+                  <TripExtensionPanel
+                    reservationId={reservation.id}
+                    isHost={isHost}
+                    isGuest={currentUser.id === reservation.userId}
+                    onChanged={() => void refreshReservation()}
+                  />
+                )}
               {currentUser && (
                 <HandoverPanel
                   reservation={reservation}
@@ -342,6 +369,9 @@ export default function ReservationDetails() {
                   currentUserId={currentUser.id}
                   onChanged={() => void refreshReservation()}
                 />
+              )}
+              {currentUser && reservation.status === "COMPLETED" && currentUser.id === reservation.userId && (
+                <GuestReviewReply reservationId={reservation.id} currentUserId={currentUser.id} />
               )}
             </div>
 

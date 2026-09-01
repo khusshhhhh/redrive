@@ -101,5 +101,54 @@ async function POSTHandler(request: Request, context: Context) {
   return NextResponse.json(review, { status: 201 });
 }
 
+// The guest (the review's subject) can post one public reply to the host's
+// review of them, once it's published.
+async function PATCHHandler(request: Request, context: Context) {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const rateLimit = await consumeRateLimits([
+    { scope: "guest-review-reply-user", identifier: currentUser.id, limit: 20, windowMs: 60 * 60_000 },
+    { scope: "guest-review-reply-ip", identifier: getClientIp(request), limit: 40, windowMs: 60 * 60_000 },
+  ]);
+  if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
+
+  const { reservationId } = await context.params;
+  const body = await request.json().catch(() => ({}));
+  const response = typeof body.response === "string" ? body.response.trim() : "";
+  if (response.length < 3 || response.length > 1_500) {
+    return NextResponse.json({ error: "Add a reply between 3 and 1,500 characters" }, { status: 400 });
+  }
+
+  const review = await prisma.guestReview.findUnique({ where: { reservationId } });
+  if (!review) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (review.subjectUserId !== currentUser.id) {
+    return NextResponse.json({ error: "Only the reviewed guest can reply" }, { status: 403 });
+  }
+  if (!review.publishedAt) {
+    return NextResponse.json({ error: "You can reply once the review is visible" }, { status: 409 });
+  }
+  if (review.response) {
+    return NextResponse.json({ error: "You have already replied" }, { status: 409 });
+  }
+
+  const updated = await prisma.guestReview.update({
+    where: { id: review.id },
+    data: { response, respondedAt: new Date() },
+    select: { id: true, response: true, respondedAt: true },
+  });
+
+  await writeAuditEvent({
+    request,
+    actorUserId: currentUser.id,
+    action: "GUEST_REVIEW_RESPONSE_ADDED",
+    targetType: "GuestReview",
+    targetId: review.id,
+  });
+
+  return NextResponse.json(updated);
+}
+
 export const GET = monitorApiRoute("/api/reservations/[reservationId]/guest-review", GETHandler, "GET");
 export const POST = monitorApiRoute("/api/reservations/[reservationId]/guest-review", POSTHandler, "POST");
+export const PATCH = monitorApiRoute("/api/reservations/[reservationId]/guest-review", PATCHHandler, "PATCH");
