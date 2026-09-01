@@ -8,6 +8,7 @@ import { PAYMENT_WINDOW_HOURS, REQUEST_AUTO_DECLINE_HOURS, hoursFromNow } from "
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 import { notificationService } from "@/app/services/notificationService";
 import { cancellationPolicySnapshot, normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
+import { resolvePrimaryLicenceFromFile } from "@/app/libs/licenceReuse";
 import { mayRevealExactLocation } from "@/app/libs/reservationAccess";
 
 const blockingStatuses = ["REVIEWING", "APPROVED", "ACTIVE"];
@@ -35,28 +36,61 @@ async function POSTHandler(request: NextRequest) {
     // licence that read as Australian; a second driver is optional. Each licence
     // was analysed and stashed in a short-lived LicenceCheck by
     // /api/reservations/driver-licence — we trust that record, not the client.
-    type DriverInput = { role?: unknown; name?: unknown; frontPublicId?: unknown };
+    type DriverInput = { role?: unknown; name?: unknown; frontPublicId?: unknown; useOnFile?: unknown };
     const driverInputs: DriverInput[] = Array.isArray(body.drivers) ? body.drivers.slice(0, 2) : [];
     const primaryInput = driverInputs.find((d) => d.role === "PRIMARY");
     const secondaryInput = driverInputs.find((d) => d.role === "SECONDARY");
-    if (!primaryInput || typeof primaryInput.name !== "string" || primaryInput.name.trim().length < 2 || typeof primaryInput.frontPublicId !== "string") {
+    const primaryUsesFile = primaryInput?.useOnFile === true;
+    if (
+      !primaryInput ||
+      typeof primaryInput.name !== "string" ||
+      primaryInput.name.trim().length < 2 ||
+      (!primaryUsesFile && typeof primaryInput.frontPublicId !== "string")
+    ) {
       return NextResponse.json({ error: "Add the primary driver's name and a photo of their licence.", code: "DRIVER_LICENCE_REQUIRED" }, { status: 400 });
     }
 
-    const wantedPublicIds = [primaryInput.frontPublicId, secondaryInput?.frontPublicId].filter(
-      (value): value is string => typeof value === "string",
-    );
-    const checks = await prisma.licenceCheck.findMany({
-      where: { frontPublicId: { in: wantedPublicIds }, ownerUserId: currentUser.id, expiresAt: { gt: new Date() } },
-    });
+    const wantedPublicIds = [
+      primaryUsesFile ? undefined : primaryInput.frontPublicId,
+      secondaryInput?.frontPublicId,
+    ].filter((value): value is string => typeof value === "string");
+    const checks = wantedPublicIds.length
+      ? await prisma.licenceCheck.findMany({
+          where: { frontPublicId: { in: wantedPublicIds }, ownerUserId: currentUser.id, expiresAt: { gt: new Date() } },
+        })
+      : [];
     const checkFor = (publicId?: string) => checks.find((c) => c.frontPublicId === publicId);
-    const primaryCheck = checkFor(primaryInput.frontPublicId);
-    if (!primaryCheck || !primaryCheck.looksAustralian) {
-      return NextResponse.json(
-        { error: "Re-upload the primary driver's licence — it didn't pass the Australian licence check or the upload has expired.", code: "DRIVER_LICENCE_REQUIRED" },
-        { status: 400 },
-      );
+
+    // Primary driver: a returning guest can reuse a verified profile licence or
+    // the licence from a previous completed trip instead of re-uploading.
+    let primaryRow;
+    if (primaryUsesFile) {
+      const resolved = await resolvePrimaryLicenceFromFile(currentUser.id, primaryInput.name);
+      if (!resolved) {
+        return NextResponse.json(
+          { error: "We couldn't reuse a licence on file — upload a photo of the primary driver's licence.", code: "DRIVER_LICENCE_REQUIRED" },
+          { status: 400 },
+        );
+      }
+      primaryRow = { role: "PRIMARY", ...resolved };
+    } else {
+      const primaryCheck = checkFor(primaryInput.frontPublicId as string);
+      if (!primaryCheck || !primaryCheck.looksAustralian) {
+        return NextResponse.json(
+          { error: "Re-upload the primary driver's licence — it didn't pass the Australian licence check or the upload has expired.", code: "DRIVER_LICENCE_REQUIRED" },
+          { status: 400 },
+        );
+      }
+      primaryRow = {
+        role: "PRIMARY",
+        name: primaryInput.name.trim().slice(0, 120),
+        licenceImagePublicId: primaryCheck.frontPublicId,
+        licenceBackImagePublicId: primaryCheck.backPublicId,
+        looksAustralian: primaryCheck.looksAustralian,
+        detectedState: primaryCheck.detectedState,
+      };
     }
+
     const secondaryCheck =
       secondaryInput && typeof secondaryInput.name === "string" && secondaryInput.name.trim().length >= 2
         ? checkFor(typeof secondaryInput.frontPublicId === "string" ? secondaryInput.frontPublicId : undefined)
@@ -69,14 +103,7 @@ async function POSTHandler(request: NextRequest) {
     }
 
     const driverRows = [
-      {
-        role: "PRIMARY",
-        name: primaryInput.name.trim().slice(0, 120),
-        licenceImagePublicId: primaryCheck.frontPublicId,
-        licenceBackImagePublicId: primaryCheck.backPublicId,
-        looksAustralian: primaryCheck.looksAustralian,
-        detectedState: primaryCheck.detectedState,
-      },
+      primaryRow,
       ...(secondaryCheck && secondaryInput
         ? [
             {

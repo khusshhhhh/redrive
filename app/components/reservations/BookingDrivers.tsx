@@ -14,8 +14,9 @@ interface Check {
 export interface DriverPayload {
   role: "PRIMARY" | "SECONDARY";
   name: string;
-  frontPublicId: string;
-  backPublicId: string | null;
+  frontPublicId?: string;
+  backPublicId?: string | null;
+  useOnFile?: boolean;
 }
 
 interface DriverState {
@@ -23,6 +24,13 @@ interface DriverState {
   check: Check | null;
   uploading: boolean;
   error: string | null;
+}
+
+interface ReusableLicence {
+  available: boolean;
+  source?: "PROFILE" | "PREVIOUS_TRIP";
+  name?: string | null;
+  detectedState?: string | null;
 }
 
 const empty = (): DriverState => ({ name: "", check: null, uploading: false, error: null });
@@ -160,6 +168,26 @@ export default function BookingDrivers({
 }) {
   const [primary, setPrimary] = useState<DriverState>(() => ({ ...empty(), name: defaultName?.trim() || "" }));
   const [secondary, setSecondary] = useState<DriverState | null>(null);
+  const [reusable, setReusable] = useState<ReusableLicence | null>(null);
+  const [useOnFile, setUseOnFile] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/reservations/reusable-licence")
+      .then((r) => (r.ok ? r.json() : { available: false }))
+      .then((data: ReusableLicence) => {
+        if (!active) return;
+        setReusable(data);
+        if (data.available) {
+          setUseOnFile(true);
+          if (data.name) setPrimary((p) => (p.name ? p : { ...p, name: data.name!.trim() }));
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!primary.name && defaultName) setPrimary((p) => ({ ...p, name: defaultName.trim() }));
@@ -168,16 +196,24 @@ export default function BookingDrivers({
 
   useEffect(() => {
     const drivers: DriverPayload[] = [];
-    const primaryOk =
-      primary.name.trim().length >= 2 && Boolean(primary.check?.looksAustralian && primary.check.frontPublicId);
-    if (primaryOk && primary.check) {
-      drivers.push({
-        role: "PRIMARY",
-        name: primary.name.trim(),
-        frontPublicId: primary.check.frontPublicId,
-        backPublicId: primary.check.backPublicId,
-      });
+    const onFileActive = useOnFile && reusable?.available;
+    const primaryOk = onFileActive
+      ? primary.name.trim().length >= 2
+      : primary.name.trim().length >= 2 && Boolean(primary.check?.looksAustralian && primary.check.frontPublicId);
+
+    if (primaryOk) {
+      drivers.push(
+        onFileActive
+          ? { role: "PRIMARY", name: primary.name.trim(), useOnFile: true }
+          : {
+              role: "PRIMARY",
+              name: primary.name.trim(),
+              frontPublicId: primary.check!.frontPublicId,
+              backPublicId: primary.check!.backPublicId,
+            },
+      );
     }
+
     let secondaryOk = true;
     if (secondary) {
       secondaryOk =
@@ -193,7 +229,9 @@ export default function BookingDrivers({
     }
     onChange(drivers, primaryOk && secondaryOk);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [primary, secondary]);
+  }, [primary, secondary, useOnFile, reusable]);
+
+  const onFileActive = useOnFile && reusable?.available;
 
   return (
     <section id="drivers" className="scroll-mt-28 rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
@@ -211,12 +249,56 @@ export default function BookingDrivers({
       </div>
 
       <div className="mt-5 space-y-3">
-        <DriverCard
-          title="Primary driver"
-          state={primary}
-          onName={(name) => setPrimary((p) => ({ ...p, name }))}
-          onCheck={(check, uploading, error) => setPrimary((p) => ({ ...p, check, uploading, error }))}
-        />
+        {reusable?.available && (
+          <div className="rounded-md border border-hairline-soft p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex gap-3">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+                  <BadgeCheck size={17} />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-ink">
+                    {onFileActive ? "Using your licence on file" : "Licence on file available"}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-muted">
+                    {reusable.source === "PROFILE"
+                      ? "The verified licence on your profile"
+                      : "The licence from your last completed trip"}
+                    {reusable.detectedState ? ` · ${reusable.detectedState}` : ""} — no need to photograph it again.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setUseOnFile((v) => !v)}
+                className="shrink-0 self-start rounded-sm border border-hairline px-3 py-2 text-xs font-semibold text-muted hover:border-border-strong hover:text-ink"
+              >
+                {onFileActive ? "Upload a new photo instead" : "Use licence on file"}
+              </button>
+            </div>
+
+            {onFileActive && (
+              <label className="mt-3 block text-xs font-semibold text-ink">
+                Full name (as printed on the licence)
+                <input
+                  value={primary.name}
+                  onChange={(event) => setPrimary((p) => ({ ...p, name: event.target.value.slice(0, 120) }))}
+                  className="mt-1.5 h-11 w-full rounded-sm border border-hairline bg-white px-3 text-sm font-normal outline-none focus:border-primary"
+                  placeholder="e.g. Jordan Lee"
+                />
+              </label>
+            )}
+          </div>
+        )}
+
+        {!onFileActive && (
+          <DriverCard
+            title="Primary driver"
+            state={primary}
+            onName={(name) => setPrimary((p) => ({ ...p, name }))}
+            onCheck={(check, uploading, error) => setPrimary((p) => ({ ...p, check, uploading, error }))}
+          />
+        )}
 
         {secondary ? (
           <DriverCard
