@@ -7,7 +7,6 @@ import axios from "axios";
 import { toast } from "@/app/libs/toast";
 import { useRouter } from "next/navigation";
 import {
-  BadgeCheck,
   CalendarDays,
   Camera,
   Check,
@@ -16,7 +15,6 @@ import {
   LockKeyhole,
   MailCheck,
   MapPin,
-  ShieldCheck,
   Sparkles,
   UserRound,
   X,
@@ -47,7 +45,6 @@ import {
 import PayoutSettings from "@/app/components/payments/PayoutSettings";
 import SavedCards from "@/app/components/payments/SavedCards";
 import EmailVerification from "@/app/components/profile/EmailVerification";
-import LicenseVerificationPanel from "@/app/components/profile/LicenseVerificationPanel";
 import DeleteAccountPanel from "@/app/components/profile/DeleteAccountPanel";
 import NotificationPreferences from "@/app/components/profile/NotificationPreferences";
 
@@ -172,7 +169,6 @@ export default function ProfileClient({
     Boolean(initialUser.loginOtpEnabled),
   );
   const [hasPassword] = useState(Boolean(initialUser.hasPassword));
-  const licenseVerified = initialUser.licenseStatus === "VERIFIED";
 
   const name = watch("name");
   const email = watch("email");
@@ -193,9 +189,8 @@ export default function ProfileClient({
       selectedState?.value,
       hobbies,
       image !== "/images/placeholder.png",
-      licenseVerified,
     ].filter(Boolean).length;
-    return Math.round((complete / 10) * 100);
+    return Math.round((complete / 9) * 100);
   }, [
     name,
     email,
@@ -206,7 +201,6 @@ export default function ProfileClient({
     selectedState,
     hobbies,
     image,
-    licenseVerified,
   ]);
 
   const onAddressSelect = (result: ParsedAddress) => {
@@ -429,16 +423,6 @@ export default function ProfileClient({
                     <Check size={12} /> Email verified
                   </span>
                 )}
-                {licenseVerified && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-surface-soft px-3 py-1 text-xs font-medium text-ink">
-                    <BadgeCheck size={13} /> Licence details checked
-                  </span>
-                )}
-                {initialUser.licenseStatus === "NEEDS_CONFIRMATION" && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800">
-                    <ShieldCheck size={13} /> Confirm licence details
-                  </span>
-                )}
               </div>
             </div>
             <nav className="hidden rounded-md border border-hairline-soft bg-white p-2 lg:block">
@@ -447,7 +431,6 @@ export default function ProfileClient({
                 ["email-verification", "Email verification"],
                 ["address", "Address"],
                 ["about", "About you"],
-                ["verification", "Verification"],
                 ["payouts", "Host payouts"],
                 ["payment-methods", "Payment methods"],
                 ["security", "Login & security"],
@@ -681,16 +664,6 @@ export default function ProfileClient({
                 </div>
               </SectionCard>
 
-              <SectionCard
-                id="verification"
-                icon={<ShieldCheck size={19} />}
-                title="Driving licence"
-                description="Both sides must be recognised, current, and match your Redrive name and date of birth before booking."
-              >
-                <div className="space-y-4">
-                  <LicenseVerificationPanel user={initialUser} />
-                </div>
-              </SectionCard>
             </form>
 
             <PayoutSettings />
