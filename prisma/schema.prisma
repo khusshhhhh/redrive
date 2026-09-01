@@ -38,6 +38,7 @@ model User {
   stripeConnectedAccountId   String?   @unique
   stripeDetailsSubmitted     Boolean   @default(false)
   stripePayoutsEnabled       Boolean   @default(false)
+  stripeCustomerId           String? // for saved cards on the guest side (unique by construction)
 
   streetAddress     String?
   suburb            String?

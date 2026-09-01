@@ -1,4 +1,4 @@
-import { releaseDeposit } from "@/app/libs/deposit";
+import { authorizeDeposit, releaseDeposit } from "@/app/libs/deposit";
 import prisma from "@/app/libs/prismadb";
 import { getStripe } from "@/app/libs/stripe";
 import { notificationService } from "@/app/services/notificationService";
@@ -6,6 +6,110 @@ import { notificationService } from "@/app/services/notificationService";
 export type ReleaseResult =
   | { released: true; transferId: string }
   | { released: false; reason: string };
+
+export type CaptureResult = { ok: boolean; reason?: string };
+
+/**
+ * Move a reservation's payment ledger to PAID_HELD once Stripe confirms the
+ * guest was charged. Shared by the Checkout webhook and the off-session
+ * (saved-card) charge path so the two can never drift. Idempotent: a second
+ * call after the row is already PAID_HELD / RELEASED is a no-op success.
+ */
+export async function markReservationPaidHeld(input: {
+  reservationId: string;
+  paymentIntentId: string;
+  chargeId: string;
+  amountTotal: number | null;
+  currency: string | null;
+}): Promise<CaptureResult> {
+  const { reservationId, paymentIntentId, chargeId } = input;
+  const payment = await prisma.payment.findUnique({ where: { reservationId } });
+  if (!payment) return { ok: false, reason: "No payment ledger for this reservation" };
+  if (payment.status === "PAID_HELD" || payment.status === "RELEASED") {
+    return { ok: true };
+  }
+  if (!chargeId) return { ok: false, reason: "Stripe charge id missing" };
+  if (input.amountTotal != null && payment.amount !== input.amountTotal) {
+    return { ok: false, reason: "Stripe amount does not match the reservation ledger" };
+  }
+  if (input.currency != null && input.currency !== payment.currency) {
+    return { ok: false, reason: "Stripe currency does not match the reservation ledger" };
+  }
+
+  const reservationRow = await prisma.reservation.findUnique({
+    where: { id: reservationId },
+    select: { endDate: true, confirmedAt: true },
+  });
+  const paidAt = new Date();
+  // The return handover normally releases the payout. If it stalls, this is the
+  // backstop the payouts cron uses to auto-resolve.
+  const autoReleaseAt = reservationRow
+    ? new Date(reservationRow.endDate.getTime() + 72 * 60 * 60_000)
+    : null;
+
+  await prisma.$transaction([
+    prisma.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: "PAID_HELD",
+        stripePaymentIntentId: paymentIntentId,
+        stripeChargeId: chargeId,
+        paidAt,
+        failureMessage: null,
+      },
+    }),
+    prisma.reservation.update({
+      where: { id: reservationId },
+      data: {
+        paymentStatus: "PAID_HELD",
+        paidAt,
+        confirmedAt: paidAt,
+        ...(autoReleaseAt ? { autoReleaseAt } : {}),
+      },
+    }),
+    prisma.auditEvent.create({
+      data: {
+        actorUserId: payment.renterId,
+        action: "PAYMENT_CAPTURED",
+        targetType: "Reservation",
+        targetId: reservationId,
+        metadata: {
+          paymentIntentId,
+          amount: payment.amount,
+          currency: payment.currency,
+        },
+      },
+    }),
+  ]);
+
+  // Tell both sides the trip is locked in — only on the first capture.
+  if (!reservationRow?.confirmedAt) {
+    try {
+      await Promise.all([
+        notificationService.notifyBookingConfirmed(
+          payment.renterId,
+          "your booking",
+          reservationId,
+          "GUEST",
+        ),
+        notificationService.notifyBookingConfirmed(
+          payment.ownerId,
+          "your vehicle",
+          reservationId,
+          "HOST",
+        ),
+      ]);
+    } catch (notifyError) {
+      console.error("Booking-confirmed notification failed", notifyError);
+    }
+    // Pre-authorise the refundable security deposit (dormant unless
+    // DEPOSIT_PREAUTH_ENABLED=true).
+    await authorizeDeposit(reservationId).catch((depositError) =>
+      console.error("Deposit authorisation failed", depositError),
+    );
+  }
+  return { ok: true };
+}
 
 export async function releaseReservationPayment(
   reservationId: string,

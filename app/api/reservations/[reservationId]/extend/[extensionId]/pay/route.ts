@@ -1,10 +1,13 @@
 import { monitorApiRoute } from "@/app/libs/apiMonitoring";
+import type Stripe from "stripe";
 import { NextResponse } from "next/server";
 
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
+import { markExtensionPaid } from "@/app/libs/tripExtension";
 import { siteUrl } from "@/app/libs/siteUrl";
 import { getStripe } from "@/app/libs/stripe";
+import { getOrCreateStripeCustomer } from "@/app/libs/stripeCustomer";
 import { consumeRateLimits, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 
 type Context = { params: Promise<{ reservationId: string; extensionId: string }> };
@@ -18,6 +21,19 @@ async function POSTHandler(request: Request, context: Context) {
     { scope: "extend-pay", identifier: currentUser.id, limit: 10, windowMs: 60 * 60_000 },
   ]);
   if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
+
+  let savedPaymentMethodId = "";
+  try {
+    const body = await request.json();
+    if (body && typeof body.paymentMethodId === "string") {
+      savedPaymentMethodId = body.paymentMethodId.trim();
+    }
+  } catch {
+    // no body — hosted checkout
+  }
+  if (savedPaymentMethodId && !savedPaymentMethodId.startsWith("pm_")) {
+    return NextResponse.json({ error: "Invalid saved card" }, { status: 400 });
+  }
 
   const extension = await prisma.tripExtension.findUnique({
     where: { id: extensionId },
@@ -62,6 +78,59 @@ async function POSTHandler(request: Request, context: Context) {
     return NextResponse.json({ error: "The extension amount is too small to charge" }, { status: 409 });
   }
 
+  const amountCents = extension.extraTotal * 100;
+  const customerId = await getOrCreateStripeCustomer(currentUser.id);
+
+  // --- Path A: charge a saved card off-session, no redirect -----------------
+  if (savedPaymentMethodId && customerId) {
+    try {
+      const method = await getStripe().paymentMethods.retrieve(savedPaymentMethodId);
+      if (method.customer !== customerId) {
+        return NextResponse.json({ error: "That card is not on your account" }, { status: 403 });
+      }
+      const intent = await getStripe().paymentIntents.create({
+        amount: amountCents,
+        currency: "aud",
+        customer: customerId,
+        payment_method: savedPaymentMethodId,
+        payment_method_types: ["card"],
+        off_session: true,
+        confirm: true,
+        transfer_group: `reservation_${reservationId}`,
+        metadata: { reservationId, extensionId, kind: "trip_extension" },
+      });
+      if (intent.status === "succeeded") {
+        const chargeId =
+          typeof intent.latest_charge === "string" ? intent.latest_charge : intent.latest_charge?.id;
+        const result = await markExtensionPaid({ extensionId, reservationId, chargeId: chargeId || "" });
+        if (!result.ok) {
+          console.error("Saved-card extension apply mismatch", extensionId, result.reason);
+          return NextResponse.json(
+            { error: "Your card was charged but the extension needs a moment to apply. Refresh shortly." },
+            { status: 202 },
+          );
+        }
+        await writeAuditEvent({
+          request,
+          actorUserId: currentUser.id,
+          action: "TRIP_EXTENSION_CHECKOUT_CREATED",
+          targetType: "TripExtension",
+          targetId: extensionId,
+          metadata: { amount: extension.extraTotal, savedCard: "true" },
+        });
+        return NextResponse.json({ paid: true });
+      }
+      // requires_action — fall through to hosted checkout.
+    } catch (error) {
+      const stripeErr = error as Stripe.errors.StripeError;
+      console.warn(
+        "Saved-card extension charge could not complete, falling back to hosted checkout",
+        stripeErr?.code || stripeErr?.message,
+      );
+    }
+  }
+
+  // --- Path B: hosted Stripe Checkout -------------------------------------
   try {
     if (extension.stripeCheckoutSessionId) {
       const existing = await getStripe().checkout.sessions.retrieve(extension.stripeCheckoutSessionId);
@@ -73,14 +142,16 @@ async function POSTHandler(request: Request, context: Context) {
 
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",
-      customer_email: extension.reservation.user.email || undefined,
+      ...(customerId
+        ? { customer: customerId }
+        : { customer_email: extension.reservation.user.email || undefined }),
       payment_method_types: ["card"],
       line_items: [
         {
           quantity: 1,
           price_data: {
             currency: "aud",
-            unit_amount: extension.extraTotal * 100,
+            unit_amount: amountCents,
             product_data: {
               name: `Trip extension · ${extension.reservation.listing.title}`,
               description: `${extension.extraDays} extra day${extension.extraDays === 1 ? "" : "s"}. Held by Redrive until the return handover is agreed.`,
@@ -95,6 +166,7 @@ async function POSTHandler(request: Request, context: Context) {
       payment_intent_data: {
         transfer_group: `reservation_${reservationId}`,
         metadata: { reservationId, extensionId, kind: "trip_extension" },
+        ...(customerId ? { setup_future_usage: "off_session" as const } : {}),
       },
       success_url: `${siteUrl}/reservations/${reservationId}?extension=paid`,
       cancel_url: `${siteUrl}/reservations/${reservationId}?extension=cancelled`,

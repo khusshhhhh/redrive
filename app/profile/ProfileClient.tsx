@@ -45,6 +45,7 @@ import {
   isValidDateOfBirth,
 } from "@/app/libs/profileValidation";
 import PayoutSettings from "@/app/components/payments/PayoutSettings";
+import SavedCards from "@/app/components/payments/SavedCards";
 import EmailVerification from "@/app/components/profile/EmailVerification";
 import LicenseVerificationPanel from "@/app/components/profile/LicenseVerificationPanel";
 import DeleteAccountPanel from "@/app/components/profile/DeleteAccountPanel";
@@ -448,6 +449,7 @@ export default function ProfileClient({
                 ["about", "About you"],
                 ["verification", "Verification"],
                 ["payouts", "Host payouts"],
+                ["payment-methods", "Payment methods"],
                 ["security", "Login & security"],
                 ["danger-zone", "Delete account"],
               ].map(([href, label]) => (
@@ -692,6 +694,8 @@ export default function ProfileClient({
             </form>
 
             <PayoutSettings />
+
+            <SavedCards />
 
             <NotificationPreferences />
 

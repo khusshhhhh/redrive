@@ -2,8 +2,9 @@ import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import type Stripe from "stripe";
 import { NextResponse } from "next/server";
 
-import { authorizeDeposit } from "@/app/libs/deposit";
 import prisma from "@/app/libs/prismadb";
+import { markReservationPaidHeld } from "@/app/libs/payments";
+import { markExtensionPaid } from "@/app/libs/tripExtension";
 import { getStripe } from "@/app/libs/stripe";
 import { notificationService } from "@/app/services/notificationService";
 
@@ -67,48 +68,28 @@ async function POSTHandler(request: Request) {
           : null;
         const chargeId =
           typeof intent?.latest_charge === "string" ? intent.latest_charge : intent?.latest_charge?.id;
-        const extension = await prisma.tripExtension.findUnique({ where: { id: extensionId } });
-        if (extension && extension.status !== "PAID" && chargeId) {
-          const reservationRow = await prisma.reservation.findUnique({
-            where: { id: reservationId },
-            select: { totalPrice: true, totalFees: true, endDate: true, listing: { select: { title: true, userId: true } } },
-          });
-          const now = new Date();
-          await prisma.$transaction([
-            prisma.tripExtension.update({
-              where: { id: extensionId },
-              data: { status: "PAID", paidAt: now, stripeChargeId: chargeId },
-            }),
-            prisma.reservation.update({
-              where: { id: reservationId },
-              data: {
-                endDate: extension.newEndDate,
-                totalPrice: (reservationRow?.totalPrice ?? 0) + extension.extraBase,
-                totalFees: (reservationRow?.totalFees ?? 0) + extension.extraTotal,
-                autoReleaseAt: new Date(extension.newEndDate.getTime() + 72 * 60 * 60_000),
-              },
-            }),
-            prisma.auditEvent.create({
-              data: {
-                actorUserId: extension.requestedById,
-                action: "TRIP_EXTENSION_PAID",
-                targetType: "TripExtension",
-                targetId: extensionId,
-                metadata: { reservationId, amount: extension.extraTotal, chargeId },
-              },
-            }),
-          ]);
-          try {
-            await notificationService.notifySystemUpdate(
-              reservationRow?.listing.userId ?? extension.requestedById,
-              "Trip extended",
-              `The ${reservationRow?.listing.title ?? "trip"} is now booked to ${extension.newEndDate.toLocaleDateString("en-AU")}.`,
-              `/reservations/${reservationId}`,
-            );
-          } catch (notifyError) {
-            console.error("Extension-paid notification failed", notifyError);
-          }
+        if (chargeId) {
+          await markExtensionPaid({ extensionId, reservationId, chargeId }).catch((extError) =>
+            console.error("Extension-paid apply failed", extensionId, extError),
+          );
         }
+      }
+      await prisma.stripeWebhookEvent.create({ data: { stripeEventId: event.id, type: event.type } });
+      return NextResponse.json({ received: true });
+    } else if (
+      event.type === "payment_intent.succeeded" &&
+      (event.data.object as Stripe.PaymentIntent).metadata?.kind === "trip_extension"
+    ) {
+      // Safety net for the off-session (saved-card) extension charge.
+      const intent = event.data.object as Stripe.PaymentIntent;
+      const extensionId = intent.metadata?.extensionId;
+      const reservationId = intent.metadata?.reservationId;
+      const chargeId =
+        typeof intent.latest_charge === "string" ? intent.latest_charge : intent.latest_charge?.id;
+      if (extensionId && reservationId && chargeId && intent.status === "succeeded") {
+        await markExtensionPaid({ extensionId, reservationId, chargeId }).catch((extError) =>
+          console.error("Extension payment_intent.succeeded apply failed", extensionId, extError),
+        );
       }
       await prisma.stripeWebhookEvent.create({ data: { stripeEventId: event.id, type: event.type } });
       return NextResponse.json({ received: true });
@@ -130,89 +111,40 @@ async function POSTHandler(request: Request) {
           typeof intent.latest_charge === "string"
             ? intent.latest_charge
             : intent.latest_charge?.id;
-        const payment = await prisma.payment.findUnique({
-          where: { reservationId },
+        const result = await markReservationPaidHeld({
+          reservationId,
+          paymentIntentId,
+          chargeId: chargeId || "",
+          amountTotal: session.amount_total,
+          currency: session.currency,
         });
-        if (
-          !payment ||
-          payment.amount !== session.amount_total ||
-          session.currency !== payment.currency ||
-          !chargeId
-        ) {
-          throw new Error(
-            "Stripe payment does not match the reservation ledger",
-          );
-        }
-        const reservationRow = await prisma.reservation.findUnique({
-          where: { id: reservationId },
-          select: { endDate: true, confirmedAt: true },
-        });
-        const paidAt = new Date();
-        // The return handover normally releases the payout. If it stalls, this
-        // is the backstop the payouts cron uses to auto-resolve.
-        const autoReleaseAt = reservationRow
-          ? new Date(reservationRow.endDate.getTime() + 72 * 60 * 60_000)
-          : null;
-
-        await prisma.$transaction([
-          prisma.payment.update({
-            where: { id: payment.id },
-            data: {
-              status: "PAID_HELD",
-              stripePaymentIntentId: paymentIntentId,
-              stripeChargeId: chargeId,
-              paidAt,
-              failureMessage: null,
-            },
-          }),
-          prisma.reservation.update({
-            where: { id: reservationId },
-            data: {
-              paymentStatus: "PAID_HELD",
-              paidAt,
-              confirmedAt: paidAt,
-              ...(autoReleaseAt ? { autoReleaseAt } : {}),
-            },
-          }),
-          prisma.auditEvent.create({
-            data: {
-              actorUserId: payment.renterId,
-              action: "PAYMENT_CAPTURED",
-              targetType: "Reservation",
-              targetId: reservationId,
-              metadata: {
-                paymentIntentId,
-                amount: payment.amount,
-                currency: payment.currency,
-              },
-            },
-          }),
-        ]);
-
-        // Tell both sides the trip is locked in — only on the first capture.
-        if (!reservationRow?.confirmedAt) {
-          try {
-            await Promise.all([
-              notificationService.notifyBookingConfirmed(
-                payment.renterId,
-                "your booking",
-                reservationId,
-                "GUEST",
-              ),
-              notificationService.notifyBookingConfirmed(
-                payment.ownerId,
-                "your vehicle",
-                reservationId,
-                "HOST",
-              ),
-            ]);
-          } catch (notifyError) {
-            console.error("Booking-confirmed notification failed", notifyError);
-          }
-          // Pre-authorise the refundable security deposit (dormant unless
-          // DEPOSIT_PREAUTH_ENABLED=true).
-          await authorizeDeposit(reservationId).catch((depositError) =>
-            console.error("Deposit authorisation failed", depositError),
+        if (!result.ok) throw new Error(result.reason);
+      }
+    } else if (event.type === "payment_intent.succeeded") {
+      // Safety net for the off-session (saved-card) charge path: the checkout
+      // route captures the ledger synchronously, but if that response was lost
+      // this makes sure the reservation still lands on PAID_HELD.
+      const intent = event.data.object as Stripe.PaymentIntent;
+      const reservationId = intent.metadata?.reservationId;
+      if (
+        reservationId &&
+        intent.metadata?.kind !== "trip_extension" &&
+        intent.metadata?.kind !== "security_deposit" &&
+        intent.status === "succeeded"
+      ) {
+        const chargeId =
+          typeof intent.latest_charge === "string"
+            ? intent.latest_charge
+            : intent.latest_charge?.id;
+        if (chargeId) {
+          await markReservationPaidHeld({
+            reservationId,
+            paymentIntentId: intent.id,
+            chargeId,
+            amountTotal: intent.amount_received || intent.amount,
+            currency: intent.currency,
+          }).catch((captureError) =>
+            console.error("payment_intent.succeeded capture failed", reservationId, captureError),
           );
         }
       }

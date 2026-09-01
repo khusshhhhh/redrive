@@ -14,7 +14,6 @@ import {
   ChevronLeft,
   CircleDollarSign,
   Clock3,
-  CreditCard,
   Landmark,
   MapPin,
   MessageCircle,
@@ -32,6 +31,7 @@ import GuestReviewReply from "@/app/components/reservations/GuestReviewReply";
 import TripStatusTimeline from "@/app/components/reservations/TripStatusTimeline";
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
 import DriversCard from "@/app/components/reservations/DriversCard";
+import PayNowPanel from "@/app/components/reservations/PayNowPanel";
 
 const statusCopy: Record<
   string,
@@ -84,11 +84,26 @@ export default function ReservationDetails() {
   const [startingPayment, setStartingPayment] = useState(false);
   const autoPayTried = useRef(false);
 
-  const openCheckout = useCallback(async (id: string) => {
+  const openCheckout = useCallback(async (id: string, paymentMethodId?: string) => {
     setStartingPayment(true);
     try {
-      const response = await axios.post<{ url: string }>(`/api/reservations/${id}/checkout`);
-      window.location.assign(response.data.url);
+      const response = await axios.post<{ url?: string; paid?: boolean }>(
+        `/api/reservations/${id}/checkout`,
+        paymentMethodId ? { paymentMethodId } : undefined,
+      );
+      if (response.data.url) {
+        window.location.assign(response.data.url);
+        return;
+      }
+      if (response.data.paid) {
+        toast.success("Payment secured — your booking is confirmed.");
+        await axios
+          .get(`/api/reservations/${id}`)
+          .then((r) => setReservation(r.data))
+          .catch(() => undefined);
+        router.refresh();
+      }
+      setStartingPayment(false);
     } catch (error) {
       toast.error(
         axios.isAxiosError<{ error?: string }>(error)
@@ -97,7 +112,7 @@ export default function ReservationDetails() {
       );
       setStartingPayment(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     Promise.all([
@@ -191,7 +206,6 @@ export default function ReservationDetails() {
     axios
       .get(`/api/reservations/${reservation.id}`)
       .then((response) => setReservation(response.data));
-  const startPayment = () => openCheckout(reservation.id);
 
   return (
     <main className="bg-surface-soft/40 py-8 sm:py-12">
@@ -431,16 +445,11 @@ export default function ReservationDetails() {
                 !["PAID_HELD", "RELEASED"].includes(
                   reservation.paymentStatus || "",
                 ) && (
-                  <button
-                    disabled={startingPayment}
-                    onClick={() => void startPayment()}
-                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-primary text-sm font-semibold text-white hover:bg-primary-active disabled:opacity-50"
-                  >
-                    <CreditCard size={18} />
-                    {startingPayment
-                      ? "Opening secure checkout…"
-                      : `Pay ${money(reservation.totalFees)} securely`}
-                  </button>
+                  <PayNowPanel
+                    reservationId={reservation.id}
+                    total={reservation.totalFees}
+                    onPaid={() => void refreshReservation()}
+                  />
                 )}
               {reservation.paymentStatus === "PAID_HELD" && (
                 <div className="rounded-md border border-green-200 bg-green-50 p-4 text-sm text-green-900">
@@ -456,6 +465,16 @@ export default function ReservationDetails() {
                   </div>
                 </div>
               )}
+              {!isHost &&
+                ["COMPLETED", "ACTIVE"].includes(reservation.status) && (
+                  <a
+                    href={`/listings/${listing.id}`}
+                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm border border-border-strong bg-white text-sm font-semibold text-ink hover:bg-surface-soft"
+                  >
+                    <CarFront size={17} /> Book this car again
+                  </a>
+                )}
+
               {isHost && reservation.status === "REVIEWING" && (
                 <a
                   href="/profile#payouts"

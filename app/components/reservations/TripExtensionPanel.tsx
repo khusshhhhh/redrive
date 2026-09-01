@@ -48,7 +48,16 @@ export default function TripExtensionPanel({
   const [state, setState] = useState<ExtendState | null>(null);
   const [newEnd, setNewEnd] = useState("");
   const [busy, setBusy] = useState(false);
+  const [savedCard, setSavedCard] = useState<{ id: string; brand: string; last4: string } | null>(null);
   const autoPay = useRef(false);
+
+  useEffect(() => {
+    if (!isGuest) return;
+    axios
+      .get<{ cards: { id: string; brand: string; last4: string }[] }>("/api/payments/methods")
+      .then((r) => setSavedCard(r.data.cards?.[0] || null))
+      .catch(() => undefined);
+  }, [isGuest]);
 
   const load = useCallback(
     (newEndValue?: string) => {
@@ -66,13 +75,23 @@ export default function TripExtensionPanel({
   }, [load]);
 
   const payExtension = useCallback(
-    async (extensionId: string) => {
+    async (extensionId: string, paymentMethodId?: string) => {
       setBusy(true);
       try {
-        const response = await axios.post<{ url: string }>(
+        const response = await axios.post<{ url?: string; paid?: boolean }>(
           `/api/reservations/${reservationId}/extend/${extensionId}/pay`,
+          paymentMethodId ? { paymentMethodId } : undefined,
         );
-        window.location.assign(response.data.url);
+        if (response.data.url) {
+          window.location.assign(response.data.url);
+          return;
+        }
+        if (response.data.paid) {
+          toast.success("Trip extended — the new dates are confirmed.");
+          load();
+          onChanged?.();
+        }
+        setBusy(false);
       } catch (error) {
         toast.error(
           axios.isAxiosError<{ error?: string }>(error)
@@ -82,7 +101,7 @@ export default function TripExtensionPanel({
         setBusy(false);
       }
     },
-    [reservationId],
+    [reservationId, load, onChanged],
   );
 
   // Land from a "Pay & extend" link.
@@ -176,15 +195,29 @@ export default function TripExtensionPanel({
           <p className="mt-1 text-sm text-muted">Extra cost: {money(open.extraTotal)}</p>
 
           {isGuest && open.status === "APPROVED" && (
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => void payExtension(open.id)}
-              className="mt-3 inline-flex h-11 items-center gap-2 rounded-sm bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"
-            >
-              {busy ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-              Pay {money(open.extraTotal)} & extend
-            </button>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void payExtension(open.id, savedCard?.id)}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {busy ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                {savedCard
+                  ? `Pay ${money(open.extraTotal)} · ···· ${savedCard.last4}`
+                  : `Pay ${money(open.extraTotal)} & extend`}
+              </button>
+              {savedCard && (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void payExtension(open.id)}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-sm border border-hairline px-4 text-sm font-semibold text-muted disabled:opacity-50"
+                >
+                  Use a different card
+                </button>
+              )}
+            </div>
           )}
 
           {isHost && open.status === "PENDING" && (
