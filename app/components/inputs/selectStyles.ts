@@ -47,5 +47,5 @@ export const selectStyles: StylesConfig<any, boolean> = {
     // race against emotion's injected styles — leaving a see-through panel that
     // lets the page behind it bleed through. Pin an opaque background here so it
     // always wins.
-    menu: (base) => ({ ...base, zIndex: 9999, backgroundColor: "#F0F0EC" }),
+    menu: (base) => ({ ...base, zIndex: 9999, backgroundColor: "#F4F4F4" }),
 };

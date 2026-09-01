@@ -8,7 +8,7 @@
  */
 
 const THEME = {
-  ground: "#F0F0EC",
+  ground: "#F4F4F4",
   card: "#FFFFFF",
   border: "#E7E7E7",
   hairline: "#EDEDED",
@@ -27,7 +27,7 @@ const HEAD_STYLE = `
   }
   @media (prefers-color-scheme: dark) {
     .shell, .pad, .rowbg { background:#FFFFFF !important; }
-    .ground { background:#F0F0EC !important; }
+    .ground { background:#F4F4F4 !important; }
   }
 `;
 

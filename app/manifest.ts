@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Discover and share useful vehicles with local hosts across Australia.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f0f0ec",
+    background_color: "#f4f4f4",
     theme_color: "#1F1F1F",
     orientation: "portrait-primary",
     categories: ["travel", "transportation", "lifestyle"],
