@@ -8,7 +8,7 @@ import { PAYMENT_WINDOW_HOURS, REQUEST_AUTO_DECLINE_HOURS, hoursFromNow } from "
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 import { notificationService } from "@/app/services/notificationService";
 import { cancellationPolicySnapshot, normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
-import { resolvePrimaryLicenceFromFile } from "@/app/libs/licenceReuse";
+import { resolveReservationDriverRows } from "@/app/libs/reservationDrivers";
 import { mayRevealExactLocation } from "@/app/libs/reservationAccess";
 
 const blockingStatuses = ["REVIEWING", "APPROVED", "ACTIVE"];
@@ -32,91 +32,20 @@ async function POSTHandler(request: NextRequest) {
     const body = await request.json();
     const listingId = typeof body.listingId === "string" ? body.listingId : "";
 
-    // Drivers: the primary driver (the guest by default) must have an uploaded
-    // licence that read as Australian; a second driver is optional. Each licence
-    // was analysed and stashed in a short-lived LicenceCheck by
-    // /api/reservations/driver-licence — we trust that record, not the client.
-    type DriverInput = { role?: unknown; name?: unknown; frontPublicId?: unknown; useOnFile?: unknown };
-    const driverInputs: DriverInput[] = Array.isArray(body.drivers) ? body.drivers.slice(0, 2) : [];
-    const primaryInput = driverInputs.find((d) => d.role === "PRIMARY");
-    const secondaryInput = driverInputs.find((d) => d.role === "SECONDARY");
-    const primaryUsesFile = primaryInput?.useOnFile === true;
-    if (
-      !primaryInput ||
-      typeof primaryInput.name !== "string" ||
-      primaryInput.name.trim().length < 2 ||
-      (!primaryUsesFile && typeof primaryInput.frontPublicId !== "string")
-    ) {
-      return NextResponse.json({ error: "Add the primary driver's name and a photo of their licence.", code: "DRIVER_LICENCE_REQUIRED" }, { status: 400 });
-    }
-
-    const wantedPublicIds = [
-      primaryUsesFile ? undefined : primaryInput.frontPublicId,
-      secondaryInput?.frontPublicId,
-    ].filter((value): value is string => typeof value === "string");
-    const checks = wantedPublicIds.length
-      ? await prisma.licenceCheck.findMany({
-          where: { frontPublicId: { in: wantedPublicIds }, ownerUserId: currentUser.id, expiresAt: { gt: new Date() } },
-        })
-      : [];
-    const checkFor = (publicId?: string) => checks.find((c) => c.frontPublicId === publicId);
-
-    // Primary driver: a returning guest can reuse a verified profile licence or
-    // the licence from a previous completed trip instead of re-uploading.
-    let primaryRow;
-    if (primaryUsesFile) {
-      const resolved = await resolvePrimaryLicenceFromFile(currentUser.id, primaryInput.name);
-      if (!resolved) {
-        return NextResponse.json(
-          { error: "We couldn't reuse a licence on file — upload a photo of the primary driver's licence.", code: "DRIVER_LICENCE_REQUIRED" },
-          { status: 400 },
-        );
-      }
-      primaryRow = { role: "PRIMARY", ...resolved };
-    } else {
-      const primaryCheck = checkFor(primaryInput.frontPublicId as string);
-      if (!primaryCheck || !primaryCheck.looksAustralian) {
-        return NextResponse.json(
-          { error: "Re-upload the primary driver's licence — it didn't pass the Australian licence check or the upload has expired.", code: "DRIVER_LICENCE_REQUIRED" },
-          { status: 400 },
-        );
-      }
-      primaryRow = {
-        role: "PRIMARY",
-        name: primaryInput.name.trim().slice(0, 120),
-        licenceImagePublicId: primaryCheck.frontPublicId,
-        licenceBackImagePublicId: primaryCheck.backPublicId,
-        looksAustralian: primaryCheck.looksAustralian,
-        detectedState: primaryCheck.detectedState,
-      };
-    }
-
-    const secondaryCheck =
-      secondaryInput && typeof secondaryInput.name === "string" && secondaryInput.name.trim().length >= 2
-        ? checkFor(typeof secondaryInput.frontPublicId === "string" ? secondaryInput.frontPublicId : undefined)
-        : undefined;
-    if (secondaryInput && !secondaryCheck) {
+    // Drivers: the primary driver (the guest by default) must have a licence
+    // that reads as Australian — uploaded now, or reused from a verified profile
+    // licence / a previous completed trip. A second driver is optional. Every
+    // uploaded licence is validated against the short-lived LicenceCheck the
+    // upload route stored, never the client's claim.
+    const driverInputs = Array.isArray(body.drivers) ? body.drivers.slice(0, 2) : [];
+    const driverResolution = await resolveReservationDriverRows(currentUser.id, driverInputs);
+    if (!driverResolution.ok) {
       return NextResponse.json(
-        { error: "The second driver needs a name and a valid Australian licence photo, or remove them.", code: "DRIVER_LICENCE_REQUIRED" },
-        { status: 400 },
+        { error: driverResolution.error, code: driverResolution.code },
+        { status: driverResolution.status },
       );
     }
-
-    const driverRows = [
-      primaryRow,
-      ...(secondaryCheck && secondaryInput
-        ? [
-            {
-              role: "SECONDARY",
-              name: (secondaryInput.name as string).trim().slice(0, 120),
-              licenceImagePublicId: secondaryCheck.frontPublicId,
-              licenceBackImagePublicId: secondaryCheck.backPublicId,
-              looksAustralian: secondaryCheck.looksAustralian,
-              detectedState: secondaryCheck.detectedState,
-            },
-          ]
-        : []),
-    ];
+    const driverRows = driverResolution.rows;
     const message = typeof body.message === "string" ? body.message.trim() : "";
     const startDate = new Date(body.startDate);
     const endDate = new Date(body.endDate);

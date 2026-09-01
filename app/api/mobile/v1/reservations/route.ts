@@ -4,6 +4,7 @@ import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { buildBookingQuote, PRICING_POLICY_VERSION } from "@/app/libs/booking";
 import { cancellationPolicySnapshot, normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
 import { mobileIdentityOrResponse } from "@/app/libs/mobile-auth/route-utils";
+import { resolveReservationDriverRows, type ReservationDriverRow } from "@/app/libs/reservationDrivers";
 import { executeIdempotent } from "@/app/libs/mobile-api/idempotency";
 import { mobileError, mobileJson, mobileUnexpectedError, mobileValidationError, parseMobileJson } from "@/app/libs/mobile-api/responses";
 import prisma from "@/app/libs/prismadb";
@@ -64,9 +65,25 @@ async function POSTHandler(request: Request) {
       prisma.availabilityBlock.findFirst({ where: { listingId: listing.id, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
     ]);
     if (reservationConflict || ownerBlock) return { status: 409, body: { error: { code: "DATES_UNAVAILABLE", message: "Those dates are no longer available.", requestId: "idempotent" } } };
+
+    // Named drivers. Optional during the mobile-client rollout; once provided we
+    // enforce a valid Australian licence for the primary driver, same as web.
+    let driverRows: ReservationDriverRow[] = [];
+    if (Array.isArray(parsed.data.drivers) && parsed.data.drivers.length > 0) {
+      const resolution = await resolveReservationDriverRows(auth.identity.userId, parsed.data.drivers);
+      if (!resolution.ok) {
+        return { status: resolution.status, body: { error: { code: resolution.code, message: resolution.error, requestId: "idempotent" } } };
+      }
+      driverRows = resolution.rows;
+    }
+
     const created = await prisma.$transaction(async (tx) => {
       const reservation = await tx.reservation.create({ data: { userId: auth.identity.userId, listingId: listing.id, startDate, endDate, totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total, message: parsed.data.message || null, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION, cancellationPolicy: normalizeCancellationPolicy(listing.cancellationPolicy), cancellationPolicySnapshot: cancellationPolicySnapshot(listing.cancellationPolicy), status: "REVIEWING", autoDeclineAt: new Date(Date.now() + 48 * 60 * 60_000) } });
       await tx.bookingQuote.create({ data: { userId: auth.identity.userId, listingId: listing.id, reservationId: reservation.id, startDate, endDate, days: quote.days, dailyRate: quote.dailyRate, basePrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, cleaningFee: quote.cleaningFee, total: quote.total, currency: quote.currency, policyVersion: quote.policyVersion, expiresAt: new Date(Date.now() + 15 * 60_000) } });
+      if (driverRows.length > 0) {
+        await tx.reservationDriver.createMany({ data: driverRows.map((driver) => ({ ...driver, reservationId: reservation.id })) });
+        await tx.licenceCheck.deleteMany({ where: { frontPublicId: { in: driverRows.map((driver) => driver.licenceImagePublicId) } } });
+      }
       return reservation;
     });
     await notificationService.notifyBookingRequest(listing.userId, renter.name || "Someone", listing.title, created.id).catch((error) => console.error("Booking notification failed", error));

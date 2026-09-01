@@ -74,8 +74,17 @@ export const quoteRequestSchema = z.object({
   insuranceType: z.enum(["No Insurance", "Risk Taker", "Happy Driver"]).default("No Insurance"),
 });
 
+export const reservationDriverSchema = z.object({
+  role: z.enum(["PRIMARY", "SECONDARY"]),
+  name: z.string().trim().min(2).max(120),
+  // A licence uploaded via /reservations/driver-licence, OR reuse one on file.
+  frontPublicId: z.string().trim().min(1).max(300).optional(),
+  useOnFile: z.boolean().optional(),
+});
+
 export const reservationRequestSchema = quoteRequestSchema.extend({
   message: z.string().trim().max(1500).default(""),
+  drivers: z.array(reservationDriverSchema).max(2).optional(),
 });
 
 export const reservationStatusRequestSchema = z.object({
