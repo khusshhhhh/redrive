@@ -57,6 +57,20 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10">
+        <div className="mx-auto max-w-[1280px] px-5 py-6 sm:px-8 lg:px-10">
+          <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-white/70">Popular searches</h3>
+          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/55">
+            <FooterLink href="/hire/ute-hire-adelaide">Ute hire Adelaide</FooterLink>
+            <FooterLink href="/hire/car-hire-adelaide">Car hire Adelaide</FooterLink>
+            <FooterLink href="/hire/van-hire-moving-adelaide">Van hire for moving</FooterLink>
+            <FooterLink href="/hire/4wd-hire-adelaide">4WD hire Adelaide</FooterLink>
+            <FooterLink href="/hire/campervan-hire-south-australia">Campervan hire SA</FooterLink>
+            <FooterLink href="/list/how-much-can-you-earn">How much can you earn?</FooterLink>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-4 px-5 py-6 text-[11px] text-white/40 sm:flex-row sm:px-8 lg:px-10">
           <span>© {new Date().getFullYear()} Redrive. Built thoughtfully in Australia.</span>
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">

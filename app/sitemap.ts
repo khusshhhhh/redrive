@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { blogPosts, helpArticles, newsroomPosts } from "@/app/content/editorial";
+import { landingPages } from "@/app/content/landingPages";
 import { siteUrl } from "@/app/libs/siteUrl";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -17,6 +18,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: updated,
       changeFrequency: "monthly" as const,
       priority: 0.6,
+    })),
+    ...landingPages.map((page) => ({
+      url: `${siteUrl}${page.path}`,
+      lastModified: updated,
+      changeFrequency: "weekly" as const,
+      priority: page.group === "list" ? 0.8 : 0.85,
     })),
   ];
 
