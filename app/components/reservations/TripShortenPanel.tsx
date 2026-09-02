@@ -167,7 +167,7 @@ export default function TripShortenPanel({
                 type="button"
                 disabled={busy}
                 onClick={() => void respond(open.id, "APPROVE")}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-accent px-4 text-sm font-semibold text-ink disabled:opacity-50"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"
               >
                 {busy ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                 Approve &amp; refund
@@ -236,7 +236,7 @@ export default function TripShortenPanel({
             type="button"
             disabled={busy || !newEnd || !state.preview}
             onClick={() => void request()}
-            className="mt-3 inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-accent px-4 text-sm font-semibold text-ink disabled:opacity-50"
+            className="mt-3 inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"
           >
             {busy ? <Loader2 size={16} className="animate-spin" /> : <CalendarMinus size={16} />}
             Request early return

@@ -234,7 +234,7 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
           <h1 className="mt-7 max-w-4xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">{page.title}</h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-white/68 sm:text-xl sm:leading-9">{page.intro}</p>
           <div className="mt-10 flex flex-wrap gap-3">
-            <span className="rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-ink/80">Plain-language guidance</span>
+            <span className="rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-white/80">Plain-language guidance</span>
             {page.lastUpdated && <span className="rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-xs font-semibold text-accent">Updated {page.lastUpdated}</span>}
           </div>
         </div>

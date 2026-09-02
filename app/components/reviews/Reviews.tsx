@@ -124,7 +124,7 @@ const ReviewCard = ({
                                     type="button"
                                     disabled={saving || replyText.trim().length < 3}
                                     onClick={() => void submitReply()}
-                                    className="h-9 rounded-sm bg-accent px-3 text-xs font-semibold text-ink disabled:opacity-50"
+                                    className="h-9 rounded-sm bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"
                                 >
                                     {saving ? "Posting…" : "Post reply"}
                                 </button>

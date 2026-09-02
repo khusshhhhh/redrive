@@ -133,7 +133,7 @@ const NotificationBell = () => {
       >
         <Bell size={24} />
         {unreadCount > 0 && (
-          <span className="notification-badge absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-ink ring-2 ring-white" aria-live="polite">
+          <span className="notification-badge absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-white ring-2 ring-white" aria-live="polite">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
@@ -167,7 +167,7 @@ const NotificationBell = () => {
                 <Bell size={34} className="mx-auto text-muted" />
                 <p className="mt-3 text-sm font-semibold text-ink">Notifications could not load</p>
                 <p className="mt-1 text-xs leading-5 text-muted">Check your connection, then try again.</p>
-                <button type="button" onClick={() => void refresh()} className="mt-4 rounded-full bg-accent px-4 py-2 text-xs font-semibold text-ink transition hover:bg-accent-active hover:text-white">Try again</button>
+                <button type="button" onClick={() => void refresh()} className="mt-4 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white transition hover:bg-primary-active">Try again</button>
               </div>
             ) : recentNotifications.length === 0 ? (
               <div className="p-8 text-center text-muted">

@@ -16,7 +16,7 @@
 const INK = "#1F1F1F";
 const MUTED = "#8C8C8C";
 const FAINT = "#D2D2D2";
-const ACCENT = "#FF9900";
+const ACCENT = "#EAB308";
 const SW = 3.2;
 
 export type HostPhaseKey = "about" | "standout" | "finish";

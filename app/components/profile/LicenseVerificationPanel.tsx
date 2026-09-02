@@ -243,7 +243,7 @@ export default function LicenseVerificationPanel({
         type="button"
         onClick={() => void analyse()}
         disabled={!front || !back || Boolean(busy)}
-        className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-accent px-5 text-sm font-semibold text-ink transition hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-ink px-5 text-sm font-semibold text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50"
       >
         {busy === "ANALYSING" ? <LoaderCircle size={17} className="animate-spin" /> : <ScanLine size={17} />}
         {busy === "ANALYSING" ? "Reading licence…" : result.licenseStatus === "VERIFIED" ? "Check replacement licence" : "Read licence"}
@@ -264,7 +264,7 @@ export default function LicenseVerificationPanel({
             <label className="text-xs font-semibold text-ink">Card number<input value={fields.cardNumber} readOnly autoComplete="off" className="mt-1 h-11 w-full rounded-sm border border-hairline bg-surface-soft px-3 text-sm font-normal uppercase" /></label>
             <label className="text-xs font-semibold text-ink sm:col-span-2">Issuing state or territory<select value={fields.issuerState} disabled className="mt-1 h-11 w-full rounded-sm border border-hairline bg-surface-soft px-3 text-sm font-normal"><option value="">Not detected</option>{AU_ISSUERS.map((state) => <option key={state}>{state}</option>)}</select></label>
           </div>
-          <button type="button" onClick={() => void confirm()} disabled={Boolean(busy)} className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-accent px-5 text-sm font-semibold text-ink disabled:opacity-50">
+          <button type="button" onClick={() => void confirm()} disabled={Boolean(busy)} className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-primary px-5 text-sm font-semibold text-white disabled:opacity-50">
             {busy === "SAVING" && <LoaderCircle size={17} className="animate-spin" />}
             {busy === "SAVING" ? "Checking profile…" : "Confirm and check profile"}
           </button>

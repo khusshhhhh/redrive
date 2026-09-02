@@ -183,7 +183,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                             {RESERVATION_STATUS[reservation.status]?.label ?? reservation.status}
                         </span>
                         {paymentDue && (
-                            <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-ink">
+                            <span className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-white">
                                 Payment due
                             </span>
                         )}

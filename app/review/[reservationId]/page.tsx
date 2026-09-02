@@ -183,7 +183,7 @@ const ReviewPage = () => {
         />
 
         <button
-          className="mt-6 min-h-12 w-full rounded-sm bg-accent px-4 py-3 font-semibold text-ink transition hover:bg-accent-active hover:text-white disabled:opacity-50"
+          className="mt-6 min-h-12 w-full rounded-sm bg-primary px-4 py-3 font-semibold text-white transition hover:bg-primary-active disabled:opacity-50"
           disabled={loading}
           onClick={handleSubmit}
         >

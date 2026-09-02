@@ -106,7 +106,7 @@ export default function EmailVerification({
           type="button"
           disabled={sending || !email}
           onClick={() => void sendCode()}
-          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-sm bg-accent px-5 text-sm font-semibold text-ink transition hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-sm bg-ink px-5 text-sm font-semibold text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50"
         >
           {sending ? <span className="loader-orbit h-4 w-4 rounded-full border-2 border-white/40 border-t-white" /> : <MailCheck size={17} />}
           {sending ? "Sending code" : "Send verification code"}
@@ -147,7 +147,7 @@ export default function EmailVerification({
           type="button"
           disabled={verifying || code.length !== 6}
           onClick={() => void verifyCode()}
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-accent px-6 text-sm font-semibold text-ink transition hover:bg-accent-active hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-primary px-6 text-sm font-semibold text-white transition hover:bg-primary-active disabled:cursor-not-allowed disabled:opacity-50"
         >
           {verifying && <span className="loader-orbit h-4 w-4 rounded-full border-2 border-white/40 border-t-white" />}
           {verifying ? "Verifying" : "Verify email"}

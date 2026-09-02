@@ -200,7 +200,7 @@ export default function TripExtensionPanel({
                 type="button"
                 disabled={busy}
                 onClick={() => void payExtension(open.id, savedCard?.id)}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-accent px-4 text-sm font-semibold text-ink disabled:opacity-50"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"
               >
                 {busy ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                 {savedCard
@@ -226,7 +226,7 @@ export default function TripExtensionPanel({
                 type="button"
                 disabled={busy}
                 onClick={() => void respond(open.id, "APPROVE")}
-                className="h-11 rounded-sm bg-accent px-4 text-sm font-semibold text-ink disabled:opacity-50"
+                className="h-11 rounded-sm bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"
               >
                 Approve
               </button>
@@ -278,7 +278,7 @@ export default function TripExtensionPanel({
             type="button"
             disabled={busy || !newEnd || !state.quote}
             onClick={() => void request()}
-            className="mt-3 inline-flex h-11 items-center gap-2 rounded-sm bg-accent px-4 text-sm font-semibold text-ink disabled:opacity-50"
+            className="mt-3 inline-flex h-11 items-center gap-2 rounded-sm bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"
           >
             {busy ? <Loader2 size={16} className="animate-spin" /> : <CalendarPlus size={16} />}
             Request these dates

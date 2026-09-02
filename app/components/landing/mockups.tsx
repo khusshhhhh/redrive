@@ -27,7 +27,7 @@ export function BrowseGridMock({ listings }: { listings: ListingCardData[] }) {
   return (
     <div className="pointer-events-none select-none bg-white p-4 sm:p-6">
       <div className="mb-4 flex items-center gap-2">
-        <span className="rounded-full bg-accent px-3 py-1 text-[11px] font-semibold text-ink">All vehicles</span>
+        <span className="rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-white">All vehicles</span>
         <span className="rounded-full border border-hairline px-3 py-1 text-[11px] font-medium text-muted">Utes</span>
         <span className="hidden rounded-full border border-hairline px-3 py-1 text-[11px] font-medium text-muted sm:inline">
           Campervans
@@ -240,7 +240,7 @@ export function HostStepMock() {
       </div>
       <div className="flex items-center justify-between border-t border-hairline-soft px-4 py-3">
         <span className="text-[11px] font-semibold text-ink underline underline-offset-2">Back</span>
-        <span className="flex h-9 items-center gap-1 rounded-full bg-accent px-4 text-[11px] font-semibold text-ink">
+        <span className="flex h-9 items-center gap-1 rounded-full bg-primary px-4 text-[11px] font-semibold text-white">
           Next <ArrowRight size={12} />
         </span>
       </div>

@@ -40,7 +40,7 @@ export default function LandingHero({
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <Link
               href="/explore"
-              className="group inline-flex h-[52px] items-center gap-2 rounded-full bg-accent px-7 text-sm font-semibold text-ink transition-colors hover:bg-accent-active hover:text-white"
+              className="group inline-flex h-[52px] items-center gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-white transition-colors hover:bg-primary-active"
             >
               Explore vehicles
               <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />

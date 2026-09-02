@@ -135,7 +135,7 @@ export default function DateRangePicker(props: DateRangePickerProps) {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="h-12 w-full rounded-sm bg-accent text-sm font-semibold text-ink transition hover:bg-accent-active hover:text-white"
+              className="h-12 w-full rounded-sm bg-primary text-sm font-semibold text-white transition hover:bg-primary-active"
             >
               {value.startDate && value.endDate
                 ? `Confirm · ${differenceInCalendarDays(value.endDate, value.startDate) + 1} days`
@@ -156,7 +156,7 @@ export default function DateRangePicker(props: DateRangePickerProps) {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="h-10 rounded-sm bg-accent px-5 text-sm font-semibold text-ink transition hover:bg-accent-active hover:text-white"
+              className="h-10 rounded-sm bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-active"
             >
               Done
             </button>
@@ -399,8 +399,8 @@ function DateRangeCalendar({
                       onFocus={() => setFocusDate(day)}
                       className={`relative flex h-10 items-center justify-center text-sm outline-none transition-colors
                         ${disabled ? "cursor-not-allowed text-muted-soft line-through" : "text-ink hover:bg-surface-soft"}
-                        ${within ? "bg-accent-soft" : ""}
-                        ${isStart || isEnd ? "rounded-full bg-accent font-semibold text-ink hover:bg-accent" : ""}
+                        ${within ? "bg-surface-strong/70" : ""}
+                        ${isStart || isEnd ? "rounded-full bg-ink font-semibold text-white hover:bg-ink" : ""}
                         ${isStart && value.endDate ? "rounded-l-full" : ""}
                         ${isEnd ? "rounded-r-full" : ""}
                         focus-visible:ring-1 focus-visible:ring-ink`}

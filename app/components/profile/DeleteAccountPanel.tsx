@@ -108,7 +108,7 @@ export default function DeleteAccountPanel() {
                   <p className="mt-1 text-xs leading-5 text-muted">We will send a six-digit code to your sign-in email. The code expires after 10 minutes.</p>
                 </div>
               </div>
-              <button type="button" disabled={requesting} onClick={() => void requestCode()} className="mt-4 inline-flex h-11 w-full shrink-0 items-center justify-center rounded-sm bg-error px-5 text-sm font-semibold text-ink outline-none transition hover:bg-error-hover disabled:cursor-wait disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2 sm:mt-0 sm:w-auto">
+              <button type="button" disabled={requesting} onClick={() => void requestCode()} className="mt-4 inline-flex h-11 w-full shrink-0 items-center justify-center rounded-sm bg-error px-5 text-sm font-semibold text-white outline-none transition hover:bg-error-hover disabled:cursor-wait disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2 sm:mt-0 sm:w-auto">
                 {requesting ? "Sending code…" : "Send deletion code"}
               </button>
             </div>
@@ -149,7 +149,7 @@ export default function DeleteAccountPanel() {
                 <button type="button" disabled={requesting || deleting} onClick={() => void requestCode()} className="text-xs font-semibold text-muted underline underline-offset-4 hover:text-ink disabled:opacity-50">
                   {requesting ? "Sending…" : "Send a new code"}
                 </button>
-                <button type="submit" disabled={deleting || code.length !== 6 || confirmation !== "DELETE"} className="inline-flex h-11 items-center justify-center rounded-sm bg-error px-5 text-sm font-semibold text-ink outline-none transition hover:bg-error-hover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2">
+                <button type="submit" disabled={deleting || code.length !== 6 || confirmation !== "DELETE"} className="inline-flex h-11 items-center justify-center rounded-sm bg-error px-5 text-sm font-semibold text-white outline-none transition hover:bg-error-hover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2">
                   {deleting ? "Permanently deleting…" : "Permanently delete account"}
                 </button>
               </div>

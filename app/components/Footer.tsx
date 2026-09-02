@@ -28,7 +28,7 @@ export default function Footer() {
           </div>
           <div className="flex flex-wrap gap-3">
             <Link href="/explore" className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-ink transition hover:bg-surface-soft">Explore vehicles <ArrowUpRight size={16} /></Link>
-            <button onClick={onListCar} className="inline-flex h-12 items-center gap-2 rounded-full border border-white/20 px-6 text-sm font-semibold text-ink transition hover:bg-white/10"><CarFront size={17} />List a vehicle</button>
+            <button onClick={onListCar} className="inline-flex h-12 items-center gap-2 rounded-full border border-white/20 px-6 text-sm font-semibold text-white transition hover:bg-white/10"><CarFront size={17} />List a vehicle</button>
           </div>
         </div>
       </div>

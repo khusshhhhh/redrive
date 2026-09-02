@@ -301,7 +301,7 @@ export default function HandoverPanel({
               <button
                 disabled={busy}
                 onClick={() => void acknowledge()}
-                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-accent text-sm font-semibold text-ink hover:bg-accent-active hover:text-white disabled:opacity-50"
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-primary text-sm font-semibold text-white hover:bg-primary-active disabled:opacity-50"
               >
                 <Check size={17} /> I agree with this record
               </button>
@@ -346,7 +346,7 @@ export default function HandoverPanel({
                     type="button"
                     disabled={busy}
                     onClick={() => void reportIncident()}
-                    className="mt-3 h-10 rounded-sm bg-error px-4 text-xs font-semibold text-ink disabled:opacity-50"
+                    className="mt-3 h-10 rounded-sm bg-error px-4 text-xs font-semibold text-white disabled:opacity-50"
                   >
                     Submit issue and pause payout
                   </button>
@@ -471,7 +471,7 @@ export default function HandoverPanel({
           <button
             disabled={busy}
             onClick={() => void submit()}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-accent text-sm font-semibold text-ink hover:bg-accent-active hover:text-white disabled:opacity-50"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-primary text-sm font-semibold text-white hover:bg-primary-active disabled:opacity-50"
           >
             <Upload size={17} />
             {busy ? "Saving evidence…" : "Submit for both parties to agree"}
@@ -518,7 +518,7 @@ export default function HandoverPanel({
                   type="button"
                   disabled={problemBusy || problemText.trim().length < 10}
                   onClick={() => void submitProblem()}
-                  className="h-10 rounded-sm bg-error px-4 text-xs font-semibold text-ink disabled:opacity-50"
+                  className="h-10 rounded-sm bg-error px-4 text-xs font-semibold text-white disabled:opacity-50"
                 >
                   {problemBusy ? "Reporting…" : "Report problem · hold payout"}
                 </button>

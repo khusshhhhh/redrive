@@ -554,7 +554,7 @@ export default function ReservationDetails() {
                   <button
                     disabled={updatingStatus}
                     onClick={() => void updateStatus("APPROVED")}
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-accent text-sm font-semibold text-ink hover:bg-accent-active hover:text-white disabled:opacity-50"
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-primary text-sm font-semibold text-white hover:bg-primary-active disabled:opacity-50"
                   >
                     <Check size={17} /> Approve
                   </button>

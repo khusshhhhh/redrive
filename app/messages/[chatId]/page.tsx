@@ -348,7 +348,7 @@ const ChatPage = () => {
                   {uploadingAttachment ? <span className="loader-orbit h-5 w-5 rounded-full border-2 border-hairline border-t-primary" /> : <IconPaperclip size={20} />}
                 </button>
                 <input value={text} onChange={(event) => onTextChange(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendMessage(); } }} className="h-11 min-w-0 flex-1 rounded-full border border-hairline bg-white px-4 text-sm text-ink outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Type a message" />
-                <button onClick={() => void sendMessage()} disabled={sending || uploadingAttachment || (!text.trim() && !pendingImageUrl)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent text-ink transition hover:bg-accent-active hover:text-white disabled:opacity-50" aria-label="Send message">{sending ? <span className="loader-orbit h-5 w-5 rounded-full border-2 border-white/40 border-t-white" /> : <IconSend size={20} />}</button>
+                <button onClick={() => void sendMessage()} disabled={sending || uploadingAttachment || (!text.trim() && !pendingImageUrl)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary-active disabled:opacity-50" aria-label="Send message">{sending ? <span className="loader-orbit h-5 w-5 rounded-full border-2 border-white/40 border-t-white" /> : <IconSend size={20} />}</button>
               </div>
             </footer>
           </section>

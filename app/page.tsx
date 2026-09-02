@@ -70,7 +70,7 @@ export default async function Home() {
             <div className="flex shrink-0 flex-wrap gap-3">
               <Link
                 href="/explore"
-                className="group inline-flex h-12 items-center gap-2 rounded-full bg-accent px-6 text-sm font-semibold text-ink transition-[background-color,transform] duration-300 hover:-translate-y-0.5 hover:bg-accent-active hover:text-white"
+                className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-white transition-[background-color,transform] duration-300 hover:-translate-y-0.5 hover:bg-primary-active"
               >
                 Explore vehicles
                 <ArrowRight

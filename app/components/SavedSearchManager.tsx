@@ -117,7 +117,7 @@ const SavedSearchManager: React.FC<SavedSearchManagerProps> = ({ currentFilters,
           <p className="mt-1 text-xs text-muted">Return on any device and choose how often Redrive should alert you.</p>
         </div>
         {hasFilters && (
-          <button type="button" onClick={() => setShowForm((value) => !value)} className="inline-flex h-10 items-center gap-2 rounded-full bg-accent px-4 text-sm font-semibold text-ink transition hover:bg-accent-active hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+          <button type="button" onClick={() => setShowForm((value) => !value)} className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
             <IconBookmark size={17} aria-hidden="true" /> Save this search
           </button>
         )}
@@ -133,7 +133,7 @@ const SavedSearchManager: React.FC<SavedSearchManagerProps> = ({ currentFilters,
               <option value="OFF">Off</option><option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option>
             </select>
           </label>
-          <button type="button" onClick={() => void save()} disabled={saving} className="h-11 rounded-sm bg-accent px-5 text-sm font-semibold text-ink transition hover:bg-accent disabled:opacity-60">{saving ? "Saving…" : "Save"}</button>
+          <button type="button" onClick={() => void save()} disabled={saving} className="h-11 rounded-sm bg-ink px-5 text-sm font-semibold text-white transition hover:bg-primary disabled:opacity-60">{saving ? "Saving…" : "Save"}</button>
         </div>
       )}
 
@@ -149,7 +149,7 @@ const SavedSearchManager: React.FC<SavedSearchManagerProps> = ({ currentFilters,
                 <button type="button" onClick={() => void remove(search)} aria-label={`Delete ${search.name}`} className="rounded-full p-2 text-muted transition hover:bg-error-soft hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><IconTrash size={16} /></button>
               </div>
               <div className="mt-3 flex items-center gap-2">
-                <button type="button" onClick={() => apply(search)} className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-sm bg-accent px-3 text-xs font-semibold text-ink hover:bg-accent-active hover:text-white"><IconSearch size={15} /> Search</button>
+                <button type="button" onClick={() => apply(search)} className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-sm bg-primary px-3 text-xs font-semibold text-white hover:bg-primary-active"><IconSearch size={15} /> Search</button>
                 <label className="relative flex h-9 items-center rounded-sm border border-hairline px-2 text-xs text-muted">
                   {search.alertFrequency === "OFF" ? <IconBellOff size={15} className="mr-1.5" /> : <IconBell size={15} className="mr-1.5 text-primary" />}
                   <select aria-label={`Alert frequency for ${search.name}`} value={search.alertFrequency} onChange={(event) => void changeFrequency(search, event.target.value as SavedSearchFrequency)} className="bg-transparent pr-1 text-xs font-medium text-ink outline-none"><option value="OFF">Off</option><option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option></select>

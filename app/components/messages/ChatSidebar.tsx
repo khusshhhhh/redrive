@@ -81,7 +81,7 @@ export default function ChatSidebar({ activeChatId, className = "" }: ChatSideba
         {unauthorized && (
           <div className="p-6 text-center">
             <p className="text-sm text-muted">Sign in to see your conversations.</p>
-            <button onClick={() => loginModal.onOpen()} className="mt-4 rounded-sm bg-accent px-5 py-2.5 text-sm font-semibold text-ink hover:bg-accent-active hover:text-white">Log in</button>
+            <button onClick={() => loginModal.onOpen()} className="mt-4 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-active">Log in</button>
           </div>
         )}
 

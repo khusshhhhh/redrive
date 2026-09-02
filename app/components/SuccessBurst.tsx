@@ -49,7 +49,7 @@ export default function SuccessBurst({
       <div className="relative flex h-28 w-28 items-center justify-center">
         <span className="success-ring" aria-hidden="true" />
         <span className="success-ring success-ring--2" aria-hidden="true" />
-        <span className="success-badge relative flex h-[76px] w-[76px] items-center justify-center rounded-full bg-accent text-ink">
+        <span className="success-badge relative flex h-[76px] w-[76px] items-center justify-center rounded-full bg-primary text-white">
           <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path className="success-check" d="M4 12.5l5 5L20 6" />
           </svg>

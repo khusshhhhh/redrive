@@ -224,7 +224,7 @@ export default function AdminIncidents() {
                       type="button"
                       disabled={busyId === incident.id || entry.note.trim().length < 5}
                       onClick={() => resolve(incident)}
-                      className="h-9 rounded-sm bg-accent px-4 text-xs font-semibold text-ink disabled:opacity-50"
+                      className="h-9 rounded-sm bg-primary px-4 text-xs font-semibold text-white disabled:opacity-50"
                     >
                       Resolve incident
                     </button>
