@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Redrive">
-  <defs>
-    <linearGradient id="tile" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#3B3B3B"/>
-      <stop offset="1" stop-color="#636363"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="16" fill="url(#tile)"/>
-  <!-- A winding road narrowing toward its destination. -->
-  <path d="M9 64C17 50 24 42 24 31C24 19 31 9 44 0H61C43 14 39 23 40 33C41 45 35 55 29 64Z" fill="#F4F4F4"/>
-  <path d="M22 58C29 47 33 39 32 30C31 21 36 14 45 7" fill="none" stroke="#3B3B3B" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 6"/>
-  <circle cx="49" cy="13" r="7" fill="#B5B5B5" stroke="#3B3B3B" stroke-width="3"/>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_1_1342)">
+<rect width="200" height="200" fill="#191919"/>
+<rect x="56" y="33" width="40" height="135" rx="8" fill="white"/>
+<line x1="76" y1="33" x2="76" y2="168" stroke="#191919" stroke-width="8" stroke-linecap="square" stroke-dasharray="8 16"/>
+<rect x="100" y="33" width="40" height="40" rx="8" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_1_1342">
+<rect width="200" height="200" rx="40" fill="white"/>
+</clipPath>
+</defs>
 </svg>
