@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, BookOpen, Check, CircleHelp, ExternalLink, FileText, Quote, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Check, CircleHelp, ExternalLink, FileText, Quote, ShieldCheck } from "lucide-react";
 import { buildSeoMetadata } from "@/app/libs/seo";
+import Illustration, { type IllustrationName } from "@/app/components/Illustration";
 import InformationNav from "@/app/components/content/InformationNav";
 
 type Section = { heading: string; body: string; items?: string[]; links?: { label: string; href: string }[] };
@@ -29,6 +30,8 @@ const pages: Record<string, PageContent> = {
       { heading: "If something goes wrong", body: "Move to a safe place when possible. For immediate danger or injury in Australia, call 000. Then contact the host and keep photos, receipts and incident details for your records." },
       { heading: "Protect your personal information", body: "Keep identity checks, licence uploads, trip details and payment activity inside Redrive. Never send passwords or one-time verification codes to another person, and report suspicious requests." },
       { heading: "A respectful marketplace", body: "Guests and hosts should communicate clearly, avoid discriminatory conduct and respect agreed boundaries. A vehicle should never be used for an unlawful purpose or outside the approved booking terms." },
+      { heading: "Every driver is checked for the trip", body: "The driver-licence check now belongs to the reservation, not just the profile. The guest uploads a current licence for the primary driver when the request is sent, and any additional driver must be added with their own licence before they are allowed behind the wheel. Adding a driver after the booking is confirmed follows the same upload and review step." },
+      { heading: "Changing a trip safely", body: "If plans change, use Trips to request an extension rather than keeping the vehicle without agreement. The host approves the new return date and Redrive collects a top-up payment for the extra days before the change takes effect, so the booking record and protection window always match the vehicle's actual use." },
     ],
     note: "Redrive does not replace emergency, roadside or insurance services. Always follow the instructions in your booking and protection documents.",
   },
@@ -92,6 +95,7 @@ const pages: Record<string, PageContent> = {
       { heading: "Privacy before precision", body: "Public listings provide useful suburb context without publishing a vehicle’s exact address. Sensitive licence files use restricted delivery paths, and account holders can control login verification and request permanent account deletion from their profile." },
       { heading: "Built for the entire trip", body: "Discovery is only the beginning. Redrive is being shaped around the complete journey: comparing vehicles, understanding prices, requesting dates, confirming identity, speaking with the host, paying, recording pickup and return, resolving incidents and sharing an honest review." },
       { heading: "The company Khush and Hiral want to build", body: "The ambition is to grow without becoming impersonal: explain decisions clearly, treat trust and safety as everyday work, listen closely to the community, and favour useful improvements over empty claims. Redrive will evolve, but that founder-led standard should remain visible in the product." },
+      { heading: "What has shipped so far", body: "Redrive is already a working end-to-end marketplace, not a landing page. Recent releases cover the full trip: itemised booking quotes with a stored price snapshot, listing-level cancellation policies with automatic refund handling, per-reservation driver-licence uploads for the primary and any additional drivers, structured pickup and return handovers with restricted photo evidence, trip extensions with host approval and a top-up payment, and guest replies to a host's review.", items: ["Multi-channel notifications across in-app, email, push and SMS", "A dynamic home page driven by live marketplace inventory", "Automatic inactivity timeouts and verified account deletion", "A shared white email theme for every transactional message"] },
     ],
     note: "A note from Khush: “Redrive is personal to me. I am building the kind of marketplace I would want my own family and friends to use—clear, thoughtful and grounded in real responsibility.”",
   },
@@ -165,6 +169,8 @@ const pages: Record<string, PageContent> = {
       { heading: "Least-public location", body: "Public vehicle pages use suburb context rather than a precise pickup address. Exact location details are restricted to appropriate booking states and participants." },
       { heading: "Monitoring without raw traffic histories", body: "Operational metrics are aggregated into time buckets. Unexpected server failures may retain limited route, status, timing and request identifiers, but monitoring is designed not to store request bodies, query strings, raw IP addresses or user IDs." },
       { heading: "What users can do", body: "Use a unique password, secure your email account, enable login verification, keep messages and payments on-platform, review unexpected alerts, avoid sharing codes, and report suspicious activity quickly.", items: ["Never send a password or OTP in chat", "Check the domain before signing in", "Use current contact information", "Sign out on shared devices", "Treat unexpected payment links as suspicious"] },
+      { heading: "Session lifecycle", body: "Web and mobile sessions close automatically after roughly an hour without genuine pointer, keyboard, touch or scroll activity, with a seven-day absolute limit on the web. A fresh sign-in starts a new activity window cleanly, and the mobile app re-checks the session whenever it returns from the background." },
+      { heading: "Notifications you can trust", body: "Redrive dispatches trip events through in-app, email, push and SMS channels from one coordinated layer. Notifications link only to real destinations inside Redrive and never ask for a password, card number or one-time code. Treat any message that does as suspicious." },
       { heading: "Incident response", body: "Redrive records security-relevant events, reviews unexpected failures and should maintain a documented incident plan. Suspected eligible data breaches must be assessed promptly and notified where applicable.", links: [{ label: "OAIC data breach preparation and response", href: "https://www.oaic.gov.au/privacy/notifiable-data-breaches/preventing-preparing-for-and-responding-to-data-breaches" }] },
     ],
   },
@@ -217,55 +223,70 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }) : {};
 }
 
+const pageIllustration: Record<string, IllustrationName> = {
+  safety: "shield-check",
+  "cancellation-options": "route-map",
+  "vehicle-protection": "shield-check",
+  "hosting-resources": "handover-keys",
+  about: "announcement",
+  privacy: "document-lock",
+  terms: "document-lock",
+  "community-standards": "shield-check",
+  "data-security": "document-lock",
+  "account-deletion": "document-lock",
+  careers: "announcement",
+};
+
 export default async function InformationPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const page = pages[slug];
   if (!page) notFound();
 
   return (
-    <main className="information-page min-h-[70vh] bg-surface-soft/35">
+    <main className="information-page min-h-[70vh] bg-white">
       <InformationNav activeHref={`/${slug}`} />
-      <section className="relative overflow-hidden bg-graphite text-white">
-        <div className="absolute -right-24 -top-40 h-[470px] w-[470px] rounded-full border-[72px] border-white/[0.045]" />
-        <div className="absolute -bottom-32 right-[22%] h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute right-[9%] top-24 h-4 w-4 rounded-full bg-accent shadow-[0_0_0_12px_rgba(212,167,44,0.1)]" />
-        <div data-info-reveal className="relative mx-auto max-w-[1240px] px-5 py-16 sm:px-8 sm:py-24 lg:px-10 lg:py-28">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent"><Sparkles size={14} />Redrive knowledge centre <span className="text-white/25">/</span> {page.eyebrow}</div>
-          <h1 className="mt-7 max-w-4xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">{page.title}</h1>
-          <p className="mt-6 max-w-3xl text-base leading-8 text-white/68 sm:text-xl sm:leading-9">{page.intro}</p>
-          <div className="mt-10 flex flex-wrap gap-3">
-            <span className="rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-white/80">Plain-language guidance</span>
-            {page.lastUpdated && <span className="rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-xs font-semibold text-accent">Updated {page.lastUpdated}</span>}
+
+      <section className="border-b border-hairline-soft bg-white">
+        <div data-info-reveal className="mx-auto grid max-w-[1240px] items-center gap-14 px-5 py-20 sm:px-8 sm:py-28 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-10 lg:py-32">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">Redrive knowledge centre <span className="text-hairline">/</span> {page.eyebrow}</div>
+            <h1 className="mt-7 max-w-3xl text-4xl font-semibold leading-[1.06] tracking-tight text-ink sm:text-6xl">{page.title}</h1>
+            <p className="mt-7 max-w-2xl text-base leading-8 text-muted sm:text-xl sm:leading-9">{page.intro}</p>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <span className="rounded-full border border-hairline-soft px-4 py-2 text-xs font-semibold text-muted">Plain-language guidance</span>
+              {page.lastUpdated && <span className="rounded-full border border-primary/25 px-4 py-2 text-xs font-semibold text-ink">Updated {page.lastUpdated}</span>}
+            </div>
           </div>
+          <Illustration name={pageIllustration[slug] ?? "announcement"} width={360} priority className="mx-auto hidden h-auto w-full max-w-[340px] lg:block" />
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1240px] px-5 py-10 sm:px-8 sm:py-16 lg:px-10">
-        <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12">
-        <aside data-info-reveal className="h-fit overflow-hidden rounded-2xl border border-hairline-soft bg-white shadow-[0_12px_38px_rgba(22, 22, 22,0.05)] lg:sticky lg:top-28">
-          <div className="bg-gradient-to-br from-primary to-secondary p-5 text-white"><div className="flex items-center gap-2 text-sm font-semibold"><CircleHelp size={18} /> In this guide</div><p className="mt-2 text-xs leading-5 text-white/70">Jump directly to the answer you need.</p></div>
+      <section className="mx-auto max-w-[1240px] px-5 py-16 sm:px-8 sm:py-24 lg:px-10">
+        <div className="grid gap-14 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside data-info-reveal className="h-fit overflow-hidden rounded-xl border border-hairline-soft bg-white lg:sticky lg:top-28">
+          <div className="border-b border-hairline-soft p-5"><div className="flex items-center gap-2 text-sm font-semibold text-ink"><CircleHelp size={18} /> In this guide</div><p className="mt-2 text-xs leading-5 text-muted">Jump directly to the answer you need.</p></div>
           <nav className="flex max-h-[58vh] flex-col overflow-y-auto p-3">
             {page.sections.map((section, index) => (
-              <a key={section.heading} href={`#section-${index}`} className="group flex items-start gap-3 rounded-xl px-3 py-3 text-sm text-muted transition hover:bg-surface-soft hover:text-ink"><span className="mt-0.5 text-[10px] font-bold tabular-nums text-primary/60">{String(index + 1).padStart(2, "0")}</span><span className="leading-5">{section.heading}</span></a>
+              <a key={section.heading} href={`#section-${index}`} className="group flex items-start gap-3 rounded-lg px-3 py-3 text-sm text-muted transition hover:bg-surface-soft hover:text-ink"><span className="mt-0.5 text-[10px] font-bold tabular-nums text-primary/60">{String(index + 1).padStart(2, "0")}</span><span className="leading-5">{section.heading}</span></a>
             ))}
           </nav>
-          <div className="border-t border-hairline-soft p-4"><Link href="/help-centre" className="flex items-center justify-between rounded-xl bg-graphite px-4 py-3 text-xs font-semibold text-white">Need more help? <ArrowRight size={14} /></Link></div>
+          <div className="border-t border-hairline-soft p-4"><Link href="/help-centre" className="flex items-center justify-between rounded-lg bg-primary px-4 py-3 text-xs font-semibold text-white">Need more help? <ArrowRight size={14} /></Link></div>
         </aside>
 
         <div className="min-w-0">
           {page.sections.map((section, index) => (
-            <article data-info-reveal key={section.heading} id={`section-${index}`} className="mb-5 scroll-mt-28 rounded-2xl border border-hairline-soft bg-white p-6 shadow-[0_10px_34px_rgba(22, 22, 22,0.045)] sm:p-8">
-              <div className="flex items-start gap-4 sm:gap-5"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-strong text-xs font-bold tabular-nums text-primary">{String(index + 1).padStart(2, "0")}</span><div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{page.eyebrow}</p><h2 className="mt-1.5 text-xl font-semibold tracking-tight text-ink sm:text-2xl">{section.heading}</h2></div></div>
-              <p className="mt-5 text-[15px] leading-8 text-body sm:text-base">{section.body}</p>
+            <article data-info-reveal key={section.heading} id={`section-${index}`} className="scroll-mt-28 border-b border-hairline-soft py-12 first:pt-0">
+              <div className="flex items-start gap-4 sm:gap-5"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-hairline-soft text-xs font-bold tabular-nums text-primary">{String(index + 1).padStart(2, "0")}</span><div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{page.eyebrow}</p><h2 className="mt-1.5 text-xl font-semibold tracking-tight text-ink sm:text-2xl">{section.heading}</h2></div></div>
+              <p className="mt-6 text-[15px] leading-8 text-body sm:text-base">{section.body}</p>
               {section.items && (
-                <ul className="mt-6 grid gap-3 rounded-xl border border-hairline-soft bg-surface-soft/55 p-4 sm:grid-cols-2 sm:p-5">
-                  {section.items.map((item) => <li key={item} className="flex gap-3 text-sm leading-6 text-body"><span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-sm"><Check size={12} strokeWidth={3} /></span>{item}</li>)}
+                <ul className="mt-7 grid gap-3 rounded-xl border border-hairline-soft p-6 sm:grid-cols-2">
+                  {section.items.map((item) => <li key={item} className="flex gap-3 text-sm leading-6 text-body"><span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-hairline-soft text-primary"><Check size={12} strokeWidth={3} /></span>{item}</li>)}
                 </ul>
               )}
               {section.links && (
-                <div className="mt-6 flex flex-wrap gap-3 border-t border-hairline-soft pt-5">
+                <div className="mt-7 flex flex-wrap gap-3">
                   {section.links.map((link) => (
-                    <a key={link.href} href={link.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-hairline-soft bg-white px-4 py-2.5 text-xs font-semibold text-primary transition hover:border-primary hover:bg-surface-soft">
+                    <a key={link.href} href={link.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-hairline-soft bg-white px-4 py-2.5 text-xs font-semibold text-primary transition hover:border-primary">
                       {link.label}<ExternalLink size={13} />
                     </a>
                   ))}
@@ -273,10 +294,10 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
               )}
             </article>
           ))}
-          {page.note && <div data-info-reveal className={`mt-7 flex gap-4 rounded-2xl p-6 text-sm leading-7 sm:p-7 ${slug === "about" ? "border border-accent/35 bg-gradient-to-br from-accent-soft to-white text-ink" : "border border-primary/15 bg-gradient-to-br from-primary/[0.07] to-white text-body"}`}>{slug === "about" ? <Quote className="mt-0.5 shrink-0 text-accent-active" size={24} /> : <ShieldCheck className="mt-0.5 shrink-0 text-primary" size={24} />}<div><p className="mb-1 text-xs font-bold uppercase tracking-[0.14em] text-primary">Important context</p>{page.note}</div></div>}
-          <div data-info-reveal className="mt-12">
+          {page.note && <div data-info-reveal className="mt-12 flex gap-4 rounded-xl border border-hairline-soft bg-surface-soft/40 p-7 text-sm leading-7 text-body">{slug === "about" ? <Quote className="mt-0.5 shrink-0 text-primary" size={24} /> : <ShieldCheck className="mt-0.5 shrink-0 text-primary" size={24} />}<div><p className="mb-1 text-xs font-bold uppercase tracking-[0.14em] text-primary">Important context</p>{page.note}</div></div>}
+          <div data-info-reveal className="mt-16">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Continue exploring</p><h2 className="mt-2 text-2xl font-semibold text-ink">More useful Redrive resources</h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-3">
             <ResourceLink href="/help-centre" title="Help Centre" copy="Step-by-step answers for accounts, bookings and hosting." icon={<CircleHelp size={19} />} />
             <ResourceLink href="/blog" title="Travel journal" copy="Practical ideas for safer, better shared-vehicle journeys." icon={<BookOpen size={19} />} />
             <ResourceLink href="/newsroom" title="Newsroom" copy="See the latest product, privacy and trust improvements." icon={<FileText size={19} />} />
@@ -290,5 +311,5 @@ export default async function InformationPage({ params }: { params: Promise<{ sl
 }
 
 function ResourceLink({ href, title, copy, icon }: { href: string; title: string; copy: string; icon: React.ReactNode }) {
-  return <Link href={href} className="group rounded-2xl border border-hairline-soft bg-white p-5 shadow-[0_8px_28px_rgba(22, 22, 22,0.04)] transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-card"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-strong text-primary">{icon}</span><h3 className="mt-5 font-semibold text-ink">{title}</h3><p className="mt-2 text-xs leading-5 text-muted">{copy}</p><span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">Explore <ArrowRight size={13} className="transition group-hover:translate-x-1" /></span></Link>;
+  return <Link href={href} className="group rounded-xl border border-hairline-soft bg-white p-6 transition hover:-translate-y-1 hover:border-primary/40"><span className="flex h-10 w-10 items-center justify-center rounded-full border border-hairline-soft text-primary">{icon}</span><h3 className="mt-5 font-semibold text-ink">{title}</h3><p className="mt-2 text-xs leading-5 text-muted">{copy}</p><span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">Explore <ArrowRight size={13} className="transition group-hover:translate-x-1" /></span></Link>;
 }

@@ -296,6 +296,73 @@ export const blogPosts: EditorialArticle[] = [
 
 export const newsroomPosts: EditorialArticle[] = [
   {
+    slug: "trip-extensions-added-drivers-and-review-replies",
+    title: "Trips can now be extended, share more drivers and answer a review",
+    description: "Guests can request more days on a confirmed trip, add an approved driver after booking, and reply once to the host's review.",
+    category: "Booking update",
+    published: "2026-09-01",
+    readTime: "4 min read",
+    sections: [
+      { heading: "Extend a trip without rebooking", paragraphs: ["A guest on a paid, confirmed trip can request a later return date from Trips. The host reviews the new dates against availability and either approves or declines. On approval, Redrive calculates the additional days at the same daily rate and collects a top-up payment through the original checkout before the return date moves."], items: ["The extension uses the booking's stored pricing", "Overlapping reservations block the request", "Protection and cancellation records follow the new dates"] },
+      { heading: "Add a driver after the booking", paragraphs: ["Additional drivers are no longer limited to the booking request screen. A guest can add another driver to a confirmed trip by uploading that person's current licence for the same automated check used at booking. Only drivers with a completed check may operate the vehicle."] },
+      { heading: "One reply to the host's review", paragraphs: ["After a host reviews a completed trip, the guest can post a single public response. The reply is attached to the original review, shown with the same reviewer context, and cannot be edited into an open-ended thread."] },
+    ],
+  },
+  {
+    slug: "multi-channel-notifications-and-lifecycle-reminders",
+    title: "Redrive notifications now reach you on the right channel",
+    description: "A single dispatch layer sends trip events across in-app, email, push and SMS, with an hourly job handling reminders and lifecycle changes.",
+    category: "Product",
+    published: "2026-08-31",
+    readTime: "4 min read",
+    sections: [
+      { heading: "One layer, several channels", paragraphs: ["Booking requests, approvals, declines, cancellations, payments, handovers, completed trips, reviews and messages are now produced by one notification service that can deliver to in-app, email, push and SMS. Each event carries a single relevant destination inside Redrive."], items: ["Consistent wording across every channel", "Per-event routing rather than blanket email", "A shared white email theme for every message"] },
+      { heading: "Reminders happen on time", paragraphs: ["An hourly job advances the trip lifecycle: it sends upcoming-pickup and upcoming-return reminders, marks trips complete after the return window, and prompts both sides to leave a review. These run from the server so they do not depend on anyone having the app open."] },
+      { heading: "Notifications never ask for secrets", paragraphs: ["A genuine Redrive notification links to a booking, message or profile screen. It will never ask for a password, card number or one-time code. Anything that does should be treated as a phishing attempt and reported."] },
+    ],
+  },
+  {
+    slug: "per-reservation-driver-licence-uploads",
+    title: "Driver-licence checks now belong to the booking",
+    description: "Each reservation carries its own licence uploads for the primary and any additional drivers, replacing a single profile-level identity check.",
+    category: "Trust & safety",
+    audience: "Account & safety",
+    published: "2026-08-29",
+    readTime: "4 min read",
+    sections: [
+      { heading: "The check moved to the trip", paragraphs: ["Redrive previously relied on one identity check stored against the profile. The booking request now collects a current licence for the primary driver, and the reservation keeps that record with the trip. This ties the person driving to the specific booking rather than to an account setting made months earlier."] },
+      { heading: "Every additional driver is checked", paragraphs: ["A guest who wants another person to drive uploads that driver's licence too, on the request screen or after the booking is confirmed. The same automated read of the front and back, currency check and first-name and date-of-birth comparison applies to each driver."], items: ["Front and back images per driver", "Only checked drivers may operate the vehicle", "The host sees names and match results, never licence images"] },
+      { heading: "The limits are still stated plainly", paragraphs: ["The automated read does not contact a government issuer and does not confirm authenticity, licence class, suspension or legal entitlement to drive. A guest remains responsible for being properly licensed for the vehicle and trip."] },
+    ],
+  },
+  {
+    slug: "booking-and-communications-overhaul",
+    title: "A broad overhaul tightens booking, messaging and trip records",
+    description: "A ten-point release plus follow-up improvements reworked how requests, payments, handovers and conversations hold together across the trip.",
+    category: "Product",
+    published: "2026-08-28",
+    readTime: "5 min read",
+    sections: [
+      { heading: "The booking path is one continuous record", paragraphs: ["Requesting dates now produces a versioned quote, an availability re-check on the server, a stored cancellation-policy snapshot and a clear payment state. The same figures appear on the listing, the final review screen, Trips and host Reservations, so the numbers a guest agreed to do not drift between screens."] },
+      { heading: "Messaging keeps coordination in one place", paragraphs: ["Conversations stream new activity without a refresh and support unread counts, read state, typing indicators and presence. The workspace stays within the app viewport instead of stretching the whole page, on both desktop and mobile."] },
+      { heading: "Handovers create shared evidence", paragraphs: ["Pickup and return each capture odometer, fuel or charge, a checklist, notes and authenticated photos. Both sides can acknowledge a report, and payout readiness checks consider the return record and any open incident before funds are treated as ready."], items: ["The same structure at pickup and return", "Photos stored as restricted assets", "Payout release waits on unresolved incidents"] },
+      { heading: "Follow-up fixes across the flow", paragraphs: ["A set of smaller improvements followed: steadier header behaviour on scroll, clearer empty and error states, better licence-failure messaging that separates an unreadable image from an unavailable provider, and tidier information pages."] },
+    ],
+  },
+  {
+    slug: "a-dynamic-home-page-built-on-live-inventory",
+    title: "The Redrive home page now runs on live marketplace data",
+    description: "Featured vehicles, categories and price context are drawn from real listings, with trip-price maths centralised so every surface agrees.",
+    category: "Product",
+    published: "2026-08-27",
+    readTime: "3 min read",
+    sections: [
+      { heading: "Real listings, not placeholders", paragraphs: ["The home page is assembled from current marketplace inventory rather than fixed sample content. Categories, featured vehicles and location context reflect what is actually available to book, and update as listings change."] },
+      { heading: "One place for trip-price maths", paragraphs: ["Daily rate, chargeable days, marketplace and service fees, protection and cleaning amounts are calculated by a single shared pricing module. The home page, search, listing pages and checkout all read from it, so an estimate shown early matches the total at the request screen."] },
+      { heading: "Server-safe by design", paragraphs: ["Home and discovery content is prepared on the server with short, size-limited caching for anonymous browsing only. Private account, licence, payment and exact-location data stays outside those caches, and an availability change invalidates the affected public results."] },
+    ],
+  },
+  {
     slug: "focused-favourites-messages-and-information-pages",
     title: "Favourites, Messages and information pages receive a focused redesign",
     description: "Redrive's everyday pages now share a calmer Coast and Country design, with a fixed messaging workspace and clearer paths through saved vehicles and support content.",

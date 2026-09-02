@@ -1,0 +1,8 @@
+<svg width="480" height="360" viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two overlapping message bubbles">
+  <ellipse cx="240" cy="316" rx="126" ry="14" fill="#F0F0F0"/>
+  <path d="M136 96h150a12 12 0 0 1 12 12v82a12 12 0 0 1-12 12h-92l-38 30v-30h-30a12 12 0 0 1-12-12v-82a12 12 0 0 1 12-12Z" fill="#fff" stroke="#3B3B3B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M164 132h94M164 158h64" stroke="#E7E7E7" stroke-width="3" stroke-linecap="round"/>
+  <path d="M344 168h-70a12 12 0 0 0-12 12v58a12 12 0 0 0 12 12h56l30 24v-24h-16a12 12 0 0 1-12-12v-58a12 12 0 0 1 0 0" fill="#1F1F1F"/>
+  <path d="M262 180a12 12 0 0 1 12-12h70a12 12 0 0 1 12 12v58a12 12 0 0 1-12 12h-8v24l-30-24h-32a12 12 0 0 1-12-12v-58Z" stroke="#1F1F1F" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M286 200h46M286 222h32" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+</svg>

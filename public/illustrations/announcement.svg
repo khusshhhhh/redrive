@@ -1,0 +1,8 @@
+<svg width="480" height="360" viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A megaphone with radiating lines">
+  <ellipse cx="240" cy="316" rx="130" ry="14" fill="#F0F0F0"/>
+  <path d="M150 176l150-56v120l-150-56v-8Z" fill="#fff" stroke="#3B3B3B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M150 176H120a10 10 0 0 0-10 10v0a10 10 0 0 0 10 10h30" stroke="#3B3B3B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M300 120l40-16v152l-40-16" stroke="#1F1F1F" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M162 200l10 60a8 8 0 0 0 8 6h14a6 6 0 0 0 6-8l-14-52" stroke="#3B3B3B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M370 150h34M366 120l28-16M366 200l28 16" stroke="#1F1F1F" stroke-width="3" stroke-linecap="round"/>
+</svg>

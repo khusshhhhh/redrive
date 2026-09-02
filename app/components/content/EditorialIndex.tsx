@@ -3,6 +3,8 @@ import { ArrowRight, Clock3 } from "lucide-react";
 import type { CSSProperties } from "react";
 
 import type { EditorialArticle } from "@/app/content/editorial";
+import Illustration from "@/app/components/Illustration";
+import { illustrationForCategory } from "./editorialArt";
 import InformationNav from "./InformationNav";
 
 interface EditorialIndexProps {
@@ -19,45 +21,49 @@ export default function EditorialIndex({ eyebrow, title, intro, baseHref, articl
   return (
     <main className="information-page bg-white">
       <InformationNav activeHref={baseHref} />
-      <section className="relative overflow-hidden border-b border-hairline-soft bg-surface-soft/50">
-        <div className="absolute -right-24 -top-32 h-80 w-80 rounded-full border-[48px] border-primary/[0.045]" />
-        <div data-info-reveal className="relative mx-auto max-w-[1240px] px-5 py-16 sm:px-8 sm:py-24 lg:px-10">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
-          <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-6xl">{title}</h1>
-          <p className="mt-6 max-w-2xl text-base leading-8 text-muted sm:text-lg">{intro}</p>
+
+      <section className="border-b border-hairline-soft bg-white">
+        <div data-info-reveal className="mx-auto grid max-w-[1240px] items-center gap-12 px-5 py-20 sm:px-8 sm:py-28 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-10 lg:py-32">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">{eyebrow}</p>
+            <h1 className="mt-6 max-w-3xl text-4xl font-semibold leading-[1.06] tracking-tight text-ink sm:text-6xl">{title}</h1>
+            <p className="mt-7 max-w-2xl text-base leading-8 text-muted sm:text-lg">{intro}</p>
+          </div>
+          <Illustration name="announcement" width={360} priority className="mx-auto hidden h-auto w-full max-w-[340px] lg:block" />
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
+      <div className="mx-auto max-w-[1240px] px-5 py-16 sm:px-8 sm:py-24 lg:px-10">
         {featured && (
-          <Link data-info-reveal href={`${baseHref}/${featured.slug}`} className="group grid overflow-hidden rounded-2xl bg-ink text-white shadow-[0_20px_60px_rgba(22, 22, 22,0.15)] md:grid-cols-[1.1fr_.9fr]">
-            <div className="p-7 sm:p-10">
-              <p className="text-xs font-semibold uppercase tracking-[0.17em] text-accent">{featuredLabel} · {featured.category}</p>
-              <h2 className="mt-4 text-2xl font-semibold leading-tight sm:text-4xl">{featured.title}</h2>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-white/70 sm:text-base">{featured.description}</p>
-              <div className="mt-7 flex items-center gap-4 text-xs text-white/55">
+          <Link data-info-reveal href={`${baseHref}/${featured.slug}`} className="group grid overflow-hidden rounded-xl border border-hairline-soft bg-white transition hover:border-primary/40 md:grid-cols-[1.05fr_.95fr]">
+            <div className="p-8 sm:p-12">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{featuredLabel} · {featured.category}</p>
+              <h2 className="mt-5 text-2xl font-semibold leading-tight text-ink sm:text-4xl">{featured.title}</h2>
+              <p className="mt-5 max-w-xl text-sm leading-7 text-muted sm:text-base">{featured.description}</p>
+              <div className="mt-8 flex items-center gap-4 text-xs text-muted">
                 <time dateTime={featured.published}>{formatDate(featured.published)}</time>
                 <span className="flex items-center gap-1.5"><Clock3 size={14} />{featured.readTime}</span>
               </div>
-              <span className="mt-8 inline-flex items-center gap-2 text-sm font-semibold">Read article <ArrowRight size={16} className="transition group-hover:translate-x-1" /></span>
+              <span className="mt-9 inline-flex items-center gap-2 text-sm font-semibold text-ink">Read article <ArrowRight size={16} className="transition group-hover:translate-x-1" /></span>
             </div>
-            <div className="relative min-h-52 overflow-hidden bg-gradient-to-br from-primary via-secondary to-ink">
-              <div className="absolute -right-12 -top-16 h-56 w-56 rounded-full border-[34px] border-white/10" />
-              <div className="absolute bottom-8 left-8 h-20 w-20 rounded-full bg-accent/80 blur-sm" />
-              <div className="absolute bottom-10 right-10 text-7xl font-semibold text-white/10">R</div>
+            <div className="flex items-center justify-center border-t border-hairline-soft bg-surface-soft/40 p-10 md:border-l md:border-t-0">
+              <Illustration name={illustrationForCategory(featured.category)} width={320} className="h-auto w-full max-w-[300px]" />
             </div>
           </Link>
         )}
 
-        <div data-info-reveal className="mt-14 flex items-end justify-between">
-          <div><p className="text-xs font-semibold uppercase tracking-[0.15em] text-primary">Browse</p><h2 className="mt-2 text-2xl font-semibold text-ink">More from Redrive</h2></div>
+        <div data-info-reveal className="mt-20 flex items-end justify-between border-b border-hairline-soft pb-5">
+          <div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Browse</p><h2 className="mt-2 text-2xl font-semibold text-ink">More from Redrive</h2></div>
           <span className="text-sm text-muted">{articles.length} articles</span>
         </div>
-        <div className="mt-7 grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
           {rest.map((article, index) => (
-            <Link data-info-reveal style={{ "--info-reveal-delay": `${(index % 3) * 90}ms` } as CSSProperties} key={article.slug} href={`${baseHref}/${article.slug}`} className="group rounded-2xl border border-hairline-soft bg-white p-5 shadow-[0_8px_28px_rgba(22, 22, 22,0.035)] transition hover:-translate-y-1 hover:border-primary/35 hover:shadow-card">
-              <div className="flex items-center justify-between gap-3"><span className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">{article.category}</span><time dateTime={article.published} className="text-xs text-muted">{formatDate(article.published)}</time></div>
-              <h3 className="mt-4 text-xl font-semibold leading-snug text-ink group-hover:underline">{article.title}</h3>
+            <Link data-info-reveal style={{ "--info-reveal-delay": `${(index % 3) * 90}ms` } as CSSProperties} key={article.slug} href={`${baseHref}/${article.slug}`} className="group flex flex-col">
+              <div className="flex items-center justify-center rounded-xl border border-hairline-soft bg-white p-8 transition group-hover:border-primary/40">
+                <Illustration name={illustrationForCategory(article.category)} width={220} className="h-auto w-full max-w-[200px]" />
+              </div>
+              <div className="mt-5 flex items-center justify-between gap-3"><span className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">{article.category}</span><time dateTime={article.published} className="text-xs text-muted">{formatDate(article.published)}</time></div>
+              <h3 className="mt-3 text-lg font-semibold leading-snug text-ink group-hover:underline">{article.title}</h3>
               <p className="mt-3 text-sm leading-6 text-muted">{article.description}</p>
               <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-ink">Read more <ArrowRight size={15} className="transition group-hover:translate-x-1" /></span>
             </Link>

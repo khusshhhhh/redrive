@@ -1,0 +1,11 @@
+<svg width="480" height="360" viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="One hand passing a key to another">
+  <ellipse cx="240" cy="318" rx="150" ry="14" fill="#F0F0F0"/>
+  <path d="M96 300c0-30 18-52 44-52h24v52" stroke="#3B3B3B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M164 248c14-8 26-6 40 4M164 270h44" stroke="#3B3B3B" stroke-width="3" stroke-linecap="round"/>
+  <path d="M384 300c0-30-18-52-44-52h-24v52" stroke="#3B3B3B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M316 248c-14-8-26-6-40 4M272 270h44" stroke="#3B3B3B" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="212" cy="168" r="26" fill="#fff" stroke="#1F1F1F" stroke-width="3"/>
+  <circle cx="212" cy="168" r="9" fill="#1F1F1F"/>
+  <path d="M238 168h44l-8 12 12 10-14 12" stroke="#1F1F1F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M150 96c0 8 8 8 8 16M180 84c0 10 10 10 10 20" stroke="#D9D9D9" stroke-width="3" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,10 @@
+<svg width="480" height="360" viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A document protected by a padlock">
+  <ellipse cx="240" cy="316" rx="120" ry="14" fill="#F0F0F0"/>
+  <path d="M164 68h108l44 44v180a8 8 0 0 1-8 8H164a8 8 0 0 1-8-8V76a8 8 0 0 1 8-8Z" fill="#fff" stroke="#3B3B3B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M272 68v44h44" stroke="#3B3B3B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M180 150h80M180 176h112M180 202h64" stroke="#E7E7E7" stroke-width="3" stroke-linecap="round"/>
+  <rect x="212" y="228" width="72" height="58" rx="8" fill="#1F1F1F"/>
+  <path d="M226 228v-12a22 22 0 0 1 44 0v12" stroke="#1F1F1F" stroke-width="3"/>
+  <circle cx="248" cy="252" r="6" fill="#fff"/>
+  <path d="M248 258v12" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+</svg>

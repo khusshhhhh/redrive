@@ -1,0 +1,9 @@
+<svg width="480" height="360" viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A folded map with a route between two pins">
+  <ellipse cx="240" cy="318" rx="140" ry="14" fill="#F0F0F0"/>
+  <path d="M132 96l72-24 72 24 72-24v192l-72 24-72-24-72 24V96Z" fill="#fff" stroke="#3B3B3B" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M204 72v192M276 96v192" stroke="#E7E7E7" stroke-width="3"/>
+  <path d="M168 236c20-6 20-40 44-40s28 34 52 22 24-70 48-74" stroke="#1F1F1F" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 12"/>
+  <path d="M168 236a12 12 0 1 0 0-24 12 12 0 0 0 0 24Z" fill="#1F1F1F"/>
+  <path d="M312 144c0 18-16 28-16 28s-16-10-16-28a16 16 0 0 1 32 0Z" fill="#1F1F1F"/>
+  <circle cx="296" cy="144" r="6" fill="#fff"/>
+</svg>
