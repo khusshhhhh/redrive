@@ -53,7 +53,10 @@ export function verificationExpiry() {
 
 function getPublicAppUrl() {
   try {
-    const configuredUrl = process.env.NEXTAUTH_URL;
+    // Same source as every other email link (see app/libs/siteUrl.ts) so the
+    // domain in these messages is consistent — mismatched link domains hurt
+    // deliverability.
+    const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL;
     if (!configuredUrl) return null;
     const url = new URL(configuredUrl);
     return url.protocol === "https:" || url.protocol === "http:" ? url.origin : null;
