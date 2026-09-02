@@ -8,6 +8,8 @@ import { resolveReservationDriverRows, type ReservationDriverRow } from "@/app/l
 import { executeIdempotent } from "@/app/libs/mobile-api/idempotency";
 import { mobileError, mobileJson, mobileUnexpectedError, mobileValidationError, parseMobileJson } from "@/app/libs/mobile-api/responses";
 import prisma from "@/app/libs/prismadb";
+import { resolvePickupTime } from "@/app/libs/bookingTimes";
+import { timezoneForState } from "@/app/libs/timezone";
 import { consumeRateLimits, getClientIp, writeAuditEvent } from "@/app/libs/security";
 import { notificationService } from "@/app/services/notificationService";
 import { toMobileReservation } from "@/app/services/mobileDtos";
@@ -54,7 +56,7 @@ async function POSTHandler(request: Request) {
     const endDate = new Date(parsed.data.endDate);
     const today = new Date(); today.setHours(0, 0, 0, 0);
     if (endDate < startDate || startDate < today) return { status: 400, body: { error: { code: "INVALID_DATE_RANGE", message: "Choose a valid future date range.", requestId: "idempotent" } } };
-    const listing = await prisma.listing.findUnique({ where: { id: parsed.data.listingId }, select: { id: true, title: true, userId: true, price: true, cleaningFeeOption: true, cleaningFeeAmount: true, minimumNoticeHours: true, minimumTripDays: true, maximumTripDays: true, cancellationPolicy: true } });
+    const listing = await prisma.listing.findUnique({ where: { id: parsed.data.listingId }, select: { id: true, title: true, userId: true, price: true, cleaningFeeOption: true, cleaningFeeAmount: true, minimumNoticeHours: true, minimumTripDays: true, maximumTripDays: true, cancellationPolicy: true, pickupWindowStart: true, pickupWindowEnd: true, timezone: true, state: true } });
     if (!listing) return { status: 404, body: { error: { code: "LISTING_NOT_FOUND", message: "That listing is no longer available.", requestId: "idempotent" } } };
     if (listing.userId === auth.identity.userId) return { status: 403, body: { error: { code: "OWN_LISTING", message: "You cannot book your own listing.", requestId: "idempotent" } } };
     const quote = buildBookingQuote({ dailyRate: listing.price, startDate, endDate, insuranceType: parsed.data.insuranceType, cleaningFee: listing.cleaningFeeOption === "YES" ? listing.cleaningFeeAmount || 0 : 0 });
@@ -65,6 +67,17 @@ async function POSTHandler(request: Request) {
       prisma.availabilityBlock.findFirst({ where: { listingId: listing.id, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
     ]);
     if (reservationConflict || ownerBlock) return { status: 409, body: { error: { code: "DATES_UNAVAILABLE", message: "Those dates are no longer available.", requestId: "idempotent" } } };
+
+    const pickupTime = resolvePickupTime({
+      requested: (parsed.data as { pickupTime?: unknown }).pickupTime,
+      windowStart: listing.pickupWindowStart,
+      windowEnd: listing.pickupWindowEnd,
+    });
+    if (!listing.timezone && listing.state) {
+      await prisma.listing
+        .update({ where: { id: listing.id }, data: { timezone: timezoneForState(listing.state) } })
+        .catch(() => undefined);
+    }
 
     // Named drivers. Optional during the mobile-client rollout; once provided we
     // enforce a valid Australian licence for the primary driver, same as web.
@@ -78,7 +91,7 @@ async function POSTHandler(request: Request) {
     }
 
     const created = await prisma.$transaction(async (tx) => {
-      const reservation = await tx.reservation.create({ data: { userId: auth.identity.userId, listingId: listing.id, startDate, endDate, totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total, message: parsed.data.message || null, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION, cancellationPolicy: normalizeCancellationPolicy(listing.cancellationPolicy), cancellationPolicySnapshot: cancellationPolicySnapshot(listing.cancellationPolicy), status: "REVIEWING", autoDeclineAt: new Date(Date.now() + 48 * 60 * 60_000) } });
+      const reservation = await tx.reservation.create({ data: { userId: auth.identity.userId, listingId: listing.id, startDate, endDate, totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total, message: parsed.data.message || null, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION, cancellationPolicy: normalizeCancellationPolicy(listing.cancellationPolicy), cancellationPolicySnapshot: cancellationPolicySnapshot(listing.cancellationPolicy), status: "REVIEWING", autoDeclineAt: new Date(Date.now() + 48 * 60 * 60_000), pickupTime, pickupTimeSetByRole: "GUEST", pickupTimeConfirmed: true, pickupTimeUpdatedAt: new Date() } });
       await tx.bookingQuote.create({ data: { userId: auth.identity.userId, listingId: listing.id, reservationId: reservation.id, startDate, endDate, days: quote.days, dailyRate: quote.dailyRate, basePrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, cleaningFee: quote.cleaningFee, total: quote.total, currency: quote.currency, policyVersion: quote.policyVersion, expiresAt: new Date(Date.now() + 15 * 60_000) } });
       if (driverRows.length > 0) {
         await tx.reservationDriver.createMany({ data: driverRows.map((driver) => ({ ...driver, reservationId: reservation.id })) });

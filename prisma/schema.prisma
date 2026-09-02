@@ -249,6 +249,7 @@ model Listing {
   pickupInstructions String?
   pickupWindowStart  String? // "08:00"
   pickupWindowEnd    String? // "20:00"
+  timezone           String? // IANA zone for handover times, e.g. "Australia/Sydney" (derived from state when unset)
   languagesSpoken    String[] @default([])
 
   // --- Costs to expect (display only) ------------------------
@@ -343,6 +344,23 @@ model Reservation {
   returnHandoverAgreedAt     DateTime? // both parties agreed the return handover
   claimWindowEndsAt          DateTime? // payout holds until here so the host can inspect / claim
   remindersSent              String[]  @default([]) // lifecycle reminder keys already dispatched
+
+  // Time-of-day for the physical handovers, "HH:MM" 24h, in the vehicle's
+  // timezone (Listing.timezone). Pickup belongs to the host (they hand the
+  // vehicle over) and is confirmed with the request; the return belongs to the
+  // guest and is set once the trip is confirmed. The non-owning party can
+  // *propose* a change — it stays unconfirmed until the owner confirms — and
+  // the other side is notified at every step.
+  pickupTime                 String? // when the guest collects on the pickup day
+  pickupTimeSetByRole        String? // HOST | GUEST — who last set pickupTime
+  pickupTimeProposedByRole   String? // set while a guest proposal awaits host confirmation
+  pickupTimeConfirmed        Boolean   @default(true) // false → owner (host) must confirm
+  pickupTimeUpdatedAt        DateTime?
+  handoverTime               String? // when the guest returns the vehicle on the end day
+  handoverTimeSetByRole      String? // HOST | GUEST — who last set handoverTime
+  handoverTimeProposedByRole String? // set while a host proposal awaits guest confirmation
+  handoverTimeConfirmed      Boolean   @default(false) // false → owner (guest) must confirm
+  handoverTimeUpdatedAt      DateTime?
 
   user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   listing     Listing             @relation(fields: [listingId], references: [id], onDelete: Cascade)
@@ -899,6 +917,7 @@ model Message {
   senderId  String   @db.ObjectId
   text      String?
   imageUrl  String?
+  system    Boolean  @default(false) // app-authored line (e.g. a handover-time change), rendered as a centred note
   readByIds String[] @default([]) @db.ObjectId
   createdAt DateTime @default(now())
 

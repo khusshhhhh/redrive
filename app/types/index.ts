@@ -64,10 +64,14 @@ export type SafeReservation = Omit<
   | "paidAt"
   | "completedAt"
   | "paymentDueAt"
+  | "pickupTimeUpdatedAt"
+  | "handoverTimeUpdatedAt"
 > & {
   createdAt: string;
   startDate: string;
   endDate: string;
+  pickupTimeUpdatedAt?: string | null;
+  handoverTimeUpdatedAt?: string | null;
   user: SafeUser;
   listing: SafeListing;
   status: string;
@@ -153,6 +157,7 @@ export type SafeMessage = {
   senderId: string;
   text: string | null;
   imageUrl: string | null;
+  system: boolean;
   readByIds: string[];
   createdAt: string;
 };

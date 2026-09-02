@@ -1,4 +1,6 @@
 import prisma from "@/app/libs/prismadb";
+import { formatTimeOfDay } from "@/app/libs/bookingTimes";
+import { resolveListingTimezone, tzAbbrev } from "@/app/libs/timezone";
 
 const DATE_FMT = new Intl.DateTimeFormat("en-AU", {
   weekday: "short",
@@ -25,13 +27,31 @@ export function formatDateRange(
   return `${formatDate(start)} → ${formatDate(end)}`;
 }
 
+/** "Thu 4 Sep · 10:00 am AEST" — a handover day + time with its zone. */
+export function formatHandoverMoment(
+  day: Date | string | null | undefined,
+  time: string | null | undefined,
+  timezone: string,
+): string {
+  const datePart = formatDate(day);
+  const pretty = formatTimeOfDay(time);
+  if (pretty === "—") return datePart;
+  const abbrev = day ? tzAbbrev(new Date(day), timezone) : "";
+  return `${datePart} · ${pretty}${abbrev ? ` ${abbrev}` : ""}`;
+}
+
 export interface ReservationCard {
   id: string;
   listingTitle: string;
   suburb: string | null;
   state: string | null;
+  timezone: string;
   startDate: Date;
   endDate: Date;
+  pickupTime: string | null;
+  handoverTime: string | null;
+  pickupTimeConfirmed: boolean;
+  handoverTimeConfirmed: boolean;
   nights: number;
   totalFees: number;
   ownerAmount: number;
@@ -53,6 +73,10 @@ export async function loadReservationCard(reservationId: string): Promise<Reserv
       id: true,
       startDate: true,
       endDate: true,
+      pickupTime: true,
+      handoverTime: true,
+      pickupTimeConfirmed: true,
+      handoverTimeConfirmed: true,
       totalFees: true,
       totalPrice: true,
       cancellationPolicySnapshot: true,
@@ -62,6 +86,7 @@ export async function loadReservationCard(reservationId: string): Promise<Reserv
           title: true,
           suburb: true,
           state: true,
+          timezone: true,
           address: true,
           user: { select: { name: true, number: true } },
         },
@@ -85,8 +110,13 @@ export async function loadReservationCard(reservationId: string): Promise<Reserv
     listingTitle: reservation.listing.title,
     suburb: reservation.listing.suburb,
     state: reservation.listing.state,
+    timezone: resolveListingTimezone(reservation.listing),
     startDate: reservation.startDate,
     endDate: reservation.endDate,
+    pickupTime: reservation.pickupTime ?? null,
+    handoverTime: reservation.handoverTime ?? null,
+    pickupTimeConfirmed: reservation.pickupTimeConfirmed ?? true,
+    handoverTimeConfirmed: reservation.handoverTimeConfirmed ?? false,
     nights,
     totalFees: reservation.totalFees,
     ownerAmount: reservation.totalPrice,
@@ -100,8 +130,15 @@ export async function loadReservationCard(reservationId: string): Promise<Reserv
   };
 }
 
-export function tripFacts(card: ReservationCard): { label: string; value: string }[] {
-  return [
+/**
+ * Labelled facts for a booking email. Handover times are only included where
+ * they're relevant (live bookings) — pass `{ includeTimes: true }`.
+ */
+export function tripFacts(
+  card: ReservationCard,
+  opts: { includeTimes?: boolean } = {},
+): { label: string; value: string }[] {
+  const facts = [
     { label: "Vehicle", value: card.listingTitle },
     {
       label: "Location",
@@ -110,4 +147,21 @@ export function tripFacts(card: ReservationCard): { label: string; value: string
     { label: "Dates", value: formatDateRange(card.startDate, card.endDate) },
     { label: "Length", value: `${card.nights} day${card.nights === 1 ? "" : "s"}` },
   ];
+  if (opts.includeTimes && card.pickupTime) {
+    facts.push({
+      label: "Pickup",
+      value:
+        formatHandoverMoment(card.startDate, card.pickupTime, card.timezone) +
+        (card.pickupTimeConfirmed ? "" : " (proposed)"),
+    });
+  }
+  if (opts.includeTimes && card.handoverTime) {
+    facts.push({
+      label: "Return",
+      value:
+        formatHandoverMoment(card.endDate, card.handoverTime, card.timezone) +
+        (card.handoverTimeConfirmed ? "" : " (proposed)"),
+    });
+  }
+  return facts;
 }

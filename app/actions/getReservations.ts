@@ -50,6 +50,8 @@ export default async function getReservations(params: IParams) {
       paidAt: reservation.paidAt?.toISOString() ?? null,
       completedAt: reservation.completedAt?.toISOString() ?? null,
       paymentDueAt: reservation.paymentDueAt?.toISOString() ?? null,
+      pickupTimeUpdatedAt: reservation.pickupTimeUpdatedAt?.toISOString() ?? null,
+      handoverTimeUpdatedAt: reservation.handoverTimeUpdatedAt?.toISOString() ?? null,
       user: {
         id: reservation.user.id,
         name: reservation.user.name,

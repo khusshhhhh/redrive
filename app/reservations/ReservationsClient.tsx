@@ -4,7 +4,8 @@ import { useCallback, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { CalendarDays, ChevronRight, MapPin, UsersRound } from "lucide-react";
+import { CalendarDays, ChevronRight, Clock3, MapPin, UsersRound } from "lucide-react";
+import { formatTimeOfDay, isValidTimeOfDay } from "../libs/bookingTimes";
 
 import Container from "../components/Container";
 import CancelBookingDialog from "../components/reservations/CancelBookingDialog";
@@ -63,6 +64,9 @@ export default function ReservationsClient({ reservations }: ReservationsClientP
                       <div className="mt-5 grid gap-3 text-sm text-muted sm:grid-cols-2">
                         <p className="flex items-center gap-2"><CalendarDays size={16} className="text-primary" />{format(new Date(reservation.startDate), "d MMM")} – {format(new Date(reservation.endDate), "d MMM yyyy")}</p>
                         <p className="flex items-center gap-2"><MapPin size={16} className="text-primary" />{listing.suburb}, {listing.state}</p>
+                        {isValidTimeOfDay(reservation.pickupTime) && (
+                          <p className="flex items-center gap-2"><Clock3 size={16} className="text-primary" />Pickup {formatTimeOfDay(reservation.pickupTime)}{reservation.pickupTimeConfirmed === false ? " · proposed" : ""}</p>
+                        )}
                         <p className="flex items-center gap-2 sm:col-span-2"><UsersRound size={16} className="text-primary" />Booked by {reservation.user.name || reservation.user.email || "Guest"}</p>
                       </div>
                     </div>

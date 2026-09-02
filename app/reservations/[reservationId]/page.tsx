@@ -32,6 +32,9 @@ import GuestReviewReply from "@/app/components/reservations/GuestReviewReply";
 import TripStatusTimeline from "@/app/components/reservations/TripStatusTimeline";
 import CancellationPolicyDisplay from "@/app/components/listings/CancellationPolicyDisplay";
 import DriversCard from "@/app/components/reservations/DriversCard";
+import PickupHandoverTimes from "@/app/components/reservations/PickupHandoverTimes";
+import { formatTimeOfDay, isValidTimeOfDay } from "@/app/libs/bookingTimes";
+import { resolveListingTimezone, tzAbbrev } from "@/app/libs/timezone";
 import PayNowPanel from "@/app/components/reservations/PayNowPanel";
 import SuccessBurst from "@/app/components/SuccessBurst";
 
@@ -185,6 +188,7 @@ export default function ReservationDetails() {
     );
 
   const listing = reservation.listing;
+  const vehicleTz = tzAbbrev(new Date(reservation.startDate), resolveListingTimezone(listing));
   const isHost = currentUser?.id === listing.userId;
   const otherUserId = isHost ? reservation.user.id : listing.userId;
   const duration = Math.max(
@@ -323,10 +327,31 @@ export default function ReservationDetails() {
                   subtitle="Pickup and return dates for this reservation."
                 />
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                  <DateCard label="Pickup" date={reservation.startDate} />
-                  <DateCard label="Return" date={reservation.endDate} />
+                  <DateCard
+                    label="Pickup"
+                    date={reservation.startDate}
+                    time={reservation.pickupTime}
+                    tz={vehicleTz}
+                    pending={reservation.pickupTimeConfirmed === false}
+                  />
+                  <DateCard
+                    label="Return"
+                    date={reservation.endDate}
+                    time={reservation.handoverTime}
+                    tz={vehicleTz}
+                    pending={reservation.handoverTimeConfirmed === false && !!reservation.handoverTime}
+                  />
                 </div>
               </section>
+
+              {currentUser && !["DECLINED", "EXPIRED", "CANCELLED"].includes(reservation.status) && (
+                <PickupHandoverTimes
+                  reservation={reservation}
+                  isHost={isHost}
+                  isGuest={currentUser.id === reservation.userId}
+                  onChanged={() => void refreshReservation()}
+                />
+              )}
 
               {reservation.message && (
                 <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
@@ -608,7 +633,19 @@ function Info({
     </div>
   );
 }
-function DateCard({ label, date }: { label: string; date: string }) {
+function DateCard({
+  label,
+  date,
+  time,
+  tz,
+  pending,
+}: {
+  label: string;
+  date: string;
+  time?: string | null;
+  tz?: string | null;
+  pending?: boolean;
+}) {
   return (
     <div className="rounded-sm bg-surface-soft p-5">
       <p className="text-xs font-semibold uppercase tracking-wider text-primary">
@@ -618,7 +655,9 @@ function DateCard({ label, date }: { label: string; date: string }) {
         {format(new Date(date), "EEEE, d MMMM")}
       </p>
       <p className="mt-1 text-sm text-muted">
-        {format(new Date(date), "yyyy")}
+        {isValidTimeOfDay(time)
+          ? `${formatTimeOfDay(time)}${tz ? ` ${tz}` : ""}${pending ? " · proposed" : ""}`
+          : format(new Date(date), "yyyy")}
       </p>
     </div>
   );

@@ -4,6 +4,8 @@ import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import { buildBookingQuote, PRICING_POLICY_VERSION } from "@/app/libs/booking";
+import { resolvePickupTime } from "@/app/libs/bookingTimes";
+import { timezoneForState } from "@/app/libs/timezone";
 import { PAYMENT_WINDOW_HOURS, REQUEST_AUTO_DECLINE_HOURS, hoursFromNow } from "@/app/libs/bookingWindows";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 import { notificationService } from "@/app/services/notificationService";
@@ -61,7 +63,7 @@ async function POSTHandler(request: NextRequest) {
 
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
-      select: { id: true, title: true, userId: true, price: true, cleaningFeeOption: true, cleaningFeeAmount: true, minimumNoticeHours: true, minimumTripDays: true, maximumTripDays: true, cancellationPolicy: true, instantBook: true, user: { select: { stripePayoutsEnabled: true } } },
+      select: { id: true, title: true, userId: true, price: true, cleaningFeeOption: true, cleaningFeeAmount: true, minimumNoticeHours: true, minimumTripDays: true, maximumTripDays: true, cancellationPolicy: true, instantBook: true, pickupWindowStart: true, pickupWindowEnd: true, timezone: true, state: true, user: { select: { stripePayoutsEnabled: true } } },
     });
     if (!listing) return NextResponse.json({ error: "Listing not found" }, { status: 404 });
     if (listing.userId === currentUser.id) return NextResponse.json({ error: "You cannot book your own listing" }, { status: 403 });
@@ -79,6 +81,24 @@ async function POSTHandler(request: NextRequest) {
       prisma.availabilityBlock.findFirst({ where: { listingId, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
     ]);
     if (reservationConflict || ownerBlock) return NextResponse.json({ error: "Those dates are no longer available", code: "DATES_UNAVAILABLE" }, { status: 409 });
+
+    // Pickup time is confirmed with the request (the host ratifies it on
+    // approval). The guest proposes one on the booking screen; a missing or
+    // out-of-window value falls back to the window's opening time. The host or
+    // guest can revise it later from the booking details.
+    const pickupTime = resolvePickupTime({
+      requested: body.pickupTime,
+      windowStart: listing.pickupWindowStart,
+      windowEnd: listing.pickupWindowEnd,
+    });
+
+    // Backfill the listing's timezone from its state the first time it's
+    // needed, so handover-time maths and emails have a zone to work in.
+    if (!listing.timezone && listing.state) {
+      await prisma.listing
+        .update({ where: { id: listing.id }, data: { timezone: timezoneForState(listing.state) } })
+        .catch(() => undefined);
+    }
 
     // Instant Book: the host has opted in and can receive payouts, and the guest
     // is already email- and licence-verified (checked above), so the request is
@@ -98,6 +118,7 @@ async function POSTHandler(request: NextRequest) {
           totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee,
           insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total,
           message: message || null, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION,
+          pickupTime, pickupTimeSetByRole: "GUEST", pickupTimeConfirmed: true, pickupTimeUpdatedAt: new Date(),
           cancellationPolicy: normalizeCancellationPolicy(listing.cancellationPolicy),
           cancellationPolicySnapshot: cancellationPolicySnapshot(listing.cancellationPolicy),
           ...(instant

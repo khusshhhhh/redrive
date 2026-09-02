@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import { CLAIM_WINDOW_HOURS, hoursFromNow } from "@/app/libs/bookingWindows";
+import { pickupInstant, returnInstant } from "@/app/libs/bookingTimes";
 import prisma from "@/app/libs/prismadb";
 import { notificationService } from "@/app/services/notificationService";
 import { consumeRateLimits, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
@@ -21,7 +22,9 @@ async function access(request: Request, reservationId: string) {
       paymentStatus: true,
       startDate: true,
       endDate: true,
-      listing: { select: { userId: true } },
+      pickupTime: true,
+      handoverTime: true,
+      listing: { select: { userId: true, state: true, timezone: true } },
     },
   });
   return reservation &&
@@ -100,12 +103,18 @@ async function PUTHandler(request: Request, context: Context) {
     );
   const phase: "PICKUP" | "RETURN" = body.phase;
   const now = new Date();
+  // The handover opens at the agreed time of day (in the vehicle's zone), not
+  // at midnight — a 6pm pickup shouldn't unlock at 00:01. A 2h grace lets
+  // people start a little early if they meet sooner.
+  const GRACE_MS = 2 * 3_600_000;
   const availableAt =
-    phase === "PICKUP" ? auth.reservation.startDate : auth.reservation.endDate;
+    phase === "PICKUP"
+      ? new Date(pickupInstant(auth.reservation, auth.reservation.listing).getTime() - GRACE_MS)
+      : new Date(returnInstant(auth.reservation, auth.reservation.listing).getTime() - GRACE_MS);
   if (now < availableAt)
     return NextResponse.json(
       {
-        error: `${phase === "PICKUP" ? "Pickup" : "Return"} handover opens on the booked date`,
+        error: `${phase === "PICKUP" ? "Pickup" : "Return"} handover opens near the agreed ${phase === "PICKUP" ? "pickup" : "return"} time`,
       },
       { status: 409 },
     );
@@ -267,13 +276,23 @@ async function PUTHandler(request: Request, context: Context) {
     await prisma.handoverMedia.createMany({
       data: media.map((item) => ({ ...item, reportId: report.id })),
     });
+  // On a submitted handover, record how far off the agreed time it actually
+  // happened — feeds late-return signal and the admin audit view.
+  let plannedDeltaMinutes: number | null = null;
+  if (submit) {
+    const plannedAt =
+      phase === "PICKUP"
+        ? pickupInstant(auth.reservation, auth.reservation.listing)
+        : returnInstant(auth.reservation, auth.reservation.listing);
+    plannedDeltaMinutes = Math.round((now.getTime() - plannedAt.getTime()) / 60_000);
+  }
   await writeAuditEvent({
     request,
     actorUserId: auth.user.id,
     action: submit ? "HANDOVER_SUBMITTED" : "HANDOVER_SAVED",
     targetType: "Reservation",
     targetId: reservationId,
-    metadata: { phase, photoCount: media.length },
+    metadata: { phase, photoCount: media.length, plannedDeltaMinutes },
   });
   return NextResponse.json({ ...report, media });
 }

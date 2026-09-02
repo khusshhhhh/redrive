@@ -6,6 +6,7 @@ export interface RawMessage {
   senderId: string;
   text: string | null;
   imageUrl: string | null;
+  system?: boolean;
   readByIds: string[];
   createdAt: Date;
 }
@@ -17,6 +18,7 @@ export function toSafeMessage(message: RawMessage) {
     senderId: message.senderId,
     text: message.text,
     imageUrl: message.imageUrl,
+    system: message.system ?? false,
     readByIds: message.readByIds,
     createdAt: message.createdAt.toISOString(),
   };

@@ -3,6 +3,7 @@
 import { Check, Circle } from "lucide-react";
 
 import type { SafeReservation } from "@/app/types";
+import { formatTimeOfDay, isValidTimeOfDay, pickupInstant, returnInstant } from "@/app/libs/bookingTimes";
 
 type StepState = "done" | "current" | "todo";
 
@@ -30,8 +31,14 @@ export default function TripStatusTimeline({ reservation }: { reservation: SafeR
   if (["DECLINED", "CANCELLED", "EXPIRED"].includes(status)) return null;
 
   const paid = ["PAID_HELD", "RELEASED"].includes(reservation.paymentStatus || "");
-  const start = new Date(reservation.startDate);
-  const end = new Date(reservation.endDate);
+  const start = pickupInstant(reservation, reservation.listing);
+  const end = returnInstant(reservation, reservation.listing);
+  const pickupAt = isValidTimeOfDay(reservation.pickupTime)
+    ? ` at ${formatTimeOfDay(reservation.pickupTime)}`
+    : "";
+  const returnAt = isValidTimeOfDay(reservation.handoverTime)
+    ? ` at ${formatTimeOfDay(reservation.handoverTime)}`
+    : "";
 
   const approved = status !== "REVIEWING";
   const active = status === "ACTIVE" || status === "COMPLETED";
@@ -62,13 +69,13 @@ export default function TripStatusTimeline({ reservation }: { reservation: SafeR
       key: "pickup",
       label: "Pickup handover",
       state: active ? "done" : paid ? "current" : "todo",
-      hint: !active && paid ? `Pickup ${relative(start)}` : undefined,
+      hint: !active && paid ? `Pickup ${relative(start)}${pickupAt}` : undefined,
     },
     {
       key: "return",
       label: "Return handover",
       state: completed ? "done" : active ? "current" : "todo",
-      hint: active && !completed ? `Return ${relative(end)}` : undefined,
+      hint: active && !completed ? `Return ${relative(end)}${returnAt}` : undefined,
     },
     {
       key: "complete",

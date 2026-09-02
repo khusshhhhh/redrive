@@ -7,6 +7,9 @@ import Image from "next/image";
 import { differenceInCalendarDays, format } from "date-fns";
 import { toast } from "@/app/libs/toast";
 import { CalendarDays, ChevronLeft, Clock3, IdCard, Info, MapPin, MessageCircle, Send, ShieldCheck, Sparkles } from "lucide-react";
+import { effectivePickupWindow, formatWindow, resolvePickupTime, withinWindow } from "@/app/libs/bookingTimes";
+import { resolveListingTimezone, tzAbbrev } from "@/app/libs/timezone";
+import TimeSlotSelect from "@/app/components/inputs/TimeSlotSelect";
 
 import Container from "@/app/components/Container";
 import Button from "@/app/components/Button";
@@ -34,6 +37,7 @@ export default function ConfirmReservation() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
+  const [pickupTime, setPickupTime] = useState("");
   const [loadError, setLoadError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [drivers, setDrivers] = useState<DriverPayload[]>([]);
@@ -54,6 +58,12 @@ export default function ConfirmReservation() {
         setListing(listingResponse.data);
         setCurrentUser(userResponse?.data ?? null);
         setLoadError(false);
+        setPickupTime(
+          resolvePickupTime({
+            windowStart: listingResponse.data?.pickupWindowStart,
+            windowEnd: listingResponse.data?.pickupWindowEnd,
+          }),
+        );
       })
       .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
@@ -67,6 +77,15 @@ export default function ConfirmReservation() {
   }, [basePrice, insuranceFee, listing]);
 
   const bookingDays = startDate && endDate ? Math.max(1, differenceInCalendarDays(new Date(endDate), new Date(startDate)) + 1) : 0;
+  const effWindow = effectivePickupWindow(listing?.pickupWindowStart, listing?.pickupWindowEnd);
+  const pickupWindowLabel =
+    formatWindow(listing?.pickupWindowStart, listing?.pickupWindowEnd) ||
+    (listing ? `${formatWindow(effWindow.start, effWindow.end)} (default)` : null);
+  const vehicleTz = listing ? resolveListingTimezone(listing) : null;
+  const vehicleTzLabel =
+    vehicleTz && startDate ? tzAbbrev(new Date(startDate), vehicleTz) : "";
+  const pickupTimeValid =
+    !pickupTime || withinWindow(pickupTime, listing?.pickupWindowStart, listing?.pickupWindowEnd);
   const validRequest = listingId && startDate && endDate && basePrice > 0;
 
   const confirmBooking = async () => {
@@ -79,9 +98,13 @@ export default function ConfirmReservation() {
       document.getElementById("drivers")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
+    if (!pickupTimeValid) {
+      toast.error("Choose a pickup time inside the host's window");
+      return;
+    }
     setSubmitting(true);
     try {
-      const { data } = await axios.post("/api/reservations", { listingId, startDate, endDate, totalPrice: basePrice, insuranceType, insuranceFee, message, drivers });
+      const { data } = await axios.post("/api/reservations", { listingId, startDate, endDate, totalPrice: basePrice, insuranceType, insuranceFee, message, drivers, pickupTime });
       if (data?.status === "APPROVED") {
         setCelebrate({
           title: "You’re approved!",
@@ -133,6 +156,44 @@ export default function ConfirmReservation() {
               <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
                 <SectionTitle icon={<CalendarDays size={19} />} title="Your trip" subtitle={`${bookingDays} day${bookingDays === 1 ? "" : "s"} reserved`} />
                 <div className="mt-6 grid gap-4 sm:grid-cols-2"><DateBlock label="Pickup" value={startDate!} /><DateBlock label="Return" value={endDate!} /></div>
+              </section>
+
+              <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+                <SectionTitle icon={<Clock3 size={19} />} title="Pickup time" subtitle="When you'll collect the vehicle on the pickup day. It's set with your request; you or the host can adjust it later from the booking." />
+                <div className="mt-6 max-w-xs">
+                  <TimeSlotSelect
+                    label="Preferred pickup time"
+                    value={pickupTime}
+                    onChange={setPickupTime}
+                    windowStart={listing.pickupWindowStart}
+                    windowEnd={listing.pickupWindowEnd}
+                    hint={
+                      [
+                        pickupWindowLabel ? `Host's window: ${pickupWindowLabel}` : null,
+                        vehicleTzLabel ? `Times shown in ${vehicleTzLabel} (the vehicle's local time)` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ") || undefined
+                    }
+                  />
+                </div>
+                {!pickupTimeValid && (
+                  <p className="mt-3 text-xs leading-5 text-amber-700">
+                    Choose a time inside the host&rsquo;s pickup window.
+                  </p>
+                )}
+                <div className="mt-4 rounded-sm bg-surface-soft p-4 text-xs leading-5 text-muted">
+                  <p className="font-semibold text-ink">Returning the vehicle</p>
+                  <p className="mt-1">
+                    You&rsquo;ll set the return time once the trip is confirmed — the host is notified and confirms it.
+                    {listing.handoverMethod
+                      ? ` Handover method: ${handoverMethodLabel(listing.handoverMethod)}.`
+                      : ""}
+                  </p>
+                  {listing.pickupInstructions && (
+                    <p className="mt-1 whitespace-pre-wrap">{listing.pickupInstructions}</p>
+                  )}
+                </div>
               </section>
 
               <CancellationPolicyDisplay value={listing.cancellationPolicy} />
@@ -228,6 +289,12 @@ export default function ConfirmReservation() {
   );
 }
 
+function handoverMethodLabel(method: string): string {
+  return (
+    { IN_PERSON: "in person", LOCKBOX: "lockbox / key safe", SELF_CHECKIN: "self check-in" }[method] ||
+    method.toLowerCase().replace(/_/g, " ")
+  );
+}
 function SectionTitle({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle: string }) { return <div className="flex gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary">{icon}</span><div><h2 className="font-semibold text-ink">{title}</h2><p className="mt-1 text-xs leading-5 text-muted">{subtitle}</p></div></div>; }
 function DateBlock({ label, value }: { label: string; value: string }) { const date = new Date(value); return <div className="rounded-sm border border-hairline-soft p-5"><p className="text-xs font-semibold uppercase tracking-wider text-primary">{label}</p><p className="mt-2 font-semibold text-ink">{format(date, "EEEE, d MMMM")}</p><p className="mt-1 text-sm text-muted">{format(date, "yyyy")}</p></div>; }
 function Step({ number, title, copy }: { number: string; title: string; copy: string }) { return <div className="flex gap-3"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">{number}</span><div><p className="text-sm font-semibold text-ink">{title}</p><p className="mt-1 text-xs leading-5 text-muted">{copy}</p></div></div>; }

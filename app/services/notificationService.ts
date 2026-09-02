@@ -8,10 +8,12 @@ import {
 } from "@/app/libs/notifications/dispatch";
 import {
   formatDateRange,
+  formatHandoverMoment,
   formatMoney,
   loadReservationCard,
   tripFacts,
 } from "@/app/libs/notifications/templates";
+import { formatTimeOfDay, type HandoverKind } from "@/app/libs/bookingTimes";
 
 interface CreateNotificationParams {
   userId: string;
@@ -27,6 +29,7 @@ interface CreateNotificationParams {
   sms?: DispatchInput["sms"];
   forceSms?: boolean;
   skipInApp?: boolean;
+  inAppOnly?: boolean;
 }
 
 /**
@@ -50,6 +53,7 @@ class NotificationService {
         sms: params.sms,
         forceSms: params.forceSms,
         skipInApp: params.skipInApp,
+        inAppOnly: params.inAppOnly,
       });
     } catch (error) {
       console.error("Error dispatching notification:", error);
@@ -100,7 +104,7 @@ class NotificationService {
               ? `Approving is free; you'll be asked to confirm your payout account if it isn't set up yet. The guest is only charged once you approve.`
               : `The guest is only charged once you approve.`,
           ],
-          facts: card ? tripFacts(card) : undefined,
+          facts: card ? tripFacts(card, { includeTimes: true }) : undefined,
           primaryButton: { label: "Review the request", url: `${origin()}/reservations` },
         },
       },
@@ -132,7 +136,7 @@ class NotificationService {
             `Your card is charged now and the funds are held securely by Redrive until the return handover is agreed.`,
           ],
           facts: card
-            ? [...tripFacts(card), { label: "Total", value: formatMoney(card.totalFees) }]
+            ? [...tripFacts(card, { includeTimes: true }), { label: "Total", value: formatMoney(card.totalFees) }]
             : undefined,
           primaryButton: { label: "Pay & confirm", url: `${origin()}/reservations/${reservationId}?pay=1` },
           footnote: card?.cancellationSummary ?? undefined,
@@ -242,7 +246,7 @@ class NotificationService {
               ],
           facts: card
             ? [
-                ...tripFacts(card),
+                ...tripFacts(card, { includeTimes: true }),
                 {
                   label: guestCopy ? "Total paid" : "Your payout",
                   value: formatMoney(guestCopy ? card.totalFees : card.ownerAmount),
@@ -273,13 +277,17 @@ class NotificationService {
     const when = daysUntil === 0 ? "today" : daysUntil === 1 ? "tomorrow" : `in ${daysUntil} days`;
     const card = await loadReservationCard(reservationId);
     const guestCopy = role === "GUEST";
+    const pickupMoment = card
+      ? formatHandoverMoment(card.startDate, card.pickupTime, card.timezone)
+      : null;
+    const atTime = card?.pickupTime ? ` at ${formatTimeOfDay(card.pickupTime)}` : "";
     return this.createNotification({
       userId,
       type: NotificationType.TRIP_STARTING,
       title: guestCopy ? "Pickup coming up" : "A vehicle goes out soon",
       message: guestCopy
-        ? `Your ${listingTitle} trip starts ${when}`
-        : `${card?.guestName || "A guest"} collects your ${listingTitle} ${when}`,
+        ? `Your ${listingTitle} trip starts ${when}${atTime}`
+        : `${card?.guestName || "A guest"} collects your ${listingTitle} ${when}${atTime}`,
       data: { reservationId, listingTitle, startDate, daysUntil },
       actionUrl: `/reservations/${reservationId}`,
       dedupeKey: `res:${reservationId}:starting:${role}${tag ? `:${tag}` : ""}`,
@@ -295,20 +303,105 @@ class NotificationService {
           title: guestCopy ? `Pickup ${when}` : `Handover ${when}`,
           paragraphs: guestCopy
             ? [
-                `Your booking for <strong>${listingTitle}</strong> starts ${when}. Bring your physical driver licence and a payment card in your name.`,
+                `Your booking for <strong>${listingTitle}</strong> starts ${when}${pickupMoment ? `, pickup at <strong>${pickupMoment}</strong>` : ""}. Bring your physical driver licence and a payment card in your name.`,
                 card?.address
                   ? `Pickup address: <strong>${card.address}</strong>. Host: ${card.hostName ?? "—"}${card.hostNumber ? ` · ${card.hostNumber}` : ""}.`
                   : `The exact address and host contact are on the trip page.`,
                 `At pickup, complete the handover in the app together — photos, odometer and fuel — so both of you are covered.`,
               ]
             : [
-                `<strong>${card?.guestName || "Your guest"}</strong> collects <strong>${listingTitle}</strong> ${when}.`,
-                `Have the vehicle clean, fuelled to the level you want it returned at, and ready at the agreed time. Complete the pickup handover in the app together.`,
+                `<strong>${card?.guestName || "Your guest"}</strong> collects <strong>${listingTitle}</strong> ${when}${pickupMoment ? ` at <strong>${pickupMoment}</strong>` : ""}.`,
+                `Have the vehicle clean, fuelled to the level you want it returned at, and ready ${pickupMoment ? "by then" : "at the agreed time"}. Complete the pickup handover in the app together.`,
               ],
-          facts: card ? tripFacts(card) : undefined,
+          facts: card ? tripFacts(card, { includeTimes: true }) : undefined,
           primaryButton: {
             label: "Open the trip",
             url: `${origin()}/reservations/${reservationId}`,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * A handover time was set, proposed, or confirmed. Sent to whichever party
+   * now needs to know / act:
+   *  - CHANGED   → the owner set/moved it; the other side is informed.
+   *  - PROPOSED  → the non-owner asked for a time; the owner must confirm.
+   *  - CONFIRMED → the owner accepted a pending proposal; the proposer is told.
+   *
+   * `inAppOnly` debounces email when the trip is still far off and the same
+   * person just changed the same time.
+   */
+  async notifyTripTimeChanged(
+    userId: string,
+    input: {
+      reservationId: string;
+      listingTitle: string;
+      kind: HandoverKind;
+      time: string;
+      changedByRole: "HOST" | "GUEST";
+      variant: "CHANGED" | "PROPOSED" | "CONFIRMED";
+      inAppOnly?: boolean;
+      updatedAtEpoch: number;
+    },
+  ) {
+    const card = await loadReservationCard(input.reservationId);
+    const isPickup = input.kind === "PICKUP";
+    const label = isPickup ? "pickup" : "return";
+    const who = input.changedByRole === "HOST" ? "The host" : "The guest";
+    const moment = card
+      ? formatHandoverMoment(
+          isPickup ? card.startDate : card.endDate,
+          input.time,
+          card.timezone,
+        )
+      : formatTimeOfDay(input.time);
+
+    const needsConfirm = input.variant === "PROPOSED";
+    const title = needsConfirm
+      ? `Confirm the ${label} time`
+      : input.variant === "CONFIRMED"
+        ? `${isPickup ? "Pickup" : "Return"} time confirmed`
+        : `${isPickup ? "Pickup" : "Return"} time updated`;
+    const message = needsConfirm
+      ? `${who} proposed ${moment} for ${input.listingTitle}. Open the booking to confirm or suggest another time.`
+      : input.variant === "CONFIRMED"
+        ? `${who} confirmed ${moment} for ${input.listingTitle}.`
+        : `${who} set the ${label} for ${input.listingTitle} to ${moment}.`;
+
+    return this.createNotification({
+      userId,
+      type: NotificationType.BOOKING_REMINDER,
+      title,
+      message,
+      data: { ...input },
+      actionUrl: `/reservations/${input.reservationId}`,
+      // Epoch keeps each distinct change deliverable even if it re-uses a value.
+      dedupeKey: `res:${input.reservationId}:time:${input.kind}:${input.updatedAtEpoch}`,
+      inAppOnly: input.inAppOnly,
+      email: {
+        subject: needsConfirm
+          ? `Confirm the ${label} time for ${input.listingTitle}`
+          : `${isPickup ? "Pickup" : "Return"} time for ${input.listingTitle}: ${moment}`,
+        content: {
+          preheader: needsConfirm
+            ? `${who} proposed a ${label} time — it needs your confirmation.`
+            : `${who} ${input.variant === "CONFIRMED" ? "confirmed" : "changed"} the ${label} time.`,
+          eyebrow: "Handover time",
+          title: needsConfirm ? `A ${label} time to confirm` : `${label[0].toUpperCase()}${label.slice(1)}: ${moment}`,
+          paragraphs: [
+            needsConfirm
+              ? `${who} would like the ${label} for <strong>${input.listingTitle}</strong> to be <strong>${moment}</strong>. Open the booking to confirm it, or propose a different time.`
+              : `${who} ${input.variant === "CONFIRMED" ? "confirmed" : "set"} the ${label} time for <strong>${input.listingTitle}</strong> to <strong>${moment}</strong>.`,
+            isPickup
+              ? `Coordinate anything else in Messages. Pickup times need to sit inside the host's pickup window.`
+              : `Coordinate anything else in Messages.`,
+          ],
+          facts: card ? tripFacts(card, { includeTimes: true }) : undefined,
+          primaryButton: {
+            label: needsConfirm ? "Confirm the time" : "Open the booking",
+            url: `${origin()}/reservations/${input.reservationId}`,
           },
         },
       },
@@ -648,7 +741,7 @@ class NotificationService {
           ],
           facts: card
             ? [
-                ...tripFacts(card),
+                ...tripFacts(card, { includeTimes: true }),
                 { label: "Total due", value: formatMoney(amount) },
               ]
             : [{ label: "Total due", value: formatMoney(amount) }],
@@ -804,13 +897,23 @@ class NotificationService {
     tag?: string,
   ) {
     const label = phase === "PICKUP" ? "pickup" : "return";
+    const card = await loadReservationCard(reservationId);
+    const plannedTime = phase === "PICKUP" ? card?.pickupTime : card?.handoverTime;
+    const plannedMoment =
+      card && plannedTime
+        ? formatHandoverMoment(
+            phase === "PICKUP" ? card.startDate : card.endDate,
+            plannedTime,
+            card.timezone,
+          )
+        : null;
     return this.createNotification({
       userId,
       type: NotificationType.HANDOVER_ACTION,
       title: overdue ? `${label} handover overdue` : `Time for the ${label} handover`,
       message: overdue
         ? `The ${label} handover for ${listingTitle} still needs both of you to confirm.`
-        : `Open ${listingTitle} in the app to complete the ${label} handover together.`,
+        : `Open ${listingTitle} in the app to complete the ${label} handover together${plannedMoment ? ` — planned for ${plannedMoment}` : ""}.`,
       data: { listingTitle, reservationId, phase, overdue },
       actionUrl: `/reservations/${reservationId}`,
       dedupeKey: `res:${reservationId}:handover:${phase}:${overdue ? "overdue" : "due"}${tag ? `:${tag}` : ""}`,
@@ -832,7 +935,11 @@ class NotificationService {
             overdue
               ? `The ${label} handover for <strong>${listingTitle}</strong> hasn't been confirmed by both parties. The host's payout stays on hold until it is. If something's wrong with the vehicle, open an issue from the trip page instead.`
               : `Open <strong>${listingTitle}</strong> in Redrive and complete the ${label} handover together — condition photos, odometer and fuel. It protects both of you.`,
+            ...(plannedMoment && !overdue
+              ? [`You'd agreed <strong>${plannedMoment}</strong> for this. If that's changed, update it on the booking so the other side knows.`]
+              : []),
           ],
+          facts: card ? tripFacts(card, { includeTimes: true }) : undefined,
           primaryButton: {
             label: "Open the handover",
             url: `${origin()}/reservations/${reservationId}`,

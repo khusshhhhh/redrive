@@ -218,6 +218,7 @@ const ChatPage = () => {
       senderId: currentUserId,
       text: trimmed || null,
       imageUrl: pendingImageUrl,
+      system: false,
       readByIds: [currentUserId],
       createdAt: new Date().toISOString(),
     };

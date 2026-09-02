@@ -16,6 +16,16 @@ interface ChatBubbleProps {
 const ChatBubble: React.FC<ChatBubbleProps> = ({ message, isOwn, otherUserId, pending }) => {
   const isRead = !!otherUserId && message.readByIds.includes(otherUserId);
 
+  if (message.system) {
+    return (
+      <div className="my-2 flex justify-center">
+        <p className="max-w-[86%] rounded-full bg-surface-soft px-3.5 py-1.5 text-center text-[12px] leading-4 text-muted">
+          {message.text}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className={`flex items-end gap-1 ${isOwn ? "justify-end" : "justify-start"}`}>
       <div

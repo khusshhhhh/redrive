@@ -40,6 +40,12 @@ export interface DispatchInput {
   forceSms?: boolean;
   /** Skip the in-app notification row (rare — e.g. pure SMS safety ping). */
   skipInApp?: boolean;
+  /**
+   * Deliver in-app only — no email / push / SMS this run. Used to debounce
+   * chatty updates (e.g. a host nudging a pickup time several times while the
+   * trip is still days away): the notification-centre entry is enough.
+   */
+  inAppOnly?: boolean;
 }
 
 export interface DispatchResult {
@@ -156,18 +162,20 @@ export async function dispatchNotification(input: DispatchInput): Promise<Dispat
     await recordDelivery(input.userId, input.dedupeKey, "IN_APP", input.type, "SENT");
   }
 
-  const channels = resolveChannels({
-    type: input.type,
-    notifyEmailEnabled: user.notifyEmailEnabled,
-    notifyPushEnabled: user.notifyPushEnabled,
-    notifySmsEnabled: user.notifySmsEnabled,
-    smsNumberPresent: Boolean(user.number),
-    notificationPrefs: (user.notificationPrefs as unknown as ChannelPrefs) ?? null,
-    localHour: localHour(user.timezone),
-    quietHoursStart: user.quietHoursStart,
-    quietHoursEnd: user.quietHoursEnd,
-    forceSms: input.forceSms,
-  });
+  const channels: Channel[] = input.inAppOnly
+    ? ["IN_APP"]
+    : resolveChannels({
+        type: input.type,
+        notifyEmailEnabled: user.notifyEmailEnabled,
+        notifyPushEnabled: user.notifyPushEnabled,
+        notifySmsEnabled: user.notifySmsEnabled,
+        smsNumberPresent: Boolean(user.number),
+        notificationPrefs: (user.notificationPrefs as unknown as ChannelPrefs) ?? null,
+        localHour: localHour(user.timezone),
+        quietHoursStart: user.quietHoursStart,
+        quietHoursEnd: user.quietHoursEnd,
+        forceSms: input.forceSms,
+      });
 
   const absoluteActionUrl = input.actionUrl
     ? input.actionUrl.startsWith("http")
