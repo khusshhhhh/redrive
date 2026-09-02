@@ -4,9 +4,34 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { IconArrowsExchange, IconCheck, IconMinus, IconStar, IconX } from "@tabler/icons-react";
+import { IconArrowsExchange, IconCheck, IconMinus, IconPointFilled, IconStar, IconX } from "@tabler/icons-react";
 import useCompareVehicles from "../hooks/useCompareVehicles";
+import { AMENITIES_LIST } from "../hooks/useAmenities";
 import type { ComparisonVehicle } from "../actions/getComparisonListings";
+
+const AMENITY_MAP = new Map(AMENITIES_LIST.map((amenity) => [amenity.id, amenity]));
+const prettyAmenity = (id: string) =>
+  AMENITY_MAP.get(id)?.name ?? id.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+
+function AmenityList({ ids }: { ids: string[] }) {
+  if (!ids.length) return <span className="text-muted">None listed</span>;
+  return (
+    <ul className="flex flex-wrap gap-1.5">
+      {ids.map((id) => {
+        const Icon = AMENITY_MAP.get(id)?.icon ?? IconPointFilled;
+        return (
+          <li
+            key={id}
+            className="inline-flex items-center gap-1.5 rounded-full border border-hairline-soft bg-surface-soft px-2.5 py-1 text-[11px] font-medium text-ink"
+          >
+            <Icon size={13} stroke={1.8} className="shrink-0 text-muted" aria-hidden="true" />
+            {prettyAmenity(id)}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 const responseLabel = (hours: number | null) => hours === null ? "Not enough history" : hours < 1 ? "Usually within an hour" : hours < 24 ? `Usually within ${Math.ceil(hours)} hours` : `Usually within ${Math.ceil(hours / 24)} days`;
 type ComparisonRow = readonly [label: string, value: (vehicle: ComparisonVehicle) => string];
@@ -47,7 +72,7 @@ const CompareClient = ({ vehicles, tripDays }: { vehicles: ComparisonVehicle[]; 
       ["Instant Book", (v: ComparisonVehicle) => v.instantBook ? "Available" : "Request required"],
     ] },
     { title: "Included features", copy: "Highlights listed by each host", rows: [
-      ["Features", (v: ComparisonVehicle) => v.amenities.slice(0, 5).join(", ") || "None listed"],
+      ["Features", (v: ComparisonVehicle) => (v.amenities.length ? `${v.amenities.length} listed` : "None listed")],
     ] },
   ];
   const rows = groups.flatMap((group) => group.rows);
@@ -127,6 +152,7 @@ const CompareClient = ({ vehicles, tripDays }: { vehicles: ComparisonVehicle[]; 
 };
 
 function renderValue(label: string, vehicle: ComparisonVehicle, value: string) {
+  if (label === "Features") return <AmenityList ids={vehicle.amenities} />;
   if (label === "Reviews" && vehicle.reviewCount) return <span className="inline-flex items-center gap-1.5 text-ink"><IconStar size={15} className="shrink-0 fill-accent text-accent" />{value}</span>;
   if (label === "Host verification") return <span className="inline-flex items-start gap-1.5">{vehicle.hostVerified ? <IconCheck size={16} className="mt-0.5 shrink-0 text-secondary" /> : <IconMinus size={16} className="mt-0.5 shrink-0" />}{value}</span>;
   if (label === "Instant Book") return <span className="inline-flex items-start gap-1.5">{vehicle.instantBook ? <IconCheck size={16} className="mt-0.5 shrink-0 text-secondary" /> : <IconMinus size={16} className="mt-0.5 shrink-0" />}{value}</span>;
