@@ -531,7 +531,7 @@ export default function HostFlow() {
               live until you publish.
             </p>
             <div className="mt-8 max-w-sm">
-              <HostIllustration phase="about" />
+              <HostIllustration frame={1} />
             </div>
             <button
               type="button"
@@ -577,6 +577,11 @@ export default function HostFlow() {
 
   const phase = phaseForStep(currentStep);
   const isLast = clampedStepIndex >= totalSteps - 1;
+  // Walk the five illustration frames across the whole flow as a journey.
+  const illustrationFrame = Math.min(
+    5,
+    Math.max(1, Math.ceil(((clampedStepIndex + 1) / totalSteps) * 5)),
+  ) as 1 | 2 | 3 | 4 | 5;
 
   return (
     <div className="flex h-full flex-col bg-white">
@@ -598,7 +603,7 @@ export default function HostFlow() {
       {/* body: idle illustration + the single scrollable region */}
       <div className="mx-auto grid min-h-0 w-full max-w-5xl flex-1 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
         <aside className="hidden min-h-0 flex-col justify-center border-r border-hairline-soft px-8 py-8 lg:flex">
-          <HostIllustration phase={phase.key} />
+          <HostIllustration frame={illustrationFrame} />
           <div className="host-illustration-road mt-6 h-0.5 w-full opacity-70" />
           <p className="mt-6 text-xs font-bold uppercase tracking-[0.16em] text-primary">{phase.name}</p>
           {HOST_STEP_TIPS[currentStep] && (
