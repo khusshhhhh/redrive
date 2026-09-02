@@ -623,6 +623,41 @@ textarea::placeholder {
   0%, 100% { transform: translateY(0) rotate(-0.4deg); }
   50% { transform: translateY(-10px) rotate(0.4deg); }
 }
+/* handsair scene: the whole rig rocks a touch on top of the idle drift, the two
+   hub clusters spin slowly in opposite directions, and a few accent strokes
+   rise off the vehicle as if it's being hoisted up to be listed. */
+.handsair-scene {
+  transform-box: fill-box;
+  transform-origin: 50% 88%;
+  animation: handsairSway 7s ease-in-out infinite;
+}
+@keyframes handsairSway {
+  0%, 100% { transform: rotate(-0.6deg); }
+  50% { transform: rotate(0.6deg); }
+}
+.handsair-hub {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: handsairSpin 9s linear infinite;
+}
+.handsair-hub--rev {
+  animation-duration: 11s;
+  animation-direction: reverse;
+}
+@keyframes handsairSpin {
+  to { transform: rotate(360deg); }
+}
+.handsair-lift {
+  transform-box: fill-box;
+  animation: handsairLift 5s ease-in-out infinite;
+}
+.handsair-lift--2 { animation-duration: 6.4s; animation-delay: -1.4s; }
+.handsair-lift--3 { animation-duration: 7.8s; animation-delay: -3s; }
+@keyframes handsairLift {
+  0%, 100% { opacity: .18; transform: translateY(26px); }
+  50% { opacity: .85; transform: translateY(-18px); }
+}
+
 .host-illustration-swap {
   animation: hostSwap 520ms cubic-bezier(.16, 1, .3, 1) both;
 }
@@ -699,7 +734,10 @@ textarea::placeholder {
   .host-progress-fill { transition: none; }
   .host-illustration,
   .host-illustration-swap,
-  .host-illustration-road { animation: none; }
+  .host-illustration-road,
+  .handsair-scene,
+  .handsair-hub { animation: none; }
+  .handsair-lift { animation: none; opacity: .5; }
   .route-dash { animation: none; }
   .success-burst,
   .success-badge,
