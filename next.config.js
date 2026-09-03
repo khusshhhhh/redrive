@@ -12,10 +12,10 @@ const nextConfig = {
     ],
   },
   serverExternalPackages: ['sharp'],
-  // The Content-Security-Policy is set in middleware.ts so it can carry a
-  // per-request nonce (dropping 'unsafe-inline' for scripts in production).
-  // These static headers stay here so they also cover /api and static assets,
-  // which the middleware matcher skips.
+  // The Content-Security-Policy is set in middleware.ts (one static policy;
+  // see the note there on why a per-request nonce isn't viable with our
+  // statically-generated pages). These headers stay here so they also cover
+  // /api and static assets, which the middleware matcher skips.
   async headers() {
     return [{
       source: '/(.*)',
