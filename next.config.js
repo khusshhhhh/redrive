@@ -73,7 +73,9 @@ module.exports = withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   authToken: process.env.SENTRY_AUTH_TOKEN,
-  silent: !process.env.CI,
+  // Quiet unless there's actually a token to upload with — otherwise every
+  // build (Vercel included) logs "No auth token provided" three times.
+  silent: !process.env.SENTRY_AUTH_TOKEN,
   // Proxy browser Sentry requests through the app to dodge ad-blockers.
   tunnelRoute: '/monitoring',
   sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },

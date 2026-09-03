@@ -25,9 +25,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
           cache: "npm"
@@ -38,9 +38,8 @@ jobs:
       - name: Prisma generate
         run: npx prisma generate
 
-      - name: Typecheck (web)
-        run: npm run typecheck
-
+      # Contracts and the mobile app have their own tsconfigs that `next build`
+      # does not cover.
       - name: Typecheck (contracts)
         run: npm run typecheck:contracts
 
@@ -56,5 +55,9 @@ jobs:
       - name: Test (mobile)
         run: npm run test:mobile
 
-      - name: Build
+      # `next build` type-checks the web app (tsconfig.json,
+      # typescript.ignoreBuildErrors is false) after generating next-env.d.ts
+      # and .next/types — so this IS the web typecheck. A standalone `tsc` before
+      # this point fails on the not-yet-generated next-env.d.ts references.
+      - name: Build (also type-checks the web app)
         run: npm run build
