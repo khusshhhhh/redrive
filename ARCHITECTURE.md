@@ -24,8 +24,8 @@ flowchart TD
   A[Incoming request] --> B{middleware.ts matcher}
   B -->|static asset / _next / monitoring| Z[Served directly, no middleware]
   B -->|everything else| C[middleware.ts]
-  C --> C1[Generate per-request nonce + x-request-id]
-  C1 --> C2[Attach security headers + CSP with nonce + 'strict-dynamic']
+  C --> C1[Generate x-request-id]
+  C1 --> C2[Attach security headers + static CSP]
   C2 --> C3{Route in PROTECTED list?}
   C3 -->|yes, no session| D[Redirect to sign-in]
   C3 -->|yes, session ok| E
@@ -64,7 +64,7 @@ flowchart TD
 | Structured logging | `app/libs/logger.ts` | Zero-dep JSON lines in prod, request correlation ids. |
 | Error tracking | `app/libs/observability.ts` → `@sentry/nextjs` | No-op unless `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` set. `instrumentation.ts` + `app/error.tsx` + `app/global-error.tsx`. |
 | Env validation | `app/libs/env.ts` | `validateServerEnv()` runs in `instrumentation.register()`; throws in production if core vars are missing. |
-| CSP / security headers | `middleware.ts` | Per-request nonce, `'strict-dynamic'`, tight `connect-src` (Pusher, Vercel, self). |
+| CSP / security headers | `middleware.ts` | One static CSP (scripts keep `'unsafe-inline'` — a per-request nonce can't work with our statically-generated pages), `object-src 'none'`, `frame-ancestors 'none'`, tight `connect-src` (Pusher, Vercel, Sentry, self). |
 | Realtime | `app/libs/realtime/**` + `app/hooks/useLiveUpdates.ts` | Pusher private channels when configured, SSE fallback otherwise. |
 | Booking concurrency | `app/libs/bookingLock.ts` | `BookingLock.listingId @unique` advisory lock around conflict-check + create. |
 | Idempotency | `app/libs/stripeWebhookEvents.ts`, `IdempotencyRecord` | Claim-first dedupe for Stripe webhooks and mobile writes. |
