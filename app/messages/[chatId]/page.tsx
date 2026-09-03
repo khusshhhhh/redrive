@@ -11,7 +11,8 @@ import { format, isSameDay, isToday, isYesterday } from "date-fns";
 import ChatBubble from "@/app/components/messages/ChatBubble";
 import ChatSidebar from "@/app/components/messages/ChatSidebar";
 import TypingIndicator from "@/app/components/messages/TypingIndicator";
-import { useSSE } from "@/app/hooks/useSSE";
+import { useLiveUpdates } from "@/app/hooks/useLiveUpdates";
+import { chatChannel } from "@/app/libs/realtime/events";
 import { isOnline } from "@/app/helpers/presence";
 import InlineRetry from "@/app/components/InlineRetry";
 
@@ -133,21 +134,27 @@ const ChatPage = () => {
   );
 
   const handleTypingEvent = useCallback((data: { userId: string; isTyping: boolean }) => {
+    // On the shared conversation channel we also hear our own typing echo.
+    if (data.userId === currentUserId) return;
     if (!data.isTyping) return;
     setOtherTyping(true);
     if (typingExpireTimerRef.current) clearTimeout(typingExpireTimerRef.current);
     typingExpireTimerRef.current = setTimeout(() => setOtherTyping(false), TYPING_INCOMING_EXPIRY_MS);
-  }, []);
+  }, [currentUserId]);
 
-  const handleReadEvent = useCallback((data: { messageIds: string[] }) => {
+  const handleReadEvent = useCallback((data: { messageIds?: string[]; readerId?: string }) => {
+    // SSE sends only `messageIds` and always means "the other party read
+    // these"; realtime adds `readerId` so each side can drop its own echo.
+    const readerId = data.readerId ?? otherUser?.id;
+    if (!readerId || readerId === currentUserId) return;
     setMessages((prev) =>
       prev.map((m) =>
-        data.messageIds.includes(m.id) && otherUser && !m.readByIds.includes(otherUser.id)
-          ? { ...m, readByIds: [...m.readByIds, otherUser.id] }
+        (!data.messageIds || data.messageIds.includes(m.id)) && !m.readByIds.includes(readerId)
+          ? { ...m, readByIds: [...m.readByIds, readerId] }
           : m
       )
     );
-  }, [otherUser]);
+  }, [otherUser, currentUserId]);
 
   const streamUrl = useMemo(() => {
     if (!chatId || !streamSince) return null;
@@ -157,12 +164,13 @@ const ChatPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatId, streamSince !== null]);
 
-  useSSE({
-    url: streamUrl,
+  useLiveUpdates({
+    channel: chatId ? chatChannel(chatId) : null,
+    sseUrl: streamUrl,
     handlers: {
       message: (data) => handleIncomingMessage(data as SafeMessage),
       typing: (data) => handleTypingEvent(data as { userId: string; isTyping: boolean }),
-      read: (data) => handleReadEvent(data as { messageIds: string[] }),
+      read: (data) => handleReadEvent(data as { messageIds?: string[]; readerId?: string }),
     },
   });
 

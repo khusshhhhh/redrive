@@ -5,8 +5,7 @@ import CategoryBox from "../CategoryBox";
 import HorizontalScroller from "../HorizontalScroller";
 import { usePathname, useSearchParams } from "next/navigation";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { IconCamper, IconCar, IconCaravan, IconMotorbike, IconSailboat, IconSpeedboat, IconSwimming, IconTent, IconTir, IconTruck } from "@tabler/icons-react";
-import { Van } from "@phosphor-icons/react";
+import { IconCamper, IconCar, IconCaravan, IconMotorbike, IconSailboat, IconSpeedboat, IconSwimming, IconTir, IconTruck, IconTruckDelivery } from "@tabler/icons-react";
 
 export const categories = [
     {
@@ -51,7 +50,7 @@ export const categories = [
     },
     {
         label: 'Vans',
-        icon: () => <Van size={24} />,
+        icon: () => <IconTruckDelivery size={24} stroke={1.5} />,
         description: 'These are very durable vans!'
     },
     {

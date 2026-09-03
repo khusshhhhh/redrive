@@ -1,7 +1,5 @@
 "use client";
 
-import Slider from "@mui/material/Slider";
-import TextField from "@mui/material/TextField";
 import { formatISO } from "date-fns";
 import { useRouter, useSearchParams } from "next/navigation";
 import qs from "query-string";
@@ -13,6 +11,7 @@ import useSearchModal from "@/app/hooks/useSearchModal";
 import { saveLastSearch } from "@/app/hooks/useLastSearch";
 import DateRangePicker from "../inputs/DateRangePicker";
 import Counter from "../inputs/Counter";
+import RangeSlider from "../inputs/RangeSlider";
 import StateSelector, { states as AU_STATES } from "../inputs/StateSelector";
 import SuburbSelector, { type SuburbOption } from "../inputs/SuburbSelector";
 import Modal from "./Modal";
@@ -72,7 +71,7 @@ const SearchModal = () => {
     endDate: draft.endDate ? new Date(draft.endDate) : params?.get("endDate") ? new Date(params.get("endDate")!) : new Date(),
     key: "selection",
   });
-  const [priceRange, setPriceRange] = useState<number[]>([
+  const [priceRange, setPriceRange] = useState<[number, number]>([
     draft.minPrice ?? Number(params?.get("minPrice") || 100),
     draft.maxPrice ?? Number(params?.get("maxPrice") || 5000),
   ]);
@@ -190,7 +189,50 @@ const SearchModal = () => {
         {show(2) && <section className="space-y-7" aria-labelledby="search-details-heading">
           <div><h3 id="search-details-heading" className="text-xl font-semibold text-ink">Trip details</h3><p className="mt-1 text-sm text-muted">Set capacity and a daily budget.</p></div>
           <div className="space-y-2"><Counter title="People" subtitle="How many people are coming?" value={guestCount} onChange={setGuestCount} /><Counter title="Sleep spaces" subtitle="How many sleeping spaces do you need?" value={sleepCount} onChange={setSleepCount} /></div>
-          <div><p className="text-sm font-semibold text-ink">Daily price range</p><div className="mt-4 rounded-sm bg-surface-soft px-4 pb-3 pt-5"><Slider value={priceRange} onChange={(_event, value) => setPriceRange(value as number[])} valueLabelDisplay="auto" min={50} max={10000} step={50} sx={{ color: "#1F1F1F" }} /></div><div className="mt-3 flex gap-3"><TextField label="Minimum AUD" type="number" value={priceRange[0]} onChange={(event) => { const value = Number(event.target.value); if (value >= 50 && value <= priceRange[1]) setPriceRange([value, priceRange[1]]); }} inputProps={{ min: 50, max: priceRange[1], step: 50 }} size="small" fullWidth /><TextField label="Maximum AUD" type="number" value={priceRange[1]} onChange={(event) => { const value = Number(event.target.value); if (value >= priceRange[0] && value <= 10000) setPriceRange([priceRange[0], value]); }} inputProps={{ min: priceRange[0], max: 10000, step: 50 }} size="small" fullWidth /></div></div>
+          <div>
+            <p className="text-sm font-semibold text-ink">Daily price range</p>
+            <div className="mt-5 rounded-sm bg-surface-soft px-4 pb-4 pt-3">
+              <RangeSlider
+                min={50}
+                max={10000}
+                step={50}
+                value={[priceRange[0], priceRange[1]]}
+                onChange={setPriceRange}
+                ariaLabelMin="Minimum daily price in AUD"
+                ariaLabelMax="Maximum daily price in AUD"
+              />
+              <div className="mt-1 flex justify-between text-xs font-medium text-muted">
+                <span>AU${priceRange[0].toLocaleString()}</span>
+                <span>AU${priceRange[1].toLocaleString()}{priceRange[1] >= 10000 ? "+" : ""}</span>
+              </div>
+            </div>
+            <div className="mt-3 flex gap-3">
+              <label className="flex-1 text-xs font-semibold text-muted">
+                Minimum AUD
+                <input
+                  type="number"
+                  value={priceRange[0]}
+                  min={50}
+                  max={priceRange[1]}
+                  step={50}
+                  onChange={(event) => { const value = Number(event.target.value); if (value >= 50 && value <= priceRange[1]) setPriceRange([value, priceRange[1]]); }}
+                  className="mt-1 h-10 w-full rounded-sm border border-hairline bg-white px-3 text-sm text-ink outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                />
+              </label>
+              <label className="flex-1 text-xs font-semibold text-muted">
+                Maximum AUD
+                <input
+                  type="number"
+                  value={priceRange[1]}
+                  min={priceRange[0]}
+                  max={10000}
+                  step={50}
+                  onChange={(event) => { const value = Number(event.target.value); if (value >= priceRange[0] && value <= 10000) setPriceRange([priceRange[0], value]); }}
+                  className="mt-1 h-10 w-full rounded-sm border border-hairline bg-white px-3 text-sm text-ink outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                />
+              </label>
+            </div>
+          </div>
           <div>
             <p className="mb-3 text-sm font-semibold text-ink">Transmission</p>
             <div className="grid grid-cols-3 gap-2">

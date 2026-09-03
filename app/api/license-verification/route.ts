@@ -96,6 +96,8 @@ function noStore<T>(body: T, init?: ResponseInit) {
   });
 }
 
+export const maxDuration = 60;
+
 async function POSTHandler(request: Request) {
   try {
     const session = await getServerSession(authOptions);

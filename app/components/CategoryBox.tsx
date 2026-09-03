@@ -1,14 +1,14 @@
 'use client';
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { IconType } from "react-icons";
+import type { IconComponent } from "./icons/iconType";
 import qs from "query-string"
 import { useCallback, useTransition } from "react";
 import DotLoader from "./DotLoader";
 
 
 interface CategoryBoxProps {
-    icon: IconType;
+    icon: IconComponent;
     label: string;
     selected?: boolean;
     compact?: boolean;

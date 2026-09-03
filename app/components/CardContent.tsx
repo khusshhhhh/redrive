@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { IoMdClose } from "react-icons/io"; // Import close icon from react-icons
+import { X } from "lucide-react";
 
 export const Card = ({ children, className = "", onClose }) => {
     const cardRef = useRef(null);
@@ -24,7 +24,7 @@ export const Card = ({ children, className = "", onClose }) => {
                 onClick={onClose}
                 className="absolute top-4 right-4 text-muted hover:text-ink transition"
             >
-                <IoMdClose size={22} />
+                <X size={22} />
             </button>
 
             {children}

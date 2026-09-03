@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
-import { FcGoogle } from "react-icons/fc";
+import GoogleIcon from "../icons/GoogleIcon";
 import { ArrowLeft, CarFront, KeyRound, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "@/app/libs/toast";
 import { useRouter } from "next/navigation";
@@ -179,7 +179,7 @@ const LoginModal = () => {
         small
         outline
         label="Continue with Google"
-        icon={FcGoogle}
+        icon={GoogleIcon}
         onClick={async () => {
           await signIn("google", { callbackUrl: loginModal.redirectTo || undefined });
         }}

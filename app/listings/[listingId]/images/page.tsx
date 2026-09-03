@@ -1,12 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import ImageGallery from "react-image-gallery";
-import "react-image-gallery/styles/css/image-gallery.css";
-import { IconArrowLeft, IconArrowRight, IconX } from "@tabler/icons-react";
+import { IconX } from "@tabler/icons-react";
+import type { LightboxImage } from "./LightboxGallery";
+
+// react-image-gallery (+ its CSS) is ~40 KB and only needed once the lightbox
+// opens, so it's code-split behind this dynamic import.
+const LightboxGallery = dynamic(() => import("./LightboxGallery"), { ssr: false });
 
 const ListingImages = () => {
     const router = useRouter();
@@ -33,13 +37,16 @@ const ListingImages = () => {
         }
     }, [listingId]);
 
-    // Convert images to react-image-gallery format
-    const galleryImages = imageSrcs.map((src, index) => ({
-        original: src,
-        thumbnail: src,
-        originalAlt: `${listingTitle} vehicle photo ${index + 1}`,
-        thumbnailAlt: `${listingTitle} photo ${index + 1} thumbnail`,
-    }));
+    const galleryImages: LightboxImage[] = useMemo(
+        () =>
+            imageSrcs.map((src, index) => ({
+                original: src,
+                thumbnail: src,
+                originalAlt: `${listingTitle} vehicle photo ${index + 1}`,
+                thumbnailAlt: `${listingTitle} photo ${index + 1} thumbnail`,
+            })),
+        [imageSrcs, listingTitle],
+    );
 
     const openGallery = (index: number) => {
         setStartIndex(index);
@@ -79,44 +86,22 @@ const ListingImages = () => {
                 ))}
             </div>
 
-            {/* Lightbox Modal using react-image-gallery */}
+            {/* Lightbox Modal */}
             {isOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
                     <div className="relative max-w-5xl w-full">
-                        {/* Close Button */}
                         <button
                             className="absolute top-4 right-4 bg-white text-ink p-2 z-50 rounded-full shadow-card"
                             onClick={() => setIsOpen(false)}
+                            aria-label="Close gallery"
                         >
                             <IconX size={18} />
                         </button>
 
-                        {/* Image Gallery with Custom Arrows */}
-                        <ImageGallery
+                        <LightboxGallery
                             items={galleryImages}
                             startIndex={startIndex}
-                            showThumbnails={true}
-                            showFullscreenButton={false}
-                            showPlayButton={false}
-                            onClick={() => setIsOpen(false)}
-                            renderLeftNav={(onClick, disabled) => (
-                                <button
-                                    className="absolute invisible lg:visible z-50 top-1/2 transform -translate-y-1/2 bg-white text-ink p-3 rounded-full shadow-card hover:bg-surface-soft transition"
-                                    onClick={onClick}
-                                    disabled={disabled}
-                                >
-                                    <IconArrowLeft size={18} />
-                                </button>
-                            )}
-                            renderRightNav={(onClick, disabled) => (
-                                <button
-                                    className="absolute invisible lg:visible right-0 z-50 top-1/2 transform -translate-y-1/2 bg-white text-ink p-3 rounded-full shadow-card hover:bg-surface-soft transition"
-                                    onClick={onClick}
-                                    disabled={disabled}
-                                >
-                                    <IconArrowRight size={18} />
-                                </button>
-                            )}
+                            onClose={() => setIsOpen(false)}
                         />
                     </div>
                 </div>

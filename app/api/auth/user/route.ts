@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import prisma from "@/app/libs/prismadb";
+import { internalError } from "@/app/libs/apiError";
 
 async function GETHandler() {
   try {
@@ -57,14 +58,7 @@ async function GETHandler() {
       emailVerified: currentUser.emailVerified?.toISOString() || null,
     });
   } catch (error) {
-    console.error("❌ Error fetching current user:", error);
-    return NextResponse.json(
-      {
-        error: "Internal server error",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
+    return internalError(error, { event: "current_user_fetch_failed", route: "GET /api/auth/user" });
   }
 }
 

@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 import { useCallback, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "@/app/libs/toast";
-import { FcGoogle } from "react-icons/fc";
+import GoogleIcon from "../icons/GoogleIcon";
 import { Check, KeyRound, LogIn, Mail, MailCheck, ShieldCheck, Smartphone, UserRound } from "lucide-react";
 
 import useRegisterModal from "@/app/hooks/useRegisterModal";
@@ -551,7 +551,7 @@ const RegisterModal = () => {
         small
         outline
         label="Continue with Google"
-        icon={FcGoogle}
+        icon={GoogleIcon}
         onClick={async () => {
           await signIn("google", { callbackUrl: "/profile" });
         }}

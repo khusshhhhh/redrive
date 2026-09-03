@@ -4,8 +4,10 @@ import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import { notificationService } from "@/app/services/notificationService";
-import { toSafeMessage, toSafeChatUser } from "@/app/libs/chatSerializers";
+import { toSafeMessage, toSafeChatUser, buildChatSummary } from "@/app/libs/chatSerializers";
 import { consumeRateLimits, getClientIp, tooManyRequests } from "@/app/libs/security";
+import { publishRealtime } from "@/app/libs/realtime/publish";
+import { chatChannel, userChannel, RealtimeEvent } from "@/app/libs/realtime/events";
 
 const PAGE_SIZE = 30;
 
@@ -148,6 +150,22 @@ async function POSTHandler(
         console.error("Error sending message notification:", notificationError);
       }
     }
+
+    // Realtime fan-out: the message onto the conversation channel, and a fresh
+    // inbox summary onto each participant's own channel. Best-effort — the SSE
+    // routes and periodic polls deliver the same updates when realtime is off.
+    const summaryChat = { ...chat, updatedAt: new Date(), messages: [message] };
+    await Promise.all([
+      publishRealtime(chatChannel(chatId), RealtimeEvent.Message, toSafeMessage(message)),
+      buildChatSummary(summaryChat, currentUser.id).then((summary) =>
+        publishRealtime(userChannel(currentUser.id), RealtimeEvent.ChatUpdate, summary),
+      ),
+      otherUserId
+        ? buildChatSummary(summaryChat, otherUserId).then((summary) =>
+            publishRealtime(userChannel(otherUserId), RealtimeEvent.ChatUpdate, summary),
+          )
+        : Promise.resolve(),
+    ]).catch((error) => console.error("Realtime message fan-out failed", error));
 
     return NextResponse.json(toSafeMessage(message), { status: 201 });
   } catch (error) {

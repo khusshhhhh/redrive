@@ -16,7 +16,10 @@ test("every App Router API handler uses the low-overhead monitoring wrapper", ()
 
   for (const file of files) {
     const source = readFileSync(file, "utf8");
-    const wrapped = source.match(/export const (GET|POST|PUT|PATCH|DELETE) = monitorApiRoute\(/g) || [];
+    // A handler is monitored whether it uses `monitorApiRoute` directly or the
+    // `defineApiRoute` wrapper (which calls `monitorApiRoute` internally).
+    const wrapped =
+      source.match(/export const (GET|POST|PUT|PATCH|DELETE) = (monitorApiRoute|defineApiRoute)\(/g) || [];
     const unwrapped = source.match(/export\s+async\s+function\s+(GET|POST|PUT|PATCH|DELETE)\s*\(/g) || [];
     assert.equal(unwrapped.length, 0, `${file} contains an unmonitored API handler`);
     assert.ok(wrapped.length > 0, `${file} has no monitored API exports`);

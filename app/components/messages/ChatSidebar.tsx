@@ -1,14 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import axios from "axios";
+import { useCallback, useState } from "react";
+import useSWR from "swr";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNowStrict } from "date-fns";
 import { Search } from "lucide-react";
 
 import type { SafeChat } from "@/app/types";
-import { useSSE } from "@/app/hooks/useSSE";
+import { useLiveUpdates } from "@/app/hooks/useLiveUpdates";
+import { userChannel } from "@/app/libs/realtime/events";
+import { useCurrentUser } from "@/app/providers/CurrentUserProvider";
 import { isOnline } from "@/app/helpers/presence";
 import useLoginModal from "@/app/hooks/useLoginModal";
 
@@ -20,30 +22,37 @@ interface ChatSidebarProps {
 export default function ChatSidebar({ activeChatId, className = "" }: ChatSidebarProps) {
   const router = useRouter();
   const loginModal = useLoginModal();
-  const [chats, setChats] = useState<SafeChat[] | null>(null);
+  const { currentUser, isLoading: userLoading } = useCurrentUser();
   const [query, setQuery] = useState("");
-  const [unauthorized, setUnauthorized] = useState(false);
 
-  useEffect(() => {
-    axios.get("/api/chats")
-      .then((response) => setChats(response.data))
-      .catch((error) => {
-        setChats([]);
-        if (error.response?.status === 401) setUnauthorized(true);
-      });
-  }, []);
+  // SWR owns the base inbox list (dedup + focus/reconnect revalidation replace
+  // the old manual fetch effect); realtime / SSE events merge into its cache.
+  const { data, error, mutate } = useSWR<SafeChat[]>(
+    currentUser ? "/api/chats" : null,
+  );
+  const chats = data ?? null;
+  const unauthorized =
+    (error as { status?: number } | undefined)?.status === 401 ||
+    (!currentUser && !userLoading);
 
-  const upsertChat = useCallback((incoming: SafeChat) => {
-    setChats((current) => {
-      const list = current ?? [];
-      return [incoming, ...list.filter((chat) => chat.id !== incoming.id)].sort(
-        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+  const upsertChat = useCallback(
+    (incoming: SafeChat) => {
+      void mutate(
+        (current) => {
+          const list = current ?? [];
+          return [incoming, ...list.filter((chat) => chat.id !== incoming.id)].sort(
+            (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+          );
+        },
+        { revalidate: false },
       );
-    });
-  }, []);
+    },
+    [mutate],
+  );
 
-  useSSE({
-    url: chats && !unauthorized ? "/api/chats/stream" : null,
+  useLiveUpdates({
+    channel: currentUser && !unauthorized ? userChannel(currentUser.id) : null,
+    sseUrl: chats && !unauthorized ? "/api/chats/stream" : null,
     handlers: { "chat-update": (data) => upsertChat(data as SafeChat) },
   });
 
@@ -71,7 +80,7 @@ export default function ChatSidebar({ activeChatId, className = "" }: ChatSideba
       </div>
 
       <div className="chat-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain p-2" aria-label="Conversations">
-        {!chats && Array.from({ length: 5 }).map((_, index) => (
+        {!chats && !unauthorized && Array.from({ length: 5 }).map((_, index) => (
           <div key={index} className="flex items-center gap-3 p-3">
             <div className="skeleton-wave h-12 w-12 shrink-0 rounded-full" />
             <div className="flex-1 space-y-2"><div className="skeleton-wave h-4 w-2/3 rounded" /><div className="skeleton-wave h-3 w-full rounded" /></div>

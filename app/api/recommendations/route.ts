@@ -2,11 +2,18 @@ import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
+import { consumeRateLimits, getClientIp, tooManyRequests } from "@/app/libs/security";
 
 const objectIds = (value: string | null) => (value || "").split(",").filter((id) => /^[a-f\d]{24}$/i.test(id)).slice(0, 8);
 const validDate = (value: string | null) => value && !Number.isNaN(new Date(value).getTime()) ? new Date(value) : null;
 
 async function GETHandler(request: NextRequest) {
+  // Open to visitors and does a 60-row scan + scoring — cap by IP.
+  const rateLimit = await consumeRateLimits([
+    { scope: "recommendations-ip", identifier: getClientIp(request), limit: 40, windowMs: 60_000 },
+  ]);
+  if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
+
   const currentUser = await getCurrentUserEnhanced(request);
   const viewedIds = objectIds(request.nextUrl.searchParams.get("viewed"));
   const startDate = validDate(request.nextUrl.searchParams.get("startDate"));
@@ -37,17 +44,14 @@ async function GETHandler(request: NextRequest) {
       } : {}),
     },
     include: {
-      user: { select: { profileVerified: true } },
-      reviews: { select: { rating: true } },
-      reservations: { where: { respondedAt: { not: null } }, select: { createdAt: true, respondedAt: true }, orderBy: { respondedAt: "desc" }, take: 20 },
+      user: { select: { profileVerified: true, responseTimeHours: true } },
     },
     orderBy: { createdAt: "desc" },
     take: 60,
   });
 
   const ranked = candidates.map((listing) => {
-    const reviewAverage = listing.reviews.length ? listing.reviews.reduce((sum, review) => sum + review.rating, 0) / listing.reviews.length : 0;
-    const responseHours = listing.reservations.flatMap((reservation) => reservation.respondedAt ? [(reservation.respondedAt.getTime() - reservation.createdAt.getTime()) / 3_600_000] : []);
+    const reviewAverage = listing.reviewAverage ?? 0;
     let score = 0;
     const reasons: string[] = [];
 
@@ -56,11 +60,11 @@ async function GETHandler(request: NextRequest) {
     if (preferredCategories.has(listing.category)) { score += 6; reasons.push(`Similar ${listing.category.toLowerCase()} to vehicles you viewed or saved`); }
     if (preferredCompanies.has(listing.company)) score += 2;
     if (listing.user.profileVerified === "Y") { score += 2; reasons.push("Verified host"); }
-    if (listing.reviews.length >= 3 && reviewAverage >= 4) { score += 3; reasons.push(`${reviewAverage.toFixed(1)} rating`); }
+    if ((listing.reviewCount ?? 0) >= 3 && reviewAverage >= 4) { score += 3; reasons.push(`${reviewAverage.toFixed(1)} rating`); }
     if (listing.instantBook) score += 1;
     if (startDate && endDate) { score += 3; reasons.unshift("Available for your dates"); }
 
-    const { user: _user, reviews: _reviews, reservations: _reservations, ...publicListing } = listing;
+    const { user, ...publicListing } = listing;
     return {
       score,
       listing: {
@@ -73,14 +77,14 @@ async function GETHandler(request: NextRequest) {
         regoImage: "",
         createdAt: listing.createdAt.toISOString(),
         lastServicedAt: listing.lastServicedAt ? listing.lastServicedAt.toISOString() : null,
-        reviewAverage: Math.round(reviewAverage * 10) / 10,
-        reviewCount: listing.reviews.length,
-        hostVerified: listing.user.profileVerified === "Y",
-        hostResponseHours: responseHours.length ? Math.round((responseHours.reduce((sum, value) => sum + value, 0) / responseHours.length) * 10) / 10 : null,
+        reviewAverage: listing.reviewAverage ?? 0,
+        reviewCount: listing.reviewCount ?? 0,
+        hostVerified: user.profileVerified === "Y",
+        hostResponseHours: user.responseTimeHours,
         recommendationReason: reasons.slice(0, 2).join(" · ") || "Recently added on Redrive",
       },
     };
-  }).sort((a, b) => b.score - a.score || b.listing.reviewCount - a.listing.reviewCount);
+  }).sort((a, b) => b.score - a.score || (b.listing.reviewCount ?? 0) - (a.listing.reviewCount ?? 0));
 
   return NextResponse.json(ranked.slice(0, 6).map((item) => item.listing), { headers: { "Cache-Control": "private, no-store" } });
 }

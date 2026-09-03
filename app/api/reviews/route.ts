@@ -4,6 +4,7 @@ import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import { notificationService } from "@/app/services/notificationService";
 import { maybePublishTripReviews } from "@/app/libs/reviews";
+import { recomputeListingRating } from "@/app/libs/listingStats";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
 
 async function POSTHandler(request: Request) {
@@ -92,6 +93,10 @@ async function POSTHandler(request: Request) {
       console.error("Review publish check failed", error);
       return false;
     });
+
+    // Refresh the listing's denormalised rating (a legacy review with no
+    // reservation, or one just revealed, changes the public aggregate).
+    await recomputeListingRating(listingId);
 
     try {
       if (!published) {

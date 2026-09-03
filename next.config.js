@@ -12,10 +12,11 @@ const nextConfig = {
     ],
   },
   serverExternalPackages: ['sharp'],
+  // The Content-Security-Policy is set in middleware.ts so it can carry a
+  // per-request nonce (dropping 'unsafe-inline' for scripts in production).
+  // These static headers stay here so they also cover /api and static assets,
+  // which the middleware matcher skips.
   async headers() {
-    const scriptPolicy = process.env.NODE_ENV === 'production'
-      ? "script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://maps.gstatic.com"
-      : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://maps.gstatic.com";
     return [{
       source: '/(.*)',
       headers: [
@@ -25,7 +26,6 @@ const nextConfig = {
         { key: 'Permissions-Policy', value: 'camera=(self), microphone=(), geolocation=(self), payment=(self), usb=()' },
         { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
         { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
-        { key: 'Content-Security-Policy', value: `default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; ${scriptPolicy}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https://res.cloudinary.com https://lh3.googleusercontent.com https://images.unsplash.com https://maps.googleapis.com https://maps.gstatic.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.cloudinary.com https://maps.googleapis.com https://maps.gstatic.com; worker-src 'self' blob:; upgrade-insecure-requests` },
       ],
     }];
   },
@@ -53,14 +53,29 @@ const nextConfig = {
   poweredByHeader: false,
   experimental: {
     optimizePackageImports: [
-      'react-icons',
       '@tabler/icons-react',
       'lucide-react'
     ],
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    // Lint errors fail the build. Only the `app` tree is linted (the mobile
+    // workspace and scripts have their own configs).
+    ignoreDuringBuilds: false,
+    dirs: ['app'],
   },
 };
 
-module.exports = nextConfig;
+// Sentry wraps the config for source-map upload + tunnelling. It's inert when
+// SENTRY_DSN / SENTRY_AUTH_TOKEN aren't set, so local builds are unaffected.
+const { withSentryConfig } = require('@sentry/nextjs/config');
+
+module.exports = withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  // Proxy browser Sentry requests through the app to dodge ad-blockers.
+  tunnelRoute: '/monitoring',
+  sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
+  telemetry: false,
+});

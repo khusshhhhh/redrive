@@ -8,15 +8,19 @@ import { useCallback, useState } from "react";
 import ListingCard from "../components/listings/ListingCard";
 import CancelBookingDialog from "../components/reservations/CancelBookingDialog";
 import { calculateCancellationOutcome } from "../libs/cancellationPolicy";
+import { useLoadMoreReservations } from "../hooks/useLoadMoreReservations";
 
 interface TripsClientProps {
     reservations: SafeReservation[];
     currentUser?: SafeUser | null;
+    nextCursor?: string | null;
+    role?: "guest" | "host";
 }
 
-const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) => {
+const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser, nextCursor = null, role = "guest" }) => {
     const router = useRouter();
     const [cancelTarget, setCancelTarget] = useState<SafeReservation | null>(null);
+    const { items, hasMore, loading, loadMore } = useLoadMoreReservations(reservations, nextCursor, role);
 
     const onCancel = useCallback((reservation: SafeReservation) => {
         setCancelTarget(reservation);
@@ -31,7 +35,7 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
           <div className="py-6 sm:py-10">
             <Heading title="Bookings" subtitle="Your booked trips and history!" />
             <div className="mt-8 grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-                {reservations.map((reservation) => {
+                {items.map((reservation) => {
                     const today = new Date();
                     const reservationStartDate = new Date(reservation.startDate);
                     const reservationEndDate = new Date(reservation.endDate);
@@ -67,6 +71,18 @@ const TripsClient: React.FC<TripsClientProps> = ({ reservations, currentUser }) 
                     );
                 })}
             </div>
+            {hasMore && (
+              <div className="mt-8 text-center">
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  disabled={loading}
+                  className="rounded-sm border border-ink bg-white px-6 py-3 text-sm font-medium text-ink transition hover:bg-surface-soft disabled:opacity-60"
+                >
+                  {loading ? "Loading…" : "Load older trips"}
+                </button>
+              </div>
+            )}
           </div>
           <CancelBookingDialog
             reservation={cancelTarget}

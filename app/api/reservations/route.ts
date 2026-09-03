@@ -11,7 +11,10 @@ import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from
 import { notificationService } from "@/app/services/notificationService";
 import { cancellationPolicySnapshot, normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
 import { resolveReservationDriverRows } from "@/app/libs/reservationDrivers";
-import { mayRevealExactLocation } from "@/app/libs/reservationAccess";
+import { mayRevealContactDetails, mayRevealExactLocation } from "@/app/libs/reservationAccess";
+import { withListingBookingLock, BookingLockedError, DatesUnavailableError } from "@/app/libs/bookingLock";
+import { serializeReservation, RESERVATIONS_PAGE_SIZE } from "@/app/libs/reservationSerializer";
+import { recomputeHostResponseTime } from "@/app/libs/listingStats";
 
 const blockingStatuses = ["REVIEWING", "APPROVED", "ACTIVE"];
 
@@ -76,12 +79,6 @@ async function POSTHandler(request: NextRequest) {
       return NextResponse.json({ error: `This vehicle requires at least ${listing.minimumNoticeHours} hours notice` }, { status: 409 });
     }
 
-    const [reservationConflict, ownerBlock] = await Promise.all([
-      prisma.reservation.findFirst({ where: { listingId, status: { in: blockingStatuses }, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
-      prisma.availabilityBlock.findFirst({ where: { listingId, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
-    ]);
-    if (reservationConflict || ownerBlock) return NextResponse.json({ error: "Those dates are no longer available", code: "DATES_UNAVAILABLE" }, { status: 409 });
-
     // Pickup time is confirmed with the request (the host ratifies it on
     // approval). The guest proposes one on the booking screen; a missing or
     // out-of-window value falls back to the window's opening time. The host or
@@ -111,7 +108,20 @@ async function POSTHandler(request: NextRequest) {
       listing.user.stripePayoutsEnabled === true &&
       !guestBlockedFromInstant;
 
-    const reservation = await prisma.$transaction(async (tx) => {
+    // Serialise the conflict check + insert for this listing so two concurrent
+    // requests for overlapping dates can't both slip through.
+    let reservation;
+    try {
+      reservation = await withListingBookingLock(listingId, async () => {
+        const [reservationConflict, ownerBlock] = await Promise.all([
+          prisma.reservation.findFirst({ where: { listingId, status: { in: blockingStatuses }, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
+          prisma.availabilityBlock.findFirst({ where: { listingId, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
+        ]);
+        if (reservationConflict || ownerBlock) {
+          throw new DatesUnavailableError();
+        }
+
+        return prisma.$transaction(async (tx) => {
       const created = await tx.reservation.create({
         data: {
           userId: currentUser.id, listingId, startDate, endDate,
@@ -144,7 +154,17 @@ async function POSTHandler(request: NextRequest) {
         where: { frontPublicId: { in: driverRows.map((driver) => driver.licenceImagePublicId) } },
       });
       return created;
-    });
+        });
+      });
+    } catch (lockError) {
+      if (lockError instanceof DatesUnavailableError) {
+        return NextResponse.json({ error: "Those dates are no longer available", code: "DATES_UNAVAILABLE" }, { status: 409 });
+      }
+      if (lockError instanceof BookingLockedError) {
+        return NextResponse.json({ error: "Another booking for this vehicle is being processed. Try again in a moment.", code: "BOOKING_IN_PROGRESS" }, { status: 409 });
+      }
+      throw lockError;
+    }
 
     try {
       if (instant) {
@@ -163,6 +183,9 @@ async function POSTHandler(request: NextRequest) {
       console.error("Booking notification failed", notificationError);
     }
     await writeAuditEvent({ request, actorUserId: currentUser.id, action: "RESERVATION_CREATED", targetType: "Reservation", targetId: reservation.id, metadata: { listingId, total: quote.total, instant } });
+    // Instant-booked requests are responded to (auto-approved) the moment
+    // they're created, so refresh the host's denormalised response time.
+    if (instant) await recomputeHostResponseTime(listing.userId);
     return NextResponse.json(reservation, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Error creating reservation", error);
@@ -174,33 +197,63 @@ async function GETHandler(request: NextRequest) {
   try {
     const currentUser = await getCurrentUserEnhanced(request);
     if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    const reservations = await prisma.reservation.findMany({
-      where: { OR: [{ userId: currentUser.id }, { listing: { userId: currentUser.id } }] },
-      orderBy: { createdAt: "desc" },
-      take: 100,
-      include: {
-        user: { select: { id: true, name: true, email: true, number: true, image: true, profileVerified: true, createdAt: true, updatedAt: true, emailVerified: true, lastActiveAt: true } },
-        listing: true,
-      },
+
+    const sp = request.nextUrl.searchParams;
+    const role = sp.get("role"); // "guest" | "host" | null (both)
+    const status = sp.get("status") || undefined;
+    const cursor = sp.get("cursor") || undefined;
+    const limit = Math.min(Math.max(1, Number(sp.get("limit")) || RESERVATIONS_PAGE_SIZE), 50);
+
+    const roleFilter =
+      role === "guest"
+        ? { userId: currentUser.id }
+        : role === "host"
+          ? { listing: { userId: currentUser.id } }
+          : { OR: [{ userId: currentUser.id }, { listing: { userId: currentUser.id } }] };
+
+    const rows = await prisma.reservation.findMany({
+      where: { ...roleFilter, ...(status ? { status } : {}) },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: limit + 1,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      include: { user: true, listing: true },
     });
-    const safeReservations = reservations.map((reservation) => {
+
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+
+    const reservations = page.map((reservation) => {
       const maySeeExactLocation = mayRevealExactLocation({
         isOwner: reservation.listing.userId === currentUser.id,
         reservationStatus: reservation.status,
         paymentStatus: reservation.paymentStatus,
         releaseRule: reservation.listing.exactLocationReleaseRule,
       });
+      const maySeeContact = mayRevealContactDetails({
+        reservationStatus: reservation.status,
+        paymentStatus: reservation.paymentStatus,
+      });
+      const safe = serializeReservation(reservation);
       return {
-        ...reservation,
+        ...safe,
+        user: {
+          ...safe.user,
+          email: maySeeContact ? safe.user.email : null,
+          number: maySeeContact ? safe.user.number : null,
+        },
         listing: {
-          ...reservation.listing,
-          address: maySeeExactLocation ? reservation.listing.address : "",
-          latitude: maySeeExactLocation ? reservation.listing.latitude : null,
-          longitude: maySeeExactLocation ? reservation.listing.longitude : null,
+          ...safe.listing,
+          address: maySeeExactLocation ? safe.listing.address : "",
+          latitude: maySeeExactLocation ? safe.listing.latitude : null,
+          longitude: maySeeExactLocation ? safe.listing.longitude : null,
         },
       };
     });
-    return NextResponse.json(safeReservations, { status: 200, headers: { "Cache-Control": "private, no-store" } });
+
+    return NextResponse.json(
+      { reservations, nextCursor: hasMore ? page[page.length - 1]?.id ?? null : null },
+      { status: 200, headers: { "Cache-Control": "private, no-store" } },
+    );
   } catch (error) {
     console.error("Error fetching reservations", error);
     return NextResponse.json({ error: "Failed to fetch reservations" }, { status: 500 });

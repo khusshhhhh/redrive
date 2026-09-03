@@ -1,0 +1,39 @@
+name: Backup restore-drill
+
+on:
+  schedule:
+    # 03:17 UTC on the 1st of every month.
+    - cron: "17 3 1 * *"
+  workflow_dispatch: {}
+
+jobs:
+  restore-drill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.13.0"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install mongodb-database-tools
+        run: |
+          wget -q https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.10.0.deb
+          sudo dpkg -i mongodb-database-tools-ubuntu2204-x86_64-100.10.0.deb
+          mongodump --version
+
+      - name: Run restore drill
+        env:
+          RESTORE_DRILL_SOURCE_URI: ${{ secrets.RESTORE_DRILL_SOURCE_URI }}
+          RESTORE_DRILL_TARGET_URI: ${{ secrets.RESTORE_DRILL_TARGET_URI }}
+        run: node scripts/restore-drill.mjs
+
+      - name: Alert on failure
+        if: failure()
+        run: |
+          echo "::error::Monthly backup restore-drill FAILED — backups may not be restorable. Investigate immediately."

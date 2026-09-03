@@ -7,6 +7,7 @@ import { mobileError, mobileUnexpectedError, parseMobileJson } from "@/app/libs/
 import prisma from "@/app/libs/prismadb";
 import { getStripe } from "@/app/libs/stripe";
 import { writeAuditEvent } from "@/app/libs/security";
+import { recomputeHostResponseTime } from "@/app/libs/listingStats";
 import { notificationService } from "@/app/services/notificationService";
 
 type Context = { params: Promise<{ reservationId: string }> };
@@ -42,6 +43,7 @@ async function POSTHandler(request: Request, context: Context) {
       await notificationService.notifyBookingApproved(reservation.userId, reservation.listing.title, reservation.id).catch(() => undefined);
       await notificationService.notifyPaymentRequired(reservation.userId, reservation.totalFees, reservation.listing.title, reservation.id).catch(() => undefined);
     } else await notificationService.notifyBookingDeclined(reservation.userId, reservation.listing.title, reservation.id).catch(() => undefined);
+    await recomputeHostResponseTime(reservation.listing.userId);
     return { status: 200, body: { id: updated.id, status: updated.status, respondedAt: updated.respondedAt?.toISOString() || null, paymentDueAt: updated.paymentDueAt?.toISOString() || null } };
   } }).catch((error) => mobileUnexpectedError(request, error, "Mobile reservation status failed"));
 }

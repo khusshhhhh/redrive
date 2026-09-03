@@ -95,6 +95,10 @@ model User {
   guestRatingAvg           Float?
   guestRatingCount         Int       @default(0)
   tripsAsGuestCompleted    Int       @default(0)
+  // Denormalised host response time (avg hours between a booking request and
+  // the host's approve/decline, last 20). Kept fresh on each response so
+  // listing search doesn't recompute it from reservations every query.
+  responseTimeHours        Float?
 
   accounts            Account[]
   listings            Listing[]
@@ -154,6 +158,13 @@ model Listing {
   amenities   String[] @default([])
 
   badge String? // ✅ New badge field
+
+  // Denormalised review aggregates over the publicly-visible reviews
+  // (published, or legacy reviews with no reservation). Recomputed whenever a
+  // review for this listing is created or revealed — see libs/listingStats.ts.
+  // Optional so listings that predate the backfill read as null, not an error.
+  reviewAverage Float? @default(0)
+  reviewCount   Int?   @default(0)
 
   state     String
   suburb    String
@@ -501,6 +512,30 @@ model RateLimitBucket {
   expiresAt DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
+}
+
+// One row per cron job. Doubles as an overlap lock (a run won't start while a
+// non-stale run holds the row) and a health record (last status + error).
+model CronRun {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  name       String    @unique
+  startedAt  DateTime
+  finishedAt DateTime?
+  status     String // RUNNING | OK | ERROR
+  error      String?
+}
+
+// Short-lived advisory lock serialising booking writes for one listing, so two
+// concurrent requests for overlapping dates can't both pass the availability
+// check and both insert. The unique listingId makes acquisition a single
+// atomic insert; `expiresAt` lets a crashed holder's lock be reclaimed.
+model BookingLock {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  listingId String   @unique @db.ObjectId
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 
   @@index([expiresAt])
 }
@@ -864,6 +899,21 @@ model Review {
   @@unique([userId, listingId])
   @@index([listingId, publishedAt])
   @@index([reservationId])
+}
+
+// A saved vehicle. Written alongside the legacy `User.favoriteIds` array while
+// reads migrate over: this row carries a `createdAt` (so "recently saved" is a
+// real query, not an array reversal) and is indexed by listing (so a host can
+// see who saved a vehicle without scanning every user).
+model Favourite {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  listingId String   @db.ObjectId
+  createdAt DateTime @default(now())
+
+  @@unique([userId, listingId])
+  @@index([userId, createdAt])
+  @@index([listingId, createdAt])
 }
 
 // Host's review of a guest. Kept separate from Review so existing guest→host

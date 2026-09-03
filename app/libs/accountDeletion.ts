@@ -232,6 +232,10 @@ export async function permanentlyDeleteAccount(user: DeletionUser) {
         data: { favoriteIds: { set: owner.favoriteIds.filter((id) => !listingIds.includes(id)) } },
       });
     }
+    // Drop the Favourite join rows for this user and for any of their listings.
+    await tx.favourite.deleteMany({
+      where: { OR: [{ userId: user.id }, ...(listingIds.length ? [{ listingId: { in: listingIds } }] : [])] },
+    });
     for (const flag of featureFlags) {
       await tx.featureFlag.update({
         where: { id: flag.id },

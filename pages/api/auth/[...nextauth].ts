@@ -2,8 +2,8 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import NextAuth, { AuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 import { consumeRateLimits, writeAuditEvent } from "@/app/libs/security";
+import { checkCredentials } from "@/app/libs/credentialCheck";
 import { monitorPagesApiRoute } from "@/app/libs/apiMonitoring";
 import { sessionIdleTimeoutMs, WEB_SESSION_ABSOLUTE_MAX_AGE_SECONDS } from "@/app/libs/sessionPolicy";
 import { createWebSession, revokeWebSession, validateWebSession } from "@/app/libs/webSessions";
@@ -45,24 +45,14 @@ export const authOptions: AuthOptions = {
         ]);
         if (!rateLimit.allowed) throw new Error("Too many sign-in attempts. Please wait and try again.");
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email,
-          },
-        });
-
-        if (!user || !user?.hashedPassword) {
+        const check = await checkCredentials(email, credentials.password);
+        if (!check.ok) {
+          if (check.user) {
+            await writeAuditEvent({ action: "LOGIN_FAILED", targetType: "User", targetId: check.user.id, actorUserId: check.user.id, reason: "INVALID_PASSWORD" });
+          }
           throw new Error("Invalid credentials");
         }
-        const isCorrectPassword = await bcrypt.compare(
-          credentials.password,
-          user.hashedPassword
-        );
-
-        if (!isCorrectPassword) {
-          await writeAuditEvent({ action: "LOGIN_FAILED", targetType: "User", targetId: user.id, actorUserId: user.id, reason: "INVALID_PASSWORD" });
-          throw new Error("Invalid credentials");
-        }
+        const user = check.user;
 
         if (user.verificationRequired && !user.emailVerified) {
           throw new Error("Please verify your email before logging in");

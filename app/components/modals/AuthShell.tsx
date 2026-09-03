@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 
 // Shared scroll-lock ref-count. Login and Register both render an AuthShell and
 // can briefly overlap while toggling between them; the count keeps the page
@@ -74,6 +75,7 @@ export default function AuthShell({
   railPoints,
 }: AuthShellProps) {
   const [shown, setShown] = useState(false);
+  const dialogRef = useFocusTrap<HTMLDivElement>(isOpen);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -107,7 +109,9 @@ export default function AuthShell({
 
   return createPortal(
     <div
-      className={`fixed inset-0 z-[100] flex items-end justify-center overflow-y-auto overflow-x-hidden bg-black/45 backdrop-blur-[2px] transition-opacity duration-200 motion-reduce:transition-none sm:items-center sm:p-6 ${
+      ref={dialogRef}
+      tabIndex={-1}
+      className={`fixed inset-0 z-[100] flex items-end justify-center overflow-y-auto overflow-x-hidden bg-black/45 backdrop-blur-[2px] outline-none transition-opacity duration-200 motion-reduce:transition-none sm:items-center sm:p-6 ${
         shown ? "opacity-100" : "opacity-0"
       }`}
       role="dialog"

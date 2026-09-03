@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Placeholder values so `next build` and `prisma generate` succeed without
+  # touching real infrastructure. Runtime env validation only runs on a live
+  # server (instrumentation.register), never during the build.
+  DATABASE_URL: "mongodb://localhost:27017/redrive_ci"
+  NEXTAUTH_SECRET: "ci-placeholder-secret-not-used-at-runtime"
+  NEXTAUTH_URL: "http://localhost:3000"
+  RATE_LIMIT_SECRET: "ci-placeholder-rate-limit-secret"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.13.0"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Typecheck (web)
+        run: npm run typecheck
+
+      - name: Typecheck (contracts)
+        run: npm run typecheck:contracts
+
+      - name: Typecheck (mobile)
+        run: npm run typecheck:mobile
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test (web)
+        run: npm test
+
+      - name: Test (mobile)
+        run: npm run test:mobile
+
+      - name: Build
+        run: npm run build

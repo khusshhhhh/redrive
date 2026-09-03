@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import { notificationService } from "@/app/services/notificationService";
 import { runLifecycleSweep } from "@/app/libs/notifications/lifecycle";
+import { withCronLock } from "@/app/libs/cronLock";
 import { cleanSavedSearchFilters, savedSearchFiltersToQuery } from "@/app/libs/savedSearch";
 import type { Prisma } from "@prisma/client";
 
@@ -53,24 +54,20 @@ async function runSavedSearchAlerts(now: Date) {
 
 async function runNotificationCron() {
   const now = new Date();
-  try {
+  const run = await withCronLock("cron-notifications", async () => {
     await notificationService.cleanupExpiredNotifications();
     const lifecycle = await runLifecycleSweep(now);
     const savedSearchAlerts = await runSavedSearchAlerts(now);
+    return { lifecycle, savedSearchAlerts };
+  });
 
-    return NextResponse.json({
-      success: true,
-      ranAt: now.toISOString(),
-      lifecycle,
-      savedSearchAlerts,
-    });
-  } catch (error) {
-    console.error("❌ Error in notification cron job:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
+  if (run.skipped) return NextResponse.json({ skipped: true, reason: "already running" });
+  return NextResponse.json({ success: true, ranAt: now.toISOString(), ...run.result });
 }
 
 // Vercel Cron sends a GET request to the scheduled path.
+export const maxDuration = 60;
+
 async function GETHandler(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

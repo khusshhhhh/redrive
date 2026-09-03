@@ -3,6 +3,21 @@ import { after } from "next/server";
 import type { NextApiHandler } from "next";
 
 import prisma from "@/app/libs/prismadb";
+import { logger, type Logger } from "@/app/libs/logger";
+
+/** Correlation id for a request — from middleware, the platform, or generated. */
+export function requestId(request: Request | undefined): string {
+  return (
+    request?.headers.get("x-request-id") ||
+    request?.headers.get("x-vercel-id") ||
+    crypto.randomUUID()
+  );
+}
+
+/** A request-scoped structured logger. Use inside route handlers instead of `console`. */
+export function getRequestLogger(request: Request, route?: string): Logger {
+  return logger.child({ requestId: requestId(request), ...(route ? { route } : {}) });
+}
 
 type MetricInput = {
   route: string;
@@ -187,29 +202,28 @@ export function monitorApiRoute<TArgs extends unknown[]>(
         memoryMb: process.memoryUsage().rss / 1024 / 1024,
         requestBytes: Math.max(0, Number(request?.headers.get("content-length") || 0) || 0),
         errorName,
-        requestId: request?.headers.get("x-vercel-id") || undefined,
+        requestId: requestId(request),
         coldStart,
       };
 
       if (status >= 500) {
-        console.error(JSON.stringify({
-          event: "api_request_failed",
+        logger.error("api_request_failed", {
           route,
           method,
           status,
           durationMs: Math.round(durationMs),
-          requestId: metric.requestId,
+          requestId: requestId(request),
           errorName,
-        }));
+        });
       }
 
       try {
         after(async () => {
-          await recordMetric(metric).catch((error) => console.error("API monitoring write failed", error));
+          await recordMetric(metric).catch((error) => logger.error("api_monitoring_write_failed", { err: error }));
         });
       } catch {
         // Keeps direct handler tests usable outside a Next request context.
-        void recordMetric(metric).catch((error) => console.error("API monitoring write failed", error));
+        void recordMetric(metric).catch((error) => logger.error("api_monitoring_write_failed", { err: error }));
       }
     }
   };
@@ -243,7 +257,7 @@ export function monitorPagesApiRoute(route: string, handler: NextApiHandler): Ne
         errorName,
         requestId: typeof request.headers["x-vercel-id"] === "string" ? request.headers["x-vercel-id"] : undefined,
         coldStart,
-      }).catch((error) => console.error("API monitoring write failed", error));
+      }).catch((error) => logger.error("api_monitoring_write_failed", { err: error }));
     }
   };
 }

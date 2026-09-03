@@ -3,6 +3,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 import Navbar from "./components/navbar/Navbar";
 import ToasterProvider from "./providers/ToasterProvider";
 import CurrentUserProvider from "./providers/CurrentUserProvider";
+import SWRProvider from "./providers/SWRProvider";
 import DataPreloader from "./providers/DataPreloader";
 import LazyModals from "./providers/LazyModals";
 import { Analytics } from "@vercel/analytics/react"
@@ -135,12 +136,14 @@ export default function RootLayout({
       </head>
       <body className={`${manrope.variable} bg-white text-ink`} suppressHydrationWarning>
         <CurrentUserProvider>
-          <IdleSessionGuard idleTimeoutMs={sessionIdleTimeoutMs()} />
-          <DataPreloader />
-          <ToasterProvider />
-          <LazyModals />
-          <Navbar />
-          <AppShell>{children}</AppShell>
+          <SWRProvider>
+            <IdleSessionGuard idleTimeoutMs={sessionIdleTimeoutMs()} />
+            <DataPreloader />
+            <ToasterProvider />
+            <LazyModals />
+            <Navbar />
+            <AppShell>{children}</AppShell>
+          </SWRProvider>
         </CurrentUserProvider>
         <Analytics />
         <SpeedInsights />

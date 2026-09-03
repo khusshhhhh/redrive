@@ -13,11 +13,27 @@ html {
   scroll-padding-top: 9rem;
 }
 
-/* Keep the document scrollable while removing the browser chrome around it. */
-html,
-body {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Slim the document scrollbar without removing it: hiding it entirely takes
+   away scroll position and the "there is more below" cue for every user.
+   Overflow rails that genuinely want no scrollbar opt in with .scrollbar-hide. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(143 135 127 / 45%) transparent;
+}
+
+body::-webkit-scrollbar {
+  width: 10px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: rgb(143 135 127 / 40%);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+body::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* Keep fixed mobile actions above home indicators without adding desktop space. */
@@ -33,11 +49,6 @@ button,
 [role="button"],
 label[for] {
   -webkit-tap-highlight-color: transparent;
-}
-
-html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  display: none;
 }
 
 body {
@@ -57,11 +68,51 @@ textarea::placeholder {
   opacity: 0.72;
 }
 
-.leaflet-bottom,
-.leaflet-control,
-.leaflet-pane,
-.leaflet-top {
-  z-index: 0 !important;
+/* Dual-thumb range slider (components/inputs/RangeSlider.tsx). The two inputs
+   are stacked; the track is drawn by the component behind them, so the inputs
+   themselves are transparent and pass clicks through except on the thumb. */
+.range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+.range-thumb:focus-visible {
+  outline: none;
+}
+.range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  height: 20px;
+  width: 20px;
+  border-radius: 999px;
+  background: #1f1f1f;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 25%);
+  cursor: pointer;
+}
+.range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  height: 20px;
+  width: 20px;
+  border-radius: 999px;
+  background: #1f1f1f;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 25%);
+  cursor: pointer;
+}
+.range-thumb:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgb(31 31 31 / 35%);
+}
+.range-thumb:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px rgb(31 31 31 / 35%);
+}
+.range-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.range-thumb::-moz-range-track {
+  background: transparent;
 }
 
 .rdrMonth {

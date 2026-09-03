@@ -7,9 +7,11 @@ import { notificationService } from "@/app/services/notificationService";
 import { writeAuditEvent } from "@/app/libs/security";
 import { getStripe } from "@/app/libs/stripe";
 import { calculateCancellationOutcome } from "@/app/libs/cancellationPolicy";
-import { mayRevealExactLocation } from "@/app/libs/reservationAccess";
+import { mayRevealContactDetails, mayRevealExactLocation } from "@/app/libs/reservationAccess";
 import { releaseDeposit } from "@/app/libs/deposit";
+import { recomputeHostResponseTime } from "@/app/libs/listingStats";
 import { PAYMENT_WINDOW_HOURS, hoursFromNow } from "@/app/libs/bookingWindows";
+import { internalError } from "@/app/libs/apiError";
 
 async function GETHandler(
   request: NextRequest,
@@ -70,6 +72,12 @@ async function GETHandler(
       paymentStatus: reservation.paymentStatus,
       releaseRule: reservation.listing.exactLocationReleaseRule,
     });
+    // The `user` here is always the counterparty for whichever side is viewing,
+    // so email + phone stay hidden until the booking is confirmed or paid.
+    const maySeeContact = mayRevealContactDetails({
+      reservationStatus: reservation.status,
+      paymentStatus: reservation.paymentStatus,
+    });
 
     const safeReservation = {
       ...reservation,
@@ -80,8 +88,8 @@ async function GETHandler(
       user: {
         id: reservation.user.id,
         name: reservation.user.name,
-        email: reservation.user.email,
-        number: reservation.user.number,
+        email: maySeeContact ? reservation.user.email : null,
+        number: maySeeContact ? reservation.user.number : null,
         image: reservation.user.image,
         profileVerified: reservation.user.profileVerified,
         guestRatingAvg: reservation.user.guestRatingAvg,
@@ -111,14 +119,7 @@ async function GETHandler(
 
     return NextResponse.json(safeReservation, { status: 200 });
   } catch (error) {
-    console.error("❌ Error fetching reservation:", error);
-    return NextResponse.json(
-      {
-        error: "Internal Server Error",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 },
-    );
+    return internalError(error, { event: "reservation_fetch_failed", route: "GET /api/reservations/[reservationId]" });
   }
 }
 async function DELETEHandler(
@@ -479,6 +480,10 @@ async function PATCHHandler(
       targetId: reservation.id,
       metadata: { from: reservation.status, to: status },
     });
+
+    if (updated.respondedAt && !reservation.respondedAt) {
+      await recomputeHostResponseTime(reservation.listing.userId);
+    }
 
     try {
       if (status === "APPROVED") {

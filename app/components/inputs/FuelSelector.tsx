@@ -1,9 +1,8 @@
 "use client";
 
 import { FieldErrors, FieldValues, UseFormSetValue, UseFormWatch } from "react-hook-form";
-import { FaGasPump, FaBolt, FaLeaf } from "react-icons/fa";
-import { BsFuelPumpDiesel } from "react-icons/bs";
-import { IconSquareRoundedX } from "@tabler/icons-react";
+import { Fuel, Zap, Leaf } from "lucide-react";
+import { IconGasStation, IconSquareRoundedX } from "@tabler/icons-react";
 
 interface FuelSelectorProps {
     id: string;
@@ -16,10 +15,10 @@ interface FuelSelectorProps {
 }
 
 const FUEL_OPTIONS = [
-    { label: "Petrol", icon: <FaGasPump /> },
-    { label: "Diesel", icon: <BsFuelPumpDiesel /> },
-    { label: "EV", icon: <FaBolt /> },
-    { label: "Hybrid", icon: <FaLeaf /> },
+    { label: "Petrol", icon: <Fuel size={18} /> },
+    { label: "Diesel", icon: <IconGasStation size={18} /> },
+    { label: "EV", icon: <Zap size={18} /> },
+    { label: "Hybrid", icon: <Leaf size={18} /> },
     { label: "NA", icon: <IconSquareRoundedX size={20} /> },
 ];
 

@@ -16,13 +16,19 @@ async function POSTHandler(request: NextRequest) {
     return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
   }
 
-  const favoriteIds = [...(currentUser.favoriteIds || [])];
-  favoriteIds.push(listingId);
+  const favoriteIds = [...new Set([...(currentUser.favoriteIds || []), listingId])];
 
-  const user = await prisma.user.update({
-    where: { id: currentUser.id },
-    data: { favoriteIds },
-  });
+  const [user] = await Promise.all([
+    prisma.user.update({ where: { id: currentUser.id }, data: { favoriteIds } }),
+    // Dual-write the join row (carries createdAt + a listing index).
+    prisma.favourite
+      .upsert({
+        where: { userId_listingId: { userId: currentUser.id, listingId } },
+        create: { userId: currentUser.id, listingId },
+        update: {},
+      })
+      .catch((error) => console.error("Favourite row upsert failed", error)),
+  ]);
 
   try {
     const listing = await prisma.listing.findUnique({
@@ -57,13 +63,14 @@ async function DELETEHandler(request: NextRequest) {
     return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
   }
 
-  let favoriteIds = [...(currentUser.favoriteIds || [])];
-  favoriteIds = favoriteIds.filter((id) => id !== listingId);
+  const favoriteIds = (currentUser.favoriteIds || []).filter((id) => id !== listingId);
 
-  const user = await prisma.user.update({
-    where: { id: currentUser.id },
-    data: { favoriteIds },
-  });
+  const [user] = await Promise.all([
+    prisma.user.update({ where: { id: currentUser.id }, data: { favoriteIds } }),
+    prisma.favourite
+      .deleteMany({ where: { userId: currentUser.id, listingId } })
+      .catch((error) => console.error("Favourite row delete failed", error)),
+  ]);
 
   return NextResponse.json(user);
 }

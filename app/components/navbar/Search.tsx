@@ -5,7 +5,7 @@ import qs from "query-string";
 import { useRouter, useSearchParams } from "next/navigation";
 import { differenceInDays } from "date-fns";
 import { useMemo } from "react";
-import { BiSearch } from "react-icons/bi";
+import { Search as SearchIcon } from "lucide-react";
 import useSearchModal from "@/app/hooks/useSearchModal";
 import { IconX } from "@tabler/icons-react";
 
@@ -68,7 +68,7 @@ const Search = ({ compact = false, isHome = false }: SearchProps) => {
         aria-label={`Search vehicles. ${locationLabel}, ${durationLabel}, ${guestLabel}`}
         className="relative flex h-11 w-11 items-center justify-center rounded-full border border-hairline bg-white text-ink shadow-card outline-none transition-[background-color,border-color,box-shadow] duration-300 ease-out hover:border-border-strong hover:bg-surface-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 motion-reduce:transition-none md:hidden"
       >
-        <BiSearch size={22} aria-hidden="true" />
+        <SearchIcon size={22} aria-hidden="true" />
         {filtersApplied && (
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent ring-2 ring-white" aria-hidden="true" />
         )}
@@ -101,7 +101,7 @@ const Search = ({ compact = false, isHome = false }: SearchProps) => {
               <div className="truncate">{guestLabel}</div>
             </div>
             <div className={`absolute right-2.5 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full bg-graphite text-white transition-[width,height] duration-300 ${isHome && !compact ? "h-9 w-9" : "h-8 w-8"}`}>
-              <BiSearch size={isHome && !compact ? 20 : 18} />
+              <SearchIcon size={isHome && !compact ? 20 : 18} />
             </div>
           </div>
         </div>

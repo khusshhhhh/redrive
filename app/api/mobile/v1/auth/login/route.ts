@@ -1,4 +1,3 @@
-import bcrypt from "bcryptjs";
 import { loginRequestSchema } from "@redrive/contracts/mobile";
 
 import { monitorApiRoute } from "@/app/libs/apiMonitoring";
@@ -9,8 +8,7 @@ import { createMobileSession } from "@/app/libs/mobile-auth/sessions";
 import { mobileError, mobileJson, mobileUnexpectedError, parseMobileJson } from "@/app/libs/mobile-api/responses";
 import prisma from "@/app/libs/prismadb";
 import { consumeRateLimits, getClientIp, writeAuditEvent } from "@/app/libs/security";
-
-const INVALID_PASSWORD_HASH = "$2b$12$C6UzMDM.H6dfI/f/IKcEe.yrW5YFq8p6x5YvZLR/R3hR0cD3.C7W.";
+import { checkCredentials } from "@/app/libs/credentialCheck";
 
 async function POSTHandler(request: Request) {
   const parsed = await parseMobileJson(request, loginRequestSchema);
@@ -22,12 +20,12 @@ async function POSTHandler(request: Request) {
   ]);
   if (!rateLimit.allowed) return mobileError(request, 429, "RATE_LIMITED", "Too many sign-in attempts. Wait and try again.", undefined, { "Retry-After": String(rateLimit.retryAfterSeconds) });
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  const passwordMatches = await bcrypt.compare(password, user?.hashedPassword || INVALID_PASSWORD_HASH);
-  if (!user?.hashedPassword || !passwordMatches) {
-    await writeAuditEvent({ request, actorUserId: user?.id, action: "MOBILE_LOGIN_FAILED", targetType: "User", targetId: user?.id, reason: "INVALID_CREDENTIALS" });
+  const check = await checkCredentials(email, password);
+  if (!check.ok) {
+    await writeAuditEvent({ request, actorUserId: check.user?.id, action: "MOBILE_LOGIN_FAILED", targetType: "User", targetId: check.user?.id, reason: "INVALID_CREDENTIALS" });
     return mobileError(request, 401, "INVALID_CREDENTIALS", "Email or password is incorrect.");
   }
+  const user = check.user;
   if (user.verificationRequired && !user.emailVerified) return mobileError(request, 403, "EMAIL_VERIFICATION_REQUIRED", "Verify your email before signing in.");
 
   try {

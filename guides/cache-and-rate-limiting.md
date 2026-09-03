@@ -1,29 +1,42 @@
 # Cache and rate limiting
 
-Redrive uses MongoDB for shared rate-limit state and small, bounded process
-memory caches for safe performance improvements. There is no Redis dependency
-or Redis environment configuration.
+Redrive rate-limits sensitive routes with a small bounded process-memory
+burst filter in front of a shared store — Upstash Redis when configured,
+MongoDB otherwise.
 
 ## Rate limiting
 
-Sensitive routes continue to call the shared helpers in `app/libs/security.ts`.
-Each request is checked in this order:
+Sensitive routes call the shared helpers in `app/libs/security.ts`. Each
+request is checked in this order:
 
 1. Raw account and IP identifiers are HMACed with `RATE_LIMIT_SECRET`.
 2. A process-local fixed-window counter rejects obvious bursts immediately.
-3. Requests that pass the local check are recorded in MongoDB
-   `RateLimitBucket` records, which remain the cross-instance authority.
+3. Requests that pass the local check are counted in the shared store:
+   - **Upstash Redis** (`app/libs/rateLimitStore.ts`) when
+     `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` are set — one atomic
+     op per rule, no held connection. This is the recommended path once traffic
+     is real: the MongoDB path adds a round-trip on exactly the requests that
+     most need to be fast (login, reservation, upload).
+   - **MongoDB `RateLimitBucket`** upsert otherwise. Cleaned nightly by the
+     security-maintenance cron.
 4. Rejected requests receive HTTP `429`, `Retry-After`, and
    `Cache-Control: no-store`.
 
-The local counter is intentionally limited to 10,000 entries and expires entries
-without background timers. It can disappear on a deployment, restart, or
-serverless scale-out without weakening the real limit because every locally
-accepted request is still checked by MongoDB.
+The local counter is limited to 10,000 entries and expires entries without
+background timers. It can disappear on a deployment, restart, or scale-out
+without weakening the real limit because every locally accepted request is
+still checked by the shared store. A Redis outage fails open to "allowed" (the
+local burst filter still applies).
 
-The scheduled security-maintenance route deletes expired database buckets.
-`RATE_LIMIT_SECRET` is still required and must remain server-only. Never put raw
+`RATE_LIMIT_SECRET` is required and must remain server-only. Never put raw
 email addresses, user identifiers, or IP addresses in counter keys or logs.
+
+## Free Upstash tier
+
+Upstash Redis has a free tier (500K commands/month, 256 MB) that comfortably
+covers early-stage rate-limit traffic. Create a database at
+<https://upstash.com>, copy the **REST** URL + token into the two env vars, and
+redeploy — no code change. Nothing else in the app uses Redis.
 
 ## Public listing cache
 

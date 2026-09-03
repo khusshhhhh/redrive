@@ -14,7 +14,7 @@ const ReservationsPage = async () => {
         return <EmptyReservations title="Sign in to view reservations" copy="Your hosting requests and booking details will appear here." />;
     }
 
-    const reservations = await getReservations({
+    const { reservations, nextCursor } = await getReservations({
         authorId: currentUser.id
     });
 
@@ -23,7 +23,12 @@ const ReservationsPage = async () => {
     }
 
     return (
-        <ReservationsClient reservations={reservations} currentUser={currentUser} />
+        <ReservationsClient
+            reservations={reservations}
+            currentUser={currentUser}
+            nextCursor={nextCursor}
+            role="host"
+        />
     );
 
 };

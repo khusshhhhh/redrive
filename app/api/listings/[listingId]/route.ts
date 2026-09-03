@@ -6,6 +6,7 @@ import prisma from "@/app/libs/prismadb";
 import { normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
 import { invalidatePublicListingsCache } from "@/app/actions/getListings";
 import { sanitizeListingExtras } from "@/app/libs/listingExtras";
+import { internalError } from "@/app/libs/apiError";
 
 /**
  * GET: Fetch a specific listing by ID (Includes state, suburb, amenities, images, and rego details)
@@ -46,13 +47,7 @@ async function GETHandler(
       lastServicedAt: listing.lastServicedAt ? listing.lastServicedAt.toISOString() : null,
     }, { status: 200, headers: { "Cache-Control": isOwner ? "private, no-store" : "public, max-age=60" } });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error: "Internal Server Error",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
+    return internalError(error, { event: "listing_fetch_failed", route: "GET /api/listings/[listingId]" });
   }
 }
 
@@ -175,13 +170,7 @@ async function PUTHandler(
     invalidatePublicListingsCache();
     return NextResponse.json(updatedListing, { status: 200 });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error: "Internal Server Error",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
+    return internalError(error, { event: "listing_update_failed", route: "PUT /api/listings/[listingId]" });
   }
 }
 
@@ -235,14 +224,7 @@ async function DELETEHandler(
       message: "Listing deleted successfully",
     });
   } catch (error) {
-    console.error("❌ Error deleting listing:", error);
-    return NextResponse.json(
-      {
-        error: "Internal Server Error",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
+    return internalError(error, { event: "listing_delete_failed", route: "DELETE /api/listings/[listingId]" });
   }
 }
 

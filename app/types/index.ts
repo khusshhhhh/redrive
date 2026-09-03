@@ -141,6 +141,16 @@ export type PublicHost = Pick<
   listings?: { createdAt: string }[];
 };
 
+// What the browser gets from `/api/me` to hydrate the navbar / footer / mobile
+// nav / presence guards. Deliberately narrow — no licence attributes, home
+// address, phone, or security flags leave the server for chrome that only
+// needs a name and an avatar. Full-profile screens still load the complete
+// record server-side via `getCurrentUser`.
+export type SessionUser = Pick<User, "id" | "name" | "email" | "image" | "state" | "favoriteIds"> & {
+  createdAt: string;
+  emailVerified: string | null;
+};
+
 // Minimal presence-bearing user info attached to a chat (avatar/name/online
 // status) — not the full SafeUser, since chat summaries only need this much.
 export type SafeChatUser = {

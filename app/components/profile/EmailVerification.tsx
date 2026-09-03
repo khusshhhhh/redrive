@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Check, MailCheck, RefreshCw, ShieldCheck } from "lucide-react";
 import toast from "@/app/libs/toast";
+import { apiErrorMessage } from "@/app/libs/errorMessage";
 
 interface EmailVerificationProps {
   email: string;
@@ -44,8 +45,8 @@ export default function EmailVerification({
       setCodeSent(true);
       setCooldown(60);
       toast.success(codeSent ? "A fresh code is on its way" : "Verification code sent");
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Unable to send a verification code");
+    } catch (error) {
+      toast.error(apiErrorMessage(error, "Unable to send a verification code"));
     } finally {
       setSending(false);
     }
@@ -63,8 +64,8 @@ export default function EmailVerification({
       setPreviewCode("");
       onVerified();
       toast.success("Email verified — you’re booking ready");
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Unable to verify your email");
+    } catch (error) {
+      toast.error(apiErrorMessage(error, "Unable to verify your email"));
     } finally {
       setVerifying(false);
     }

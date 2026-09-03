@@ -1,7 +1,9 @@
 "use client";
 
+import { apiErrorMessage, apiErrorCode } from "@/app/libs/errorMessage";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import axios from "axios";
 import Image from "next/image";
 import { differenceInCalendarDays, format } from "date-fns";
@@ -226,12 +228,9 @@ export default function ReservationDetails() {
           : "Reservation declined",
       );
       router.refresh();
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.error ||
-          "Reservation status could not be updated",
-      );
-      if (error.response?.data?.code === "PAYOUT_SETUP_REQUIRED")
+    } catch (error) {
+      toast.error(apiErrorMessage(error, "Reservation status could not be updated"));
+      if (apiErrorCode(error) === "PAYOUT_SETUP_REQUIRED")
         router.push("/profile#payouts");
     } finally {
       setUpdatingStatus(false);
@@ -391,12 +390,20 @@ export default function ReservationDetails() {
                         </span>
                       )}
                     </div>
-                    <p className="mt-1 text-sm text-muted">
-                      {reservation.user.email}
-                    </p>
-                    <p className="mt-1 text-sm text-muted">
-                      {reservation.user.number || "Phone number not provided"}
-                    </p>
+                    {reservation.user.email || reservation.user.number ? (
+                      <>
+                        <p className="mt-1 text-sm text-muted">
+                          {reservation.user.email}
+                        </p>
+                        <p className="mt-1 text-sm text-muted">
+                          {reservation.user.number || "Phone number not provided"}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="mt-1 text-sm text-muted">
+                        Contact details are shared once the booking is confirmed. Use Messages until then.
+                      </p>
+                    )}
                   </div>
                   <button
                     onClick={() => void startChat()}
@@ -550,21 +557,21 @@ export default function ReservationDetails() {
               )}
               {!isHost &&
                 ["COMPLETED", "ACTIVE"].includes(reservation.status) && (
-                  <a
+                  <Link
                     href={`/listings/${listing.id}`}
                     className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm border border-border-strong bg-white text-sm font-semibold text-ink hover:bg-surface-soft"
                   >
                     <CarFront size={17} /> Book this car again
-                  </a>
+                  </Link>
                 )}
 
               {isHost && reservation.status === "REVIEWING" && (
-                <a
+                <Link
                   href="/profile#payouts"
                   className="flex items-center justify-center gap-2 text-xs font-semibold text-primary hover:underline"
                 >
                   <Landmark size={15} /> Check host payout setup
-                </a>
+                </Link>
               )}
 
               {isHost && reservation.status === "REVIEWING" && (

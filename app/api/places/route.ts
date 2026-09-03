@@ -1,5 +1,11 @@
 import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
+import { consumeRateLimits, getClientIp, tooManyRequests } from "@/app/libs/security";
+import { BoundedMemoryCache } from "@/app/libs/memoryCache";
+
+// Short result cache: autocomplete for the same prefix repeats constantly
+// while a user types, and each miss is a billed Google call.
+const placesCache = new BoundedMemoryCache<unknown>({ maxEntries: 500, ttlMs: 5 * 60_000 });
 
 interface GooglePrediction {
   place_id: string;
@@ -24,6 +30,21 @@ async function GETHandler(req: Request) {
     // avoids firing a billed request on every single keystroke.
     if (!input || input.trim().length < 3) {
       return NextResponse.json([], { status: 200 });
+    }
+
+    // Unauthenticated + billed downstream — cap abuse by IP.
+    const rateLimit = await consumeRateLimits([
+      { scope: "places-autocomplete-ip", identifier: getClientIp(req), limit: 60, windowMs: 60_000 },
+    ]);
+    if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
+
+    const cacheKey = `${input.trim().toLowerCase()}|${suburb || ""}|${state || ""}`;
+    const cached = placesCache.get(cacheKey);
+    if (cached !== undefined) {
+      return NextResponse.json(cached, {
+        status: 200,
+        headers: { "Cache-Control": "private, max-age=120" },
+      });
     }
 
     const googleApiKey = process.env.GOOGLE_PLACES_API_KEY;
@@ -75,7 +96,11 @@ async function GETHandler(req: Request) {
       secondaryText: p.structured_formatting?.secondary_text ?? "",
     }));
 
-    return NextResponse.json(results, { status: 200 });
+    placesCache.set(cacheKey, results);
+    return NextResponse.json(results, {
+      status: 200,
+      headers: { "Cache-Control": "private, max-age=120" },
+    });
   } catch (error) {
     console.error("Error fetching places:", error);
     return NextResponse.json(

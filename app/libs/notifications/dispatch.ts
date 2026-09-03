@@ -8,6 +8,8 @@ import type { RenderEmailInput } from "./emailLayout";
 import { resolveChannels, type Channel } from "./policy";
 import { sendPushToUser } from "./push";
 import { sendSms } from "./sms";
+import { publishRealtime } from "@/app/libs/realtime/publish";
+import { userChannel, RealtimeEvent } from "@/app/libs/realtime/events";
 
 export type EmailContent = Omit<RenderEmailInput, "appUrl" | "unsubscribeUrl">;
 
@@ -158,6 +160,13 @@ export async function dispatchNotification(input: DispatchInput): Promise<Dispat
       result.inApp = true;
     } catch (error) {
       console.error("In-app notification write failed", input.type, error);
+    }
+    if (result.inApp) {
+      // Nudge any open tab to refresh its notification centre / badge.
+      await publishRealtime(userChannel(input.userId), RealtimeEvent.Notification, {
+        type: input.type,
+        title: input.title,
+      });
     }
     await recordDelivery(input.userId, input.dedupeKey, "IN_APP", input.type, "SENT");
   }

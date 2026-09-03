@@ -2,7 +2,7 @@
 
 import { IconCar4wd } from "@tabler/icons-react";
 import { FieldErrors, FieldValues, UseFormSetValue, UseFormWatch } from "react-hook-form";
-import { FaCarSide, FaRoad, FaMinusCircle } from "react-icons/fa";
+import { CarFront, Route, CircleMinus } from "lucide-react";
 
 interface DriveChainSelectorProps {
     id: string;
@@ -15,11 +15,11 @@ interface DriveChainSelectorProps {
 }
 
 const DRIVE_CHAIN_OPTIONS = [
-    { label: "Front Wheel Drive", icon: <FaCarSide /> },
-    { label: "Rear Wheel Drive", icon: <FaRoad /> },
+    { label: "Front Wheel Drive", icon: <CarFront size={18} /> },
+    { label: "Rear Wheel Drive", icon: <Route size={18} /> },
     { label: "All Wheel Drive", icon: <IconCar4wd size={18} /> },
     { label: "4x4", icon: <IconCar4wd size={18} /> },
-    { label: "NA", icon: <FaMinusCircle /> },
+    { label: "NA", icon: <CircleMinus size={18} /> },
 ];
 
 const DriveChainSelector: React.FC<DriveChainSelectorProps> = ({

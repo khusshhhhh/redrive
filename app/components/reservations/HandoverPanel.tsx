@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { apiErrorMessage } from "@/app/libs/errorMessage";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -103,8 +104,8 @@ export default function HandoverPanel({
         uploaded.push({ ...response.data, category: "CONDITION" });
       }
       setMedia((current) => [...current, ...uploaded]);
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Photo upload failed");
+    } catch (error) {
+      toast.error(apiErrorMessage(error, "Photo upload failed"));
     } finally {
       setBusy(false);
     }
@@ -134,10 +135,8 @@ export default function HandoverPanel({
       setChecklist({});
       await load();
       onChanged();
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.error || "Handover could not be submitted",
-      );
+    } catch (error) {
+      toast.error(apiErrorMessage(error, "Handover could not be submitted"));
     } finally {
       setBusy(false);
     }
@@ -158,10 +157,8 @@ export default function HandoverPanel({
         );
       await load();
       onChanged();
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.error || "Agreement could not be recorded",
-      );
+    } catch (error) {
+      toast.error(apiErrorMessage(error, "Agreement could not be recorded"));
     } finally {
       setBusy(false);
     }
@@ -209,8 +206,8 @@ export default function HandoverPanel({
       toast.success("Issue reported. Payout release is paused for review.");
       setIncidentSummary("");
       setShowIncident(false);
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Issue could not be reported");
+    } catch (error) {
+      toast.error(apiErrorMessage(error, "Issue could not be reported"));
     } finally {
       setBusy(false);
     }

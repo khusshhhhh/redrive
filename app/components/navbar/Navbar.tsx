@@ -7,7 +7,7 @@ import Logo from "./Logo";
 import Search from "./Search";
 import UserMenu from "./UserMenu";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { BiSearch } from "react-icons/bi";
+import { Search as SearchIcon } from "lucide-react";
 
 const HEADER_COLLAPSE_SCROLL_Y = 48;
 const HEADER_EXPAND_SCROLL_Y = 8;
@@ -111,7 +111,7 @@ function SearchFallback() {
     <div className="flex h-11 w-11 items-center justify-center rounded-full border border-hairline bg-white text-ink md:h-[48px] md:w-[460px] md:justify-between md:py-2 md:shadow-card" aria-hidden="true">
       <span className="hidden px-6 text-sm font-medium text-ink md:block">Anywhere</span>
       <span className="hidden flex-1 border-x border-hairline px-10 text-center text-sm font-medium text-ink md:block">Any Week</span>
-      <span className="flex h-8 w-8 items-center justify-center rounded-full md:mr-2 md:bg-primary md:text-white"><BiSearch size={20} /></span>
+      <span className="flex h-8 w-8 items-center justify-center rounded-full md:mr-2 md:bg-primary md:text-white"><SearchIcon size={20} /></span>
     </div>
   );
 }

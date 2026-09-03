@@ -4,8 +4,16 @@ import prisma from "@/app/libs/prismadb";
 import { getCurrentUserEnhanced } from "@/app/libs/auth-middleware";
 import type { NextRequest } from "next/server";
 import { normalizeCancellationPolicy } from "@/app/libs/cancellationPolicy";
-import { invalidatePublicListingsCache } from "@/app/actions/getListings";
+import {
+  invalidatePublicListingsCache,
+  getListingsPage,
+  LISTINGS_PAGE_SIZE,
+  type IListingsParams,
+} from "@/app/actions/getListings";
+import { toListingCardData } from "@/app/libs/listingCardData";
 import { sanitizeListingExtras } from "@/app/libs/listingExtras";
+import { consumeRateLimits, getClientIp, tooManyRequests } from "@/app/libs/security";
+import { internalError } from "@/app/libs/apiError";
 
 async function POSTHandler(request: NextRequest) {
   try {
@@ -145,15 +153,55 @@ async function POSTHandler(request: NextRequest) {
 
     return NextResponse.json(listing, { status: 201 });
   } catch (error) {
-    console.error("❌ Internal Server Error:", error);
-    return NextResponse.json(
-      {
-        error: "Internal Server Error",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
-    );
+    return internalError(error, { event: "listing_create_failed", route: "POST /api/listings" });
   }
 }
+
+// GET: one paginated page of public discovery results. Same filters as the
+// /explore query string, plus `cursor` (id of the last card from the previous
+// page). Returns compact card data only.
+async function GETHandler(request: NextRequest) {
+  try {
+    // Public, unauthenticated discovery path — cap per IP to protect the DB.
+    const rateLimit = await consumeRateLimits([
+      { scope: "listings-search-ip", identifier: getClientIp(request), limit: 60, windowMs: 60_000 },
+    ]);
+    if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
+
+    const sp = request.nextUrl.searchParams;
+    const str = (key: string) => sp.get(key) || undefined;
+
+    const params: IListingsParams = {
+      state: str("state"),
+      suburb: str("suburb"),
+      category: str("category"),
+      information: str("information"),
+      guestCount: str("guestCount") ? Number(sp.get("guestCount")) : undefined,
+      sleepCount: str("sleepCount") ? Number(sp.get("sleepCount")) : undefined,
+      minPrice: str("minPrice"),
+      maxPrice: str("maxPrice"),
+      startDate: str("startDate"),
+      endDate: str("endDate"),
+      transmission: str("transmission"),
+      delivery: str("delivery"),
+      petsAllowed: str("petsAllowed"),
+      unsealed: str("unsealed"),
+      cursor: str("cursor"),
+      limit: str("limit") ? Number(sp.get("limit")) : LISTINGS_PAGE_SIZE,
+    };
+
+    const { listings, nextCursor } = await getListingsPage(params);
+
+    return NextResponse.json(
+      { listings: listings.map(toListingCardData), nextCursor },
+      { headers: { "Cache-Control": "public, max-age=15, stale-while-revalidate=60" } },
+    );
+  } catch (error) {
+    console.error("GET /api/listings error", error);
+    return NextResponse.json({ error: "Unable to load listings" }, { status: 500 });
+  }
+}
+
+export const GET = monitorApiRoute("/api/listings", GETHandler, "GET");
 
 export const POST = monitorApiRoute("/api/listings", POSTHandler, "POST");

@@ -11,6 +11,7 @@ import prisma from "@/app/libs/prismadb";
 import { resolvePickupTime } from "@/app/libs/bookingTimes";
 import { timezoneForState } from "@/app/libs/timezone";
 import { consumeRateLimits, getClientIp, writeAuditEvent } from "@/app/libs/security";
+import { withListingBookingLock, BookingLockedError, DatesUnavailableError } from "@/app/libs/bookingLock";
 import { notificationService } from "@/app/services/notificationService";
 import { toMobileReservation } from "@/app/services/mobileDtos";
 
@@ -62,12 +63,6 @@ async function POSTHandler(request: Request) {
     const quote = buildBookingQuote({ dailyRate: listing.price, startDate, endDate, insuranceType: parsed.data.insuranceType, cleaningFee: listing.cleaningFeeOption === "YES" ? listing.cleaningFeeAmount || 0 : 0 });
     if (quote.days < listing.minimumTripDays || quote.days > listing.maximumTripDays) return { status: 400, body: { error: { code: "TRIP_LENGTH_INVALID", message: `Trip length must be between ${listing.minimumTripDays} and ${listing.maximumTripDays} days.`, requestId: "idempotent" } } };
     if (startDate.getTime() - Date.now() < listing.minimumNoticeHours * 60 * 60_000) return { status: 409, body: { error: { code: "NOTICE_REQUIRED", message: `This vehicle requires at least ${listing.minimumNoticeHours} hours notice.`, requestId: "idempotent" } } };
-    const [reservationConflict, ownerBlock] = await Promise.all([
-      prisma.reservation.findFirst({ where: { listingId: listing.id, status: { in: blockingStatuses }, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
-      prisma.availabilityBlock.findFirst({ where: { listingId: listing.id, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
-    ]);
-    if (reservationConflict || ownerBlock) return { status: 409, body: { error: { code: "DATES_UNAVAILABLE", message: "Those dates are no longer available.", requestId: "idempotent" } } };
-
     const pickupTime = resolvePickupTime({
       requested: (parsed.data as { pickupTime?: unknown }).pickupTime,
       windowStart: listing.pickupWindowStart,
@@ -90,15 +85,32 @@ async function POSTHandler(request: Request) {
       driverRows = resolution.rows;
     }
 
-    const created = await prisma.$transaction(async (tx) => {
-      const reservation = await tx.reservation.create({ data: { userId: auth.identity.userId, listingId: listing.id, startDate, endDate, totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total, message: parsed.data.message || null, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION, cancellationPolicy: normalizeCancellationPolicy(listing.cancellationPolicy), cancellationPolicySnapshot: cancellationPolicySnapshot(listing.cancellationPolicy), status: "REVIEWING", autoDeclineAt: new Date(Date.now() + 48 * 60 * 60_000), pickupTime, pickupTimeSetByRole: "GUEST", pickupTimeConfirmed: true, pickupTimeUpdatedAt: new Date() } });
-      await tx.bookingQuote.create({ data: { userId: auth.identity.userId, listingId: listing.id, reservationId: reservation.id, startDate, endDate, days: quote.days, dailyRate: quote.dailyRate, basePrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, cleaningFee: quote.cleaningFee, total: quote.total, currency: quote.currency, policyVersion: quote.policyVersion, expiresAt: new Date(Date.now() + 15 * 60_000) } });
-      if (driverRows.length > 0) {
-        await tx.reservationDriver.createMany({ data: driverRows.map((driver) => ({ ...driver, reservationId: reservation.id })) });
-        await tx.licenceCheck.deleteMany({ where: { frontPublicId: { in: driverRows.map((driver) => driver.licenceImagePublicId) } } });
+    // Serialise the conflict check + insert for this listing (see bookingLock.ts).
+    let created;
+    try {
+      created = await withListingBookingLock(listing.id, async () => {
+        const [reservationConflict, ownerBlock] = await Promise.all([
+          prisma.reservation.findFirst({ where: { listingId: listing.id, status: { in: blockingStatuses }, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
+          prisma.availabilityBlock.findFirst({ where: { listingId: listing.id, startDate: { lte: endDate }, endDate: { gte: startDate } }, select: { id: true } }),
+        ]);
+        if (reservationConflict || ownerBlock) throw new DatesUnavailableError();
+
+        return prisma.$transaction(async (tx) => {
+          const reservation = await tx.reservation.create({ data: { userId: auth.identity.userId, listingId: listing.id, startDate, endDate, totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total, message: parsed.data.message || null, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION, cancellationPolicy: normalizeCancellationPolicy(listing.cancellationPolicy), cancellationPolicySnapshot: cancellationPolicySnapshot(listing.cancellationPolicy), status: "REVIEWING", autoDeclineAt: new Date(Date.now() + 48 * 60 * 60_000), pickupTime, pickupTimeSetByRole: "GUEST", pickupTimeConfirmed: true, pickupTimeUpdatedAt: new Date() } });
+          await tx.bookingQuote.create({ data: { userId: auth.identity.userId, listingId: listing.id, reservationId: reservation.id, startDate, endDate, days: quote.days, dailyRate: quote.dailyRate, basePrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, cleaningFee: quote.cleaningFee, total: quote.total, currency: quote.currency, policyVersion: quote.policyVersion, expiresAt: new Date(Date.now() + 15 * 60_000) } });
+          if (driverRows.length > 0) {
+            await tx.reservationDriver.createMany({ data: driverRows.map((driver) => ({ ...driver, reservationId: reservation.id })) });
+            await tx.licenceCheck.deleteMany({ where: { frontPublicId: { in: driverRows.map((driver) => driver.licenceImagePublicId) } } });
+          }
+          return reservation;
+        });
+      });
+    } catch (lockError) {
+      if (lockError instanceof DatesUnavailableError || lockError instanceof BookingLockedError) {
+        return { status: 409, body: { error: { code: "DATES_UNAVAILABLE", message: "Those dates are no longer available.", requestId: "idempotent" } } };
       }
-      return reservation;
-    });
+      throw lockError;
+    }
     await notificationService.notifyBookingRequest(listing.userId, renter.name || "Someone", listing.title, created.id).catch((error) => console.error("Booking notification failed", error));
     await writeAuditEvent({ request, actorUserId: auth.identity.userId, action: "RESERVATION_CREATED", targetType: "Reservation", targetId: created.id, metadata: { listingId: listing.id, total: quote.total } });
     const full = await prisma.reservation.findUniqueOrThrow({ where: { id: created.id }, include: reservationInclude });

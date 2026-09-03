@@ -1,10 +1,14 @@
-import getListings, { IListingsParams } from "../actions/getListings";
+import { Suspense } from "react";
+import getListings, { getListingsPage, IListingsParams } from "../actions/getListings";
 import getCurrentUser from "../actions/getCurrentUser";
 import getFavoriteListings from "../actions/getFavoriteListings";
+import type { SafeListing } from "../types";
 import Container from "../components/Container";
 import EmptyState from "../components/EmptyState";
 import FavoriteListings from "../components/FavoriteListings";
 import ListingCard from "../components/listings/ListingCard";
+import MoreListings from "./MoreListings";
+import SkeletonCard from "../components/SkeletonCard";
 import RecentlyViewed from "../components/RecentlyViewed";
 import ContinueWhereYouLeftOff from "../components/ContinueWhereYouLeftOff";
 import SavedSearchManager from "../components/SavedSearchManager";
@@ -26,6 +30,58 @@ interface ExploreProps {
   searchParams?: IListingsParams;
 }
 
+type ExploreUser = Awaited<ReturnType<typeof getCurrentUser>>;
+
+/** A row of card placeholders while a deferred rail resolves. */
+const RailSkeleton = ({ label }: { label: string }) => (
+  <section className="mt-12" aria-hidden="true">
+    <div className="mb-4 h-6 w-48 rounded bg-surface-soft" aria-label={label} />
+    <div className="flex gap-4 overflow-hidden">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div key={index} className="w-[220px] shrink-0">
+          <SkeletonCard compact />
+        </div>
+      ))}
+    </div>
+  </section>
+);
+
+/** Deferred: the guest's saved vehicles. Its own DB read no longer blocks the
+ *  results grid from painting. */
+const FavoritesRail = async ({ currentUser }: { currentUser: ExploreUser }) => {
+  if (!currentUser) return null;
+  const favoriteListings = await getFavoriteListings();
+  return <FavoriteListings listings={favoriteListings} currentUser={currentUser} />;
+};
+
+/** Deferred: the "available this weekend / popular / work-ready" collections.
+ *  The weekend availability query runs while the main grid is already visible. */
+const WeekendCollections = async ({
+  listings,
+  currentUser,
+  weekendStart,
+  weekendEnd,
+}: {
+  listings: SafeListing[];
+  currentUser: ExploreUser;
+  weekendStart: Date;
+  weekendEnd: Date;
+}) => {
+  const weekendListings = await getListings({
+    startDate: weekendStart.toISOString(),
+    endDate: weekendEnd.toISOString(),
+  });
+  return (
+    <PurposefulCollections
+      listings={listings}
+      weekendListings={weekendListings}
+      weekendStart={weekendStart}
+      weekendEnd={weekendEnd}
+      currentUser={currentUser}
+    />
+  );
+};
+
 const Explore = async ({ searchParams }: ExploreProps) => {
   const resolvedSearchParams = await Promise.resolve(searchParams);
   const params: IListingsParams = resolvedSearchParams ? { ...resolvedSearchParams } : {};
@@ -34,12 +90,14 @@ const Explore = async ({ searchParams }: ExploreProps) => {
   const weekendStart = nextSaturday(today);
   const weekendEnd = addDays(weekendStart, 1);
 
-  const [listings, currentUser, favoriteListings, weekendListings] = await Promise.all([
-    getListings(params),
+  // Only the first page of results and the viewer block first paint. Favourites
+  // and the weekend collections are deferred behind <Suspense>; further result
+  // pages load on demand via <MoreListings>.
+  const [firstPage, currentUser] = await Promise.all([
+    getListingsPage(params),
     getCurrentUser(),
-    getFavoriteListings(),
-    hasFilters ? Promise.resolve([]) : getListings({ startDate: weekendStart.toISOString(), endDate: weekendEnd.toISOString() }),
   ]);
+  const listings = firstPage.listings;
 
   const tripDays = params.startDate && params.endDate
     ? Math.max(1, differenceInCalendarDays(new Date(params.endDate), new Date(params.startDate)) + 1)
@@ -52,7 +110,9 @@ const Explore = async ({ searchParams }: ExploreProps) => {
           {hasFilters && (
             <div>
               <h2 className="text-display-sm font-semibold text-ink">
-                {listings.length === 0 ? 'No vehicles found' : `${listings.length} vehicle${listings.length !== 1 ? 's' : ''} found`}
+                {listings.length === 0
+                  ? 'No vehicles found'
+                  : `${listings.length}${firstPage.nextCursor ? '+' : ''} vehicle${listings.length !== 1 ? 's' : ''} found`}
               </h2>
               {listings.length > 0 && (
                 <p className="text-sm text-muted mt-1">
@@ -73,10 +133,9 @@ const Explore = async ({ searchParams }: ExploreProps) => {
                 <RecentlyViewed currentUser={currentUser} />
               )}
               <RealRecommendations currentUser={currentUser} />
-              <FavoriteListings
-                listings={favoriteListings}
-                currentUser={currentUser}
-              />
+              <Suspense fallback={<RailSkeleton label="Your favourites" />}>
+                <FavoritesRail currentUser={currentUser} />
+              </Suspense>
             </>
           )}
 
@@ -93,11 +152,20 @@ const Explore = async ({ searchParams }: ExploreProps) => {
                     <p className="mt-1 text-sm text-muted">Local vehicles for daily drives, work and weekends away.</p>
                   </div>
                   <div className="hidden shrink-0 rounded-full border border-hairline bg-surface-soft px-3 py-1.5 text-xs font-semibold text-ink sm:block">
-                    {listings.length} available
+                    {listings.length}{firstPage.nextCursor ? '+' : ''} available
                   </div>
                 </div>
               )}
-              {!hasFilters && <PurposefulCollections listings={listings} weekendListings={weekendListings} weekendStart={weekendStart} weekendEnd={weekendEnd} currentUser={currentUser} />}
+              {!hasFilters && (
+                <Suspense fallback={<RailSkeleton label="Available this weekend" />}>
+                  <WeekendCollections
+                    listings={listings}
+                    currentUser={currentUser}
+                    weekendStart={weekendStart}
+                    weekendEnd={weekendEnd}
+                  />
+                </Suspense>
+              )}
               {!hasFilters && <h2 className="mb-4 text-display-sm font-semibold text-ink">All vehicles</h2>}
               <div className="
                 grid
@@ -120,14 +188,12 @@ const Explore = async ({ searchParams }: ExploreProps) => {
                 ))}
               </div>
 
-              {/* Load More Button - if there are many results */}
-              {listings.length >= 20 && (
-                <div className="mt-8 text-center">
-                  <button className="bg-white border border-ink text-ink font-medium px-6 py-3 rounded-sm hover:bg-surface-soft transition-colors">
-                    Load More Vehicles
-                  </button>
-                </div>
-              )}
+              <MoreListings
+                params={params}
+                initialCursor={firstPage.nextCursor}
+                currentUser={currentUser}
+                tripDays={tripDays}
+              />
             </div>
           )}
         </div>

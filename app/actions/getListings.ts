@@ -20,7 +20,16 @@ export interface IListingsParams {
   delivery?: string | boolean;
   petsAllowed?: string | boolean;
   unsealed?: string | boolean;
+  /** Cursor pagination: id of the last listing from the previous page. */
+  cursor?: string;
+  /** Rows to return (clamped 1..MAX_LISTINGS_PAGE). */
+  limit?: number;
 }
+
+/** Default rows per discovery page, and the hard ceiling per request. */
+export const LISTINGS_PAGE_SIZE = 24;
+export const MAX_LISTINGS_PAGE = 48;
+const OWNER_LISTINGS_CAP = 200;
 
 const isTruthyParam = (value: unknown) =>
   value === true || value === "true" || value === "1" || value === "on";
@@ -54,8 +63,13 @@ export default async function getListings(params: IListingsParams) {
   // Owner-management pages must always see their latest records. Public
   // discovery can tolerate at most 15 seconds of staleness; booking writes
   // still revalidate availability against MongoDB before committing.
-  if (params?.userId) return getListingsFromDatabase(params);
-  const publicParams = params || {};
+  if (params?.userId) {
+    return getListingsFromDatabase({ ...params, limit: params.limit ?? OWNER_LISTINGS_CAP });
+  }
+  const publicParams = {
+    ...(params || {}),
+    limit: clampLimit(params?.limit ?? MAX_LISTINGS_PAGE),
+  };
   const memoryKey = publicListingsMemoryKey(publicParams);
   const memoryHit = publicListingsMemoryCache.get(memoryKey);
   if (memoryHit !== undefined) return memoryHit;
@@ -63,6 +77,28 @@ export default async function getListings(params: IListingsParams) {
   const listings = await getCachedPublicListings(publicParams);
   publicListingsMemoryCache.set(memoryKey, listings);
   return listings;
+}
+
+function clampLimit(value: number) {
+  if (!Number.isFinite(value)) return LISTINGS_PAGE_SIZE;
+  return Math.min(Math.max(1, Math.floor(value)), MAX_LISTINGS_PAGE);
+}
+
+/**
+ * One page of public discovery results plus the cursor for the next page.
+ * Fetches one extra row to know whether a next page exists without a count.
+ */
+export async function getListingsPage(
+  params: IListingsParams,
+): Promise<{ listings: PublicListings; nextCursor: string | null }> {
+  const limit = clampLimit(params.limit ?? LISTINGS_PAGE_SIZE);
+  const probe = await getListings({ ...params, limit: limit + 1 });
+  const hasMore = probe.length > limit;
+  const listings = hasMore ? probe.slice(0, limit) : probe;
+  return {
+    listings,
+    nextCursor: hasMore ? listings[listings.length - 1]?.id ?? null : null,
+  };
 }
 
 export function invalidatePublicListingsCache() {
@@ -89,6 +125,8 @@ async function getListingsFromDatabase(params: IListingsParams) {
       delivery,
       petsAllowed,
       unsealed,
+      cursor,
+      limit,
     } = params || {};
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -128,32 +166,62 @@ async function getListingsFromDatabase(params: IListingsParams) {
     }
 
     if (startDate && endDate) {
-      query.NOT = {
-        reservations: {
-          some: {
-            status: { in: ["REVIEWING", "APPROVED", "ACTIVE"] },
-            OR: [
-              { endDate: { gte: startDate }, startDate: { lte: startDate } },
-              { startDate: { lte: endDate }, endDate: { gte: endDate } },
-            ],
+      const rangeStart = new Date(startDate);
+      const rangeEnd = new Date(endDate);
+
+      if (!Number.isNaN(rangeStart.getTime()) && !Number.isNaN(rangeEnd.getTime())) {
+        // A booking blocks the search window whenever the two ranges touch at
+        // all: it starts on/before the window ends AND ends on/after the window
+        // starts. The previous predicate only caught bookings overlapping an
+        // endpoint, so a booking sitting entirely inside the window slipped
+        // through and the vehicle showed as available. This mirrors the overlap
+        // check the reservation-create route runs before committing.
+        const negations: Record<string, unknown>[] = [
+          {
+            reservations: {
+              some: {
+                status: { in: ["REVIEWING", "APPROVED", "ACTIVE"] },
+                startDate: { lte: rangeEnd },
+                endDate: { gte: rangeStart },
+              },
+            },
           },
-        },
-      };
+        ];
+
+        // AvailabilityBlock has no Prisma relation back to Listing, so the
+        // host-blocked / iCal-synced dates are resolved separately and the
+        // affected listings are excluded by id.
+        const blocks = await prisma.availabilityBlock.findMany({
+          where: { startDate: { lte: rangeEnd }, endDate: { gte: rangeStart } },
+          select: { listingId: true },
+        });
+        const blockedListingIds = [...new Set(blocks.map((block) => block.listingId))];
+        if (blockedListingIds.length) {
+          negations.push({ id: { in: blockedListingIds } });
+        }
+
+        query.NOT = negations;
+      }
     }
+
+    const take = Number.isFinite(limit as number)
+      ? Math.min(Math.max(1, Math.floor(limit as number)), OWNER_LISTINGS_CAP)
+      : MAX_LISTINGS_PAGE;
 
     const listings = await prisma.listing.findMany({
       where: query,
       include: {
-        user: { select: { profileVerified: true } },
-        reviews: { select: { rating: true } },
-        reservations: {
-          where: { respondedAt: { not: null } },
-          select: { createdAt: true, respondedAt: true },
-          orderBy: { respondedAt: "desc" },
-          take: 20,
-        },
+        // Review average / count and host response time are denormalised
+        // (Listing.reviewAverage/reviewCount, User.responseTimeHours), kept
+        // fresh on write — see libs/listingStats.ts. No per-row review or
+        // reservation scan on every search.
+        user: { select: { profileVerified: true, responseTimeHours: true } },
       },
-      orderBy: { createdAt: "desc" },
+      // Compound order so id (unique) breaks createdAt ties — required for
+      // stable cursor pagination.
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     });
 
     const badgeKeys = listings.map((listing) => listing.badge).filter(Boolean);
@@ -164,16 +232,7 @@ async function getListingsFromDatabase(params: IListingsParams) {
     const badgeMap = Object.fromEntries(badges.map((b) => [b.key, b.value]));
 
     return listings.map((listing) => {
-      const { reviews, reservations, user, ...publicListing } = listing;
-      const reviewAverage = reviews.length
-        ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
-        : 0;
-      const responseHours = reservations
-        .map((reservation) => reservation.respondedAt
-          ? Math.max(0, (reservation.respondedAt.getTime() - reservation.createdAt.getTime()) / 3_600_000)
-          : null)
-        .filter((hours): hours is number => hours !== null);
-
+      const { user, ...publicListing } = listing;
       return {
       ...publicListing,
       address: "",
@@ -185,12 +244,10 @@ async function getListingsFromDatabase(params: IListingsParams) {
       badgeValue: badgeMap[listing.badge] || null,
       createdAt: listing.createdAt.toISOString(),
       lastServicedAt: listing.lastServicedAt ? listing.lastServicedAt.toISOString() : null,
-      reviewAverage: Math.round(reviewAverage * 10) / 10,
-      reviewCount: reviews.length,
+      reviewAverage: listing.reviewAverage ?? 0,
+      reviewCount: listing.reviewCount ?? 0,
       hostVerified: user.profileVerified === "Y",
-      hostResponseHours: responseHours.length
-        ? Math.round((responseHours.reduce((sum, hours) => sum + hours, 0) / responseHours.length) * 10) / 10
-        : null,
+      hostResponseHours: user.responseTimeHours,
     };
     });
   } catch (error) {

@@ -22,7 +22,7 @@ const TripsPage = async () => {
         );
     }
 
-    const reservations = await getReservations({
+    const { reservations, nextCursor } = await getReservations({
         userId: currentUser.id
     });
 
@@ -40,6 +40,8 @@ const TripsPage = async () => {
             <TripsClient
                 reservations={reservations}
                 currentUser={currentUser}
+                nextCursor={nextCursor}
+                role="guest"
             />
         </ClientOnly>
     );

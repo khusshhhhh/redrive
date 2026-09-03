@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { SafeUser } from "@/app/types";
 import Image from "next/image";
 import useFavorite from "@/app/hooks/useFavorites";
-import { IoClose } from "react-icons/io5";
+import { X } from "lucide-react";
 import Heading from "../Heading";
 import toast from "@/app/libs/toast";
 import { IconLayoutGrid, IconShare2, IconHeart, IconHeartFilled } from "@tabler/icons-react";
@@ -190,7 +190,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                             className="absolute right-3 top-3 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink shadow-card transition hover:bg-surface-soft sm:right-6 sm:top-6"
                             onClick={() => setSelectedImage(null)}
                         >
-                            <IoClose size={24} />
+                            <X size={24} />
                         </button>
 
                         {/* Full Image Display */}

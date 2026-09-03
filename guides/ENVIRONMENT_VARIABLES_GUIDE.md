@@ -130,6 +130,16 @@ Never put `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`,
 | `CRON_SECRET` | For scheduled notifications | Yes | Protects the cron endpoint |
 | `API_MONITOR_SUCCESS_SAMPLE_RATE` | No | No | Fraction of successful production requests sampled; default `0.25` |
 | `API_MONITOR_CLIENT_ERROR_SAMPLE_RATE` | No | No | Fraction of handled 4xx responses sampled; default `0.5` |
+| `NEXT_PUBLIC_REALTIME_ENABLED` | For push chat/notifications | Public by design | `1` to use Pusher for live updates; unset falls back to SSE polling. See `guides/realtime.md` |
+| `NEXT_PUBLIC_PUSHER_KEY` | With realtime enabled | Public by design | Pusher app key (client subscribes with it) |
+| `NEXT_PUBLIC_PUSHER_CLUSTER` | With realtime enabled | Public by design | Pusher cluster, e.g. `ap4` (Sydney) |
+| `PUSHER_APP_ID` | With realtime enabled | Sensitive | Pusher app id (server publish + auth) |
+| `PUSHER_KEY` | With realtime enabled | Sensitive | Pusher app key (server side) |
+| `PUSHER_SECRET` | With realtime enabled | Yes | Pusher app secret — signs private-channel auth and REST publishes |
+| `PUSHER_CLUSTER` | With realtime enabled | No | Pusher cluster (server side; same value as the public one) |
+| `UPSTASH_REDIS_REST_URL` | Recommended for scale | No | Upstash Redis REST endpoint. When set, rate limiting uses Redis instead of MongoDB (`app/libs/rateLimitStore.ts`) |
+| `UPSTASH_REDIS_REST_TOKEN` | With Upstash enabled | Yes | Upstash Redis REST token |
+| `LOG_LEVEL` | No | No | `debug`\|`info`\|`warn`\|`error`; default `info` in production, `debug` otherwise |
 | `EXPO_PUBLIC_APP_ENV` | Mobile builds | Public by design | Runtime environment label |
 | `EXPO_PUBLIC_API_ORIGIN` | Mobile builds | Public by design | Versioned mobile API origin |
 | `EXPO_PUBLIC_LINK_HOST` | Signed mobile builds | Public by design | Verified host used for universal/app links |

@@ -1,11 +1,16 @@
 import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
+import { consumeRateLimits, getClientIp, tooManyRequests } from "@/app/libs/security";
+import { BoundedMemoryCache } from "@/app/libs/memoryCache";
 
 interface AddressComponent {
   long_name: string;
   short_name: string;
   types: string[];
 }
+
+// Place details for one id are effectively immutable — cache them longer.
+const detailsCache = new BoundedMemoryCache<unknown>({ maxEntries: 1000, ttlMs: 60 * 60_000 });
 
 async function GETHandler(req: Request) {
   try {
@@ -15,6 +20,16 @@ async function GETHandler(req: Request) {
 
     if (!placeId) {
       return NextResponse.json({ error: "Missing placeId" }, { status: 400 });
+    }
+
+    const rateLimit = await consumeRateLimits([
+      { scope: "places-details-ip", identifier: getClientIp(req), limit: 40, windowMs: 60_000 },
+    ]);
+    if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
+
+    const cached = detailsCache.get(placeId);
+    if (cached !== undefined) {
+      return NextResponse.json(cached, { headers: { "Cache-Control": "private, max-age=600" } });
     }
 
     const googleApiKey = process.env.GOOGLE_PLACES_API_KEY;
@@ -65,7 +80,7 @@ async function GETHandler(req: Request) {
     const postcode = find("postal_code");
     const location = data.result?.geometry?.location;
 
-    return NextResponse.json({
+    const result = {
       formattedAddress: data.result?.formatted_address as string | undefined,
       streetAddress: streetAddress || data.result?.formatted_address,
       suburb,
@@ -73,7 +88,9 @@ async function GETHandler(req: Request) {
       postcode,
       lat: location?.lat as number | undefined,
       lng: location?.lng as number | undefined,
-    });
+    };
+    detailsCache.set(placeId, result);
+    return NextResponse.json(result, { headers: { "Cache-Control": "private, max-age=600" } });
   } catch (error) {
     console.error("Error fetching place details:", error);
     return NextResponse.json(

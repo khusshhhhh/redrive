@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { IoMdClose } from "react-icons/io";
+import { X } from "lucide-react";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 
 // Multiple modal stores can briefly overlap when switching dialogs (for
 // example Login -> Sign up). A reference count prevents one unmount from
@@ -62,6 +63,7 @@ const Modal: React.FC<ModalProps> = ({
     mobileFullScreen = false,
 }) => {
     const [showModal, setShowModal] = useState(false);
+    const dialogRef = useFocusTrap<HTMLDivElement>(isOpen);
 
     // Sync animation state. Scroll locking has its own effect so its cleanup
     // always runs when a lazy-loaded modal is removed from the tree.
@@ -116,6 +118,8 @@ const Modal: React.FC<ModalProps> = ({
 
     const modal = (
         <div
+            ref={dialogRef}
+            tabIndex={-1}
             className={`fixed inset-0 z-[100] flex justify-center overflow-x-hidden bg-black/40 backdrop-blur-[2px] outline-none transition-opacity duration-300 motion-reduce:transition-none ${centered ? "items-center" : "items-end sm:items-center"} ${showModal ? "opacity-100" : "opacity-0"} ${compact ? "" : "overflow-y-auto"}`}
             onClick={handleClose} // Close when clicking outside
             role="dialog"
@@ -139,7 +143,7 @@ const Modal: React.FC<ModalProps> = ({
                         {/* Modal Header */}
                         <div className={`relative top-0 z-10 flex items-center justify-center bg-white ${compact ? "px-8 pb-2 pt-7 sm:pt-8" : `border-b border-hairline-soft px-4 py-5 sm:p-6 ${mobileFullScreen ? "safe-top" : ""}`}`}>
                             <button onClick={handleClose} aria-label="Close dialog" className={`absolute z-20 flex items-center justify-center rounded-full border-0 text-muted transition hover:bg-surface-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${compact ? "right-3 top-3 h-10 w-10" : "left-4 h-11 w-11"}`}>
-                                <IoMdClose size={compact ? 20 : 18} />
+                                <X size={compact ? 20 : 18} />
                             </button>
                             <div id="modal-title" className={`${compact ? "text-lg" : "text-title-md"} font-semibold text-ink px-10 text-center truncate`}>{title}</div>
                         </div>

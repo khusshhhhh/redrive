@@ -1,7 +1,7 @@
 "use client";
 
 import { FieldErrors, UseFormRegister } from "react-hook-form";
-import { TbCurrencyDollarAustralian } from "react-icons/tb";
+import { DollarSign } from "lucide-react";
 
 interface InputProps {
   id: string;
@@ -53,7 +53,7 @@ const Input: React.FC<InputProps> = ({
       )}
       <div className="relative">
         {formatPrice && (
-          <TbCurrencyDollarAustralian
+          <DollarSign
             size={21}
             aria-hidden="true"
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"

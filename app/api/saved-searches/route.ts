@@ -1,14 +1,13 @@
 import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { savedSearchCreateRequestSchema } from "@redrive/contracts/web";
 
 import prisma from "@/app/libs/prismadb";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import {
   cleanSavedSearchFilters,
-  SAVED_SEARCH_FREQUENCIES,
   savedSearchFiltersToJson,
-  type SavedSearchFrequency,
 } from "@/app/libs/savedSearch";
 
 async function authenticatedUser() {
@@ -43,14 +42,14 @@ async function POSTHandler(request: Request) {
   const user = await authenticatedUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await request.json();
-  const name = typeof body.name === "string" ? body.name.trim().slice(0, 60) : "";
-  const filters = cleanSavedSearchFilters(body.filters);
-  const frequency = SAVED_SEARCH_FREQUENCIES.includes(body.alertFrequency as SavedSearchFrequency)
-    ? body.alertFrequency as SavedSearchFrequency
-    : "OFF";
+  const parsed = savedSearchCreateRequestSchema.safeParse(await request.json().catch(() => ({})));
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Give this search a short name", issues: parsed.error.flatten() }, { status: 400 });
+  }
+  const name = parsed.data.name;
+  const filters = cleanSavedSearchFilters(parsed.data.filters);
+  const frequency = parsed.data.alertFrequency;
 
-  if (!name) return NextResponse.json({ error: "Give this search a short name" }, { status: 400 });
   if (Object.keys(filters).length === 0) return NextResponse.json({ error: "Choose at least one search filter" }, { status: 400 });
 
   const count = await prisma.savedSearch.count({ where: { userId: user.id } });

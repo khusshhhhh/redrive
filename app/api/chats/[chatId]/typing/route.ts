@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import { publishRealtime } from "@/app/libs/realtime/publish";
+import { chatChannel, RealtimeEvent } from "@/app/libs/realtime/events";
 
 // POST { isTyping: boolean } — sets/clears the ephemeral typing indicator
 // for the current user in this chat. Client throttles calls to roughly
@@ -31,6 +33,13 @@ async function POSTHandler(
       data: isTyping
         ? { typingUserId: currentUser.id, typingAt: new Date() }
         : { typingUserId: null, typingAt: null },
+    });
+
+    // Realtime: push the indicator straight to the conversation channel. The
+    // recipient ignores its own id; the DB write above still backs the SSE path.
+    await publishRealtime(chatChannel(chatId), RealtimeEvent.Typing, {
+      userId: currentUser.id,
+      isTyping: Boolean(isTyping),
     });
 
     return NextResponse.json({ success: true });

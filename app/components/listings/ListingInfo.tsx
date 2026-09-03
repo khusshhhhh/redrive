@@ -6,12 +6,8 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import toast from "@/app/libs/toast";
 import { PublicHost, SafeUser } from "@/app/types";
-import { IconType } from "react-icons";
-import { FaCheck, FaGasPump } from "react-icons/fa";
-import { BsCheckLg, BsFillPeopleFill } from "react-icons/bs";
-import { GiCarDoor } from "react-icons/gi";
-import { FaBed } from "react-icons/fa";
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { Users, DoorOpen, Bed, ChevronDown, ChevronUp } from "lucide-react";
+import type { IconComponent } from "../icons/iconType";
 import { AMENITIES_LIST } from "@/app/hooks/useAmenities";
 import { IconCar4wd, IconDashboard, IconFileDescription, IconFileInfo, IconGasStation, IconGauge, IconLogs, IconMapPin, IconQuestionMark } from "@tabler/icons-react";
 import { getHostingDuration } from "@/app/helpers/getHostingDuration";
@@ -38,7 +34,7 @@ interface ListingInfoProps {
     modal: string;
     company: string;
     category: {
-        icon: IconType;
+        icon: IconComponent;
         label: string;
         description: string;
     };
@@ -151,15 +147,15 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
             <div className="flex flex-col gap-6">
                 <div className="flex items-center gap-3 md:gap-4 text-ink">
                     <div className="flex items-center gap-2 md:gap-3">
-                        <BsFillPeopleFill size={18} /> {guestCount} guests
+                        <Users size={18} /> {guestCount} guests
                     </div>
                     <div className="h-5 w-[1px] bg-hairline"></div>
                     <div className="flex items-center gap-2 md:gap-3">
-                        <GiCarDoor size={18} /> {doorCount} doors
+                        <DoorOpen size={18} /> {doorCount} doors
                     </div>
                     <div className="h-5 w-[1px] bg-hairline"></div>
                     <div className="flex items-center gap-2 md:gap-3">
-                        <FaBed size={18} /> {sleepCount} sleeps
+                        <Bed size={18} /> {sleepCount} sleeps
                     </div>
                 </div>
             </div>
@@ -190,7 +186,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
                         onClick={() => setIsExpanded(!isExpanded)}
                         className="text-muted hover:text-ink transition"
                     >
-                        {isExpanded ? <IoIosArrowUp size={24} /> : <IoIosArrowDown size={24} />}
+                        {isExpanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
                     </button>
                 </div>
                 <div

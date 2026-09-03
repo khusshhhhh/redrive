@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import type { SafeUser } from "@/app/types";
+import type { SessionUser } from "@/app/types";
 
 // Broadcast this after a client-side sign-in (credential login uses
 // `redirect: false`, so there is no navigation to remount the tree). Sign-out
@@ -9,7 +9,7 @@ import type { SafeUser } from "@/app/types";
 export const AUTH_CHANGED_EVENT = "redrive:auth-changed";
 
 interface CurrentUserContextValue {
-  currentUser: SafeUser | null;
+  currentUser: SessionUser | null;
   /** True until the first `/api/me` response resolves. */
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -24,7 +24,7 @@ export default function CurrentUserProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [currentUser, setCurrentUser] = useState<SafeUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<SessionUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const inFlight = useRef<Promise<void> | null>(null);
 
@@ -42,7 +42,7 @@ export default function CurrentUserProvider({
           setCurrentUser(null);
           return;
         }
-        const data = (await response.json()) as { currentUser: SafeUser | null };
+        const data = (await response.json()) as { currentUser: SessionUser | null };
         setCurrentUser(data.currentUser ?? null);
       } catch {
         // Network blip — keep the last known value rather than flapping the UI.

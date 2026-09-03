@@ -84,14 +84,9 @@ async function loadHomeData(): Promise<HomeData> {
         badge: true,
         instantBook: true,
         createdAt: true,
-        user: { select: { profileVerified: true } },
-        reviews: { select: { rating: true } },
-        reservations: {
-          where: { respondedAt: { not: null } },
-          select: { createdAt: true, respondedAt: true },
-          orderBy: { respondedAt: "desc" },
-          take: 20,
-        },
+        reviewAverage: true,
+        reviewCount: true,
+        user: { select: { profileVerified: true, responseTimeHours: true } },
       },
       orderBy: { createdAt: "desc" },
     }),
@@ -132,21 +127,10 @@ async function loadHomeData(): Promise<HomeData> {
   let instantCount = 0;
 
   const cards: ListingCardData[] = listings.map((listing) => {
-    const reviewCount = listing.reviews.length;
-    const reviewAverage = reviewCount
-      ? Math.round((listing.reviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount) * 10) / 10
-      : 0;
+    const reviewCount = listing.reviewCount ?? 0;
+    const reviewAverage = listing.reviewAverage ?? 0;
 
-    const hours = listing.reservations
-      .map((reservation) =>
-        reservation.respondedAt
-          ? Math.max(0, (reservation.respondedAt.getTime() - reservation.createdAt.getTime()) / 3_600_000)
-          : null,
-      )
-      .filter((value): value is number => value !== null);
-    const listingResponseHours = hours.length
-      ? Math.round((hours.reduce((sum, value) => sum + value, 0) / hours.length) * 10) / 10
-      : null;
+    const listingResponseHours = listing.user?.responseTimeHours ?? null;
     if (listingResponseHours !== null) responseHoursPerListing.push(listingResponseHours);
 
     const verified = listing.user?.profileVerified === "Y";

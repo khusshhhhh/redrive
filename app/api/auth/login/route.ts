@@ -1,10 +1,9 @@
 import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import prisma from "@/app/libs/prismadb";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
+import { checkCredentials } from "@/app/libs/credentialCheck";
 
 // POST: Login endpoint for API testing compatibility
 async function POSTHandler(request: NextRequest) {
@@ -12,9 +11,9 @@ async function POSTHandler(request: NextRequest) {
     if (process.env.ENABLE_LEGACY_API_AUTH !== "true") {
       return NextResponse.json({ error: "Use the standard Redrive sign-in flow" }, { status: 404 });
     }
-    const body = await request.json();
-    const email = body.email?.trim().toLowerCase();
-    const { password } = body;
+    const body = await request.json().catch(() => ({}));
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const password = typeof body.password === "string" ? body.password : "";
 
     if (!email || !password) {
       return NextResponse.json(
@@ -23,32 +22,28 @@ async function POSTHandler(request: NextRequest) {
       );
     }
 
-    // Validate user credentials manually (same logic as NextAuth)
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user || !user.hashedPassword) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
-      );
-    }
-
-    const isValidPassword = await bcrypt.compare(password, user.hashedPassword);
-
-    if (!isValidPassword) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
-      );
-    }
-
+    // Rate-limit BEFORE touching credentials, so credential-stuffing is
+    // throttled whether or not it guesses a real account.
     const rateLimit = await consumeRateLimits([
       { scope: "legacy-login-ip", identifier: getClientIp(request), limit: 10, windowMs: 15 * 60_000 },
       { scope: "legacy-login-account", identifier: email, limit: 5, windowMs: 15 * 60_000 },
     ]);
     if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
+
+    const check = await checkCredentials(email, password);
+
+    if (!check.ok) {
+      await writeAuditEvent({
+        request,
+        actorUserId: check.user?.id,
+        action: "LEGACY_API_LOGIN_FAILED",
+        targetType: "User",
+        targetId: check.user?.id,
+        reason: "INVALID_CREDENTIALS",
+      });
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    }
+    const user = check.user;
 
     if (user.verificationRequired && !user.emailVerified) {
       return NextResponse.json(
@@ -98,14 +93,8 @@ async function POSTHandler(request: NextRequest) {
       token: token, // Alternative token field for different test expectations
     });
   } catch (error) {
-    console.error("❌ Login API error:", error);
-    return NextResponse.json(
-      {
-        error: "Internal server error",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
+    console.error("Legacy login API error", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 

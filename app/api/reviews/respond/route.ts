@@ -1,55 +1,54 @@
-import { monitorApiRoute } from "@/app/libs/apiMonitoring";
 import { NextResponse } from "next/server";
+import { reviewResponseRequestSchema } from "@redrive/contracts/web";
 
-import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
-import { consumeRateLimits, getClientIp, tooManyRequests, writeAuditEvent } from "@/app/libs/security";
+import { writeAuditEvent } from "@/app/libs/security";
+import { defineApiRoute } from "@/app/libs/defineApiRoute";
 
-async function POSTHandler(request: Request) {
-  const currentUser = await getCurrentUser();
-  if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export const POST = defineApiRoute(
+  {
+    path: "/api/reviews/respond",
+    method: "POST",
+    auth: true,
+    body: reviewResponseRequestSchema,
+    rateLimit: ({ user, ip }) => [
+      { scope: "review-respond-user", identifier: user!.id, limit: 30, windowMs: 60 * 60_000 },
+      { scope: "review-respond-ip", identifier: ip, limit: 60, windowMs: 60 * 60_000 },
+    ],
+  },
+  async ({ request, user, body }) => {
+    const { reviewId, response } = body;
 
-  const rateLimit = await consumeRateLimits([
-    { scope: "review-respond-user", identifier: currentUser.id, limit: 30, windowMs: 60 * 60_000 },
-    { scope: "review-respond-ip", identifier: getClientIp(request), limit: 60, windowMs: 60 * 60_000 },
-  ]);
-  if (!rateLimit.allowed) return tooManyRequests(rateLimit.retryAfterSeconds);
+    const review = await prisma.review.findUnique({
+      where: { id: reviewId },
+      select: { id: true, response: true, listing: { select: { userId: true } } },
+    });
+    if (!review) return NextResponse.json({ error: "Review not found" }, { status: 404 });
+    if (review.listing.userId !== user.id) {
+      return NextResponse.json({ error: "Only the host can reply" }, { status: 403 });
+    }
+    if (review.response) {
+      return NextResponse.json({ error: "You have already replied to this review" }, { status: 409 });
+    }
 
-  const body = await request.json().catch(() => ({}));
-  const reviewId = typeof body.reviewId === "string" ? body.reviewId : "";
-  const response = typeof body.response === "string" ? body.response.trim() : "";
+    const updated = await prisma.review.update({
+      where: { id: reviewId },
+      data: { response, respondedAt: new Date() },
+      select: { id: true, response: true, respondedAt: true },
+    });
 
-  if (!/^[a-f\d]{24}$/i.test(reviewId) || response.length < 3 || response.length > 1_500) {
-    return NextResponse.json({ error: "Add a reply between 3 and 1,500 characters" }, { status: 400 });
-  }
+    await writeAuditEvent({
+      request,
+      actorUserId: user.id,
+      action: "REVIEW_RESPONSE_ADDED",
+      targetType: "Review",
+      targetId: reviewId,
+    });
 
-  const review = await prisma.review.findUnique({
-    where: { id: reviewId },
-    select: { id: true, response: true, listing: { select: { userId: true } } },
-  });
-  if (!review) return NextResponse.json({ error: "Review not found" }, { status: 404 });
-  if (review.listing.userId !== currentUser.id) {
-    return NextResponse.json({ error: "Only the host can reply" }, { status: 403 });
-  }
-  if (review.response) {
-    return NextResponse.json({ error: "You have already replied to this review" }, { status: 409 });
-  }
-
-  const updated = await prisma.review.update({
-    where: { id: reviewId },
-    data: { response, respondedAt: new Date() },
-    select: { id: true, response: true, respondedAt: true },
-  });
-
-  await writeAuditEvent({
-    request,
-    actorUserId: currentUser.id,
-    action: "REVIEW_RESPONSE_ADDED",
-    targetType: "Review",
-    targetId: reviewId,
-  });
-
-  return NextResponse.json(updated);
-}
-
-export const POST = monitorApiRoute("/api/reviews/respond", POSTHandler, "POST");
+    return NextResponse.json({
+      id: updated.id,
+      response: updated.response,
+      respondedAt: updated.respondedAt ? updated.respondedAt.toISOString() : null,
+    });
+  },
+);

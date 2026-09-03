@@ -4,6 +4,9 @@ import { NextResponse } from "next/server";
 import { syncDueCalendars } from "@/app/libs/calendarSync";
 import prisma from "@/app/libs/prismadb";
 import { getStripe } from "@/app/libs/stripe";
+import { withCronLock } from "@/app/libs/cronLock";
+
+export const maxDuration = 60;
 
 async function GETHandler(request: Request) {
   const expected = process.env.CRON_SECRET;
@@ -12,6 +15,13 @@ async function GETHandler(request: Request) {
     request.headers.get("authorization") !== `Bearer ${expected}`
   )
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const run = await withCronLock("cron-booking-maintenance", () => runBookingMaintenance());
+  if (run.skipped) return NextResponse.json({ skipped: true, reason: "already running" });
+  return NextResponse.json(run.result);
+}
+
+async function runBookingMaintenance() {
   const expired = await prisma.reservation.findMany({
     where: {
       status: "APPROVED",
@@ -67,7 +77,7 @@ async function GETHandler(request: Request) {
     return { synced: 0, failed: 0 };
   });
 
-  return NextResponse.json({ checked: expired.length, expired: expiredCount, calendars });
+  return { checked: expired.length, expired: expiredCount, calendars };
 }
 
 export const GET = monitorApiRoute("/api/cron/booking-maintenance", GETHandler, "GET");

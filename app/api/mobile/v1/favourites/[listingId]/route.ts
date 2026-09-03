@@ -22,7 +22,12 @@ async function POSTHandler(request: Request, context: Context) {
     if (!user) return mobileError(request, 404, "USER_NOT_FOUND", "The account no longer exists.");
     const alreadyFavourite = user.favoriteIds.includes(listingId);
     if (!alreadyFavourite) {
-      await prisma.user.update({ where: { id: auth.identity.userId }, data: { favoriteIds: { set: [...user.favoriteIds, listingId] } } });
+      await Promise.all([
+        prisma.user.update({ where: { id: auth.identity.userId }, data: { favoriteIds: { set: [...user.favoriteIds, listingId] } } }),
+        prisma.favourite
+          .upsert({ where: { userId_listingId: { userId: auth.identity.userId, listingId } }, create: { userId: auth.identity.userId, listingId }, update: {} })
+          .catch((error) => console.error("Favourite row upsert failed", error)),
+      ]);
       if (listing.userId !== auth.identity.userId) await notificationService.notifyListingFavorited(listing.userId, user.name || "Someone", listing.title, listing.id).catch((error) => console.error("Favourite notification failed", error));
     }
     return mobileJson(request, { listingId, favourite: true, changed: !alreadyFavourite });
@@ -40,8 +45,16 @@ async function DELETEHandler(request: Request, context: Context) {
     const user = await prisma.user.findUnique({ where: { id: auth.identity.userId }, select: { favoriteIds: true } });
     if (!user) return mobileError(request, 404, "USER_NOT_FOUND", "The account no longer exists.");
     const next = user.favoriteIds.filter((id) => id !== listingId);
-    if (next.length !== user.favoriteIds.length) await prisma.user.update({ where: { id: auth.identity.userId }, data: { favoriteIds: { set: next } } });
-    return mobileJson(request, { listingId, favourite: false, changed: next.length !== user.favoriteIds.length });
+    const changed = next.length !== user.favoriteIds.length;
+    if (changed) {
+      await Promise.all([
+        prisma.user.update({ where: { id: auth.identity.userId }, data: { favoriteIds: { set: next } } }),
+        prisma.favourite
+          .deleteMany({ where: { userId: auth.identity.userId, listingId } })
+          .catch((error) => console.error("Favourite row delete failed", error)),
+      ]);
+    }
+    return mobileJson(request, { listingId, favourite: false, changed });
   } catch (error) {
     return mobileUnexpectedError(request, error, "Mobile favourite remove failed");
   }

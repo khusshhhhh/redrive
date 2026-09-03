@@ -11,10 +11,13 @@ import Container from "../components/Container";
 import CancelBookingDialog from "../components/reservations/CancelBookingDialog";
 import type { SafeReservation, SafeUser } from "../types";
 import { calculateCancellationOutcome } from "../libs/cancellationPolicy";
+import { useLoadMoreReservations } from "../hooks/useLoadMoreReservations";
 
 interface ReservationsClientProps {
   reservations: SafeReservation[];
   currentUser?: SafeUser | null;
+  nextCursor?: string | null;
+  role?: "guest" | "host";
 }
 
 const statusStyle: Record<string, string> = {
@@ -23,9 +26,10 @@ const statusStyle: Record<string, string> = {
   REVIEWING: "bg-surface-strong text-primary-active",
 };
 
-export default function ReservationsClient({ reservations }: ReservationsClientProps) {
+export default function ReservationsClient({ reservations, nextCursor = null, role = "host" }: ReservationsClientProps) {
   const router = useRouter();
   const [cancelTarget, setCancelTarget] = useState<SafeReservation | null>(null);
+  const { items, hasMore, loading, loadMore } = useLoadMoreReservations(reservations, nextCursor, role);
 
   const onCancel = useCallback((reservation: SafeReservation) => {
     setCancelTarget(reservation);
@@ -42,7 +46,7 @@ export default function ReservationsClient({ reservations }: ReservationsClientP
           </header>
 
           <div className="space-y-4">
-            {reservations.map((reservation) => {
+            {items.map((reservation) => {
               const listing = reservation.listing;
               const canCancel = ["REVIEWING", "APPROVED"].includes(reservation.status)
                 && calculateCancellationOutcome({ policy: reservation.cancellationPolicy, pickupAt: reservation.startDate, cancelledByHost: true }).canCancel;
@@ -79,6 +83,19 @@ export default function ReservationsClient({ reservations }: ReservationsClientP
               );
             })}
           </div>
+
+          {hasMore && (
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={loadMore}
+                disabled={loading}
+                className="rounded-sm border border-ink bg-white px-6 py-3 text-sm font-medium text-ink transition hover:bg-surface-soft disabled:opacity-60"
+              >
+                {loading ? "Loading…" : "Load older reservations"}
+              </button>
+            </div>
+          )}
         </div>
       </Container>
       <CancelBookingDialog

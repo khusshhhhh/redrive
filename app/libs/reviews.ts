@@ -1,5 +1,6 @@
 import prisma from "@/app/libs/prismadb";
 import { notificationService } from "@/app/services/notificationService";
+import { recomputeListingRating } from "@/app/libs/listingStats";
 
 /** Days after a trip ends before a one-sided review reveals on its own. */
 export const BLIND_REVEAL_DAYS = 14;
@@ -61,6 +62,8 @@ export async function maybePublishTripReviews(
   if (guestReview && !guestReview.publishedAt) {
     await prisma.review.update({ where: { id: guestReview.id }, data: { publishedAt: now } });
     published.push("guest");
+    // The guest→host review is now public — refresh the listing aggregate.
+    await recomputeListingRating(reservation.listing.id);
   }
   if (hostReview && !hostReview.publishedAt) {
     await prisma.guestReview.update({ where: { id: hostReview.id }, data: { publishedAt: now } });

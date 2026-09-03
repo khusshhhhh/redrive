@@ -28,3 +28,25 @@ export function mayRevealExactLocation(input: LocationRevealInput): boolean {
   }
   return false;
 }
+
+const CONTACT_VISIBLE_STATUSES = ["APPROVED", "ACTIVE", "COMPLETED"];
+
+export interface ContactRevealInput {
+  reservationStatus: string;
+  paymentStatus?: string | null;
+}
+
+/**
+ * Whether the two parties to a booking may see each other's email address and
+ * phone number. Until a request is approved (or paid) the parties talk through
+ * Messages only: a REVIEWING request shouldn't hand a stranger the host's
+ * personal email and phone, and a host decides on a request from the guest's
+ * profile, ratings and message — not their number. Once the booking is
+ * confirmed the two sides need to reach each other directly for the handover.
+ * Applied symmetrically to both host and guest.
+ */
+export function mayRevealContactDetails(input: ContactRevealInput): boolean {
+  if (CONTACT_VISIBLE_STATUSES.includes(input.reservationStatus)) return true;
+  if (input.paymentStatus && PAID_STATUSES.includes(input.paymentStatus)) return true;
+  return false;
+}

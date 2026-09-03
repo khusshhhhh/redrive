@@ -36,7 +36,20 @@ Reference: `.env.example` lists every variable with a one-line description. This
    ```bash
    npx prisma db push
    ```
-   This creates the unique indexes the schema depends on (`User.email`, `Listing.regoNumber`, `Account.[provider,providerAccountId]`, `Review.[userId,listingId]`, `Badge.key`) and the notification indexes. **Do this once before first deploy, and again any time `prisma/schema.prisma` changes.** Skipping it doesn't break the build, but duplicate-prevention (e.g. two users with the same email) won't be enforced at the database level.
+   This creates the unique indexes the schema depends on (`User.email`, `Listing.regoNumber`, `Account.[provider,providerAccountId]`, `Review.[userId,listingId]`, `Badge.key`, **`BookingLock.listingId`** — the double-booking guard) and the notification indexes. **Do this once before first deploy, and again any time `prisma/schema.prisma` changes.** Skipping it doesn't break the build, but duplicate-prevention (e.g. two users with the same email, or two concurrent bookings for the same vehicle) won't be enforced at the database level.
+
+8. **Create the TTL indexes.** Prisma's schema can't express MongoDB TTL, so the short-lived collections (`RateLimitBucket`, `BookingQuote`, `ApiMetricBucket`, `ApiErrorEvent`, `IdempotencyRecord`, `BookingLock`) need a one-off:
+   ```bash
+   npm run db:ttl-indexes
+   ```
+   Idempotent, and `prisma db push` leaves these alone. Without it those rows only get cleaned by the nightly security-maintenance cron. Re-run after `db push` if the schema changed.
+
+9. **Backfill the denormalised fields** (once, after adding them):
+   ```bash
+   npm run db:backfill-listing-stats   # Listing.reviewAverage/reviewCount, User.responseTimeHours
+   npm run db:backfill-favourites      # Favourite join rows from User.favoriteIds
+   ```
+   Both idempotent. After this the write paths keep the values current. Listing search reads `null` (→ treated as 0 / no data) for any row not yet backfilled, so a missed run degrades gracefully rather than breaking.
 
 ---
 

@@ -18,6 +18,9 @@ export const isStrongPassword = (value = "") =>
 interface PasswordFieldProps {
   id: string;
   label: string;
+  // react-hook-form's UseFormRegister is invariant in the form-values type, so
+  // a field component shared across forms can't name each parent's shape.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register: UseFormRegister<any>;
   errors: FieldErrors;
   disabled?: boolean;

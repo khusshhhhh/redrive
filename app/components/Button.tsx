@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IconType } from "react-icons";
+import type { IconComponent } from "./icons/iconType";
 import DotLoader from "./DotLoader";
 
 interface ButtonProps {
@@ -13,7 +13,7 @@ interface ButtonProps {
     loadingLabel?: string;
     outline?: boolean;
     small?: boolean;
-    icon?: IconType | React.ComponentType<{ size?: number; className?: string }>;
+    icon?: IconComponent;
     type?: "button" | "submit" | "reset";
     className?: string;
     [key: string]: unknown; // Allow additional props like data-tour

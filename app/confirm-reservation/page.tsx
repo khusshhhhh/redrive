@@ -19,7 +19,10 @@ import BookingDrivers, { type DriverPayload } from "@/app/components/reservation
 import SuccessBurst from "@/app/components/SuccessBurst";
 import { PROTECTION_TIERS } from "@/app/components/listings/ProtectionSelector";
 import { calculateServiceFee, redriveFee as calcRedriveFee } from "@/app/libs/pricing";
-import type { SafeUser } from "@/app/types";
+import type { SafeListing, SafeUser } from "@/app/types";
+import { apiErrorMessage, apiErrorCode } from "@/app/libs/errorMessage";
+
+type ConfirmListing = SafeListing & { user?: { name: string | null; image?: string | null } | null };
 const money = (value: number) => `AU$${value.toLocaleString("en-AU")}`;
 
 export default function ConfirmReservation() {
@@ -32,7 +35,7 @@ export default function ConfirmReservation() {
   const insuranceType = params.get("insuranceType") || "No Insurance";
   const insuranceFee = Number(params.get("insuranceFee") || 0);
 
-  const [listing, setListing] = useState<any>(null);
+  const [listing, setListing] = useState<ConfirmListing | null>(null);
   const [currentUser, setCurrentUser] = useState<SafeUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -119,12 +122,13 @@ export default function ConfirmReservation() {
         });
       }
       return;
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Booking request could not be sent");
-      if (error.response?.data?.code === "EMAIL_VERIFICATION_REQUIRED") {
+    } catch (error) {
+      toast.error(apiErrorMessage(error, "Booking request could not be sent"));
+      const code = apiErrorCode(error);
+      if (code === "EMAIL_VERIFICATION_REQUIRED") {
         router.push("/profile#email-verification");
       }
-      if (error.response?.data?.code === "DRIVER_LICENCE_REQUIRED") {
+      if (code === "DRIVER_LICENCE_REQUIRED") {
         document.getElementById("drivers")?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     } finally { setSubmitting(false); }

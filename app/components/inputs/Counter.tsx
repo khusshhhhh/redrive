@@ -1,6 +1,6 @@
 'use client';
 import { useCallback } from "react";
-import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
+import { Minus, Plus } from "lucide-react";
 
 interface CounterProps {
     title: string;
@@ -50,7 +50,7 @@ const Counter: React.FC<CounterProps> = ({ title, subtitle, value, onChange }) =
                     transition
                 "
                 >
-                    <AiOutlineMinus />
+                    <Minus />
                 </div>
                 <div className="font-normal text-xl text-ink">
                     {value}
@@ -72,7 +72,7 @@ const Counter: React.FC<CounterProps> = ({ title, subtitle, value, onChange }) =
                     transition
                     "
                 >
-                    <AiOutlinePlus />
+                    <Plus />
                 </div>
 
             </div>

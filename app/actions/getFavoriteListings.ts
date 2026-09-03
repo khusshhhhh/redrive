@@ -1,39 +1,44 @@
 import prisma from "../libs/prismadb";
+import { apiErrorMessage } from "../libs/errorMessage";
 
 import getCurrentUser from "./getCurrentUser";
 
 export default async function getFavoriteListings() {
   try {
     const currentUser = await getCurrentUser();
+    if (!currentUser) return [];
 
-    if (!currentUser) {
-      return [];
-    }
-
-    const favorites = await prisma.listing.findMany({
-      where: {
-        id: {
-          in: [...(currentUser.favoriteIds || [])],
-        },
-      },
+    // Read from the Favourite join rows — ordered by when each was saved,
+    // newest first, no array-reversal guesswork. Falls back to the legacy
+    // `favoriteIds` array for accounts saved before the join table existed.
+    const favouriteRows = await prisma.favourite.findMany({
+      where: { userId: currentUser.id },
+      orderBy: { createdAt: "desc" },
+      select: { listingId: true },
     });
 
-    const safeFavorites = favorites.map((favorite) => ({
-      ...favorite,
-      createdAt: favorite.createdAt.toISOString(),
-      lastServicedAt: favorite.lastServicedAt ? favorite.lastServicedAt.toISOString() : null,
-    }));
+    const orderedIds = favouriteRows.length
+      ? favouriteRows.map((row) => row.listingId)
+      : [...(currentUser.favoriteIds || [])].reverse();
 
-    // User.favoriteIds is append-only when a vehicle is saved. Reconstruct the
-    // requested order so the most recently saved vehicle appears first rather
-    // than relying on MongoDB's unspecified `in` query order.
-    const favoritesById = new Map(safeFavorites.map((favorite) => [favorite.id, favorite]));
-    return [...(currentUser.favoriteIds || [])]
-      .reverse()
-      .map((id) => favoritesById.get(id))
-      .filter((favorite): favorite is (typeof safeFavorites)[number] => Boolean(favorite));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    throw new Error(error);
+    if (orderedIds.length === 0) return [];
+
+    const listings = await prisma.listing.findMany({ where: { id: { in: orderedIds } } });
+    const byId = new Map(
+      listings.map((listing) => [
+        listing.id,
+        {
+          ...listing,
+          createdAt: listing.createdAt.toISOString(),
+          lastServicedAt: listing.lastServicedAt ? listing.lastServicedAt.toISOString() : null,
+        },
+      ]),
+    );
+
+    return orderedIds
+      .map((id) => byId.get(id))
+      .filter((listing): listing is NonNullable<typeof listing> => Boolean(listing));
+  } catch (error) {
+    throw new Error(apiErrorMessage(error, "Failed to load favourites"));
   }
 }
