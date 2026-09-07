@@ -23,6 +23,19 @@ function serialiseError(value: unknown): unknown {
   return value;
 }
 
+const consoleFor = (level: Level) =>
+  level === "error" ? console.error : level === "warn" ? console.warn : console.log;
+
+// `process.stdout` only exists in the Node runtime. Middleware, the edge
+// instrumentation hook and edge route handlers run on the Edge runtime, where
+// it's undefined — writing to it there throws and (from `register()`) takes the
+// whole middleware down. Fall back to `console`, which the platform still
+// captures as a log line.
+const stdoutWrite: ((chunk: string) => void) | null =
+  typeof process !== "undefined" && typeof process.stdout?.write === "function"
+    ? (chunk) => process.stdout.write(chunk)
+    : null;
+
 function emit(level: Level, base: Fields, msg: string, fields?: Fields) {
   if (LEVELS[level] < MIN_LEVEL) return;
 
@@ -30,17 +43,15 @@ function emit(level: Level, base: Fields, msg: string, fields?: Fields) {
   if (merged.err !== undefined) merged.err = serialiseError(merged.err);
 
   if (process.env.NODE_ENV === "production") {
-    process.stdout.write(
-      JSON.stringify({ level, ts: new Date().toISOString(), msg, ...merged }) + "\n",
-    );
+    const line = JSON.stringify({ level, ts: new Date().toISOString(), msg, ...merged });
+    if (stdoutWrite) stdoutWrite(line + "\n");
+    else consoleFor(level)(line);
     return;
   }
 
   const tag = level.toUpperCase().padEnd(5);
   const extras = Object.keys(merged).length ? " " + JSON.stringify(merged) : "";
-  (level === "error" ? console.error : level === "warn" ? console.warn : console.log)(
-    `${tag} ${msg}${extras}`,
-  );
+  consoleFor(level)(`${tag} ${msg}${extras}`);
 }
 
 export interface Logger {
