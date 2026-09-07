@@ -125,8 +125,8 @@ const ListingMap: React.FC<ListingMapProps> = ({ suburb, state }) => {
   }, [suburb, state]);
 
   return (
-    <div className="relative aspect-[4/3] min-h-64 w-full overflow-hidden rounded-md border border-hairline-soft bg-surface-soft sm:aspect-[16/9] sm:min-h-80" aria-label={`Map showing ${suburb}, ${state}`}>
-      <div ref={mapRef} className="h-full w-full" />
+    <div className="relative aspect-[4/3] min-h-64 w-full overflow-hidden rounded-md border border-hairline-soft bg-surface-soft sm:aspect-[16/9] sm:min-h-80" role="img" aria-label={`Approximate location: near ${suburb}, ${state}. The exact address is shared after booking.`}>
+      <div ref={mapRef} className="h-full w-full" aria-hidden="true" />
       {status === "loading" && <div className="skeleton-wave absolute inset-0" role="status" aria-label="Loading suburb map" />}
       {status === "error" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface-soft px-6 text-center">

@@ -5,6 +5,7 @@ import axios from "axios";
 import { FieldErrors, UseFormRegister, UseFormSetValue } from "react-hook-form";
 import { IconMapPin } from "@tabler/icons-react";
 import DotLoader from "../DotLoader";
+import { clientLog } from "@/app/libs/clientLog";
 
 export interface ParsedAddress {
     formattedAddress?: string;
@@ -121,7 +122,7 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
                 if (error?.name !== "CanceledError") {
-                    console.error("Address search failed:", error);
+                    clientLog.error("Address search failed", error);
                 }
             } finally {
                 setLoading(false);
@@ -145,7 +146,7 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             // Each completed selection ends a Google-billed "session" - start a fresh one.
             sessionTokenRef.current = crypto.randomUUID();
         } catch (error) {
-            console.error("Failed to load address details:", error);
+            clientLog.error("Failed to load address details", error);
             // Details lookup failed — still fill the street from the picked
             // prediction, and best-effort parse the suburb/state out of its
             // secondary text (e.g. "Broadview SA, Australia").

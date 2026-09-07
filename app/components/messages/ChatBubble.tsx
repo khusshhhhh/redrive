@@ -37,7 +37,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, isOwn, otherUserId, pe
       >
         {message.imageUrl && (
           <div className="relative w-48 h-48 mb-1 rounded-md overflow-hidden">
-            <Image src={message.imageUrl} alt="Image shared in this conversation" fill className="object-cover" />
+            <Image src={message.imageUrl} alt="Image shared in this conversation" fill sizes="192px" className="object-cover" />
           </div>
         )}
         {message.text && <div className="whitespace-pre-wrap break-words">{message.text}</div>}

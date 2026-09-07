@@ -2,6 +2,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import useUnsavedChangesWarning from "@/app/hooks/useUnsavedChangesWarning";
+import { applyApiFieldErrors } from "@/app/libs/formErrors";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import toast from "@/app/libs/toast";
@@ -81,6 +83,8 @@ const EditUtilityPage = () => {
     const listingId = params?.listingId as string;
 
     const [loading, setLoading] = useState(false);
+    const [formTouched, setFormTouched] = useState(false);
+    useUnsavedChangesWarning(formTouched && !loading);
     const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
     const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
     const [selectedSuburb, setSelectedSuburb] = useState<{ value: string; label: string } | null>(null);
@@ -100,6 +104,7 @@ const EditUtilityPage = () => {
         register,
         handleSubmit,
         setValue,
+        setError,
         watch,
         formState: { errors },
     } = useForm<FieldValues>({
@@ -238,10 +243,11 @@ const EditUtilityPage = () => {
                 languagesSpoken,
             });
             toast.success("Utility updated successfully!");
+            setFormTouched(false);
             router.push("/properties");
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
-            toast.error("Something went wrong.");
+            const mapped = applyApiFieldErrors(error, setError);
+            toast.error(mapped ? "Please fix the highlighted fields" : "Something went wrong.");
         } finally {
             setLoading(false);
         }
@@ -283,7 +289,7 @@ const EditUtilityPage = () => {
                     </div>
                 </aside>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 [&>div:not(:last-child)]:rounded-xl [&>div:not(:last-child)]:border [&>div:not(:last-child)]:border-hairline-soft [&>div:not(:last-child)]:bg-white [&>div:not(:last-child)]:p-5 [&>div:not(:last-child)]:shadow-[0_8px_28px_rgba(22, 22, 22,0.045)] sm:[&>div:not(:last-child)]:p-7">
+                <form onSubmit={handleSubmit(onSubmit)} onChange={() => setFormTouched(true)} className="space-y-5 [&>div:not(:last-child)]:rounded-xl [&>div:not(:last-child)]:border [&>div:not(:last-child)]:border-hairline-soft [&>div:not(:last-child)]:bg-white [&>div:not(:last-child)]:p-5 [&>div:not(:last-child)]:shadow-[0_8px_28px_rgba(22, 22, 22,0.045)] sm:[&>div:not(:last-child)]:p-7">
                 {/* Title */}
                 <div className="mb-8">
                     <Input id="title" label="Listing title" placeholder="e.g. Powerful ute in Adelaide" register={register} errors={errors} required />

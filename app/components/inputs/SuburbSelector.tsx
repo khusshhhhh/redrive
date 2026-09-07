@@ -3,6 +3,7 @@
 import React, { useState, useEffect, memo } from "react";
 import Select from "react-select";
 import SuburbDataLoader from "@/app/libs/SuburbDataLoader";
+import { clientLog } from "@/app/libs/clientLog";
 import { selectClassNames, selectStyles } from "./selectStyles";
 
 export interface SuburbOption {
@@ -52,7 +53,7 @@ const SuburbSelector: React.FC<SuburbSelectorProps> = memo(({ state, value, onCh
                     setSuburbs(filteredSuburbs);
                 }
             } catch (error) {
-                console.error("Error loading suburbs:", error);
+                clientLog.error("Error loading suburbs", error);
                 setError("Failed to load suburbs. Please try again.");
                 setSuburbs([]);
             } finally {

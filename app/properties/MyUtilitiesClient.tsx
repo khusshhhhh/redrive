@@ -7,6 +7,7 @@ import { SafeListing, SafeUser } from "@/app/types";
 import ListingCard from "../components/listings/ListingCard";
 import axios from "axios";
 import toast from "@/app/libs/toast";
+import { clientLog } from "@/app/libs/clientLog";
 import { useState } from "react";
 import DeleteModal from "../components/modals/DeleteModal";
 
@@ -37,7 +38,7 @@ const MyUtilitiesClient: React.FC<MyUtilitiesClientProps> = ({
                 router.refresh();
             })
             .catch((error) => {
-                console.error("Delete Error:", error);
+                clientLog.error("Listing delete failed", error);
                 toast.error(error?.response?.data?.error || "Error deleting listing.");
             })
             .finally(() => {

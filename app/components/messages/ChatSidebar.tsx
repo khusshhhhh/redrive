@@ -4,8 +4,10 @@ import { useCallback, useState } from "react";
 import useSWR from "swr";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { formatDistanceToNowStrict } from "date-fns";
 import { Search } from "lucide-react";
+import Illustration from "@/app/components/Illustration";
 
 import type { SafeChat } from "@/app/types";
 import { useLiveUpdates } from "@/app/hooks/useLiveUpdates";
@@ -95,9 +97,25 @@ export default function ChatSidebar({ activeChatId, className = "" }: ChatSideba
         )}
 
         {chats && !unauthorized && filteredChats.length === 0 && (
-          <div className="p-6 text-center text-sm leading-6 text-muted">
-            {query ? "No conversations match your search." : "No conversations yet. Start one from a reservation."}
-          </div>
+          query ? (
+            <div className="p-6 text-center text-sm leading-6 text-muted">
+              No conversations match your search.
+            </div>
+          ) : (
+            <div className="flex flex-col items-center px-6 py-10 text-center">
+              <Illustration name="chat-bubbles" width={132} className="mb-4 h-auto w-[120px]" />
+              <p className="text-sm font-semibold text-ink">No conversations yet</p>
+              <p className="mt-1 text-sm leading-6 text-muted">
+                Message a host from a vehicle you&rsquo;re interested in, or reply to a booking request.
+              </p>
+              <Link
+                href="/explore"
+                className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-ink px-5 text-sm font-semibold text-ink transition hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                Browse vehicles
+              </Link>
+            </div>
+          )
         )}
 
         {filteredChats.map((chat) => {

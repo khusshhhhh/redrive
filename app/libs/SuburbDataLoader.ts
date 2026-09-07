@@ -1,3 +1,5 @@
+import { clientLog } from "@/app/libs/clientLog";
+
 interface SuburbData {
   suburb: string;
   state: string;
@@ -88,7 +90,7 @@ class SuburbDataLoader {
   }
 
   preload(): void {
-    this.loadData().catch(console.error);
+    this.loadData().catch((error) => clientLog.error("Suburb data preload failed", error));
   }
 }
 

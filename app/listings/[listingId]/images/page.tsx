@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { IconX } from "@tabler/icons-react";
 import type { LightboxImage } from "./LightboxGallery";
+import { clientLog } from "@/app/libs/clientLog";
 
 // react-image-gallery (+ its CSS) is ~40 KB and only needed once the lightbox
 // opens, so it's code-split behind this dynamic import.
@@ -28,7 +29,7 @@ const ListingImages = () => {
                 setImageSrcs(data.imageSrcs || []);
                 setListingTitle(data.title || "Vehicle");
             } catch (error) {
-                console.error("Error fetching images:", error);
+                clientLog.error("Error fetching listing images", error);
             }
         };
 

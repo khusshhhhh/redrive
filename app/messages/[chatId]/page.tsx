@@ -350,7 +350,7 @@ const ChatPage = () => {
             </div>
 
             <footer className="safe-bottom shrink-0 border-t border-hairline-soft bg-white px-3 pt-3 sm:p-4">
-              {pendingImageUrl && <div className="relative mb-3 h-20 w-20"><Image src={pendingImageUrl} alt="Attachment ready to send" fill className="rounded-md object-cover" /><button onClick={() => setPendingImageUrl(null)} className="absolute -right-2 -top-2 rounded-full bg-ink p-0.5 text-white"><IconX size={14} /></button></div>}
+              {pendingImageUrl && <div className="relative mb-3 h-20 w-20"><Image src={pendingImageUrl} alt="Attachment ready to send" fill sizes="80px" className="rounded-md object-cover" /><button onClick={() => setPendingImageUrl(null)} className="absolute -right-2 -top-2 rounded-full bg-ink p-0.5 text-white"><IconX size={14} /></button></div>}
               <div className="flex items-center gap-2 sm:gap-3">
                 <input ref={attachmentInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => void uploadAttachment(event.target.files?.[0])} />
                 <button type="button" disabled={uploadingAttachment} onClick={() => attachmentInputRef.current?.click()} aria-label={uploadingAttachment ? "Uploading attachment" : "Attach an image"} className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-hairline text-muted transition hover:bg-surface-soft disabled:cursor-wait">

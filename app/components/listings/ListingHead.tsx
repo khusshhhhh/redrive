@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SafeUser } from "@/app/types";
 import Image from "next/image";
 import useFavorite from "@/app/hooks/useFavorites";
-import { X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Heading from "../Heading";
 import toast from "@/app/libs/toast";
 import { IconLayoutGrid, IconShare2, IconHeart, IconHeartFilled } from "@tabler/icons-react";
@@ -51,19 +51,57 @@ const ListingHead: React.FC<ListingHeadProps> = ({
     id,
     currentUser
 }) => {
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const { hasFavorited, toggleFavorite } = useFavorite({ listingId: id, currentUser });
+    const dialogRef = useRef<HTMLDivElement>(null);
+    const lastFocusedRef = useRef<HTMLElement | null>(null);
 
-    // Disable background scrolling when modal is open
+    const photos = imageSrcs.length ? imageSrcs : ["/images/placeholder.png"];
+    const isOpen = selectedIndex !== null;
+    const selectedImage = isOpen ? photos[selectedIndex] : null;
+
+    const openAt = useCallback((index: number) => {
+        lastFocusedRef.current = document.activeElement as HTMLElement | null;
+        setSelectedIndex(index);
+    }, []);
+    const close = useCallback(() => setSelectedIndex(null), []);
+    const step = useCallback((delta: number) => {
+        setSelectedIndex((current) => {
+            if (current === null) return current;
+            return (current + delta + photos.length) % photos.length;
+        });
+    }, [photos.length]);
+
+    // Disable background scrolling while the lightbox is open.
     useEffect(() => {
-        if (selectedImage) {
+        if (isOpen) {
             document.body.classList.add("overflow-hidden");
         } else {
             document.body.classList.remove("overflow-hidden");
         }
-
         return () => document.body.classList.remove("overflow-hidden");
-    }, [selectedImage]);
+    }, [isOpen]);
+
+    // Keyboard: Esc closes, arrows page through photos.
+    useEffect(() => {
+        if (!isOpen) return;
+        const onKey = (event: KeyboardEvent) => {
+            if (event.key === "Escape") close();
+            else if (event.key === "ArrowRight") step(1);
+            else if (event.key === "ArrowLeft") step(-1);
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [isOpen, close, step]);
+
+    // Move focus into the dialog on open, restore it to the trigger on close.
+    useEffect(() => {
+        if (isOpen) {
+            dialogRef.current?.focus();
+        } else {
+            lastFocusedRef.current?.focus?.();
+        }
+    }, [isOpen]);
 
     const onShare = async () => {
         const url = typeof window !== "undefined" ? window.location.href : "";
@@ -129,7 +167,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                         alt={`${title} main vehicle photo`}
                         sizes="100vw"
                         priority
-                        onClick={() => setSelectedImage(imageSrcs[0] || "/images/placeholder.png")}
+                        onClick={() => openAt(0)}
                     />
                     {imageSrcs.length > 1 && (
                         <button
@@ -150,7 +188,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                             alt={`${title} main vehicle photo`}
                             sizes="50vw"
                             priority
-                            onClick={() => setSelectedImage(imageSrcs[0] || "/images/placeholder.png")}
+                            onClick={() => openAt(0)}
                         />
                     </div>
 
@@ -160,7 +198,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                             src={src}
                             alt={`${title} vehicle photo ${index + 2}`}
                             sizes="25vw"
-                            onClick={() => setSelectedImage(src)}
+                            onClick={() => openAt(index + 1)}
                         />
                     ))}
 
@@ -175,32 +213,62 @@ const ListingHead: React.FC<ListingHeadProps> = ({
                 </div>
             </div>
 
-            {/* Single Image Modal */}
-            {selectedImage && (
+            {/* Photo lightbox */}
+            {isOpen && selectedImage && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-2 sm:p-6"
-                    onClick={() => setSelectedImage(null)}
+                    ref={dialogRef}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={`${title} photos`}
+                    tabIndex={-1}
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-2 outline-none sm:p-6"
+                    onClick={close}
                 >
+                    <button
+                        className="absolute right-3 top-3 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink shadow-card transition hover:bg-surface-soft sm:right-6 sm:top-6"
+                        onClick={close}
+                        aria-label="Close photos"
+                    >
+                        <X size={24} />
+                    </button>
+
+                    {photos.length > 1 && (
+                        <span className="absolute left-1/2 top-4 z-50 -translate-x-1/2 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-ink">
+                            {selectedIndex! + 1} / {photos.length}
+                        </span>
+                    )}
+
+                    {photos.length > 1 && (
+                        <button
+                            className="absolute left-2 top-1/2 z-50 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-ink shadow-card transition hover:bg-surface-soft sm:left-6"
+                            onClick={(e) => { e.stopPropagation(); step(-1); }}
+                            aria-label="Previous photo"
+                        >
+                            <ChevronLeft size={24} />
+                        </button>
+                    )}
+                    {photos.length > 1 && (
+                        <button
+                            className="absolute right-2 top-1/2 z-50 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-ink shadow-card transition hover:bg-surface-soft sm:right-6"
+                            onClick={(e) => { e.stopPropagation(); step(1); }}
+                            aria-label="Next photo"
+                        >
+                            <ChevronRight size={24} />
+                        </button>
+                    )}
+
                     <div
                         className="relative max-h-[95dvh] w-full max-w-4xl overflow-auto rounded-md"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Close Button */}
-                        <button
-                            className="absolute right-3 top-3 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink shadow-card transition hover:bg-surface-soft sm:right-6 sm:top-6"
-                            onClick={() => setSelectedImage(null)}
-                        >
-                            <X size={24} />
-                        </button>
-
-                        {/* Full Image Display */}
                         <div className="p-4">
                             <Image
-                                alt={`${title} enlarged vehicle photo`}
+                                alt={`${title} photo ${selectedIndex! + 1} of ${photos.length}`}
                                 src={selectedImage}
-                                width={800}
-                                height={600}
-                                className="object-cover w-full h-auto rounded-md"
+                                width={1200}
+                                height={900}
+                                sizes="(max-width: 896px) 100vw, 896px"
+                                className="h-auto w-full rounded-md object-cover"
                             />
                         </div>
                     </div>

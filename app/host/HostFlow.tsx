@@ -49,6 +49,8 @@ import ToggleRow from "@/app/components/inputs/ToggleRow";
 import ChipMultiSelect from "@/app/components/inputs/ChipMultiSelect";
 import HostIllustration, { type HostPhaseKey } from "@/app/components/host/HostIllustration";
 import SuccessBurst from "@/app/components/SuccessBurst";
+import useUnsavedChangesWarning from "@/app/hooks/useUnsavedChangesWarning";
+import { applyApiFieldErrors } from "@/app/libs/formErrors";
 import {
   TRANSMISSION_OPTIONS,
   TYRE_CONDITION_OPTIONS,
@@ -134,6 +136,10 @@ export default function HostFlow() {
   const [submitting, setSubmitting] = useState(false);
   const [published, setPublished] = useState(false);
 
+  // A part-filled listing draft only lives in memory — warn before a reload or
+  // tab close throws it away.
+  useUnsavedChangesWarning(view === "flow" && !published && !submitting);
+
   const [selectedState, setSelectedState] = useState<{ value: string; label: string } | null>(null);
   const [selectedSuburb, setSelectedSuburb] = useState<{ value: string; label: string } | null>(null);
   const [address, setAddress] = useState("");
@@ -149,6 +155,7 @@ export default function HostFlow() {
   const {
     register,
     setValue,
+    setError,
     watch,
     getValues,
     trigger,
@@ -439,11 +446,16 @@ export default function HostFlow() {
       await axios.post("/api/listings", payload, { headers: { "Content-Type": "application/json" } });
       setPublished(true);
     } catch (error) {
+      const mapped = applyApiFieldErrors(error, setError);
       const message = axios.isAxiosError(error) ? error.response?.data?.error : null;
-      toast.error(message || "Something went wrong while publishing. Please try again.");
+      toast.error(
+        mapped
+          ? "Some details need fixing — step back through the form to see which."
+          : message || "Something went wrong while publishing. Please try again.",
+      );
       setSubmitting(false);
     }
-  }, [address, coords, damagePhotos, getValues, imageSrcs, languagesSpoken, regoImage, router, safetyFeatures, selectedAmenities, selectedState, selectedSuburb]);
+  }, [address, coords, damagePhotos, getValues, imageSrcs, languagesSpoken, regoImage, safetyFeatures, selectedAmenities, selectedState, selectedSuburb, setError]);
 
   const next = useCallback(async () => {
     const error = await validateStep(currentStep);
@@ -1288,7 +1300,7 @@ function StepBody(props: StepBodyProps) {
             <label className="mb-1.5 block text-xs font-medium text-muted">Registration document — optional</label>
             {regoImage ? (
               <div className="relative aspect-video w-full overflow-hidden rounded-md border border-hairline-soft">
-                <Image alt="Registration document preview" src={regoImage} fill className="object-cover" />
+                <Image alt="Registration document preview" src={regoImage} fill sizes="(max-width: 768px) 100vw, 640px" className="object-cover" />
                 <button
                   type="button"
                   onClick={() => setRegoImage("")}
@@ -1489,7 +1501,7 @@ function StepBody(props: StepBodyProps) {
           <div className="overflow-hidden rounded-2xl border border-hairline-soft">
             {imageSrcs[0] && (
               <div className="relative aspect-[16/9] w-full bg-surface-strong">
-                <Image src={imageSrcs[0]} alt="Main listing photo" fill className="object-cover" />
+                <Image src={imageSrcs[0]} alt="Main listing photo" fill sizes="(max-width: 768px) 100vw, 640px" className="object-cover" />
               </div>
             )}
             <ul className="divide-y divide-hairline-soft">

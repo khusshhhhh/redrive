@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef, memo } from "react";
 import { loadGoogleMaps } from "@/app/libs/GoogleMapLoader";
 import SuburbDataLoader from "@/app/libs/SuburbDataLoader";
+import { clientLog } from "@/app/libs/clientLog";
 
 interface MapProps {
     suburb?: string;
@@ -38,7 +39,7 @@ const Map: React.FC<MapProps> = memo(({ suburb, state, latitude, longitude }) =>
                 const coordinates = dataLoader.findSuburbCoordinates(suburb, state);
                 setMapLocation(coordinates);
             } catch (error) {
-                console.error("❌ Error loading suburb data:", error);
+                clientLog.error("Error loading suburb data for map", error);
                 setMapLocation(null);
             }
         };

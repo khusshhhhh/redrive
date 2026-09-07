@@ -1,0 +1,10 @@
+{
+  "baselineKb": 300,
+  "routeKb": 330,
+  "routes": {
+    "/host": 325,
+    "/listings/[listingId]": 325,
+    "/edit-utility/[listingId]": 320,
+    "/profile": 315
+  }
+}

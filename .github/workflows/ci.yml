@@ -61,3 +61,8 @@ jobs:
       # this point fails on the not-yet-generated next-env.d.ts references.
       - name: Build (also type-checks the web app)
         run: npm run build
+
+      # Fails the build when a route's first-load JS (or the shared baseline)
+      # grows past the budget in bundle-budget.json.
+      - name: Bundle budget
+        run: npm run check:bundle-budget

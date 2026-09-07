@@ -17,6 +17,9 @@ import RealRecommendations from "../components/RealRecommendations";
 import PurposefulCollections from "../components/PurposefulCollections";
 import { buildSeoMetadata } from "../libs/seo";
 import { toListingCardData } from "../libs/listingCardData";
+import { withApproxLocation } from "../libs/suburbGeoData";
+import ExploreViewToggle from "../components/explore/ExploreViewToggle";
+import ExploreMapView from "../components/explore/ExploreMapView";
 
 export const metadata = buildSeoMetadata({
   title: "Explore vehicles across Australia",
@@ -85,7 +88,10 @@ const WeekendCollections = async ({
 const Explore = async ({ searchParams }: ExploreProps) => {
   const resolvedSearchParams = await Promise.resolve(searchParams);
   const params: IListingsParams = resolvedSearchParams ? { ...resolvedSearchParams } : {};
-  const hasFilters = Object.values(params).some(value => value !== undefined && value !== '');
+  const view = (resolvedSearchParams as Record<string, unknown> | undefined)?.view === "map" ? "map" : "list";
+  const hasFilters = Object.entries(params).some(
+    ([key, value]) => key !== "view" && value !== undefined && value !== "",
+  );
   const today = startOfDay(new Date());
   const weekendStart = nextSaturday(today);
   const weekendEnd = addDays(weekendStart, 1);
@@ -103,24 +109,71 @@ const Explore = async ({ searchParams }: ExploreProps) => {
     ? Math.max(1, differenceInCalendarDays(new Date(params.endDate), new Date(params.startDate)) + 1)
     : null;
 
+  if (view === "map") {
+    const filterParams: Record<string, string> = {};
+    for (const [key, value] of Object.entries(resolvedSearchParams ?? {})) {
+      if (key === "view" || key === "cursor") continue;
+      if (typeof value === "string" && value !== "") filterParams[key] = value;
+    }
+    const geoCards = listings.map((listing) => withApproxLocation(toListingCardData(listing)));
+    // Remount the map view when the filters change (a client-side SearchModal
+    // navigation re-renders this RSC but keeps the same client component
+    // instance, which would otherwise hold stale results).
+    const mapViewKey = Object.entries(filterParams)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => `${k}=${v}`)
+      .join("&");
+
+    return (
+      <Container>
+        <div className="pb-10 pt-6 sm:pt-8">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className="text-display-sm font-semibold text-ink">
+                {listings.length === 0
+                  ? "No vehicles found"
+                  : `${listings.length}${firstPage.nextCursor ? "+" : ""} vehicle${listings.length === 1 ? "" : "s"} on the map`}
+              </h1>
+              <p className="mt-1 text-sm text-muted">Pan or zoom the map, then search that area.</p>
+            </div>
+            <ExploreViewToggle />
+          </div>
+          <ExploreMapView
+            key={mapViewKey}
+            initialCards={geoCards}
+            initialCursor={firstPage.nextCursor}
+            params={filterParams}
+            currentUser={currentUser}
+            tripDays={tripDays}
+          />
+        </div>
+      </Container>
+    );
+  }
+
   return (
       <Container>
         <div className="space-y-5 pb-8 pt-6 sm:pt-10 lg:space-y-12 lg:pt-12">
           {/* Results Header */}
-          {hasFilters && (
+          <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-display-sm font-semibold text-ink">
-                {listings.length === 0
-                  ? 'No vehicles found'
-                  : `${listings.length}${firstPage.nextCursor ? '+' : ''} vehicle${listings.length !== 1 ? 's' : ''} found`}
-              </h2>
-              {listings.length > 0 && (
-                <p className="text-sm text-muted mt-1">
-                  Showing results for your search criteria
-                </p>
+              {hasFilters && (
+                <>
+                  <h2 className="text-display-sm font-semibold text-ink">
+                    {listings.length === 0
+                      ? 'No vehicles found'
+                      : `${listings.length}${firstPage.nextCursor ? '+' : ''} vehicle${listings.length !== 1 ? 's' : ''} found`}
+                  </h2>
+                  {listings.length > 0 && (
+                    <p className="text-sm text-muted mt-1">
+                      Showing results for your search criteria
+                    </p>
+                  )}
+                </>
               )}
             </div>
-          )}
+            <ExploreViewToggle />
+          </div>
 
           {currentUser && <SavedSearchManager currentFilters={params} hasFilters={hasFilters} />}
 

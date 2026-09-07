@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import { SafeNotification } from "@/app/types";
 import { toast } from "@/app/libs/toast";
+import { clientLog } from "@/app/libs/clientLog";
 
 const getErrorMessage = (error: unknown, fallback: string): string => {
   if (axios.isAxiosError(error)) {
@@ -78,7 +79,7 @@ export const useNotifications = ({
 
       setUnreadCount(data.unreadCount);
     } catch (error) {
-      console.error("Error fetching notifications:", error);
+      clientLog.error("Error fetching notifications", error);
       setError(getErrorMessage(error, "Failed to fetch notifications"));
     } finally {
       setLoading(false);
@@ -101,7 +102,7 @@ export const useNotifications = ({
       
       return true;
     } catch (error) {
-      console.error("Error marking notification as read:", error);
+      clientLog.error("Error marking notification as read", error);
       toast.error("Failed to mark notification as read");
       return false;
     }
@@ -122,7 +123,7 @@ export const useNotifications = ({
       toast.success("All notifications marked as read");
       return true;
     } catch (error) {
-      console.error("Error marking all notifications as read:", error);
+      clientLog.error("Error marking all notifications as read", error);
       toast.error("Failed to mark all notifications as read");
       return false;
     }
@@ -143,7 +144,7 @@ export const useNotifications = ({
 
       return true;
     } catch (error) {
-      console.error("Error deleting notification:", error);
+      clientLog.error("Error deleting notification", error);
       toast.error("Failed to delete notification");
       return false;
     }
@@ -163,7 +164,7 @@ export const useNotifications = ({
       toast.success("All read notifications deleted");
       return true;
     } catch (error) {
-      console.error("Error deleting read notifications:", error);
+      clientLog.error("Error deleting read notifications", error);
       toast.error("Failed to delete read notifications");
       return false;
     }
@@ -185,7 +186,6 @@ export const useNotifications = ({
 
   const requestNotificationPermission = useCallback(async () => {
     if (!("Notification" in window)) {
-      console.log("This browser does not support notifications");
       return false;
     }
 

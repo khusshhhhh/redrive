@@ -11,6 +11,7 @@ import {
   type IListingsParams,
 } from "@/app/actions/getListings";
 import { toListingCardData } from "@/app/libs/listingCardData";
+import { withApproxLocation } from "@/app/libs/suburbGeoData";
 import { sanitizeListingExtras } from "@/app/libs/listingExtras";
 import { consumeRateLimits, getClientIp, tooManyRequests } from "@/app/libs/security";
 import { internalError } from "@/app/libs/apiError";
@@ -188,12 +189,19 @@ async function GETHandler(request: NextRequest) {
       unsealed: str("unsealed"),
       cursor: str("cursor"),
       limit: str("limit") ? Number(sp.get("limit")) : LISTINGS_PAGE_SIZE,
+      swLat: str("swLat"),
+      swLng: str("swLng"),
+      neLat: str("neLat"),
+      neLng: str("neLng"),
     };
 
     const { listings, nextCursor } = await getListingsPage(params);
 
     return NextResponse.json(
-      { listings: listings.map(toListingCardData), nextCursor },
+      {
+        listings: listings.map((listing) => withApproxLocation(toListingCardData(listing))),
+        nextCursor,
+      },
       { headers: { "Cache-Control": "public, max-age=15, stale-while-revalidate=60" } },
     );
   } catch (error) {

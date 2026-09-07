@@ -9,6 +9,7 @@ import { SafeListing, SafeUser } from '@/app/types';
 import { Zap } from "lucide-react";
 import toast from "@/app/libs/toast";
 import { calculateServiceFee, redriveFee as calcRedriveFee } from "@/app/libs/pricing";
+import { clientLog } from "@/app/libs/clientLog";
 import ProtectionSelector from "./ProtectionSelector";
 
 interface ListingReservationProps {
@@ -49,6 +50,33 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     const serviceFee = calculateServiceFee(totalPrice);
     const dayCount = differenceInCalendarDays(dateRange.endDate, dateRange.startDate) + 1;
     const router = useRouter();
+
+    // Availability guardrails set by the host. react-date-range already blocks
+    // booked days from being picked; these cover the rules it can't express so
+    // the guest sees why a range won't work before hitting Continue.
+    const minTripDays = listing.minimumTripDays ?? 1;
+    const maxTripDays = listing.maximumTripDays ?? 365;
+    const noticeHours = listing.minimumNoticeHours ?? 0;
+    const hasPickedRange = differenceInCalendarDays(dateRange.endDate, dateRange.startDate) > 0
+        || dateRange.startDate.toDateString() !== new Date().toDateString();
+
+    const earliestStart = new Date(Date.now() + noticeHours * 60 * 60 * 1000);
+    const overlapsBooked = disabledDates.some(
+        (d) => d >= dateRange.startDate && d <= dateRange.endDate,
+    );
+
+    let availabilityIssue: string | null = null;
+    if (overlapsBooked) {
+        availabilityIssue = "Some of the days you selected are already booked. Pick a range with no blocked dates.";
+    } else if (hasPickedRange && noticeHours > 0 && dateRange.startDate < earliestStart) {
+        availabilityIssue = noticeHours >= 24
+            ? `This host needs at least ${Math.round(noticeHours / 24)} day${noticeHours >= 48 ? "s" : ""} notice. Choose a later start date.`
+            : `This host needs at least ${noticeHours} hours notice. Choose a later start date.`;
+    } else if (hasPickedRange && dayCount < minTripDays) {
+        availabilityIssue = `Minimum trip length is ${minTripDays} day${minTripDays === 1 ? "" : "s"}. Extend your dates.`;
+    } else if (hasPickedRange && dayCount > maxTripDays) {
+        availabilityIssue = `Maximum trip length is ${maxTripDays} days. Shorten your dates.`;
+    }
 
     const upfrontCleaningFee = listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0;
     const returnCleaningFee = listing.cleaningFeeOption === 'UPON_RETURNING' ? (listing.returnCleaningFeeAmount || 0) : 0;
@@ -164,8 +192,16 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                 </>
             )}
             <div className="p-4">
+                {availabilityIssue && (
+                    <p
+                        role="status"
+                        className="mb-3 rounded-sm border border-error/30 bg-surface-soft px-3 py-2 text-xs font-medium leading-5 text-error"
+                    >
+                        {availabilityIssue}
+                    </p>
+                )}
                 <Button
-                    disabled={disabled}
+                    disabled={disabled || Boolean(availabilityIssue)}
                     label="Continue"
                     onClick={() => {
                         if (!currentUser) {
@@ -178,7 +214,8 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                             return;
                         }
                         if (!listing?.id) {
-                            console.error("Listing ID is missing!");
+                            clientLog.error("Listing ID is missing on reservation submit");
+                            toast.error("Something went wrong. Refresh and try again.");
                             return;
                         }
 

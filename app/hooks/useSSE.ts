@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { clientLog } from "@/app/libs/clientLog";
 
 type SSEEventHandler<T = unknown> = (data: T) => void;
 
@@ -41,7 +42,7 @@ export function useSSE({ url, handlers }: UseSSEOptions) {
           const data = JSON.parse(e.data);
           handlersRef.current[eventName]?.(data);
         } catch (err) {
-          console.error(`Failed to parse SSE "${eventName}" event`, err);
+          clientLog.error(`Failed to parse SSE "${eventName}" event`, err);
         }
       };
       source.addEventListener(eventName, listener);

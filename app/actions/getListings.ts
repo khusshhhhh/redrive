@@ -1,6 +1,7 @@
 import prisma from "@/app/libs/prismadb";
 import { revalidateTag, unstable_cache } from "next/cache";
 import { BoundedMemoryCache } from "@/app/libs/memoryCache";
+import { parseBounds, scanListingArea } from "@/app/libs/suburbGeoData";
 
 const PUBLIC_LISTINGS_CACHE_TAG = "public-listings";
 
@@ -24,6 +25,13 @@ export interface IListingsParams {
   cursor?: string;
   /** Rows to return (clamped 1..MAX_LISTINGS_PAGE). */
   limit?: number;
+  /** Map viewport for the /explore "search this area" flow. When all four are
+   *  present and valid they supersede `state` / `suburb`: results are filtered
+   *  to the suburbs (or, when zoomed far out, the states) inside the box. */
+  swLat?: number | string;
+  swLng?: number | string;
+  neLat?: number | string;
+  neLng?: number | string;
 }
 
 /** Default rows per discovery page, and the hard ceiling per request. */
@@ -127,6 +135,10 @@ async function getListingsFromDatabase(params: IListingsParams) {
       unsealed,
       cursor,
       limit,
+      swLat,
+      swLng,
+      neLat,
+      neLng,
     } = params || {};
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -151,6 +163,27 @@ async function getListingsFromDatabase(params: IListingsParams) {
 
     if (suburb) {
       query.suburb = { equals: suburb, mode: "insensitive" };
+    }
+
+    // Map viewport ("search this area"). When valid, it replaces the single
+    // state / suburb filters with the set the box covers. Listings are stored
+    // with the canonical suburb name from the same dataset, so an exact `in`
+    // match is correct; a far-out viewport falls back to whole states.
+    const bounds = parseBounds({ swLat, swLng, neLat, neLng });
+    if (bounds) {
+      const area = scanListingArea(bounds);
+      if (area.states.length === 0) {
+        // Nothing on land inside the viewport.
+        return [];
+      }
+      delete query.state;
+      delete query.suburb;
+      if (area.capped || area.suburbNames.length === 0) {
+        query.state = { in: area.states };
+      } else {
+        query.state = { in: area.states };
+        query.suburb = { in: area.suburbNames };
+      }
     }
 
     if (information)

@@ -47,6 +47,8 @@ import SavedCards from "@/app/components/payments/SavedCards";
 import EmailVerification from "@/app/components/profile/EmailVerification";
 import DeleteAccountPanel from "@/app/components/profile/DeleteAccountPanel";
 import NotificationPreferences from "@/app/components/profile/NotificationPreferences";
+import useUnsavedChangesWarning from "@/app/hooks/useUnsavedChangesWarning";
+import { applyApiFieldErrors } from "@/app/libs/formErrors";
 
 interface ProfileFormData {
   name: string;
@@ -107,8 +109,9 @@ export default function ProfileClient({
     register,
     handleSubmit,
     setValue,
+    setError,
     watch,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<ProfileFormData>({
     defaultValues: {
       name: initialUser.name || "",
@@ -130,6 +133,9 @@ export default function ProfileClient({
   );
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const imageChanged = image !== (initialUser.image || "/images/placeholder.png");
+  useUnsavedChangesWarning((isDirty || imageChanged) && !isSaving);
   const [isUpdatingOtp, setIsUpdatingOtp] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [triggerUpload, setTriggerUpload] = useState(false);
@@ -286,10 +292,13 @@ export default function ProfileClient({
       toast.success("Profile saved");
       router.refresh();
     } catch (error: unknown) {
+      const mapped = applyApiFieldErrors(error, setError);
       toast.error(
-        axios.isAxiosError<{ error?: string }>(error)
-          ? error.response?.data?.error || "We couldn’t save your changes"
-          : "We couldn’t save your changes",
+        mapped
+          ? "Please fix the highlighted fields"
+          : axios.isAxiosError<{ error?: string }>(error)
+            ? error.response?.data?.error || "We couldn’t save your changes"
+            : "We couldn’t save your changes",
       );
     } finally {
       setIsSaving(false);

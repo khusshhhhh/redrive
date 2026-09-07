@@ -16,6 +16,7 @@ import { Range } from "react-date-range";
 import Reviews from "@/app/components/reviews/Reviews";
 import useRecentlyViewed from "@/app/hooks/useRecentlyViewed";
 import { calculateServiceFee, redriveFee, REDRIVE_FEE_RATE } from "@/app/libs/pricing";
+import { clientLog } from "@/app/libs/clientLog";
 
 const initialDateRange = {
     startDate: new Date(),
@@ -101,7 +102,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                 router.push('/trips');
             })
             .catch((error) => {
-                console.error("Reservation API error:", error.response?.data || error);
+                clientLog.error("Reservation API error", error, { data: error?.response?.data });
                 toast.error('Something went wrong.');
             })
             .finally(() => {
