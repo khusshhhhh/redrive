@@ -510,7 +510,7 @@ export default function HandoverPanel({
                 placeholder="What happened, and when. Handover photos are attached automatically."
                 className="mt-3 w-full rounded-sm border border-hairline bg-white p-3 text-sm leading-6 outline-none focus:border-ink"
               />
-              <div className="mt-2 flex gap-2">
+              <div className="mt-2 flex flex-wrap gap-2">
                 <button
                   type="button"
                   disabled={problemBusy || problemText.trim().length < 10}

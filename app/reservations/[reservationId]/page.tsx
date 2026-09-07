@@ -259,12 +259,12 @@ export default function ReservationDetails() {
           >
             <ChevronLeft size={17} /> Back to reservations
           </button>
-          <header className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+          <header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end sm:gap-5">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
                 Reservation #{reservation.id.slice(-6).toUpperCase()}
               </p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-ink">
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
                 Reservation details
               </h1>
               <p className="mt-2 text-sm text-muted">
@@ -279,9 +279,9 @@ export default function ReservationDetails() {
           </header>
 
           <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="space-y-6">
+            <div className="min-w-0 space-y-6">
               <section className="overflow-hidden rounded-md border border-hairline-soft bg-white">
-                <div className="relative aspect-[16/8] min-h-60">
+                <div className="relative aspect-[16/9] min-h-52 w-full sm:aspect-[16/8] sm:min-h-60">
                   <Image
                     src={listing.imageSrcs?.[0] || "/images/placeholder.png"}
                     alt={listing.title}
@@ -290,11 +290,13 @@ export default function ReservationDetails() {
                     className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
-                  <div className="absolute bottom-0 p-6 text-white">
-                    <p className="text-2xl font-semibold">{listing.title}</p>
+                  <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-6">
+                    <p className="text-xl font-semibold sm:text-2xl">{listing.title}</p>
                     <p className="mt-1 flex items-center gap-1.5 text-sm text-white/85">
-                      <MapPin size={15} />
-                      {listing.suburb}, {listing.state}
+                      <MapPin size={15} className="shrink-0" />
+                      <span className="min-w-0 truncate">
+                        {listing.suburb}, {listing.state}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -371,43 +373,45 @@ export default function ReservationDetails() {
                   title={isHost ? "Guest details" : "Booking contact"}
                   subtitle="Use Messages to keep booking communication together."
                 />
-                <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center">
-                  <Image
-                    src={reservation.user.image || "/images/placeholder.png"}
-                    alt={`${reservation.user.name || "Redrive guest"} profile photo`}
-                    width={72}
-                    height={72}
-                    className="h-18 w-18 rounded-[28%] object-cover"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-lg font-semibold text-ink">
-                        {reservation.user.name || "Guest"}
-                      </p>
-                      {reservation.user.profileVerified === "Y" && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-surface-soft px-2.5 py-1 text-[11px] font-medium text-ink">
-                          <BadgeCheck size={13} /> Verified
-                        </span>
+                <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
+                  <div className="flex min-w-0 items-start gap-4 sm:flex-1">
+                    <Image
+                      src={reservation.user.image || "/images/placeholder.png"}
+                      alt={`${reservation.user.name || "Redrive guest"} profile photo`}
+                      width={72}
+                      height={72}
+                      className="h-14 w-14 shrink-0 rounded-[28%] object-cover sm:h-[72px] sm:w-[72px]"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-lg font-semibold text-ink">
+                          {reservation.user.name || "Guest"}
+                        </p>
+                        {reservation.user.profileVerified === "Y" && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-surface-soft px-2.5 py-1 text-[11px] font-medium text-ink">
+                            <BadgeCheck size={13} /> Verified
+                          </span>
+                        )}
+                      </div>
+                      {reservation.user.email || reservation.user.number ? (
+                        <>
+                          <p className="mt-1 break-words text-sm text-muted">
+                            {reservation.user.email}
+                          </p>
+                          <p className="mt-1 break-words text-sm text-muted">
+                            {reservation.user.number || "Phone number not provided"}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="mt-1 text-sm text-muted">
+                          Contact details are shared once the booking is confirmed. Use Messages until then.
+                        </p>
                       )}
                     </div>
-                    {reservation.user.email || reservation.user.number ? (
-                      <>
-                        <p className="mt-1 text-sm text-muted">
-                          {reservation.user.email}
-                        </p>
-                        <p className="mt-1 text-sm text-muted">
-                          {reservation.user.number || "Phone number not provided"}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="mt-1 text-sm text-muted">
-                        Contact details are shared once the booking is confirmed. Use Messages until then.
-                      </p>
-                    )}
                   </div>
                   <button
                     onClick={() => void startChat()}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-sm border border-ink px-5 text-sm font-semibold text-ink hover:bg-surface-soft"
+                    className="inline-flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-sm border border-ink px-5 text-sm font-semibold text-ink hover:bg-surface-soft sm:w-auto"
                   >
                     <MessageCircle size={17} /> Message
                   </button>
@@ -472,7 +476,7 @@ export default function ReservationDetails() {
 
             <aside className="space-y-5 lg:sticky lg:top-32">
               <CancellationPolicyDisplay value={reservation.cancellationPolicy} compact />
-              <section className="rounded-md border border-hairline-soft bg-white p-6 shadow-card">
+              <section className="rounded-md border border-hairline-soft bg-white p-5 shadow-card sm:p-6">
                 <SectionHeading
                   icon={<CircleDollarSign size={19} />}
                   title="Price summary"
@@ -679,17 +683,19 @@ function PriceRow({ label, value }: { label: string; value?: number | null }) {
 }
 function ReservationSkeleton() {
   return (
-    <main className="bg-surface-soft/40 px-4 py-10">
-      <div className="mx-auto max-w-[1120px] space-y-6">
-        <div className="skeleton-wave h-9 w-64 rounded" />
-        <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-          <div className="space-y-6">
-            <div className="skeleton-wave h-96 rounded-md" />
-            <div className="skeleton-wave h-56 rounded-md" />
+    <main className="bg-surface-soft/40 py-8 sm:py-12">
+      <Container>
+        <div className="mx-auto max-w-[1120px] space-y-6">
+          <div className="skeleton-wave h-9 w-48 rounded sm:w-64" />
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="min-w-0 space-y-6">
+              <div className="skeleton-wave h-72 rounded-md sm:h-96" />
+              <div className="skeleton-wave h-56 rounded-md" />
+            </div>
+            <div className="skeleton-wave h-80 rounded-md" />
           </div>
-          <div className="skeleton-wave h-80 rounded-md" />
         </div>
-      </div>
+      </Container>
     </main>
   );
 }
