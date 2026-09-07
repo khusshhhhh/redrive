@@ -1,0 +1,57 @@
+name: Mobile
+
+# Runs only when the mobile app or its shared contracts change. The main CI
+# already type-checks and tests the mobile workspace; this adds the mobile-only
+# gates (workspace lint, release-safety scan) as a required check for those PRs.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/mobile/**"
+      - "packages/contracts/**"
+      - "prisma/schema.prisma"
+      - ".github/workflows/mobile.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "apps/mobile/**"
+      - "packages/contracts/**"
+      - "prisma/schema.prisma"
+      - ".github/workflows/mobile.yml"
+
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Typecheck (contracts)
+        run: npm run typecheck:contracts
+
+      - name: Typecheck (mobile)
+        run: npm run typecheck:mobile
+
+      - name: Lint (mobile workspace)
+        run: npm run lint --workspace @redrive/mobile
+
+      - name: Test (mobile)
+        run: npm run test:mobile
+
+      - name: Release-safety scan
+        run: npm run verify:mobile-release

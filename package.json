@@ -27,6 +27,8 @@
     "quality:mobile": "prisma generate && npm run typecheck:contracts && npm run typecheck:mobile && npm run lint --workspace @redrive/mobile && npm run test:mobile && npm test && npm run doctor:mobile && npm run verify:mobile-release",
     "lint": "next lint",
     "check:bundle-budget": "node scripts/check-bundle-budget.mjs",
+    "check:env": "node scripts/check-env.mjs",
+    "check:db-indexes": "node scripts/check-db-indexes.mjs",
     "analyze": "cross-env ANALYZE=true next build",
     "bundle-analyzer": "npx @next/bundle-analyzer",
     "analyze-performance": "node scripts/analyze-bundle.js"

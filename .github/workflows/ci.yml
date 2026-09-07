@@ -38,6 +38,10 @@ jobs:
       - name: Prisma generate
         run: npx prisma generate
 
+      # Cheap file scans first — fail fast before the slow build.
+      - name: Env documentation (.env.example)
+        run: npm run check:env
+
       # Contracts and the mobile app have their own tsconfigs that `next build`
       # does not cover.
       - name: Typecheck (contracts)
@@ -66,3 +70,10 @@ jobs:
       # grows past the budget in bundle-budget.json.
       - name: Bundle budget
         run: npm run check:bundle-budget
+
+      # Static drift check: every correctness-critical index the runtime relies
+      # on must correspond to an @unique / @@unique in prisma/schema.prisma.
+      # (The live-DB verification is `npm run check:db-indexes` — run it after
+      # every `prisma db push` and in the deploy pipeline.)
+      - name: DB index expectations match the schema
+        run: node scripts/check-db-index-schema.mjs
