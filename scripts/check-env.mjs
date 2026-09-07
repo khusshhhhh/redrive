@@ -22,7 +22,6 @@ const IMPLICIT = new Set([
   "TZ",
   "PORT",
   "ANALYZE",
-  "LOG_LEVEL",
   "NEXT_RUNTIME",
   "NEXT_PHASE",
   "NEXT_TELEMETRY_DISABLED",

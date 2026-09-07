@@ -6,13 +6,21 @@ Vercel and Expo Application Services (EAS).
 
 > Never paste real secrets into `.env.example`, this document, source code, Git commits, screenshots, or support messages. Put local secrets in `.env.local` or `.env`. Both are ignored by Git in this project.
 
+Two checks keep this in sync (CI runs the first):
+
+- `npm run check:env` — fails if the code reads a `process.env` variable that
+  `.env.example` doesn't document. If you add a new variable, add it to
+  `.env.example` **and** this guide.
+- `npm run check:db-indexes` — verifies a live database has the
+  correctness-critical unique indexes (run after `prisma db push`).
+
 ## 1. What the completed local file looks like
 
 Create `.env.local` in the project root. You may use `.env` instead, but `.env.local` is the conventional choice for machine-specific Next.js secrets.
 
 ```dotenv
 DATABASE_URL="mongodb+srv://redrive_app:URL_ENCODED_PASSWORD@cluster0.example.mongodb.net/redrive?retryWrites=true&w=majority"
-RESTORE_TEST_DATABASE_URL=""
+# DATABASE_POOL_SIZE="5"          # optional; Prisma maxPoolSize, default 5
 
 NEXTAUTH_SECRET="a-long-random-secret-generated-for-this-project"
 NEXTAUTH_URL="http://localhost:3000"
@@ -47,8 +55,40 @@ CLOUDINARY_API_SECRET="your-cloudinary-api-secret"
 
 STRIPE_SECRET_KEY="sk_test_example"
 STRIPE_WEBHOOK_SECRET="whsec_example"
+# DEPOSIT_PREAUTH_ENABLED="false"   # feature flag: security-deposit pre-auth
 
 CRON_SECRET="another-long-random-secret"
+
+# ── Error tracking (Sentry) — Section 13 ────────────────────────────────────
+# Blank locally (the SDK is a no-op); required-ish in production.
+# SENTRY_DSN="https://examplekey@o000000.ingest.sentry.io/0000000"
+# NEXT_PUBLIC_SENTRY_DSN="https://examplekey@o000000.ingest.sentry.io/0000000"
+# SENTRY_TRACES_SAMPLE_RATE="0.1"
+# NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE="0.05"
+# The next three are only needed in the environment that builds & uploads source maps:
+# SENTRY_ORG="your-org-slug"
+# SENTRY_PROJECT="redrive"
+# SENTRY_AUTH_TOKEN="sntrys_example"
+
+# ── Realtime updates (Pusher) — Section 14, optional ───────────────────────
+# NEXT_PUBLIC_REALTIME_ENABLED="1"
+# NEXT_PUBLIC_PUSHER_KEY="pusher-app-key"
+# NEXT_PUBLIC_PUSHER_CLUSTER="ap4"
+# PUSHER_APP_ID="0000000"
+# PUSHER_KEY="pusher-app-key"
+# PUSHER_SECRET="pusher-app-secret"
+# PUSHER_CLUSTER="ap4"
+
+# ── Rate-limit store (Upstash Redis) — Section 15, recommended for scale ───
+# UPSTASH_REDIS_REST_URL="https://your-db.upstash.io"
+# UPSTASH_REDIS_REST_TOKEN="upstash-rest-token"
+
+# ── SMS notifications (Twilio) — Section 16, optional ──────────────────────
+# SMS_PROVIDER="twilio"
+# SMS_FROM="+15551234567"
+# SMS_TWILIO_ACCOUNT_SID="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# SMS_TWILIO_AUTH_TOKEN="twilio-auth-token"
+# PUSH_DISABLED="false"
 
 API_MONITOR_SUCCESS_SAMPLE_RATE="0.25"
 API_MONITOR_CLIENT_ERROR_SAMPLE_RATE="0.5"
@@ -86,7 +126,7 @@ Never put `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`,
 | Variable | Required? | Secret? | Used where |
 |---|---:|---:|---|
 | `DATABASE_URL` | Yes | Yes | Prisma/MongoDB server connection |
-| `RESTORE_TEST_DATABASE_URL` | Restore drills only | Yes | Disposable target for `scripts/restore-drill-mongodb.ps1` |
+| `DATABASE_POOL_SIZE` | No | No | Prisma `maxPoolSize`; default `5` (suits serverless) |
 | `NEXTAUTH_SECRET` | Yes | Yes | NextAuth web sessions and disabled legacy API compatibility |
 | `NEXTAUTH_URL` | Yes in production | No | Authentication callback base URL |
 | `NEXT_PUBLIC_SITE_URL` | Yes in production | No | Canonical public web origin |
@@ -127,7 +167,24 @@ Never put `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`,
 | `CLOUDINARY_API_SECRET` | For server upload route | Yes | Cloudinary signed operations |
 | `STRIPE_SECRET_KEY` | For bookings/payments | Yes | Server-side Stripe API calls (Checkout, Connect) |
 | `STRIPE_WEBHOOK_SECRET` | For bookings/payments | Yes | Verifies Stripe webhook signatures at `/api/stripe/webhook` |
-| `CRON_SECRET` | For scheduled notifications | Yes | Protects the cron endpoint |
+| `DEPOSIT_PREAUTH_ENABLED` | No (keep `false`) | No | Feature flag — turns on security-deposit pre-authorisation (`app/libs/deposit.ts`) |
+| `CRON_SECRET` | For scheduled notifications | Yes | Protects the cron endpoints |
+| `SENTRY_DSN` | Strongly recommended in prod | Yes | Server + edge error tracking; `validateServerEnv()` warns if missing in prod |
+| `NEXT_PUBLIC_SENTRY_DSN` | Strongly recommended in prod | Public by design | Browser error tracking |
+| `SENTRY_TRACES_SAMPLE_RATE` | No | No | Server trace sampling; default `0.1` |
+| `NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE` | No | Public by design | Browser trace sampling; default `0.05` |
+| `SENTRY_ORG` | Source-map upload only | No | Sentry org slug, read by `next.config.js` at build |
+| `SENTRY_PROJECT` | Source-map upload only | No | Sentry project slug |
+| `SENTRY_AUTH_TOKEN` | Source-map upload only | Yes | Uploads source maps during the deploy build; blank = upload skipped |
+| `SMS_PROVIDER` | For the SMS channel | No | `twilio` to enable SMS notifications; unset = SMS logged and skipped |
+| `SMS_FROM` | With SMS enabled | No | Sending number / alphanumeric sender ID |
+| `SMS_TWILIO_ACCOUNT_SID` | With SMS enabled | Sensitive | Twilio Account SID (`AC…`) |
+| `SMS_TWILIO_AUTH_TOKEN` | With SMS enabled | Yes | Twilio auth token |
+| `PUSH_DISABLED` | No | No | `true` hard-disables Expo push delivery regardless of tokens |
+| `RESTORE_DRILL_SOURCE_URI` | Restore drills only | Yes | Read-only `mongodb+srv://` for `scripts/restore-drill.mjs` |
+| `RESTORE_DRILL_TARGET_URI` | Restore drills only | Yes | Disposable scratch cluster the drill restores into |
+| `RESTORE_DRILL_SOURCE_DB` | No | No | Source DB name override; default parsed from the URI |
+| `RESTORE_DRILL_MIN_COLLECTIONS` | No | No | Drill fails if fewer collections restore; default `10` |
 | `API_MONITOR_SUCCESS_SAMPLE_RATE` | No | No | Fraction of successful production requests sampled; default `0.25` |
 | `API_MONITOR_CLIENT_ERROR_SAMPLE_RATE` | No | No | Fraction of handled 4xx responses sampled; default `0.5` |
 | `NEXT_PUBLIC_REALTIME_ENABLED` | For push chat/notifications | Public by design | `1` to use Pusher for live updates; unset falls back to SSE polling. See `guides/realtime.md` |
@@ -504,26 +561,29 @@ This project uses MongoDB, so `prisma db push` is used instead of SQL migrations
 
 Official references: [Connect to an Atlas deployment](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/) and [manage the Atlas IP access list](https://www.mongodb.com/docs/atlas/security/add-ip-address-to-list/).
 
-### `RESTORE_TEST_DATABASE_URL`
+### `DATABASE_POOL_SIZE`
 
-Only `scripts/restore-drill-mongodb.ps1` reads this value. It is the destination
-that a backup archive is restored into during a recovery drill, and the script
-**refuses to run** unless the connection string contains `restore`, `drill`,
-`staging`, or `test` (case-insensitive).
-
-1. Create a separate, disposable MongoDB deployment or database — never point
-   this at the production database or any database holding real user data.
-2. Give it a name that clearly identifies it as a drill target, for example
-   `redrive_restore_drill`.
-3. Build the connection string the same way as `DATABASE_URL` (own database
-   user, URL-encoded password, `/redrive_restore_drill` before the query string).
+Optional. Sets `maxPoolSize` on the MongoDB driver connection
+(`app/libs/prismadb.ts`). It defaults to `5`, which suits Vercel's serverless
+model — many short-lived function instances, each holding a small pool. Raise it
+only if you run the app as a long-lived Node server that needs more concurrent
+connections.
 
 ```dotenv
-RESTORE_TEST_DATABASE_URL="mongodb+srv://drill_user:PASSWORD@cluster0.abcde.mongodb.net/redrive_restore_drill?retryWrites=true&w=majority"
+DATABASE_POOL_SIZE="5"
 ```
 
-Leave it blank on machines and environments that never run restore drills. It is
-not needed by the running application.
+### Backup restore-drill (`RESTORE_DRILL_*`)
+
+`scripts/restore-drill.mjs` (and the monthly `backup-restore-drill.yml` workflow)
+prove the production backup can actually be restored. It reads
+`RESTORE_DRILL_SOURCE_URI` (a **read-only** connection) and
+`RESTORE_DRILL_TARGET_URI` (a disposable scratch cluster), with optional
+`RESTORE_DRILL_SOURCE_DB` and `RESTORE_DRILL_MIN_COLLECTIONS` overrides. In CI
+these are GitHub Actions secrets, not `.env` values. Full setup — including how
+to create a read-only Atlas user and a scratch cluster — is in
+[`backups-and-restore-drill.md`](backups-and-restore-drill.md). The running
+application never reads any of these.
 
 ## 4. NextAuth, site URLs, and access control
 
@@ -1049,19 +1109,191 @@ Add the output as:
 CRON_SECRET="your-independent-random-value"
 ```
 
-The schedule in `vercel.json` calls `/api/cron/notifications`. Vercel sends `Authorization: Bearer <CRON_SECRET>` when this specially named variable exists, and the route rejects requests without an exact match.
+Vercel sends `Authorization: Bearer <CRON_SECRET>` to each scheduled endpoint
+when this specially named variable exists, and every cron route rejects requests
+without an exact match. Add the value to the Vercel project's env vars as well
+as `.env.local` — Vercel only injects the header when it sees `CRON_SECRET` set.
 
-The current schedule is:
+`vercel.json` schedules **four** endpoints, all UTC (Adelaide's offset shifts
+with daylight saving):
 
-```text
-0 9 * * *
-```
-
-Vercel cron expressions use UTC, so this means 09:00 UTC every day. Adelaide's local time varies with daylight saving; it is not always the same UTC offset.
+| Path | Schedule | |
+|---|---|---|
+| `/api/cron/notifications` | `0 * * * *` | hourly — notification lifecycle + saved-search alerts |
+| `/api/cron/booking-maintenance` | `0 * * * *` | hourly — expire unpaid `APPROVED` bookings, iCal sync |
+| `/api/cron/payouts` | `30 1 * * *` | 01:30 daily — release held payments to hosts |
+| `/api/cron/security-maintenance` | `15 2 * * *` | 02:15 daily — retention-window cleanup |
 
 Official reference: [Vercel cron job security](https://vercel.com/docs/cron-jobs/manage-cron-jobs#securing-cron-jobs).
 
-## 13. Add variables to Vercel using the dashboard
+## 13. Error tracking (Sentry)
+
+Redrive reports server, edge, and browser errors to [Sentry](https://sentry.io).
+The SDK is a **no-op when no DSN is set**, so local dev and un-configured deploys
+carry no overhead — but production without a DSN hides exactly the failures you
+most need to see, so `validateServerEnv()` logs a loud warning on a production
+boot without `SENTRY_DSN`.
+
+### Create the project and DSN
+
+1. Create a free Sentry account, then **Projects → Create project → Next.js**.
+   The free "Developer" plan covers early-stage error volume.
+2. Open **Settings → Projects → (your project) → Client Keys (DSN)** and copy the
+   **DSN**. It looks like
+   `https://<publicKey>@o<org>.ingest.sentry.io/<projectId>`.
+3. The DSN is not a secret in the classic sense (it only allows *sending*
+   events), but treat it as sensitive server config anyway.
+
+```dotenv
+SENTRY_DSN="https://<publicKey>@o<org>.ingest.sentry.io/<projectId>"
+NEXT_PUBLIC_SENTRY_DSN="https://<publicKey>@o<org>.ingest.sentry.io/<projectId>"
+```
+
+- `SENTRY_DSN` is read by `sentry.server.config.ts` / `sentry.edge.config.ts`.
+  Server env vars are available on the Edge runtime on Vercel, so this one value
+  covers both.
+- `NEXT_PUBLIC_SENTRY_DSN` is read by `instrumentation-client.ts` and embedded in
+  the browser bundle at build time. Use the same project's DSN.
+- Both can be the *same* DSN. Use a **separate Sentry project (or environment)**
+  for Preview vs Production so their issues don't mix.
+
+### Trace sampling (optional)
+
+```dotenv
+SENTRY_TRACES_SAMPLE_RATE="0.1"          # server, default 0.1
+NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE="0.05"   # browser, default 0.05
+```
+
+Errors are always sent at 100%; these only control performance-tracing volume.
+Lower them if you approach the plan's transaction quota.
+
+### Source-map upload (deploy environment only)
+
+For readable stack traces, the deploy build uploads source maps.
+`next.config.js` wraps the config with `withSentryConfig` and reads three values
+— they are **inert unless `SENTRY_AUTH_TOKEN` is set**, so local and CI builds
+skip the upload entirely.
+
+1. **Settings → Auth Tokens → Create New Token** (or an
+   [Organization Auth Token](https://docs.sentry.io/account/auth-tokens/)) with
+   the `project:releases` and `org:read` scopes.
+2. Add these **only to the Vercel Production (and Preview) environment**, not to
+   `.env.local`:
+
+```dotenv
+SENTRY_ORG="your-org-slug"
+SENTRY_PROJECT="redrive"
+SENTRY_AUTH_TOKEN="sntrys_..."
+```
+
+Official reference: [Sentry for Next.js](https://docs.sentry.io/platforms/javascript/guides/nextjs/).
+
+## 14. Realtime updates (Pusher)
+
+Chat, typing indicators, read receipts, and notification badges update live over
+**Pusher Channels** when configured, and fall back to SSE polling otherwise —
+nothing breaks if Pusher is absent.
+
+1. Create a free account at <https://pusher.com> → **Channels** → create an app.
+   Choose a cluster close to your users; `ap4` is Sydney. The free tier allows
+   200k messages/day and 100 concurrent connections — no card required.
+2. From the app's **App Keys** tab, set all seven variables together:
+
+```dotenv
+NEXT_PUBLIC_REALTIME_ENABLED="1"
+NEXT_PUBLIC_PUSHER_KEY="<key>"
+NEXT_PUBLIC_PUSHER_CLUSTER="ap4"
+PUSHER_APP_ID="<app_id>"
+PUSHER_KEY="<key>"
+PUSHER_SECRET="<secret>"
+PUSHER_CLUSTER="ap4"
+```
+
+- The `NEXT_PUBLIC_*` values are embedded in the browser bundle (expected — the
+  key alone cannot publish or read a private channel).
+- `PUSHER_SECRET` is a real secret: it signs private-channel authorisations and
+  all server-side publishes. Keep it server-only.
+- Set them **all or none**. A partial set leaves the client trying Pusher and
+  failing over to SSE on every load.
+- Leave client events **off** in the Pusher app settings — Redrive never uses
+  them.
+
+To turn realtime back off, unset `NEXT_PUBLIC_REALTIME_ENABLED` (or set it to
+anything other than `1` / `true`) and redeploy.
+
+Full architecture, channel model, and cost-ceiling guidance:
+[`realtime.md`](realtime.md).
+
+## 15. Rate-limit store (Upstash Redis)
+
+Rate limiting for sensitive routes (login, reservation, upload, …) uses a shared
+fixed-window counter. With **Upstash Redis** it's one atomic op per rule; without
+it, the counter lives in the MongoDB `RateLimitBucket` collection — correct, but
+it adds a round-trip on exactly the requests that most need to be fast.
+
+1. Create a database at <https://upstash.com> (free tier: 500K commands/month,
+   256 MB — plenty for early-stage rate-limit traffic).
+2. On the database page, copy the **REST** URL and token (not the Redis
+   protocol URL):
+
+```dotenv
+UPSTASH_REDIS_REST_URL="https://<name>.upstash.io"
+UPSTASH_REDIS_REST_TOKEN="<rest-token>"
+```
+
+3. Redeploy — no code change. Nothing else in the app uses Redis. Set both or
+   neither.
+
+A Redis outage fails **open** (requests are allowed; the small in-process burst
+filter still applies). Details: [`cache-and-rate-limiting.md`](cache-and-rate-limiting.md).
+
+## 16. SMS notifications (Twilio)
+
+Redrive's notification layer can deliver an SMS channel alongside email and push.
+It is **off unless `SMS_PROVIDER=twilio`** and the Twilio credentials are set;
+otherwise SMS notifications are logged and skipped (`app/libs/notifications/sms.ts`).
+
+1. Create a [Twilio](https://www.twilio.com/) account and buy (or use the trial)
+   a phone number with SMS capability for your region. For Australian A2P
+   traffic you may need an alphanumeric sender ID or a registered number —
+   follow Twilio's onboarding.
+2. From the [Twilio Console](https://console.twilio.com/) dashboard, copy the
+   **Account SID** (`AC…`) and **Auth Token**.
+
+```dotenv
+SMS_PROVIDER="twilio"
+SMS_FROM="+15551234567"            # your Twilio number, E.164 — or a sender ID
+SMS_TWILIO_ACCOUNT_SID="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+SMS_TWILIO_AUTH_TOKEN="your-auth-token"
+```
+
+- `SMS_TWILIO_AUTH_TOKEN` is a full secret — server-only, sensitive, use
+  independent values per environment.
+- Leave `SMS_PROVIDER` unset in Development and Preview unless you're specifically
+  testing SMS delivery; Twilio charges per message.
+
+Official reference: [Twilio Programmable Messaging](https://www.twilio.com/docs/messaging).
+
+## 17. Operational toggles
+
+Small switches that change runtime behaviour. None are secrets and all have safe
+defaults.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `DATABASE_POOL_SIZE` | `5` | MongoDB driver `maxPoolSize` — see Section 3 |
+| `DEPOSIT_PREAUTH_ENABLED` | `false` | `true` activates security-deposit pre-authorisation on bookings (`app/libs/deposit.ts`). Leave off until the deposit slice is approved and tested against Stripe test mode. |
+| `PUSH_DISABLED` | `false` | `true` hard-disables all Expo push delivery regardless of stored device tokens — a kill switch for the push channel |
+| `LOG_LEVEL` | `info` in prod, `debug` otherwise | `debug` \| `info` \| `warn` \| `error` — the minimum level `app/libs/logger.ts` emits |
+| `MOBILE_ALLOW_AUTH_PREVIEWS` | `false` | Local/test only — see Section 2. Ignored in production. |
+| `ENABLE_LEGACY_API_AUTH` | `false` | Deprecated `/api/auth/login` compatibility route — see Section 4 |
+
+```dotenv
+DEPOSIT_PREAUTH_ENABLED="false"
+PUSH_DISABLED="false"
+```
+
+## 18. Add variables to Vercel using the dashboard
 
 ### First deployment
 
@@ -1096,6 +1328,11 @@ Recommended initial configuration:
 | Cloudinary | Optional via CLI | Yes if testing uploads | Yes |
 | Stripe (test keys) | Optional via CLI + Stripe CLI | Yes, test mode | Yes, live keys only after approval |
 | Cron secret | Optional | Yes | Yes |
+| Sentry DSNs | Optional (dev project) | Preview project/env | Yes, Production project/env |
+| Sentry `ORG`/`PROJECT`/`AUTH_TOKEN` | No | Preview if uploading maps | Yes |
+| Pusher (7 vars) | Optional | If testing realtime | If chat/notification live updates are on |
+| Upstash Redis | Optional | Optional | Recommended once traffic is real |
+| Twilio SMS | No | If testing the SMS channel | If the SMS channel is on |
 | Mobile issuer/audience | Local `.env.local` | Stable Preview API identity | Canonical Production API identity |
 | Mobile signing key ID/private/public map | Development-only pair | Independent Preview pair | Independent Production pair |
 | Mobile refresh-token pepper | Development-only secret | Independent Preview secret | Independent Production secret |
@@ -1107,11 +1344,13 @@ Use independent secrets for Preview and Production. `NEXTAUTH_SECRET`,
 `RATE_LIMIT_SECRET`, `SMTP_PASS`, `GOOGLE_PLACES_API_KEY`,
 `GOOGLE_CLOUD_VISION_API_KEY`, `LICENSE_DATA_ENCRYPTION_KEY`,
 `LICENSE_DATA_HMAC_KEY`, `CLOUDINARY_API_SECRET`, `STRIPE_SECRET_KEY`,
-`STRIPE_WEBHOOK_SECRET`, `DATABASE_URL`, `CRON_SECRET`,
+`STRIPE_WEBHOOK_SECRET`, `DATABASE_URL`, `CRON_SECRET`, `SENTRY_AUTH_TOKEN`,
+`PUSHER_SECRET`, `UPSTASH_REDIS_REST_TOKEN`, `SMS_TWILIO_AUTH_TOKEN`,
 `MOBILE_ACCESS_TOKEN_PRIVATE_KEY`, `MOBILE_REFRESH_TOKEN_PEPPER`, and
 `EXPO_ACCESS_TOKEN` should be marked sensitive when the Vercel UI offers that
-option. The mobile public-key map is not secret, but it remains server
-configuration and should not be copied into the native application.
+option. `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` and the mobile public-key map
+are not secret, but they remain server configuration and should not be copied
+into the native application.
 
 ### Production URL ordering
 
@@ -1130,7 +1369,7 @@ Changing a Vercel environment variable does not modify an already-built deployme
 
 Official references: [Vercel environment variables](https://vercel.com/docs/environment-variables), [Vercel environments](https://vercel.com/docs/deployments/environments), and [adding variables in the dashboard](https://vercel.com/kb/guide/how-to-add-vercel-environment-variables).
 
-## 14. Add variables using the Vercel CLI
+## 19. Add variables using the Vercel CLI
 
 Install and link the CLI:
 
@@ -1169,7 +1408,7 @@ Deploy to production:
 vercel --prod
 ```
 
-## 15. Apply the database schema before production use
+## 20. Apply the database schema before production use
 
 The package build generates Prisma Client but intentionally does not run `prisma db push`. Apply schema changes explicitly from a trusted local machine.
 
@@ -1181,12 +1420,19 @@ npx prisma db push
 
 If you need the Production value from Vercel without manually copying it, pull into a temporary ignored environment file and review the target carefully before running a schema command. Never run `db push` against production until you have confirmed the database URL identifies the intended cluster and database.
 
-For the current update, `db push` also creates the mobile session, authentication
-challenge, push-token, and idempotency collections/indexes defined in
-`prisma/schema.prisma`. Apply and verify these changes in Preview before
-Production.
+`db push` creates every `@unique` / `@@unique` / `@@index` in
+`prisma/schema.prisma`. TTL indexes are not schema-expressible — run
+`node scripts/create-ttl-indexes.mjs` afterwards. Then verify with:
 
-## 16. Recommended setup order
+```powershell
+npm run check:db-indexes   # asserts the 19 correctness-critical unique indexes exist
+```
+
+A partial `db push` that leaves a unique index missing turns advisory locks,
+idempotency keys and dedupe guards into silent no-ops, so make this check part
+of your deploy procedure.
+
+## 21. Recommended setup order
 
 1. Create MongoDB Atlas and set `DATABASE_URL`.
 2. Generate `NEXTAUTH_SECRET`, `RATE_LIMIT_SECRET`, and `CRON_SECRET` separately.
@@ -1199,21 +1445,31 @@ Production.
    `LICENSE_DATA_HMAC_KEY` for the licence check.
 7. Configure the three Cloudinary environment variables; no upload preset is needed.
 8. Create a Stripe account, set `STRIPE_SECRET_KEY`, and register the webhook
-   endpoint to obtain `STRIPE_WEBHOOK_SECRET`.
-9. Generate separate mobile RSA key pairs and refresh-token peppers for
-   Development, Preview, and Production.
-10. Initialize the organization-owned EAS project from `apps/mobile`, then
+   endpoint to obtain `STRIPE_WEBHOOK_SECRET`. Keep `DEPOSIT_PREAUTH_ENABLED=false`.
+9. Create a Sentry project and set `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN`
+   (Section 13). Add `SENTRY_ORG` / `SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` to
+   Vercel only, for source-map upload.
+10. Optional now, needed for live chat/notifications: create a Pusher app and
+    set the seven realtime vars (Section 14). Once traffic is real, create an
+    Upstash Redis database and set the two rate-limit-store vars (Section 15).
+11. Optional: for the SMS notification channel, create a Twilio account and set
+    `SMS_PROVIDER` + the Twilio credentials (Section 16).
+12. Generate separate mobile RSA key pairs and refresh-token peppers for
+    Development, Preview, and Production.
+13. Initialize the organization-owned EAS project from `apps/mobile`, then
     record its project ID, and gather the Apple Team ID, bundle/package IDs, and
     Android signing SHA-256 fingerprints.
-11. Configure the server-side mobile values in matching Vercel environments and
+14. Configure the server-side mobile values in matching Vercel environments and
     the public mobile values in matching EAS environments.
-12. Run `npx prisma db push` against the intended Preview database after a
-    backup and target check; validate it before Production.
-13. Deploy or redeploy the backend.
-14. Create a signed Preview build and confirm it uses only Preview providers.
-15. Complete the verification checklist below.
+15. Run `npx prisma db push` against the intended Preview database after a
+    backup and target check; validate it before Production. Then run
+    `npm run check:db-indexes` against that database.
+16. Deploy or redeploy the backend. Check the Vercel logs for an
+    `env_expected_missing` warning and set anything it lists.
+17. Create a signed Preview build and confirm it uses only Preview providers.
+18. Complete the verification checklist below.
 
-## 17. Post-deployment checklist
+## 22. Post-deployment checklist
 
 - [ ] The homepage and listing data load without a Prisma connection error.
 - [ ] A new email/password account receives a six-digit email.
@@ -1228,10 +1484,18 @@ Production.
 - [ ] A Stripe test booking reaches Checkout and the webhook records
       `checkout.session.completed` (HTTP 200, signature accepted).
 - [ ] `/admin` is reachable by an `ADMIN_EMAILS` address and refused for others.
-- [ ] Vercel shows `/api/cron/notifications` under Cron Jobs.
-- [ ] The cron's latest execution returns HTTP 200 rather than 401 or 500.
+- [ ] Vercel shows all four cron endpoints under Cron Jobs and each latest
+      execution returns HTTP 200 rather than 401 or 500.
+- [ ] A test error appears in the Sentry project for this environment
+      (server + browser), and the Vercel logs show no `env_expected_missing`
+      warning.
+- [ ] If realtime is enabled: opening a chat in two tabs delivers a message
+      instantly, and disabling Pusher falls back to SSE without errors.
+- [ ] If SMS is enabled: a test notification arrives as an SMS from `SMS_FROM`.
+- [ ] `npm run check:db-indexes` passes against the Production database.
 - [ ] Preview deployments do not write test data into the production database unless that was an intentional decision.
-- [ ] Rate limits reject above-limit requests and expose `Retry-After`.
+- [ ] Rate limits reject above-limit requests and expose `Retry-After`
+      (and, with Upstash configured, the counter survives a redeploy).
 - [ ] The security maintenance job removes expired MongoDB rate-limit buckets.
 - [ ] Public listing changes invalidate cached discovery results.
 - [ ] No real credential is present in Git history or `.env.example`.
@@ -1247,7 +1511,7 @@ Production.
 - [ ] No server-only `MOBILE_*` value or `EXPO_ACCESS_TOKEN` appears in the
       compiled application or Expo public configuration.
 
-## 18. Troubleshooting
+## 23. Troubleshooting
 
 | Symptom | What to check |
 |---|---|
@@ -1260,8 +1524,14 @@ Production.
 | Email lands in spam | Use a dedicated sender; for serious production email, use a verified custom domain and transactional SMTP provider with SPF, DKIM and DMARC. |
 | Map shows `RefererNotAllowedMapError` | Add the deployed origin pattern to the browser key's website restrictions. |
 | Places requests fail | Confirm the server key, enabled Places API, billing, API restriction and quota. Check Vercel function logs. |
-| Cloudinary widget rejects uploads | Confirm cloud name and the exact unsigned preset name `redrive`; inspect preset file limits/formats. |
+| Cloudinary uploads fail | Confirm `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`; uploads are signed server-side by `/api/upload`, so no upload preset is involved. Check file type (JPG/PNG/WebP) and the 5 MB limit. |
 | Cron returns 401 | Confirm `CRON_SECRET` exists in that Vercel environment and redeploy. Do not add `Bearer ` to the stored value. |
+| `MIDDLEWARE_INVOCATION_FAILED` / "instrumentation hook" error at boot | A value read during `instrumentation.register()` is malformed, or code logging from the Edge runtime hit an unguarded `process.stdout` (fixed in `app/libs/logger.ts` — keep it that way). Check the deploy logs for the underlying message. |
+| Vercel logs show `env_expected_missing` | `SENTRY_DSN`, `CRON_SECRET`, or a `STRIPE_*` value isn't set in that environment. The app still runs, but set them. |
+| Errors don't appear in Sentry | Confirm `SENTRY_DSN` (server) and `NEXT_PUBLIC_SENTRY_DSN` (browser, rebuild required) are set for that environment, and that you're looking at the matching Sentry project/environment. Stack traces unreadable → set `SENTRY_ORG` / `SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` in the deploy env. |
+| Live updates don't arrive / client keeps falling back to SSE | All seven Pusher vars must be present together; a partial set fails over on every load. Check the cluster matches and `NEXT_PUBLIC_REALTIME_ENABLED=1` (rebuild required for the `NEXT_PUBLIC_` values). |
+| Rate limiting seems inconsistent across instances | Set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` so the shared counter is Redis, not per-instance MongoDB round-trips. |
+| SMS notifications never send | `SMS_PROVIDER` must be exactly `twilio` and `SMS_TWILIO_ACCOUNT_SID` / `SMS_TWILIO_AUTH_TOKEN` / `SMS_FROM` all set; otherwise SMS is logged and skipped by design. Check Twilio's message logs for delivery errors. |
 | Licence check fails with `OCR_CONFIGURATION_ERROR` / `OCR_SERVICE_DISABLED` | Confirm `GOOGLE_CLOUD_VISION_API_KEY` is a valid `AIza…` key, the Cloud Vision API is enabled, and billing is active on that project. |
 | Licence save throws `must be a base64-encoded 32-byte key` | `LICENSE_DATA_ENCRYPTION_KEY` must decode to exactly 32 bytes; regenerate with `openssl rand -base64 32`. |
 | Stripe webhook returns 400 `Invalid signature` | The endpoint's signing secret does not match `STRIPE_WEBHOOK_SECRET` for that environment (local CLI, Preview, and Production each have their own). |
@@ -1278,7 +1548,7 @@ Production.
 | Universal/App Link opens the website instead of the app | Confirm `EXPO_PUBLIC_LINK_HOST`, rebuild the signed binary, publish the correct Apple/Android association files, and verify they include that exact signed app identity. |
 | Expo push requests return `UNAUTHORIZED` | If enhanced push security is enabled, confirm the backend's `EXPO_ACCESS_TOKEN` is active and its Expo user/robot has access to the owning project. EAS environment names do not scope the token automatically. Never move it into the app bundle. |
 
-## 19. Rotation and incident response
+## 24. Rotation and incident response
 
 If a secret is accidentally committed or shared, deleting it from the current file is not sufficient. Treat it as compromised:
 
@@ -1305,5 +1575,10 @@ Suggested rotation impact:
 | `STRIPE_SECRET_KEY` | All Stripe operations fail until updated; revoke the old key in the Stripe dashboard. |
 | `STRIPE_WEBHOOK_SECRET` | Webhook events are rejected (400) until the new signing secret is deployed. |
 | `RATE_LIMIT_SECRET` | Rate-limit counters reset and historic audit hashes stop matching. |
-| `CRON_SECRET` | Cron calls receive 401 until updated. |
+| `CRON_SECRET` | Cron calls receive 401 until updated (and the Vercel `CRON_SECRET` project var must match). |
 | `MOBILE_REFRESH_TOKEN_PEPPER` | Every mobile refresh token is invalidated; users re-authenticate. |
+| `PUSHER_SECRET` | Server can't publish or authorise private channels — live updates silently fall back to SSE until updated. Rotate in the Pusher app's App Keys. |
+| `UPSTASH_REDIS_REST_TOKEN` | Rate limiting falls back to the MongoDB bucket (still correct) until updated. Rotate in the Upstash console. |
+| `SMS_TWILIO_AUTH_TOKEN` | SMS delivery fails until updated; rotate in the Twilio console and review the message logs for misuse. |
+| `SENTRY_AUTH_TOKEN` | Source-map upload fails on the next build (traces become minified); error capture itself is unaffected. Revoke the old token in Sentry. |
+| `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` | Not a credential in the usual sense (send-only). If leaked, someone could send junk events — rotate the client key in Sentry and rebuild for the `NEXT_PUBLIC_` one. |
