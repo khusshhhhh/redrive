@@ -28,6 +28,10 @@ interface ListingCardProps {
     showEditButton?: boolean;
     priority?: boolean;
     compact?: boolean;
+    /** Stripped-down card for dense grids (e.g. the /explore map view): cover
+     *  photo, title, price and rating only — no compare button, host badges,
+     *  response time or instant-book line. */
+    minimal?: boolean;
     tripDays?: number | null;
     /** Image sizes hint. Override it when a grid runs at a different density. */
     sizes?: string;
@@ -58,6 +62,7 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
     showEditButton = false,
     priority = false,
     compact = false,
+    minimal = false,
     tripDays = null,
     sizes = DEFAULT_CARD_SIZES,
     detailHref,
@@ -117,8 +122,8 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
             aria-label={reservation ? `Open booking for ${data.title}` : `View ${data.title} in ${data.suburb}, ${data.state}`}
             className="group col-span-1 cursor-pointer rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
         >
-            <div className="flex w-full flex-col gap-2">
-                <div className="relative aspect-square w-full overflow-hidden rounded-md bg-surface-soft shadow-none transition-shadow group-hover:shadow-card">
+            <div className={`flex w-full flex-col ${minimal ? "gap-1" : "gap-2"}`}>
+                <div className={`relative ${minimal ? "aspect-[4/3]" : "aspect-square"} w-full overflow-hidden rounded-md bg-surface-soft shadow-none transition-shadow group-hover:shadow-card`}>
                     <Image
                         fill
                         priority={priority}
@@ -127,15 +132,15 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                         src={imageUrl}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
                     />
-                    {data.badgeValue && (
+                    {data.badgeValue && !minimal && (
                         <div className="absolute left-3 top-3 rounded-full border border-accent/40 bg-accent-soft px-2.5 py-1 text-badge font-semibold text-ink shadow-card">
                             {data.badgeValue}
                         </div>
                     )}
-                    <div className="absolute top-3 right-3">
-                        <HeartButton listingId={data.id} currentUser={currentUser} />
+                    <div className={minimal ? "absolute right-2 top-2" : "absolute right-3 top-3"}>
+                        <HeartButton listingId={data.id} currentUser={currentUser} size={minimal ? "sm" : "md"} />
                     </div>
-                    {!reservation && !showEditButton && <button
+                    {!reservation && !showEditButton && !minimal && <button
                         type="button"
                         onClick={(event) => {
                             event.stopPropagation();
@@ -149,25 +154,25 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
                         <IconArrowsExchange size={15} aria-hidden="true" /> {isCompared ? "Added" : "Compare"}
                     </button>}
                 </div>
-                <div className="flex min-h-10 items-start justify-between gap-2">
-                    <div className={`${compact ? "line-clamp-2 text-sm" : "line-clamp-2 text-[15px] sm:text-title-md"} font-semibold leading-5 text-ink`}>{data.title}</div>
+                <div className={`flex items-start justify-between gap-2 ${minimal ? "" : "min-h-10"}`}>
+                    <div className={`font-semibold leading-5 text-ink ${minimal ? "line-clamp-1 text-sm" : compact ? "line-clamp-2 text-sm" : "line-clamp-2 text-[15px] sm:text-title-md"}`}>{data.title}</div>
                     {Boolean(data.reviewCount) && <span className="inline-flex shrink-0 items-center gap-1 pt-0.5 text-xs font-semibold text-ink"><IconStar size={14} className="fill-ink text-ink" /> {data.reviewAverage?.toFixed(1)}</span>}
                 </div>
-                <div className="truncate text-[13px] font-normal text-muted sm:text-body-sm">
+                <div className={`truncate font-normal text-muted ${minimal ? "text-xs" : "text-[13px] sm:text-body-sm"}`}>
                     {reservationDate || data.category} <span aria-hidden="true">·</span> {data.suburb}, {data.state}
                 </div>
-                <div className="text-[13px] text-ink sm:text-body-sm">
+                <div className={minimal ? "text-[13px] text-ink" : "text-[13px] text-ink sm:text-body-sm"}>
                     <div><span className="font-semibold">AU${!reservation && tripDays ? price * tripDays : price}</span>{!reservation && <span className="ml-1 font-normal text-muted">{tripDays ? `estimated total · ${tripDays} days` : "per day"}</span>}</div>
-                    {!reservation && tripDays && <div className="mt-0.5 text-xs text-muted">AU${price} per day</div>}
+                    {!reservation && tripDays && !minimal && <div className="mt-0.5 text-xs text-muted">AU${price} per day</div>}
                 </div>
-                {!reservation && (data.reviewCount !== undefined || data.hostVerified || data.hostResponseHours !== undefined) && (
+                {!minimal && !reservation && (data.reviewCount !== undefined || data.hostVerified || data.hostResponseHours !== undefined) && (
                     <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted">
                         {Boolean(data.reviewCount) && <span>{data.reviewCount} review{data.reviewCount === 1 ? "" : "s"}</span>}
                         {data.hostVerified && <span className="inline-flex items-center gap-1 text-secondary"><IconRosetteDiscountCheck size={15} /> Verified host</span>}
                         {data.hostResponseHours != null && <span>{data.hostResponseHours < 1 ? "Responds within an hour" : data.hostResponseHours < 24 ? `Responds in ~${Math.ceil(data.hostResponseHours)}h` : `Responds in ~${Math.ceil(data.hostResponseHours / 24)}d`}</span>}
                     </div>
                 )}
-                {!reservation && data.instantBook && (
+                {!minimal && !reservation && data.instantBook && (
                     <div className="flex items-center gap-1.5 text-xs font-medium text-secondary">
                         <span className="h-1.5 w-1.5 rounded-full bg-secondary" aria-hidden="true" />
                         Instant Book

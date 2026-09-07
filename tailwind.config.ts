@@ -38,9 +38,12 @@ const config: Config = {
         "legal-link": "#1F1F1F",
         luxe: "#454545",
         plus: "#9C9C9C",
-        favorite: "#1F1F1F",
-        "favorite-active": "#111111",
-        "favorite-soft": "#E7E7E7",
+        // The one deliberate splash of colour: the saved/favourite heart. A warm
+        // rose that reads instantly as "liked" and still clears WCAG AA on white
+        // (see palette.test.ts). Not a brand accent — scoped to the like affordance.
+        favorite: "#E11D48",
+        "favorite-active": "#BE123C",
+        "favorite-soft": "#FFE4E6",
       },
       backgroundImage: {
         // Monochrome gradients drawn from the four source greys.

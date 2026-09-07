@@ -6,6 +6,7 @@ import qs from "query-string";
 import type { ListingCardGeo } from "@/app/libs/listingCardData";
 import type { SafeUser } from "@/app/types";
 import { loadGoogleMaps } from "@/app/libs/GoogleMapLoader";
+import { MONO_MAP_STYLES } from "@/app/libs/mapStyles";
 import { clientLog } from "@/app/libs/clientLog";
 import toast from "@/app/libs/toast";
 import ListingCard from "@/app/components/listings/ListingCard";
@@ -22,7 +23,10 @@ interface ExploreMapViewProps {
 
 const PAGE_SIZE = 24;
 const AU_CENTER = { lat: -25.6, lng: 134.35 };
-const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || undefined;
+// The one colour on the mono map: the highlighted listing's marker.
+const HIGHLIGHT = "#F97316";
+const PIN_STROKE = "#3F3F46";
+const PIN_INK = "#1F1F1F";
 
 interface MarkerGroup {
   position: { lat: number; lng: number };
@@ -92,17 +96,17 @@ export default function ExploreMapView({
     return {
       label: {
         text: groupLabel(group),
-        color: active ? "#FFFFFF" : "#1F1F1F",
-        fontSize: "11px",
+        color: active ? "#FFFFFF" : PIN_INK,
+        fontSize: active ? "12px" : "11px",
         fontWeight: "700",
       } as google.maps.MarkerLabel,
       icon: {
         path: g.maps.SymbolPath.CIRCLE,
-        scale: active ? 19 : 17,
-        fillColor: active ? "#1F1F1F" : "#FFFFFF",
+        scale: active ? 20 : 16,
+        fillColor: active ? HIGHLIGHT : "#FFFFFF",
         fillOpacity: 1,
-        strokeColor: "#1F1F1F",
-        strokeWeight: 1.5,
+        strokeColor: active ? HIGHLIGHT : PIN_STROKE,
+        strokeWeight: active ? 2.5 : 1.5,
       } as google.maps.Symbol,
     };
   }, []);
@@ -180,8 +184,11 @@ export default function ExploreMapView({
         disableDefaultUI: true,
         zoomControl: true,
         clickableIcons: false,
-        gestureHandling: "cooperative",
-        ...(MAP_ID ? { mapId: MAP_ID } : {}),
+        // Scroll / pinch zoom with no modifier key — this is a dedicated map
+        // surface, not an embed inside an article.
+        gestureHandling: "greedy",
+        styles: MONO_MAP_STYLES,
+        backgroundColor: "#ECECEC",
       });
       mapRef.current = map;
       applyInitialView(g, map);
@@ -374,8 +381,8 @@ export default function ExploreMapView({
     >
       {/* Map — first in the DOM so it sits on top on mobile; ordered right on lg. */}
       {!mapFailed && (
-        <div className="mb-5 lg:order-2 lg:mb-0 lg:sticky lg:top-24">
-          <div className="relative h-[52vh] w-full overflow-hidden rounded-md border border-hairline-soft bg-surface-soft lg:h-[calc(100vh-7rem)]">
+        <div className="mb-4 lg:order-2 lg:mb-0 lg:sticky lg:top-24">
+          <div className="relative h-[46vh] min-h-[300px] w-full overflow-hidden rounded-lg border border-hairline-soft bg-surface-soft lg:h-[calc(100vh-7rem)]">
             <div ref={mapEl} className="h-full w-full" />
 
             {mapStatus === "loading" && (
@@ -424,7 +431,7 @@ export default function ExploreMapView({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-x-4 gap-y-7 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-6 xl:grid-cols-3">
             {cards.map((card) => (
               <div
                 key={card.id}
@@ -435,17 +442,18 @@ export default function ExploreMapView({
                 onMouseLeave={() =>
                   setActiveId((current) => (current === card.id ? null : current))
                 }
-                className={
+                className={`rounded-lg transition-shadow ${
                   activeId === card.id
-                    ? "rounded-md outline outline-2 outline-primary outline-offset-2"
-                    : undefined
-                }
+                    ? "outline outline-2 outline-[#F97316] outline-offset-2"
+                    : ""
+                }`}
               >
                 <ListingCard
                   data={card}
                   currentUser={currentUser}
                   tripDays={tripDays}
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  minimal
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 45vw, (max-width: 1280px) 24vw, 16vw"
                 />
               </div>
             ))}
