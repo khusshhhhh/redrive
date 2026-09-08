@@ -243,7 +243,7 @@ export default function ReservationDetails() {
       .then((response) => setReservation(response.data));
 
   return (
-    <main className="bg-surface-soft/40 py-8 sm:py-12">
+    <main className="overflow-x-clip bg-white py-8 sm:py-12">
       {celebrate && (
         <SuccessBurst
           title={celebrate.title}
@@ -281,17 +281,20 @@ export default function ReservationDetails() {
           <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
             <div className="min-w-0 space-y-6">
               <section className="overflow-hidden rounded-md border border-hairline-soft bg-white">
-                <div className="relative aspect-[16/9] min-h-52 w-full sm:aspect-[16/8] sm:min-h-60">
+                <div className="relative aspect-[16/10] w-full sm:aspect-[16/8]">
                   <Image
                     src={listing.imageSrcs?.[0] || "/images/placeholder.png"}
                     alt={listing.title}
                     fill
                     priority
+                    sizes="(min-width: 1024px) 740px, 100vw"
                     className="object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-black/45" />
                   <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-6">
-                    <p className="text-xl font-semibold sm:text-2xl">{listing.title}</p>
+                    <p className="line-clamp-2 break-words text-base font-semibold leading-snug sm:text-xl lg:text-2xl">
+                      {listing.title}
+                    </p>
                     <p className="mt-1 flex items-center gap-1.5 text-sm text-white/85">
                       <MapPin size={15} className="shrink-0" />
                       <span className="min-w-0 truncate">
@@ -474,7 +477,7 @@ export default function ReservationDetails() {
               )}
             </div>
 
-            <aside className="space-y-5 lg:sticky lg:top-32">
+            <aside className="min-w-0 space-y-5 lg:sticky lg:top-32">
               <CancellationPolicyDisplay value={reservation.cancellationPolicy} compact />
               <section className="rounded-md border border-hairline-soft bg-white p-5 shadow-card sm:p-6">
                 <SectionHeading
@@ -636,10 +639,10 @@ function Info({
 }) {
   return (
     <div className="flex gap-3">
-      <span className="text-primary">{icon}</span>
-      <div>
+      <span className="shrink-0 text-primary">{icon}</span>
+      <div className="min-w-0">
         <p className="text-xs text-muted">{label}</p>
-        <p className="mt-1 font-medium text-ink">{value}</p>
+        <p className="mt-1 break-words font-medium text-ink">{value}</p>
       </div>
     </div>
   );
@@ -675,9 +678,9 @@ function DateCard({
 }
 function PriceRow({ label, value }: { label: string; value?: number | null }) {
   return (
-    <div className="flex items-start justify-between gap-4 text-muted">
-      <span>{label}</span>
-      <span className="font-medium text-ink">{money(value)}</span>
+    <div className="flex items-start justify-between gap-3 text-muted">
+      <span className="min-w-0 break-words">{label}</span>
+      <span className="shrink-0 font-medium text-ink">{money(value)}</span>
     </div>
   );
 }
