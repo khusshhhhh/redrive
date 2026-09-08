@@ -442,9 +442,9 @@ export default function ExploreMapView({
                 onMouseLeave={() =>
                   setActiveId((current) => (current === card.id ? null : current))
                 }
-                className={`rounded-lg transition-shadow ${
+                className={`rounded-lg transition-colors duration-150 motion-reduce:transition-none ${
                   activeId === card.id
-                    ? "outline outline-2 outline-[#F97316] outline-offset-2"
+                    ? "bg-surface-strong shadow-[0_0_0_7px_#DFDFDF]"
                     : ""
                 }`}
               >
