@@ -64,7 +64,7 @@ export default async function Home() {
                 Ready when you are<span className="text-yellow-500">.</span>
               </h2>
               <p className="mt-2 max-w-md text-sm leading-6 text-muted">
-                Browse what&rsquo;s available near you now, or jump straight into listing your own vehicle.
+                Browse what&rsquo;s available near you now, or jump straight into listing your own vehicles.
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-3">
