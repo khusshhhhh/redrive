@@ -738,12 +738,13 @@ export default function HostFlow() {
         )}
       </div>
 
-      {/* action bar — segmented progress + Back / Next, pinned to the bottom */}
-      <div className="shrink-0 border-t border-hairline bg-white">
-        <div className="flex gap-1.5 px-5 pt-3 sm:px-8">
+      {/* action bar — segmented progress (full-bleed, the footer's only top edge)
+          then Back / Next, pinned to the bottom */}
+      <div className="shrink-0 bg-white">
+        <div className="flex w-full gap-1">
           {PHASES.map((phase, i) => (
-            <div key={phase.key} className="h-[3px] flex-1 overflow-hidden rounded-full bg-surface-strong">
-              <div className="host-progress-fill h-full rounded-full bg-ink" style={{ width: `${Math.round(segments[i] * 100)}%` }} />
+            <div key={phase.key} className="h-1 flex-1 overflow-hidden bg-surface-strong">
+              <div className="host-progress-fill h-full bg-ink" style={{ width: `${Math.round(segments[i] * 100)}%` }} />
             </div>
           ))}
         </div>
