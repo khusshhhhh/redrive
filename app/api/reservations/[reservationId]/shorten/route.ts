@@ -63,8 +63,8 @@ function quoteFor(
   reservation: NonNullable<Awaited<ReturnType<typeof loadContext>>>["reservation"],
   newEnd: Date,
 ) {
-  const snapshot = reservation.quoteSnapshot as { dailyRate?: number; days?: number } | null;
-  const dailyRate = snapshot?.dailyRate || reservation.listing.price;
+  const snapshot = reservation.quoteSnapshot as { hostDailyRate?: number; dailyRate?: number; days?: number } | null;
+  const dailyRate = snapshot?.hostDailyRate ?? snapshot?.dailyRate ?? reservation.listing.price;
   const paidDays = snapshot?.days || dayCount(reservation.startDate, reservation.endDate);
   const newTotalDays = dayCount(reservation.startDate, newEnd);
   const removedDays = paidDays - newTotalDays;
@@ -168,7 +168,7 @@ async function POSTHandler(request: Request, context: Context) {
   if (newEnd < earliestEnd) {
     return NextResponse.json({ error: "The new return date can't be in the past" }, { status: 400 });
   }
-  const { paidDays, newTotalDays, removedDays, refundPercentage, quote } = quoteFor(reservation, newEnd);
+  const { newTotalDays, removedDays, refundPercentage, quote } = quoteFor(reservation, newEnd);
   if (removedDays < 1) {
     return NextResponse.json({ error: "Choose an earlier return date" }, { status: 400 });
   }
@@ -205,8 +205,8 @@ async function POSTHandler(request: Request, context: Context) {
       extraDays: -removedDays,
       extraBase: -quote.ownerReduction,
       extraInsuranceFee: -Math.round((quote.removedInsuranceFee * refundPercentage) / 100),
-      extraRedriveFee: -quote.redriveFeeCredit,
-      extraServiceFee: -quote.serviceFeeCredit,
+      extraRedriveFee: 0,
+      extraServiceFee: 0,
       extraTotal: -quote.refundTotal,
       refundAmount: quote.refundTotal * 100,
       status: autoApprove ? "APPROVED" : "PENDING",

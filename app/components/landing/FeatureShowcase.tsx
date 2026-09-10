@@ -36,7 +36,7 @@ export default function FeatureShowcase({ listings }: { listings: ListingCardDat
     {
       eyebrow: "Book",
       title: "Request in a tap. Pay only when it’s accepted.",
-      body: "See the full price breakdown up front — daily rate, Redrive fee, service fee and any cleaning terms. Send a request and your card is only charged once the host says yes.",
+      body: "One all-in daily price up front — no booking fee, no service fee added at checkout. Send a request and your card is only charged once the host says yes.",
       extra: <VerifiedList />,
       visual: (
         <div className="flex justify-center">

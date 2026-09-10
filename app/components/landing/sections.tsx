@@ -102,7 +102,7 @@ const WHY = [
   {
     icon: Wallet,
     title: "One clear price",
-    body: "Daily rate, service fee and any cleaning terms shown up front. Your card is only charged when a host accepts.",
+    body: "One all-in daily price and any cleaning terms shown up front. Your card is only charged when a host accepts.",
   },
   {
     icon: MessagesSquare,
@@ -163,7 +163,7 @@ export function WhyRedrive() {
 const FAQS = [
   {
     q: "How much does it cost to rent a vehicle?",
-    a: "The host sets the daily rate. Redrive adds a percentage fee and a flat service fee — both shown in full before you send a request. There are no membership or booking fees.",
+    a: "The host sets what they want to earn per day, and Redrive's service margin is already included in the one all-in price you see on every listing. There are no membership or booking fees, and nothing is added at checkout.",
   },
   {
     q: "When am I charged?",

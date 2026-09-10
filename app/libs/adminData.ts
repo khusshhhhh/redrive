@@ -27,13 +27,13 @@ export async function getAdminDashboardData() {
     prisma.user.count({ where: { lastActiveAt: { gte: thirtyDaysAgo } } }),
     prisma.user.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
     prisma.user.count({ where: { createdAt: { gte: previousThirtyDays, lt: thirtyDaysAgo } } }),
-    prisma.reservation.findMany({ where: { createdAt: { gte: twelveMonthsAgo } }, select: { createdAt: true, totalPrice: true, totalFees: true, redriveFee: true, serviceFee: true, status: true, startDate: true, endDate: true } }),
+    prisma.reservation.findMany({ where: { createdAt: { gte: twelveMonthsAgo } }, select: { createdAt: true, totalPrice: true, totalFees: true, insuranceFee: true, status: true, startDate: true, endDate: true } }),
     prisma.user.findMany({ where: { createdAt: { gte: twelveMonthsAgo } }, select: { createdAt: true } }),
     prisma.listing.findMany({ where: { createdAt: { gte: twelveMonthsAgo } }, select: { createdAt: true } }),
     prisma.reservation.groupBy({ by: ["status"], _count: { _all: true } }),
     prisma.listing.groupBy({ by: ["category"], _count: { _all: true }, orderBy: { _count: { category: "desc" } }, take: 7 }),
     prisma.listing.groupBy({ by: ["state"], _count: { _all: true }, orderBy: { _count: { state: "desc" } }, take: 8 }),
-    prisma.reservation.aggregate({ _sum: { totalPrice: true, totalFees: true, redriveFee: true, serviceFee: true, insuranceFee: true }, _avg: { totalPrice: true } }),
+    prisma.reservation.aggregate({ _sum: { totalPrice: true, totalFees: true, insuranceFee: true }, _avg: { totalPrice: true } }),
     prisma.review.aggregate({ _avg: { rating: true } }),
     prisma.user.findMany({ orderBy: { createdAt: "desc" }, take: 7, select: { id: true, name: true, email: true, image: true, role: true, createdAt: true, emailVerified: true, licenseImage: true, profileVerified: true } }),
     prisma.listing.findMany({ orderBy: { createdAt: "desc" }, take: 7, select: { id: true, title: true, category: true, state: true, suburb: true, price: true, createdAt: true, imageSrcs: true, user: { select: { name: true, email: true } }, _count: { select: { reservations: true, reviews: true } } } }),
@@ -47,7 +47,12 @@ export async function getAdminDashboardData() {
     return { key: monthKey(date), label: date.toLocaleDateString("en-AU", { month: "short" }), bookings: 0, revenue: 0, users: 0, listings: 0 };
   });
   const monthMap = new Map(monthly.map((month) => [month.key, month]));
-  reservations.forEach((reservation) => { const month = monthMap.get(monthKey(reservation.createdAt)); if (month) { month.bookings += 1; month.revenue += reservation.redriveFee + reservation.serviceFee; } });
+  // Platform revenue = what the guest paid minus the host's hire and any
+  // protection. Covers both the current 17% margin model (redriveFee/serviceFee
+  // are 0) and legacy bookings (totalFees still carries the old fee lines).
+  const platformCut = (r: { totalFees: number; totalPrice: number; insuranceFee?: number }) =>
+    Math.max(0, r.totalFees - r.totalPrice - (r.insuranceFee ?? 0));
+  reservations.forEach((reservation) => { const month = monthMap.get(monthKey(reservation.createdAt)); if (month) { month.bookings += 1; month.revenue += platformCut(reservation); } });
   usersByMonth.forEach((user) => { const month = monthMap.get(monthKey(user.createdAt)); if (month) month.users += 1; });
   listingsByMonth.forEach((listing) => { const month = monthMap.get(monthKey(listing.createdAt)); if (month) month.listings += 1; });
 
@@ -68,7 +73,7 @@ export async function getAdminDashboardData() {
       activeUsers, verifiedProfiles, licencesUploaded,
       grossBookingValue: revenue._sum.totalPrice || 0,
       collectedValue: revenue._sum.totalFees || 0,
-      platformRevenue: (revenue._sum.redriveFee || 0) + (revenue._sum.serviceFee || 0),
+      platformRevenue: Math.max(0, (revenue._sum.totalFees || 0) - (revenue._sum.totalPrice || 0) - (revenue._sum.insuranceFee || 0)),
       protectionFees: revenue._sum.insuranceFee || 0,
       averageBookingValue: Math.round(revenue._avg.totalPrice || 0),
       averageRating: Number((rating._avg.rating || 0).toFixed(1)),

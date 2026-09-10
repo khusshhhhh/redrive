@@ -243,7 +243,7 @@ export default function ReservationDetails() {
       .then((response) => setReservation(response.data));
 
   return (
-    <main className="overflow-x-clip bg-white py-8 sm:py-12">
+    <main className="overflow-x-clip bg-white py-10 sm:py-14">
       {celebrate && (
         <SuccessBurst
           title={celebrate.title}
@@ -252,7 +252,7 @@ export default function ReservationDetails() {
         />
       )}
       <Container>
-        <div className="mx-auto max-w-[1120px]">
+        <div className="mx-auto max-w-[1180px]">
           <button
             onClick={() => router.push("/reservations")}
             className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-ink"
@@ -278,8 +278,8 @@ export default function ReservationDetails() {
             </span>
           </header>
 
-          <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="min-w-0 space-y-6">
+          <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="min-w-0 space-y-7">
               <section className="overflow-hidden rounded-md border border-hairline-soft bg-white">
                 <div className="relative aspect-[16/10] w-full sm:aspect-[16/8]">
                   <Image
@@ -324,7 +324,7 @@ export default function ReservationDetails() {
 
               <TripStatusTimeline reservation={reservation} />
 
-              <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+              <section className="rounded-md border border-hairline-soft bg-white p-6 sm:p-8">
                 <SectionHeading
                   icon={<CalendarDays size={19} />}
                   title="Booking dates"
@@ -358,7 +358,7 @@ export default function ReservationDetails() {
               )}
 
               {reservation.message && (
-                <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+                <section className="rounded-md border border-hairline-soft bg-white p-6 sm:p-8">
                   <SectionHeading
                     icon={<MessageSquareQuote size={19} />}
                     title="Message for the host"
@@ -370,7 +370,7 @@ export default function ReservationDetails() {
                 </section>
               )}
 
-              <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+              <section className="rounded-md border border-hairline-soft bg-white p-6 sm:p-8">
                 <SectionHeading
                   icon={<UserRound size={19} />}
                   title={isHost ? "Guest details" : "Booking contact"}
@@ -477,45 +477,53 @@ export default function ReservationDetails() {
               )}
             </div>
 
-            <aside className="min-w-0 space-y-5 lg:sticky lg:top-32">
+            <aside className="min-w-0 space-y-6 lg:sticky lg:top-32">
               <CancellationPolicyDisplay value={reservation.cancellationPolicy} compact />
-              <section className="rounded-md border border-hairline-soft bg-white p-5 shadow-card sm:p-6">
-                <SectionHeading
-                  icon={<CircleDollarSign size={19} />}
-                  title="Price summary"
-                  subtitle="The confirmed booking totals."
-                />
-                <div className="mt-6 space-y-3 text-sm">
-                  <PriceRow
-                    label="Vehicle hire"
-                    value={reservation.totalPrice}
-                  />
-                  <PriceRow
-                    label="Service fee"
-                    value={reservation.serviceFee}
-                  />
-                  <PriceRow
-                    label="Redrive fee"
-                    value={reservation.redriveFee}
-                  />
-                  <PriceRow
-                    label={`Cover · ${reservation.insuranceType}`}
-                    value={reservation.insuranceFee}
-                  />
-                  {listing.cleaningFeeOption === "YES" && (
-                    <PriceRow
-                      label="Cleaning fee"
-                      value={listing.cleaningFeeAmount}
+              {(() => {
+                const cleaning = listing.cleaningFeeOption === "YES" ? Number(listing.cleaningFeeAmount || 0) : 0;
+                const guestHire = reservation.totalFees - reservation.insuranceFee - cleaning;
+                const margin = Math.max(0, reservation.totalFees - reservation.totalPrice - reservation.insuranceFee - cleaning);
+                return (
+                  <section className="rounded-md border border-hairline-soft bg-white p-6 shadow-card sm:p-7">
+                    <SectionHeading
+                      icon={<CircleDollarSign size={19} />}
+                      title={isHost ? "Payout summary" : "Price summary"}
+                      subtitle={isHost ? "What the guest paid and what you earn." : "The confirmed booking totals."}
                     />
-                  )}
-                  <div className="border-t border-hairline-soft pt-4">
-                    <div className="flex items-center justify-between text-base font-semibold text-ink">
-                      <span>Total</span>
-                      <span>{money(reservation.totalFees)}</span>
+                    <div className="mt-7 space-y-3.5 text-sm">
+                      {isHost ? (
+                        <>
+                          <PriceRow label="Guests pay" value={reservation.totalFees} />
+                          <PriceRow label="Redrive service margin (17%)" value={margin} />
+                          {reservation.insuranceFee > 0 && (
+                            <PriceRow label="Protection (retained by Redrive)" value={reservation.insuranceFee} />
+                          )}
+                          <div className="border-t border-hairline-soft pt-5">
+                            <div className="flex items-center justify-between text-base font-semibold text-ink">
+                              <span>You earn</span>
+                              <span>{money(reservation.totalPrice + cleaning)}</span>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <PriceRow label="Vehicle hire" value={guestHire} />
+                          {reservation.insuranceFee > 0 && (
+                            <PriceRow label={`Damage protection · ${reservation.insuranceType}`} value={reservation.insuranceFee} />
+                          )}
+                          {cleaning > 0 && <PriceRow label="Cleaning fee" value={cleaning} />}
+                          <div className="border-t border-hairline-soft pt-5">
+                            <div className="flex items-center justify-between text-base font-semibold text-ink">
+                              <span>Total</span>
+                              <span>{money(reservation.totalFees)}</span>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
-                  </div>
-                </div>
-              </section>
+                  </section>
+                );
+              })()}
 
               <section className="rounded-md bg-graphite p-5 text-white">
                 <div className="flex gap-3">

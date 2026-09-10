@@ -1,12 +1,15 @@
-import { calculateServiceFee, redriveFee } from "@/app/libs/pricing";
+import { guestDailyPrice, redriveMargin } from "@/app/libs/pricing";
 
-// The fee primitives (service-fee tiers, the percentage Redrive fee) live in
+// The price primitives (the guest-facing daily price, Redrive's margin) live in
 // `pricing.ts` so the booking panel, the listing page, the home-page estimator
 // and the server quote can never disagree. This module adds the parts that are
-// specific to a real booking: insurance, cleaning and the policy version.
-export const PRICING_POLICY_VERSION = "2026-08-17";
-
-export { calculateServiceFee };
+// specific to a real booking: protection, cleaning and the policy version.
+//
+// `totalPrice` on a reservation is always the *host* base (dailyRate × days) —
+// it drives the host payout. `totalFees` is what the guest pays: the guest base
+// (host rate + margin) plus protection and cleaning. Redrive's margin is the
+// implicit difference and is never shown to the guest.
+export const PRICING_POLICY_VERSION = "2026-09-10";
 
 const insuranceDailyRates: Record<string, number> = {
   "No Insurance": 0,
@@ -34,31 +37,38 @@ export function buildBookingQuote(input: {
   const insuranceType = input.insuranceType && input.insuranceType in insuranceDailyRates
     ? input.insuranceType
     : "No Insurance";
-  const basePrice = input.dailyRate * days;
+
+  const hostDailyRate = input.dailyRate;
+  const guestDailyRate = guestDailyPrice(hostDailyRate);
+  const hostBase = hostDailyRate * days;
+  const guestBase = guestDailyRate * days;
+  const margin = guestBase - hostBase;
+
   const insuranceFee = insuranceDailyRates[insuranceType] * days;
-  const bookingRedriveFee = redriveFee(basePrice);
-  const serviceFee = calculateServiceFee(basePrice);
   const cleaningFee = Math.max(0, Math.round(input.cleaningFee || 0));
 
   return {
     days,
-    dailyRate: input.dailyRate,
-    basePrice,
-    redriveFee: bookingRedriveFee,
-    serviceFee,
+    hostDailyRate,
+    guestDailyRate,
+    hostBase,
+    guestBase,
+    margin,
     insuranceType,
     insuranceFee,
     cleaningFee,
-    total: basePrice + bookingRedriveFee + serviceFee + insuranceFee + cleaningFee,
+    // What the guest pays.
+    total: guestBase + insuranceFee + cleaningFee,
     currency: "AUD",
     policyVersion: PRICING_POLICY_VERSION,
   };
 }
 
 /**
- * The pro-rata cost of moving a paid trip's end date out by `extraDays`. The
- * service fee is charged on the delta of the tiered band (new total base vs the
- * base already paid), so a longer trip that crosses a band pays the difference.
+ * The cost of moving a paid trip's end date out by `extraDays`. The guest pays
+ * the guest daily price for the extra days plus any extra protection; the host
+ * is paid the host rate for those days (`extraHostBase`). Redrive's margin on
+ * the extra days is the implicit difference.
  */
 export function buildExtensionQuote(input: {
   dailyRate: number;
@@ -66,22 +76,20 @@ export function buildExtensionQuote(input: {
   extraDays: number;
   insuranceType?: string | null;
 }) {
-  const extraBase = input.dailyRate * input.extraDays;
-  const oldBase = input.dailyRate * input.paidDays;
-  const newBase = oldBase + extraBase;
+  const extraHostBase = input.dailyRate * input.extraDays;
+  const extraGuestBase = guestDailyPrice(input.dailyRate) * input.extraDays;
+  const extraMargin = redriveMargin(input.dailyRate, input.extraDays);
   const extraInsuranceFee = insuranceDailyRate(input.insuranceType) * input.extraDays;
-  const extraRedriveFee = redriveFee(newBase) - redriveFee(oldBase);
-  const extraServiceFee = Math.max(0, calculateServiceFee(newBase) - calculateServiceFee(oldBase));
-  const extraTotal = extraBase + extraInsuranceFee + extraRedriveFee + extraServiceFee;
-  return { extraBase, extraInsuranceFee, extraRedriveFee, extraServiceFee, extraTotal };
+  const extraTotal = extraGuestBase + extraInsuranceFee;
+  return { extraHostBase, extraGuestBase, extraMargin, extraInsuranceFee, extraTotal };
 }
 
 /**
  * The refund for pulling a paid trip's end date IN by `removedDays`. Unused
  * daily hire + protection are refunded at the cancellation policy's percentage
- * for the tail; the platform fees for those days (Redrive fee + service fee) are
- * always credited back in full since the guest never used them. The host keeps
- * the non-refunded hire portion as short-notice compensation.
+ * for the tail; Redrive's margin on those days is always credited back in full
+ * since the guest never used the service for them. The host keeps the
+ * non-refunded hire portion as short-notice compensation.
  */
 export function buildShortenQuote(input: {
   dailyRate: number;
@@ -93,22 +101,20 @@ export function buildShortenQuote(input: {
   const factor = Math.max(0, Math.min(100, input.refundPercentage)) / 100;
   const removedDays = Math.max(0, Math.min(input.removedDays, input.paidDays - 1));
   const remainingDays = input.paidDays - removedDays;
-  const oldBase = input.dailyRate * input.paidDays;
-  const newBase = input.dailyRate * remainingDays;
-  const removedBase = oldBase - newBase;
+  const removedHostBase = input.dailyRate * removedDays;
+  const removedGuestBase = guestDailyPrice(input.dailyRate) * removedDays;
+  const marginCredit = removedGuestBase - removedHostBase;
   const removedInsuranceFee = insuranceDailyRate(input.insuranceType) * removedDays;
-  const redriveFeeCredit = Math.max(0, redriveFee(oldBase) - redriveFee(newBase));
-  const serviceFeeCredit = Math.max(0, calculateServiceFee(oldBase) - calculateServiceFee(newBase));
-  const hireRefund = Math.round((removedBase + removedInsuranceFee) * factor);
-  const refundTotal = hireRefund + redriveFeeCredit + serviceFeeCredit;
-  const ownerReduction = Math.round(removedBase * factor);
+  const hireRefund = Math.round((removedHostBase + removedInsuranceFee) * factor);
+  const refundTotal = hireRefund + marginCredit;
+  const ownerReduction = Math.round(removedHostBase * factor);
   return {
     removedDays,
     remainingDays,
-    removedBase,
+    removedHostBase,
+    removedGuestBase,
     removedInsuranceFee,
-    redriveFeeCredit,
-    serviceFeeCredit,
+    marginCredit,
     hireRefund,
     refundTotal,
     ownerReduction,

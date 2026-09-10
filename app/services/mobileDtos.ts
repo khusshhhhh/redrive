@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 
 import { mayRevealExactLocation } from "@/app/libs/reservationAccess";
+import { guestDailyPrice } from "@/app/libs/pricing";
 
 type MobileReservationRecord = Prisma.ReservationGetPayload<{
   include: {
@@ -55,7 +56,7 @@ export function toPublicListing(listing: MobileListingRecord, favouriteIds: stri
     category: listing.category,
     year: listing.year,
     imageUrls: listing.imageSrcs,
-    price: { amountCents: listing.price * 100, currency: "AUD" as const, unit: "day" as const },
+    price: { amountCents: guestDailyPrice(listing.price) * 100, currency: "AUD" as const, unit: "day" as const },
     guestCount: listing.guestCount,
     doorCount: listing.doorCount,
     sleepCount: listing.sleepCount,
@@ -97,9 +98,9 @@ export function toMobileReservation(reservation: MobileReservationRecord, curren
     updatedAt: reservation.updatedAt.toISOString(),
     message: reservation.message,
     pricing: {
-      basePriceCents: reservation.totalPrice * 100,
-      redriveFeeCents: reservation.redriveFee * 100,
-      serviceFeeCents: reservation.serviceFee * 100,
+      // Guest-facing: one all-in hire figure plus the chosen protection. The
+      // host/Redrive-margin split is never sent to the client.
+      hireCents: (reservation.totalFees - reservation.insuranceFee) * 100,
       insuranceFeeCents: reservation.insuranceFee * 100,
       totalCents: reservation.totalFees * 100,
       currency: "AUD",

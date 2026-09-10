@@ -63,7 +63,7 @@ export default function ReservationsClient({ reservations, nextCursor = null, ro
                           <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusStyle[reservation.status] || "bg-surface-soft text-muted"}`}>{reservation.status === "REVIEWING" ? "Awaiting response" : reservation.status.toLowerCase()}</span>
                           <h2 className="mt-3 text-xl font-semibold text-ink">{listing.title}</h2>
                         </div>
-                        <p className="text-lg font-semibold text-ink">AU${reservation.totalFees}</p>
+                        <p className="text-right"><span className="block text-lg font-semibold text-ink">AU${reservation.totalPrice}</span><span className="block text-[11px] font-normal text-muted">you earn</span></p>
                       </div>
                       <div className="mt-5 grid gap-3 text-sm text-muted sm:grid-cols-2">
                         <p className="flex items-center gap-2"><CalendarDays size={16} className="text-primary" />{format(new Date(reservation.startDate), "d MMM")} – {format(new Date(reservation.endDate), "d MMM yyyy")}</p>

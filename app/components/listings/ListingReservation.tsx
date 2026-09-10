@@ -8,48 +8,37 @@ import { useRouter } from 'next/navigation';
 import { SafeListing, SafeUser } from '@/app/types';
 import { Zap } from "lucide-react";
 import toast from "@/app/libs/toast";
-import { calculateServiceFee, redriveFee as calcRedriveFee } from "@/app/libs/pricing";
+import { guestDailyPrice } from "@/app/libs/pricing";
 import { clientLog } from "@/app/libs/clientLog";
-import ProtectionSelector from "./ProtectionSelector";
 
 interface ListingReservationProps {
     listing: SafeListing;
-    price: number;
     dateRange: Range;
-    totalPrice: number;
-    totalFees: number;
-    insuranceType: string;
-    setInsuranceType: (type: string) => void;
-    insuranceFee: number;
-    setInsuranceFee: (fee: number) => void;
-    serviceFee: number;
     onChangeDate: (value: Range) => void;
-    onSubmit: (insuranceType: string, insuranceFee: number) => void;
     disabled?: boolean;
     disabledDates: Date[];
     currentUser?: SafeUser | null;
     onRequireLogin: () => void;
 }
 
+const money = (value: number) => `AU$ ${Math.round(value).toLocaleString("en-AU")}`;
+
 const ListingReservation: React.FC<ListingReservationProps> = ({
     listing,
-    price,
     dateRange,
-    totalPrice,
     onChangeDate,
     disabled,
     disabledDates,
-    insuranceType,
-    setInsuranceType,
-    insuranceFee,
-    setInsuranceFee,
     currentUser,
     onRequireLogin,
 }) => {
-    const redriveFee = calcRedriveFee(totalPrice);
-    const serviceFee = calculateServiceFee(totalPrice);
-    const dayCount = differenceInCalendarDays(dateRange.endDate, dateRange.startDate) + 1;
     const router = useRouter();
+
+    // Guests only ever see the all-in daily price: the host's rate plus
+    // Redrive's margin, as one figure. There is no separate fee line.
+    const dailyPrice = guestDailyPrice(listing.price);
+    const dayCount = differenceInCalendarDays(dateRange.endDate, dateRange.startDate) + 1;
+    const hire = dailyPrice * dayCount;
 
     // Availability guardrails set by the host. react-date-range already blocks
     // booked days from being picked; these cover the rules it can't express so
@@ -81,12 +70,7 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     const upfrontCleaningFee = listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0;
     const returnCleaningFee = listing.cleaningFeeOption === 'UPON_RETURNING' ? (listing.returnCleaningFeeAmount || 0) : 0;
 
-    const handleInsuranceChange = (type: string, fee: number) => {
-        setInsuranceType(type);
-        setInsuranceFee(fee * dayCount);
-    };
-
-    const totalFees = totalPrice + redriveFee + serviceFee + insuranceFee + upfrontCleaningFee; // include cleaning fee if charged now
+    const estimatedTotal = hire + upfrontCleaningFee;
 
     const goodToKnow: { label: string; value: string }[] = [];
     if (listing.securityDeposit) goodToKnow.push({ label: "Security deposit", value: `AU$ ${listing.securityDeposit.toLocaleString()} (held, not charged)` });
@@ -102,12 +86,12 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     if (listing.roadsideAssistanceIncluded) goodToKnow.push({ label: "Roadside assistance", value: "Included" });
 
     return (
-        <div className="bg-white shadow-card rounded-md border border-hairline-soft overflow-hidden mt-10 md:mt-0">
-            <div className="p-4">
+        <div className="mt-10 overflow-hidden rounded-lg border border-hairline-soft bg-white shadow-card md:mt-0">
+            <div className="p-5 sm:p-6">
                 <div className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">Estimated trip total</div>
-                <div className="mt-1 text-display-md font-semibold text-ink">AU$ {totalFees}</div>
-                <div className="mt-1 text-xs text-muted">AU$ {price} per day · {dayCount} day{dayCount === 1 ? "" : "s"} · fees shown below</div>
-                <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                <div className="mt-2 text-display-md font-semibold text-ink">{money(estimatedTotal)}</div>
+                <div className="mt-1.5 text-sm text-muted">{money(dailyPrice)} per day · {dayCount} day{dayCount === 1 ? "" : "s"}</div>
+                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                     {listing.instantBook ? (
                         <span className="inline-flex items-center gap-1 font-semibold text-secondary">
                             <Zap size={13} className="fill-secondary" /> Instant Book
@@ -129,56 +113,38 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
             <hr className="border-hairline-soft" />
             <Calendar value={dateRange} disabledDates={disabledDates} onChange={(value) => onChangeDate(value.selection)} />
             <hr className="border-hairline-soft" />
-            <div className="mt-2 p-4 flex flex-col text-ink">
-                <div className='font-semibold mb-4'>Basic Pricing</div>
-                <div className="flex flex-row items-center justify-between font-normal text-body-sm">
-                    <div>Reservation Cost</div>
-                    <div className="font-normal">AU$ {totalPrice}</div>
-                </div>
-                <div className="mt-2 flex flex-row items-center justify-between font-normal text-body-sm">
-                    <div>Service Fee</div>
-                    <div className="font-normal">AU$ {serviceFee}</div>
-                </div>
-                <div className="mt-2 flex flex-row items-center justify-between font-normal text-body-sm">
-                    <div>Redrive Fees</div>
-                    <div className="font-normal">AU$ {redriveFee}</div>
+            <div className="flex flex-col p-5 text-ink sm:p-6">
+                <div className="mb-5 font-semibold">Price details</div>
+                <div className="flex flex-row items-center justify-between text-body-sm">
+                    <div className="text-muted">{money(dailyPrice)} × {dayCount} day{dayCount === 1 ? "" : "s"}</div>
+                    <div className="font-medium">{money(hire)}</div>
                 </div>
                 {upfrontCleaningFee > 0 && (
-                    <div className="mt-2 flex flex-row items-center justify-between font-normal text-body-sm">
-                        <div>Cleaning Fee</div>
-                        <div className="font-normal">AU$ {upfrontCleaningFee}</div>
+                    <div className="mt-3 flex flex-row items-center justify-between text-body-sm">
+                        <div className="text-muted">Cleaning fee</div>
+                        <div className="font-medium">{money(upfrontCleaningFee)}</div>
                     </div>
                 )}
-                {returnCleaningFee > 0 && (
-                    <div className="mt-2 text-sm text-muted">
-                        Cleaning fee of AU$ {returnCleaningFee} will be charged upon return.
-                    </div>
-                )}
-                <hr className="mt-6 border-hairline-soft" />
-
-                <div className="mt-6">
-                    <ProtectionSelector
-                        value={insuranceType}
-                        dayCount={dayCount}
-                        securityDeposit={listing.securityDeposit}
-                        onChange={(tier) => handleInsuranceChange(tier.value, tier.perDay)}
-                    />
-                </div>
-
-
-
-                <hr className="mt-6 border-hairline-soft" />
-                <div className="mt-6 flex flex-row items-center justify-between font-semibold text-body-sm">
+                <hr className="mt-5 border-hairline-soft" />
+                <div className="mt-5 flex flex-row items-center justify-between text-base font-semibold">
                     <div>Total</div>
-                    <div>AU$ {totalFees}</div>
+                    <div>{money(estimatedTotal)}</div>
                 </div>
+                {returnCleaningFee > 0 && (
+                    <p className="mt-3 text-xs leading-5 text-muted">
+                        A cleaning fee of {money(returnCleaningFee)} may be charged after the trip if the vehicle is returned unclean.
+                    </p>
+                )}
+                <p className="mt-3 text-xs leading-5 text-muted">
+                    You won&rsquo;t be charged yet. Protection cover is chosen on the next step.
+                </p>
             </div>
-            <hr className="border-hairline-soft" />
             {goodToKnow.length > 0 && (
                 <>
-                    <div className="p-4">
-                        <div className="mb-3 font-semibold text-ink">Good to know</div>
-                        <div className="flex flex-col gap-2">
+                    <hr className="border-hairline-soft" />
+                    <div className="p-5 sm:p-6">
+                        <div className="mb-4 font-semibold text-ink">Good to know</div>
+                        <div className="flex flex-col gap-2.5">
                             {goodToKnow.map((item) => (
                                 <div key={item.label} className="flex flex-row items-start justify-between gap-4 text-body-sm">
                                     <div className="text-muted">{item.label}</div>
@@ -186,16 +152,16 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                                 </div>
                             ))}
                         </div>
-                        <p className="mt-3 text-xs leading-5 text-muted">Set by the host. Not included in the estimated total above.</p>
+                        <p className="mt-4 text-xs leading-5 text-muted">Set by the host. Not included in the estimated total above.</p>
                     </div>
-                    <hr className="border-hairline-soft" />
                 </>
             )}
-            <div className="p-4">
+            <hr className="border-hairline-soft" />
+            <div className="p-5 sm:p-6">
                 {availabilityIssue && (
                     <p
                         role="status"
-                        className="mb-3 rounded-sm border border-error/30 bg-surface-soft px-3 py-2 text-xs font-medium leading-5 text-error"
+                        className="mb-4 rounded-md border border-error/30 bg-surface-soft px-3.5 py-2.5 text-xs font-medium leading-5 text-error"
                     >
                         {availabilityIssue}
                     </p>
@@ -219,10 +185,9 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
                             return;
                         }
 
-                        router.push(`/confirm-reservation?listingId=${listing.id}&startDate=${dateRange.startDate.toISOString()}&endDate=${dateRange.endDate.toISOString()}&totalPrice=${totalPrice}&totalFees=${totalFees}&insuranceType=${insuranceType}&insuranceFee=${insuranceFee}&cleaningFee=${upfrontCleaningFee}&returnCleaningFee=${returnCleaningFee}`);
+                        router.push(`/confirm-reservation?listingId=${listing.id}&startDate=${dateRange.startDate.toISOString()}&endDate=${dateRange.endDate.toISOString()}`);
                     }}
                 />
-
             </div>
         </div>
     );

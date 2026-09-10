@@ -1,6 +1,6 @@
 import type { IllustrationName } from "@/app/components/Illustration";
 import type { LandingMarket } from "@/app/actions/getLandingMarket";
-import { priceRange, formatAud } from "@/app/actions/getLandingMarket";
+import { priceRange, guestPriceRange, formatAud } from "@/app/actions/getLandingMarket";
 
 /**
  * SEO landing pages — six drafts targeting the searches guests and hosts
@@ -75,17 +75,17 @@ export const landingPages: LandingPage[] = [
     areaServed: "Adelaide",
     illustration: "route-map",
     priceNote: (market) => {
-      const range = priceRange(market, ["Utes"]);
+      const range = guestPriceRange(market, ["Utes"]);
       return range
-        ? `Owners set their own daily rate; most Adelaide utes sit in the ${formatAud(range.low)}–${formatAud(range.high)} range per day. The full breakdown, including fees, is shown before you request.`
-        : "Owners set their own daily rate. The full price breakdown, including the Redrive and service fees, is shown before you send a request.";
+        ? `Owners set their own daily rate; most Adelaide utes sit in the ${formatAud(range.low)}–${formatAud(range.high)} range per day. That's the one all-in price — nothing is added at checkout.`
+        : "Owners set what they want to earn per day, and Redrive's service margin is already included in the one all-in price shown on every listing.";
     },
     sections: [
       {
         heading: "Why hire through Redrive",
         items: [
           "Local pickup. Filter by suburb and dates — most utes are a short drive away.",
-          "The full price up front. Daily rate, Redrive fee and service fee, all shown before you send a request. Your card is only charged once the owner accepts.",
+          "The full price up front. One all-in daily price, shown before you send a request. Your card is only charged once the owner accepts.",
           "Know before you book. Tray size, tow capacity, transmission, distance limits and any deposit are on every listing.",
           "Real vehicles. Real photos, verified reviews from completed trips, and ID-checked owners.",
         ],
@@ -99,7 +99,7 @@ export const landingPages: LandingPage[] = [
     faqs: [
       {
         q: "How much does it cost to hire a ute in Adelaide?",
-        a: "Owners set their own daily rate, and most Adelaide utes fall within a similar band per day. The full breakdown, including the Redrive and service fees, is shown before you request, and your card is only charged once the owner accepts.",
+        a: "Owners set their own daily rate, and most Adelaide utes fall within a similar band per day. That's the one all-in price — Redrive's service margin is already included and nothing is added at checkout. Your card is only charged once the owner accepts.",
       },
       {
         q: "Can I hire a ute for a few hours?",
@@ -219,7 +219,7 @@ export const landingPages: LandingPage[] = [
       },
       {
         q: "Is the price I see the full price?",
-        a: "Yes. The daily rate, Redrive fee and service fee are shown before you send a request, and your card is only charged once the owner accepts.",
+        a: "Yes. Every listing shows one all-in daily price with Redrive's service margin already included — nothing is added at checkout. Protection you choose and any host deposit are shown before you send a request, and your card is only charged once the owner accepts.",
       },
       {
         q: "Do vans come with a trolley or straps?",
@@ -262,12 +262,12 @@ export const landingPages: LandingPage[] = [
       const touring = priceRange(market, ["Motorhomes", "Caravans", "Vans"]);
       return car && touring
         ? `Hosts in Adelaide currently set rates from about ${formatAud(car.low)} a day for a small car to ${formatAud(touring.high)}+ for a campervan or a well-set-up 4WD.`
-        : "You set the daily rate to cover cleaning, wear and running costs. Redrive's fee only applies to completed trips.";
+        : "You set the daily rate you want to earn, to cover cleaning, wear and running costs. Redrive adds a 17% service margin on top for the guest and keeps that only on completed trips.";
     },
     sections: [
       {
         heading: "What you keep",
-        body: "You set the daily rate. Redrive's fee only applies to completed trips — there is no cost to list, no membership, and no lock-in.",
+        body: "You set the daily rate you want to earn. Redrive adds a 17% service margin on top of that for the guest and keeps it only on completed trips — there is no cost to list, no membership, and no lock-in.",
       },
       {
         heading: "You stay in control",
@@ -294,7 +294,7 @@ export const landingPages: LandingPage[] = [
       },
       {
         q: "How much does it cost to list?",
-        a: "Nothing. There is no listing fee or membership. Redrive's fee only applies to completed trips.",
+        a: "Nothing to list. There is no listing fee or membership. Redrive's 17% service margin is added on top of your rate for the guest, and Redrive keeps it only on completed trips.",
       },
       {
         q: "How do I get paid?",

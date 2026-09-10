@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache";
 
 import prisma from "@/app/libs/prismadb";
 import { HOME_DATA_CACHE_TAG } from "@/app/actions/getHomeData";
+import { guestDailyPrice } from "@/app/libs/pricing";
 
 /**
  * Live price context for the SEO landing pages. Percentile ranges per category
@@ -58,12 +59,24 @@ export function priceRange(
   return { low, high };
 }
 
+/** The same band as `priceRange` but marked up to the all-in price a guest
+ *  pays — for guest-facing pages. */
+export function guestPriceRange(
+  market: LandingMarket,
+  categories: string[],
+): { low: number; high: number } | null {
+  const range = priceRange(market, categories);
+  return range ? { low: guestDailyPrice(range.low), high: guestDailyPrice(range.high) } : null;
+}
+
 async function loadLandingMarket(): Promise<LandingMarket> {
   const rows = await prisma.listing.findMany({
     where: { state: LANDING_STATE },
     select: { category: true, price: true },
   });
 
+  // Stored as the host's net rate. `priceRange` returns that band (host-facing
+  // pages); `guestPriceRange` marks it up for guest-facing pages.
   const pricesByCategory: Record<string, number[]> = {};
   for (const row of rows) {
     if (!row.category || typeof row.price !== "number" || row.price <= 0) continue;

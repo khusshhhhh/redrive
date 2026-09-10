@@ -7,6 +7,7 @@ import { useState } from "react";
 import { IconArrowsExchange, IconCheck, IconMinus, IconPointFilled, IconStar, IconX } from "@tabler/icons-react";
 import useCompareVehicles from "../hooks/useCompareVehicles";
 import { AMENITIES_LIST } from "../hooks/useAmenities";
+import { guestDailyPrice } from "../libs/pricing";
 import type { ComparisonVehicle } from "../actions/getComparisonListings";
 
 const AMENITY_MAP = new Map(AMENITIES_LIST.map((amenity) => [amenity.id, amenity]));
@@ -45,7 +46,7 @@ const CompareClient = ({ vehicles, tripDays }: { vehicles: ComparisonVehicle[]; 
 
   const groups: readonly ComparisonGroup[] = [
     { title: "Price & capacity", copy: "The essentials for your trip", rows: [
-      ["Vehicle total", (v: ComparisonVehicle) => tripDays ? `AU$${(v.price * tripDays).toLocaleString()} for ${tripDays} days` : `AU$${v.price.toLocaleString()} per day`],
+      ["Vehicle total", (v: ComparisonVehicle) => tripDays ? `AU$${(guestDailyPrice(v.price) * tripDays).toLocaleString()} for ${tripDays} days` : `AU$${guestDailyPrice(v.price).toLocaleString()} per day`],
       ["Guest capacity", (v: ComparisonVehicle) => `${v.guestCount} people`],
       ["Sleeping capacity", (v: ComparisonVehicle) => v.sleepCount ? `${v.sleepCount} people` : "Not applicable"],
     ] },

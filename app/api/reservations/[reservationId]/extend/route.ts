@@ -75,8 +75,8 @@ async function GETHandler(request: Request, context: Context) {
     const currentEnd = ctx.reservation.endDate;
     if (!Number.isNaN(newEnd.getTime()) && newEnd > currentEnd) {
       extraDays = dayCount(currentEnd, newEnd) - 1;
-      const snapshot = ctx.reservation.quoteSnapshot as { dailyRate?: number; days?: number } | null;
-      const dailyRate = snapshot?.dailyRate || ctx.reservation.listing.price;
+      const snapshot = ctx.reservation.quoteSnapshot as { hostDailyRate?: number; dailyRate?: number; days?: number } | null;
+      const dailyRate = snapshot?.hostDailyRate ?? snapshot?.dailyRate ?? ctx.reservation.listing.price;
       const paidDays = snapshot?.days || dayCount(ctx.reservation.startDate, currentEnd);
       quote = buildExtensionQuote({
         dailyRate,
@@ -175,8 +175,8 @@ async function POSTHandler(request: Request, context: Context) {
     return NextResponse.json({ error: "Those extra days aren't available", code: "DATES_UNAVAILABLE" }, { status: 409 });
   }
 
-  const snapshot = reservation.quoteSnapshot as { dailyRate?: number; days?: number } | null;
-  const dailyRate = snapshot?.dailyRate || reservation.listing.price;
+  const snapshot = reservation.quoteSnapshot as { hostDailyRate?: number; dailyRate?: number; days?: number } | null;
+  const dailyRate = snapshot?.hostDailyRate ?? snapshot?.dailyRate ?? reservation.listing.price;
   const paidDays = snapshot?.days || dayCount(startDate, reservation.endDate);
   const extraDays = newTotalDays - paidDays;
   const q = buildExtensionQuote({ dailyRate, paidDays, extraDays, insuranceType: reservation.insuranceType });
@@ -198,10 +198,10 @@ async function POSTHandler(request: Request, context: Context) {
       previousEndDate: reservation.endDate,
       newEndDate: newEnd,
       extraDays,
-      extraBase: q.extraBase,
+      extraBase: q.extraHostBase,
       extraInsuranceFee: q.extraInsuranceFee,
-      extraRedriveFee: q.extraRedriveFee,
-      extraServiceFee: q.extraServiceFee,
+      extraRedriveFee: 0,
+      extraServiceFee: 0,
       extraTotal: q.extraTotal,
       status: autoApprove ? "APPROVED" : "PENDING",
       respondedAt: autoApprove ? new Date() : null,

@@ -41,9 +41,19 @@ export const POST = defineApiRoute(
       cleaningFee: listing.cleaningFeeOption === "YES" ? listing.cleaningFeeAmount || 0 : 0,
     });
 
+    // Guest-facing: the daily price and hire subtotal are the all-in figures
+    // (host rate + Redrive's margin). The host/margin split is never returned.
     return NextResponse.json(
       {
-        ...quote,
+        days: quote.days,
+        dailyRate: quote.guestDailyRate,
+        basePrice: quote.guestBase,
+        insuranceType: quote.insuranceType,
+        insuranceFee: quote.insuranceFee,
+        cleaningFee: quote.cleaningFee,
+        total: quote.total,
+        currency: quote.currency,
+        policyVersion: quote.policyVersion,
         cancellationPolicy: cancellationPolicySnapshot(listing.cancellationPolicy),
         expiresAt: new Date(Date.now() + 15 * 60_000).toISOString(),
       },

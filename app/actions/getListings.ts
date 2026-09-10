@@ -2,6 +2,7 @@ import prisma from "@/app/libs/prismadb";
 import { revalidateTag, unstable_cache } from "next/cache";
 import { BoundedMemoryCache } from "@/app/libs/memoryCache";
 import { parseBounds, scanListingArea } from "@/app/libs/suburbGeoData";
+import { REDRIVE_MARGIN_RATE } from "@/app/libs/pricing";
 
 const PUBLIC_LISTINGS_CACHE_TAG = "public-listings";
 
@@ -189,13 +190,18 @@ async function getListingsFromDatabase(params: IListingsParams) {
     if (information)
       query.information = { contains: information, mode: "insensitive" };
 
-    const parsedMinPrice = minPrice ? Number(minPrice) : undefined;
-    const parsedMaxPrice = maxPrice ? Number(maxPrice) : undefined;
+    // Guests enter a budget against the all-in price they see on cards, but the
+    // stored `price` is the host's net rate. Convert the bounds back to host-rate
+    // space (÷ 1 + margin), rounding outward so a listing is never wrongly
+    // excluded at the edge of the range.
+    const MARGIN_MULT = 1 + REDRIVE_MARGIN_RATE;
+    const parsedMinPrice = minPrice ? Number(minPrice) / MARGIN_MULT : undefined;
+    const parsedMaxPrice = maxPrice ? Number(maxPrice) / MARGIN_MULT : undefined;
 
     if (parsedMinPrice !== undefined || parsedMaxPrice !== undefined) {
       query.price = {};
-      if (parsedMinPrice !== undefined) query.price.gte = parsedMinPrice;
-      if (parsedMaxPrice !== undefined) query.price.lte = parsedMaxPrice;
+      if (parsedMinPrice !== undefined) query.price.gte = Math.floor(parsedMinPrice);
+      if (parsedMaxPrice !== undefined) query.price.lte = Math.ceil(parsedMaxPrice);
     }
 
     if (startDate && endDate) {

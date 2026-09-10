@@ -10,6 +10,7 @@ import ListingCardButton from "../ListingCardButton";
 import { IconArrowsExchange, IconRosetteDiscountCheck, IconStar } from "@tabler/icons-react";
 import useCompareVehicles from "@/app/hooks/useCompareVehicles";
 import toast from "@/app/libs/toast";
+import { guestDailyPrice } from "@/app/libs/pricing";
 
 const reservationDateFormatter = new Intl.DateTimeFormat("en-AU", {
     day: "numeric",
@@ -84,12 +85,15 @@ const ListingCard: React.FC<ListingCardProps> = memo(({
         [onAction, actionId, disabled]
     );
 
+    // Browsing guests always see the all-in daily price (host rate + Redrive's
+    // margin). A host looking at their own listing (edit card) sees their own
+    // net rate. On a booking card, show what the guest actually pays.
     const price = useMemo(() => {
         if (reservation) {
-            return reservation.totalPrice;
+            return reservation.totalFees ?? reservation.totalPrice;
         }
-        return data.price;
-    }, [reservation, data.price]);
+        return showEditButton ? data.price : guestDailyPrice(data.price);
+    }, [reservation, data.price, showEditButton]);
 
     const reservationDate = useMemo(() => {
         if (!reservation) {

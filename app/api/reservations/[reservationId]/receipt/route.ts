@@ -30,13 +30,24 @@ async function GETHandler(_request: Request, context: Context) {
 
   const quote = (reservation.quoteSnapshot as { cleaningFee?: number } | null) ?? null;
   const cleaning = Math.max(0, Math.round(quote?.cleaningFee || 0));
-  const rows: [string, number][] = [
-    [`Vehicle hire`, reservation.totalPrice - cleaning],
-    ["Redrive fee", reservation.redriveFee],
-    ["Service fee", reservation.serviceFee],
-  ];
-  if (reservation.insuranceFee > 0) rows.push([`Protection · ${reservation.insuranceType}`, reservation.insuranceFee]);
-  if (cleaning > 0) rows.push(["Cleaning fee", cleaning]);
+  const isHost = currentUser.id === reservation.listing.userId && currentUser.id !== reservation.userId;
+
+  // Guests see one all-in hire figure and their chosen add-ons — never a
+  // platform fee line. Hosts see what the guest paid, Redrive's margin and
+  // their payout.
+  const guestHire = reservation.totalFees - reservation.insuranceFee - cleaning;
+  const margin = Math.max(0, reservation.totalFees - reservation.totalPrice - reservation.insuranceFee - cleaning);
+  const rows: [string, number][] = isHost
+    ? [
+        ["Guest paid", reservation.totalFees],
+        ["Redrive service margin", margin],
+        ...(reservation.insuranceFee > 0 ? [["Protection (retained by Redrive)", reservation.insuranceFee] as [string, number]] : []),
+      ]
+    : [
+        ["Vehicle hire", guestHire],
+        ...(reservation.insuranceFee > 0 ? [[`Protection · ${reservation.insuranceType}`, reservation.insuranceFee] as [string, number]] : []),
+        ...(cleaning > 0 ? [["Cleaning fee", cleaning] as [string, number]] : []),
+      ];
 
   const paidAt = reservation.paidAt ? day(reservation.paidAt) : null;
   const html = `<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
@@ -72,10 +83,10 @@ async function GETHandler(_request: Request, context: Context) {
 
 <table>
   ${rows.map(([label, value]) => `<tr><td>${label}</td><td>${money(value)}</td></tr>`).join("")}
-  <tr class="total"><td>Total</td><td>${money(reservation.totalFees)}</td></tr>
+  <tr class="total"><td>${isHost ? "Your payout" : "Total"}</td><td>${money(isHost ? reservation.totalPrice + cleaning : reservation.totalFees)}</td></tr>
 </table>
 
-<p class="foot">Amounts in Australian dollars. Redrive facilitates the booking and collects the platform fee shown; the vehicle hire amount is payable to the host. Retain this receipt for your records — contact support if you need a tax invoice.</p>
+<p class="foot">Amounts in Australian dollars. Redrive facilitates the booking and retains a service margin; the remainder is payable to the host as the vehicle hire amount. Retain this receipt for your records — contact support if you need a tax invoice.</p>
 <p class="noprint foot">Tip: use your browser's Print function and choose "Save as PDF".</p>
 </body></html>`;
 

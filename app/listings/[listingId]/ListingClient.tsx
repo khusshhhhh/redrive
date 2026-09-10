@@ -2,21 +2,17 @@
 
 import { PublicHost, SafeListing, SafeUser } from "@/app/types";
 import { categories } from "@/app/components/navbar/Categories";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Container from "@/app/components/Container";
 import ListingHead from "@/app/components/listings/ListingHead";
 import ListingInfo from "@/app/components/listings/ListingInfo";
-import useLoginModal from "@/app/hooks/useLoginModal";
-import { useRouter } from "next/navigation";
 import { differenceInCalendarDays, eachDayOfInterval } from "date-fns";
-import axios from "axios";
-import toast from "@/app/libs/toast";
+import useLoginModal from "@/app/hooks/useLoginModal";
 import ListingReservation from "@/app/components/listings/ListingReservation";
 import { Range } from "react-date-range";
 import Reviews from "@/app/components/reviews/Reviews";
 import useRecentlyViewed from "@/app/hooks/useRecentlyViewed";
-import { calculateServiceFee, redriveFee, REDRIVE_FEE_RATE } from "@/app/libs/pricing";
-import { clientLog } from "@/app/libs/clientLog";
+import { guestDailyPrice } from "@/app/libs/pricing";
 
 const initialDateRange = {
     startDate: new Date(),
@@ -41,7 +37,6 @@ const ListingClient: React.FC<ListingClientProps> = ({
     currentUser
 }) => {
     const loginModal = useLoginModal();
-    const router = useRouter();
     const { addRecentlyViewed } = useRecentlyViewed();
 
     useEffect(() => {
@@ -64,13 +59,15 @@ const ListingClient: React.FC<ListingClientProps> = ({
         return dates;
     }, [reservations]);
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [totalPrice, setTotalPrice] = useState(listing.price);
-    const initialFees = listing.price * (1 + REDRIVE_FEE_RATE) + (listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0);
-    const [totalFees, setTotalFees] = useState(initialFees);
     const [dateRange, setDateRange] = useState<Range>(initialDateRange);
-    const [insuranceType, setInsuranceType] = useState("No Insurance");
-    const [insuranceFee, setInsuranceFee] = useState(0);
+
+    // The all-in daily price a guest sees (host rate + Redrive's margin).
+    const dailyPrice = guestDailyPrice(listing.price);
+    const dayCount = dateRange.startDate && dateRange.endDate
+        ? differenceInCalendarDays(dateRange.endDate, dateRange.startDate) + 1
+        : 1;
+    const upfrontCleaning = listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0;
+    const estimatedTotal = dailyPrice * dayCount + upfrontCleaning;
 
     // Disable booking actions if the viewer is the listing owner
     const isOwner = currentUser?.id === listing.userId;
@@ -78,69 +75,6 @@ const ListingClient: React.FC<ListingClientProps> = ({
     const scrollToBooking = () => {
         document.getElementById("booking-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
-
-
-    const onCreateReservation = useCallback((insuranceType: string, insuranceFee: number) => {
-        if (!currentUser) {
-            return loginModal.onOpen();
-        }
-
-        setIsLoading(true);
-
-        axios.post('/api/reservations', {
-            listingId: listing?.id,
-            startDate: dateRange.startDate,
-            endDate: dateRange.endDate,
-            totalPrice,
-            totalFees,
-            insuranceType,
-            insuranceFee,
-        })
-            .then(() => {
-                toast.success('Listing reserved!');
-                setDateRange(initialDateRange);
-                router.push('/trips');
-            })
-            .catch((error) => {
-                clientLog.error("Reservation API error", error, { data: error?.response?.data });
-                toast.error('Something went wrong.');
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        totalPrice,
-        totalFees,
-        insuranceType,
-        insuranceFee,
-        dateRange,
-        listing?.id,
-        router,
-        currentUser,
-        loginModal
-    ]);
-
-
-    useEffect(() => {
-        if (dateRange.startDate && dateRange.endDate) {
-            const dayCount = differenceInCalendarDays(dateRange.endDate, dateRange.startDate);
-
-            if (dayCount && listing.price) {
-                const newTotalPrice = (dayCount + 1) * listing.price;
-                const newRedriveFee = redriveFee(newTotalPrice);
-                const newServiceFee = calculateServiceFee(newTotalPrice);
-
-                setTotalPrice(newTotalPrice);
-                const cleaning = listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0;
-                setTotalFees(newTotalPrice + newRedriveFee + newServiceFee + cleaning); // include cleaning fee
-            } else {
-                setTotalPrice(listing.price);
-                const cleaning = listing.cleaningFeeOption === 'YES' ? (listing.cleaningFeeAmount || 0) : 0;
-                setTotalFees(listing.price * 1.08 + cleaning);
-            }
-        }
-    }, [dateRange, listing.price, listing.cleaningFeeOption, listing.cleaningFeeAmount]);
 
     const category = useMemo(() => {
         return categories.find((item) => item.label === listing.category) || {
@@ -160,7 +94,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
                         id={listing.id}
                         currentUser={currentUser}
                     />
-                    <div className="mt-1 grid grid-cols-1 md:mt-6 md:grid-cols-3 md:gap-10">
+                    <div className="mt-1 grid grid-cols-1 md:mt-8 md:grid-cols-3 md:gap-12">
                         <div className="md:col-span-2">
                             <ListingInfo
                                 listingId={listing.id}
@@ -186,19 +120,10 @@ const ListingClient: React.FC<ListingClientProps> = ({
                             <div className="md:sticky md:top-28">
                                 <ListingReservation
                                     listing={listing}
-                                    price={listing.price}
-                                    serviceFee={calculateServiceFee(totalPrice)}
-                                    totalPrice={totalPrice}
-                                    totalFees={totalFees}
                                     onChangeDate={(value) => setDateRange(value)}
                                     dateRange={dateRange}
-                                    onSubmit={onCreateReservation}
-                                    disabled={isLoading || isOwner}
+                                    disabled={isOwner}
                                     disabledDates={disabledDates}
-                                    insuranceType={insuranceType}
-                                    setInsuranceType={setInsuranceType}
-                                    insuranceFee={insuranceFee}
-                                    setInsuranceFee={setInsuranceFee}
                                     currentUser={currentUser}
                                     onRequireLogin={loginModal.onOpen}
                                 />
@@ -209,9 +134,9 @@ const ListingClient: React.FC<ListingClientProps> = ({
                 </div>
             </div>
             {!isOwner && (
-                <div className="fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-white/95 px-4 pt-3 shadow-[0_-8px_24px_rgba(22, 22, 22,0.10)] backdrop-blur md:hidden" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+                <div className="fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-white/95 px-4 pt-3 shadow-[0_-8px_24px_rgba(22,22,22,0.10)] backdrop-blur md:hidden" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
                     <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
-                        <div className="min-w-0"><div className="text-base font-semibold text-ink">AU${Math.round(totalFees)} <span className="text-xs font-normal text-muted">estimated total</span></div><div className="truncate text-xs text-muted">AU${listing.price}/day · {listing.suburb}, {listing.state}</div></div>
+                        <div className="min-w-0"><div className="text-base font-semibold text-ink">AU${Math.round(estimatedTotal)} <span className="text-xs font-normal text-muted">estimated total</span></div><div className="truncate text-xs text-muted">AU${dailyPrice}/day · {listing.suburb}, {listing.state}</div></div>
                         <button type="button" onClick={scrollToBooking} className="h-12 shrink-0 rounded-full bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-active focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">Check availability</button>
                     </div>
                 </div>

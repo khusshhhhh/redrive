@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { buildShortenQuote } from "./booking";
-import { calculateServiceFee, redriveFee } from "./pricing";
+import { guestDailyPrice } from "./pricing";
 
-test("shorten quote refunds unused hire at the policy percentage, fees in full", () => {
-  // Paid: 5 days @ $100 = $500 base. Return 2 days early → 3 days used, $300 base.
+test("shorten quote refunds unused hire at the policy percentage, margin in full", () => {
+  // Paid: 5 days @ $100. Return 2 days early → 3 days used.
   const q = buildShortenQuote({
     dailyRate: 100,
     paidDays: 5,
@@ -14,11 +14,11 @@ test("shorten quote refunds unused hire at the policy percentage, fees in full",
     refundPercentage: 50,
   });
   assert.equal(q.remainingDays, 3);
-  assert.equal(q.removedBase, 200);
-  assert.equal(q.hireRefund, 100); // 50% of $200
-  assert.equal(q.redriveFeeCredit, redriveFee(500) - redriveFee(300));
-  assert.equal(q.serviceFeeCredit, Math.max(0, calculateServiceFee(500) - calculateServiceFee(300)));
-  assert.equal(q.refundTotal, q.hireRefund + q.redriveFeeCredit + q.serviceFeeCredit);
+  assert.equal(q.removedHostBase, 200);
+  assert.equal(q.removedGuestBase, guestDailyPrice(100) * 2); // 117 * 2 = 234
+  assert.equal(q.hireRefund, 100); // 50% of $200 host base
+  assert.equal(q.marginCredit, 234 - 200); // full margin on the unused days
+  assert.equal(q.refundTotal, q.hireRefund + q.marginCredit);
   assert.equal(q.ownerReduction, 100); // owner loses only the refunded portion
 });
 
@@ -31,7 +31,7 @@ test("shorten quote includes protection for the unused days", () => {
     refundPercentage: 100,
   });
   assert.equal(q.removedInsuranceFee, 40);
-  assert.equal(q.hireRefund, 100 + 40); // full refund of $100 base + $40 protection
+  assert.equal(q.hireRefund, 100 + 40); // full refund of $100 host base + $40 protection
 });
 
 test("shorten quote never removes the last paid day", () => {

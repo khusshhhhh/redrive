@@ -19,7 +19,8 @@ async function POSTHandler(request: Request) {
   if (!listing) return mobileError(request, 404, "LISTING_NOT_FOUND", "That listing is no longer available.");
   const quote = buildBookingQuote({ dailyRate: listing.price, startDate, endDate, insuranceType: parsed.data.insuranceType, cleaningFee: listing.cleaningFeeOption === "YES" ? listing.cleaningFeeAmount || 0 : 0 });
   const expiresAt = new Date(Date.now() + 15 * 60_000).toISOString();
-  return mobileJson(request, { days: quote.days, dailyRateCents: quote.dailyRate * 100, basePriceCents: quote.basePrice * 100, redriveFeeCents: quote.redriveFee * 100, serviceFeeCents: quote.serviceFee * 100, insuranceType: quote.insuranceType, insuranceFeeCents: quote.insuranceFee * 100, cleaningFeeCents: quote.cleaningFee * 100, totalCents: quote.total * 100, currency: quote.currency, policyVersion: quote.policyVersion, cancellationPolicy: cancellationPolicySnapshot(listing.cancellationPolicy), expiresAt });
+  // Guest-facing: all-in daily price and hire subtotal; no platform-fee lines.
+  return mobileJson(request, { days: quote.days, dailyRateCents: quote.guestDailyRate * 100, basePriceCents: quote.guestBase * 100, insuranceType: quote.insuranceType, insuranceFeeCents: quote.insuranceFee * 100, cleaningFeeCents: quote.cleaningFee * 100, totalCents: quote.total * 100, currency: quote.currency, policyVersion: quote.policyVersion, cancellationPolicy: cancellationPolicySnapshot(listing.cancellationPolicy), expiresAt });
 }
 
 export const POST = monitorApiRoute("/api/mobile/v1/reservations/quote", POSTHandler, "POST");

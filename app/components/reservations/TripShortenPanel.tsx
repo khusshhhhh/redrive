@@ -18,10 +18,10 @@ interface ChangeRow {
 }
 
 interface ShortenQuote {
-  removedBase: number;
+  removedHostBase: number;
+  removedGuestBase: number;
   removedInsuranceFee: number;
-  redriveFeeCredit: number;
-  serviceFeeCredit: number;
+  marginCredit: number;
   hireRefund: number;
   refundTotal: number;
   ownerReduction: number;
@@ -133,7 +133,7 @@ export default function TripShortenPanel({
   if (!open && !showForm && applied.length === 0) return null;
 
   return (
-    <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+    <section className="rounded-md border border-hairline-soft bg-white p-6 sm:p-8">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary">
           <CalendarMinus size={19} />
@@ -215,15 +215,11 @@ export default function TripShortenPanel({
                 <span className="text-muted">
                   {state.preview.removedDays} unused day{state.preview.removedDays === 1 ? "" : "s"}
                 </span>
-                <span>{money(state.preview.quote.removedBase + state.preview.quote.removedInsuranceFee)}</span>
+                <span>{money(state.preview.quote.removedGuestBase + state.preview.quote.removedInsuranceFee)}</span>
               </div>
               <div className="mt-1 flex justify-between">
-                <span className="text-muted">Refundable at {state.preview.refundPercentage}%</span>
-                <span>{money(state.preview.quote.hireRefund)}</span>
-              </div>
-              <div className="mt-1 flex justify-between">
-                <span className="text-muted">Fees credited back</span>
-                <span>{money(state.preview.quote.redriveFeeCredit + state.preview.quote.serviceFeeCredit)}</span>
+                <span className="text-muted">Refunded per this trip&rsquo;s policy ({state.preview.refundPercentage}%)</span>
+                <span />
               </div>
               <div className="mt-2 flex justify-between border-t border-hairline-soft pt-2 font-semibold text-ink">
                 <span>Refund to your card</span>

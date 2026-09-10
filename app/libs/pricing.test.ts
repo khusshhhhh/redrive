@@ -1,29 +1,26 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { calculateServiceFee, redriveFee, tripPriceBreakdown } from "./pricing";
+import { REDRIVE_MARGIN_RATE, guestDailyPrice, redriveMargin, tripPriceBreakdown } from "./pricing";
 
-test("service fee follows the documented bands", () => {
-  assert.equal(calculateServiceFee(0), 10);
-  assert.equal(calculateServiceFee(200), 10);
-  assert.equal(calculateServiceFee(201), 25);
-  assert.equal(calculateServiceFee(400), 25);
-  assert.equal(calculateServiceFee(800), 40);
-  assert.equal(calculateServiceFee(1200), 60);
-  assert.equal(calculateServiceFee(2000), 80);
-  assert.equal(calculateServiceFee(2001), 100);
+test("guest daily price adds the 17% margin, rounded per day", () => {
+  assert.equal(REDRIVE_MARGIN_RATE, 0.17);
+  assert.equal(guestDailyPrice(100), 117);
+  assert.equal(guestDailyPrice(95), 111); // 111.15 → 111
+  assert.equal(guestDailyPrice(0), 0);
 });
 
-test("redrive fee is 8% rounded", () => {
-  assert.equal(redriveFee(100), 8);
-  assert.equal(redriveFee(190), 15);
-  assert.equal(redriveFee(0), 0);
+test("redrive margin is the per-day gap times the number of days", () => {
+  assert.equal(redriveMargin(100, 3), (117 - 100) * 3);
+  assert.equal(redriveMargin(95, 3), (111 - 95) * 3);
 });
 
-test("breakdown sums base + redrive + service", () => {
+test("breakdown splits host base, guest base and margin", () => {
   const b = tripPriceBreakdown(120, 3);
-  assert.equal(b.base, 360);
-  assert.equal(b.redriveFee, 29);
-  assert.equal(b.serviceFee, 25);
-  assert.equal(b.total, 414);
+  assert.equal(b.hostDailyRate, 120);
+  assert.equal(b.guestDailyRate, 140); // 140.4 → 140
+  assert.equal(b.hostBase, 360);
+  assert.equal(b.guestBase, 420);
+  assert.equal(b.margin, 60);
+  assert.equal(b.total, 420);
 });

@@ -10,6 +10,7 @@ import { MONO_MAP_STYLES } from "@/app/libs/mapStyles";
 import { clientLog } from "@/app/libs/clientLog";
 import toast from "@/app/libs/toast";
 import ListingCard from "@/app/components/listings/ListingCard";
+import { guestDailyPrice } from "@/app/libs/pricing";
 
 interface ExploreMapViewProps {
   /** First page of results for the current filters, server-rendered. */
@@ -46,7 +47,9 @@ const compactPrice = (value: number): string => {
 };
 
 const groupLabel = (group: MarkerGroup) =>
-  group.cards.length > 1 ? String(group.cards.length) : compactPrice(group.cards[0]?.price ?? 0);
+  group.cards.length > 1
+    ? String(group.cards.length)
+    : compactPrice(guestDailyPrice(group.cards[0]?.price ?? 0));
 
 const prefersReducedMotion = () =>
   typeof window !== "undefined" &&

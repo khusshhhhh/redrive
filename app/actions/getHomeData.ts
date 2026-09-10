@@ -3,6 +3,7 @@ import { unstable_cache } from "next/cache";
 import prisma from "@/app/libs/prismadb";
 import type { ListingCardData } from "@/app/libs/listingCardData";
 import { AU_STATE_LIST, CATEGORY_LABELS } from "@/app/libs/marketplace";
+import { guestDailyPrice } from "@/app/libs/pricing";
 
 export const HOME_DATA_CACHE_TAG = "home-data";
 
@@ -163,7 +164,7 @@ async function loadHomeData(): Promise<HomeData> {
     return {
       label,
       count: inCategory.length,
-      fromPrice: inCategory.length ? Math.min(...inCategory.map((listing) => listing.price)) : null,
+      fromPrice: inCategory.length ? guestDailyPrice(Math.min(...inCategory.map((listing) => listing.price))) : null,
     };
   });
 

@@ -9,6 +9,7 @@ import axios from "axios";
 import toast from "@/app/libs/toast";
 import { useForm, FieldValues } from "react-hook-form";
 import Input from "@/app/components/inputs/Input";
+import { guestDailyPrice, REDRIVE_MARGIN_RATE } from "@/app/libs/pricing";
 import AddressAutocomplete, { ParsedAddress } from "@/app/components/inputs/AddressAutocomplete";
 import CategoryInput from "@/app/components/inputs/CategoryInput";
 import ImageUpload from "@/app/components/inputs/ImageUpload";
@@ -277,7 +278,8 @@ const EditUtilityPage = () => {
                         <div className="p-5">
                             <p className="line-clamp-2 font-semibold text-ink">{watch("title") || "Your listing title"}</p>
                             <p className="mt-1 text-xs text-muted">{selectedSuburb?.value || "Suburb"}, {selectedState?.value || "State"}</p>
-                            <p className="mt-4 text-lg font-semibold text-ink">AU${watch("price") || 0}<span className="text-xs font-normal text-muted"> / day</span></p>
+                            <p className="mt-4 text-lg font-semibold text-ink">AU${guestDailyPrice(Number(watch("price")) || 0)}<span className="text-xs font-normal text-muted"> / day</span></p>
+                            <p className="mt-1 text-xs text-muted">You earn AU${Number(watch("price")) || 0}/day</p>
                         </div>
                     </div>
                     <div className="rounded-xl border border-hairline-soft bg-white p-5">
@@ -463,12 +465,17 @@ const EditUtilityPage = () => {
                     <p className="font-semibold mb-4 text-ink">Pricing</p>
                     <Input
                         id="price"
-                        label="Daily price (AUD)"
+                        label="Your daily rate (AUD)"
                         type="number"
                         register={register}
                         errors={errors}
                         required
                     />
+                    <div className="mt-3 rounded-lg border border-hairline-soft bg-surface-soft p-4 text-sm">
+                        <div className="flex items-center justify-between text-muted"><span>Your daily rate</span><span className="font-medium text-ink">AU${Number(watch("price")) || 0}</span></div>
+                        <div className="mt-1.5 flex items-center justify-between text-muted"><span>Redrive service ({Math.round(REDRIVE_MARGIN_RATE * 100)}%)</span><span className="font-medium text-ink">AU${guestDailyPrice(Number(watch("price")) || 0) - (Number(watch("price")) || 0)}</span></div>
+                        <div className="mt-2.5 flex items-center justify-between border-t border-hairline-soft pt-2.5 font-semibold text-ink"><span>Guests pay</span><span>AU${guestDailyPrice(Number(watch("price")) || 0)} / day</span></div>
+                    </div>
                 </div>
 
                 {/* Cleaning Fees */}

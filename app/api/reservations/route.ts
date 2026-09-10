@@ -125,7 +125,7 @@ async function POSTHandler(request: NextRequest) {
       const created = await tx.reservation.create({
         data: {
           userId: currentUser.id, listingId, startDate, endDate,
-          totalPrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee,
+          totalPrice: quote.hostBase, redriveFee: 0, serviceFee: 0,
           insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, totalFees: quote.total,
           message: message || null, quoteSnapshot: quote, pricingPolicyVersion: PRICING_POLICY_VERSION,
           pickupTime, pickupTimeSetByRole: "GUEST", pickupTimeConfirmed: true, pickupTimeUpdatedAt: new Date(),
@@ -145,7 +145,7 @@ async function POSTHandler(request: NextRequest) {
         },
       });
       await tx.bookingQuote.create({
-        data: { userId: currentUser.id, listingId, reservationId: created.id, startDate, endDate, days: quote.days, dailyRate: quote.dailyRate, basePrice: quote.basePrice, redriveFee: quote.redriveFee, serviceFee: quote.serviceFee, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, cleaningFee: quote.cleaningFee, total: quote.total, currency: quote.currency, policyVersion: quote.policyVersion, expiresAt: new Date(Date.now() + 15 * 60_000) },
+        data: { userId: currentUser.id, listingId, reservationId: created.id, startDate, endDate, days: quote.days, dailyRate: quote.hostDailyRate, basePrice: quote.hostBase, redriveFee: 0, serviceFee: 0, insuranceType: quote.insuranceType, insuranceFee: quote.insuranceFee, cleaningFee: quote.cleaningFee, total: quote.total, currency: quote.currency, policyVersion: quote.policyVersion, expiresAt: new Date(Date.now() + 15 * 60_000) },
       });
       await tx.reservationDriver.createMany({
         data: driverRows.map((driver) => ({ ...driver, reservationId: created.id })),

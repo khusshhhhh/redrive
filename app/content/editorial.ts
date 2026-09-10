@@ -72,7 +72,7 @@ export const helpArticles: EditorialArticle[] = [
     readTime: "4 min read",
     sections: [
       { heading: "Start with the dates", paragraphs: ["Redrive calculates chargeable days from the selected pickup and return dates and applies the vehicle’s current daily rate. Minimum and maximum trip rules may affect which dates can be requested."] },
-      { heading: "Read every line", paragraphs: ["The quote can include the base vehicle amount, marketplace or service fees, the selected protection amount and an applicable cleaning amount. Read the total rather than multiplying only the headline daily price."] },
+      { heading: "Read every line", paragraphs: ["The daily price you see is all-in — Redrive's service margin is already included, and there is no separate marketplace or service-fee line. The quote adds only the protection you choose and any host cleaning amount. Read the total rather than multiplying only the headline daily price."] },
       { heading: "A request is not yet a paid booking", paragraphs: ["A host may need to approve the request before payment is available. Watch the reservation status and payment instructions rather than assuming submission guarantees the vehicle."] },
       { heading: "Keep the price record", paragraphs: ["Redrive stores a versioned quote snapshot with the reservation. If something looks wrong, use the itemised reservation details when contacting support."] },
     ],
@@ -87,7 +87,7 @@ export const helpArticles: EditorialArticle[] = [
     readTime: "4 min read",
     sections: [
       { heading: "Choose the right vehicle", paragraphs: ["Review the vehicle category, capacity, transmission, amenities, daily price and suburb before selecting dates. Read the full description and ask the host about anything that could affect your trip."], items: ["Check licence requirements", "Confirm sleeping or passenger capacity", "Review fuel, charging and cleaning arrangements"] },
-      { heading: "Send a request", paragraphs: ["Redrive shows the daily hire amount, service fee, platform fee, protection selection and any upfront cleaning fee before you continue. Sending the request asks the host to review your dates; it does not instantly confirm the trip."], items: ["Keep your profile details current", "Upload your driving licence before booking", "Use accurate pickup and return dates"] },
+      { heading: "Send a request", paragraphs: ["Redrive shows one all-in hire amount, your protection selection and any upfront cleaning fee before you continue. Sending the request asks the host to review your dates; it does not instantly confirm the trip."], items: ["Keep your profile details current", "Upload your driving licence before booking", "Use accurate pickup and return dates"] },
       { heading: "Wait for the host", paragraphs: ["The host receives a notification and can review the request. Keep questions and handover arrangements in Redrive Messages so both sides have a shared record."], items: ["Watch Trips for status changes", "Reply promptly to host questions", "Do not arrange off-platform payment"] },
     ],
   },
@@ -358,7 +358,7 @@ export const newsroomPosts: EditorialArticle[] = [
     readTime: "3 min read",
     sections: [
       { heading: "Real listings, not placeholders", paragraphs: ["The home page is assembled from current marketplace inventory rather than fixed sample content. Categories, featured vehicles and location context reflect what is actually available to book, and update as listings change."] },
-      { heading: "One place for trip-price maths", paragraphs: ["Daily rate, chargeable days, marketplace and service fees, protection and cleaning amounts are calculated by a single shared pricing module. The home page, search, listing pages and checkout all read from it, so an estimate shown early matches the total at the request screen."] },
+      { heading: "One place for trip-price maths", paragraphs: ["The all-in daily price, chargeable days, protection and cleaning amounts are calculated by a single shared pricing module. The home page, search, listing pages and checkout all read from it, so an estimate shown early matches the total at the request screen."] },
       { heading: "Server-safe by design", paragraphs: ["Home and discovery content is prepared on the server with short, size-limited caching for anonymous browsing only. Private account, licence, payment and exact-location data stays outside those caches, and an availability change invalidates the affected public results."] },
     ],
   },
@@ -469,7 +469,7 @@ export const newsroomPosts: EditorialArticle[] = [
     published: "2026-08-21",
     readTime: "4 min read",
     sections: [
-      { heading: "A versioned quote snapshot", paragraphs: ["When a guest requests dates, Redrive calculates the daily price, marketplace and service fees, selected protection amount, cleaning amount and total. The quote snapshot and pricing-policy version are stored with the booking record."] },
+      { heading: "A versioned quote snapshot", paragraphs: ["When a guest requests dates, Redrive calculates the all-in daily price (which already includes Redrive's service margin), the selected protection amount, the cleaning amount and the total. The quote snapshot and pricing-policy version are stored with the booking record."] },
       { heading: "Availability is checked again", paragraphs: ["The reservation service checks trip length, minimum notice, overlapping reservations and owner blocks before it creates a request. This reduces the risk of relying only on an earlier browser calculation."] },
       { heading: "Payout readiness", paragraphs: ["Hosts can complete payout onboarding through Stripe. Release checks consider payment state, trip end, return acknowledgement and unresolved incidents before funds are treated as ready for transfer."] },
     ],

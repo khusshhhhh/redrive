@@ -21,10 +21,10 @@ interface ExtendState {
   canRequest: boolean;
   extraDays: number;
   quote: {
-    extraBase: number;
+    extraHostBase: number;
+    extraGuestBase: number;
+    extraMargin: number;
     extraInsuranceFee: number;
-    extraRedriveFee: number;
-    extraServiceFee: number;
     extraTotal: number;
   } | null;
   extensions: ExtensionRow[];
@@ -164,7 +164,7 @@ export default function TripExtensionPanel({
   }
 
   return (
-    <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+    <section className="rounded-md border border-hairline-soft bg-white p-6 sm:p-8">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary">
           <CalendarPlus size={19} />
@@ -265,11 +265,10 @@ export default function TripExtensionPanel({
 
           {state.quote && state.extraDays > 0 && (
             <div className="mt-3 rounded-sm bg-surface-soft p-3 text-sm">
-              <div className="flex justify-between"><span className="text-muted">Extra hire ({state.extraDays} day{state.extraDays === 1 ? "" : "s"})</span><span>{money(state.quote.extraBase)}</span></div>
+              <div className="flex justify-between"><span className="text-muted">Extra hire ({state.extraDays} day{state.extraDays === 1 ? "" : "s"})</span><span>{money(state.quote.extraGuestBase)}</span></div>
               {state.quote.extraInsuranceFee > 0 && (
                 <div className="mt-1 flex justify-between"><span className="text-muted">Protection</span><span>{money(state.quote.extraInsuranceFee)}</span></div>
               )}
-              <div className="mt-1 flex justify-between"><span className="text-muted">Fees</span><span>{money(state.quote.extraRedriveFee + state.quote.extraServiceFee)}</span></div>
               <div className="mt-2 flex justify-between border-t border-hairline-soft pt-2 font-semibold text-ink"><span>Extra to pay</span><span>{money(state.quote.extraTotal)}</span></div>
             </div>
           )}

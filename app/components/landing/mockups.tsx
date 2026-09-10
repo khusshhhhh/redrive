@@ -77,16 +77,12 @@ export function BookingMock({ cover, title, suburb }: { cover?: string; title: s
         </div>
         <div className="space-y-1.5 text-[11px] text-muted">
           <div className="flex justify-between">
-            <span>AU$92 × 2 days</span>
-            <span className="text-ink">AU$184</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Service fee</span>
-            <span className="text-ink">AU$22</span>
+            <span>AU$108 × 2 days</span>
+            <span className="text-ink">AU$216</span>
           </div>
           <div className="flex justify-between border-t border-hairline-soft pt-1.5 text-[12px] font-bold text-ink">
             <span>Total</span>
-            <span>AU$206</span>
+            <span>AU$216</span>
           </div>
         </div>
         <div className="flex h-10 items-center justify-center gap-1.5 rounded-full bg-primary text-xs font-semibold text-white">
