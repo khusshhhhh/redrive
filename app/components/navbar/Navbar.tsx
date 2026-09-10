@@ -6,7 +6,7 @@ import Categories from "./Categories";
 import Logo from "./Logo";
 import Search from "./Search";
 import UserMenu from "./UserMenu";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Search as SearchIcon } from "lucide-react";
 
 const HEADER_COLLAPSE_SCROLL_Y = 48;
@@ -15,8 +15,6 @@ const HEADER_EXPAND_SCROLL_Y = 8;
 const Navbar: React.FC = () => {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const desktopQuery = window.matchMedia("(min-width: 768px)");
@@ -45,31 +43,21 @@ const Navbar: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!headerRef.current) return;
-
-    const updateHeight = () => {
-      const nextHeight = headerRef.current?.getBoundingClientRect().height ?? 0;
-      setHeaderHeight(nextHeight);
-      if (nextHeight) {
-        document.documentElement.style.setProperty("--app-header-height", `${nextHeight}px`);
-      }
-    };
-    updateHeight();
-
-    const observer = new ResizeObserver(updateHeight);
-    observer.observe(headerRef.current);
-    return () => observer.disconnect();
-  }, [pathname]);
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const showSearchBar = !pathname.startsWith("/confirm-reservation");
   // The marketplace surface (category rail + expanded search) now lives at /explore.
   const isMarketplace = pathname === "/explore";
 
+  // The header is fixed, so the flow needs a spacer of matching height. That
+  // height is fully determined by the route (marketplace routes carry the
+  // category rail), so it is reserved with static classes rather than measured
+  // on the client — a post-hydration measurement shifts every route's content
+  // downward on load and was the main Cumulative Layout Shift source.
+  const spacerHeight = isMarketplace ? "h-[142px] md:h-[150px]" : "h-[65px] md:h-[73px]";
+
   return (
     <>
-    <header ref={headerRef} className={`fixed inset-x-0 top-0 z-30 w-full border-b bg-white/95 backdrop-blur-md transition-[box-shadow,border-color] duration-300 ${isScrolled ? "border-hairline shadow-[0_8px_24px_rgba(22, 22, 22,0.08)]" : "border-hairline-soft shadow-none"}`}>
+    <header className={`fixed inset-x-0 top-0 z-30 w-full border-b bg-white/95 backdrop-blur-md transition-[box-shadow,border-color] duration-300 ${isScrolled ? "border-hairline shadow-[0_8px_24px_rgba(22, 22, 22,0.08)]" : "border-hairline-soft shadow-none"}`}>
       <div className={`transition-[padding] duration-300 ${isScrolled ? "py-2" : "py-2.5 sm:py-3"}`}>
         <Container>
           <div className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2.5 md:grid-cols-[auto_1fr_auto] md:gap-x-3 xl:grid-cols-[1fr_auto_1fr]">
@@ -95,11 +83,7 @@ const Navbar: React.FC = () => {
         </Suspense>
       )}
     </header>
-    <div
-      aria-hidden="true"
-      className={isMarketplace ? "h-[128px] sm:h-[140px]" : "h-[64px] md:h-[68px]"}
-      style={headerHeight ? { height: `${headerHeight}px` } : undefined}
-    />
+    <div aria-hidden="true" className={spacerHeight} />
     </>
   );
 };

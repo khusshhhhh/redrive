@@ -13,6 +13,19 @@ html {
   scroll-padding-top: 9rem;
 }
 
+/* Height of the fixed site header. Kept in sync with the spacer in Navbar.tsx
+   and consumed by focused flows (AppShell) that size their scroll region to the
+   remaining viewport. Static per breakpoint so it never shifts layout on load. */
+:root {
+  --app-header-height: 65px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --app-header-height: 73px;
+  }
+}
+
 /* Slim the document scrollbar without removing it: hiding it entirely takes
    away scroll position and the "there is more below" cue for every user.
    Overflow rails that genuinely want no scrollbar opt in with .scrollbar-hide. */

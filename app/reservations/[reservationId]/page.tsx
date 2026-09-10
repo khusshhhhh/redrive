@@ -186,7 +186,7 @@ export default function ReservationDetails() {
   if (loading) return <ReservationSkeleton />;
   if (!reservation)
     return (
-      <div className="py-32 text-center text-error">Reservation not found.</div>
+      <div className="min-h-screen py-32 text-center text-error">Reservation not found.</div>
     );
 
   const listing = reservation.listing;
@@ -694,7 +694,7 @@ function PriceRow({ label, value }: { label: string; value?: number | null }) {
 }
 function ReservationSkeleton() {
   return (
-    <main className="bg-surface-soft/40 py-8 sm:py-12">
+    <main className="min-h-screen bg-surface-soft/40 py-8 sm:py-12">
       <Container>
         <div className="mx-auto max-w-[1120px] space-y-6">
           <div className="skeleton-wave h-9 w-48 rounded sm:w-64" />
