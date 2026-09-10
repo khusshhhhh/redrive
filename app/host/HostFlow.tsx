@@ -47,10 +47,11 @@ import { CANCELLATION_POLICIES } from "@/app/libs/cancellationPolicy";
 import OptionSelector from "@/app/components/inputs/OptionSelector";
 import ToggleRow from "@/app/components/inputs/ToggleRow";
 import ChipMultiSelect from "@/app/components/inputs/ChipMultiSelect";
-import HostIllustration, { type HostPhaseKey } from "@/app/components/host/HostIllustration";
+import HostIllustration, { type HostFrame, type HostPhaseKey } from "@/app/components/host/HostIllustration";
 import SuccessBurst from "@/app/components/SuccessBurst";
 import useUnsavedChangesWarning from "@/app/hooks/useUnsavedChangesWarning";
 import { applyApiFieldErrors } from "@/app/libs/formErrors";
+import { guestDailyPrice, REDRIVE_MARGIN_RATE } from "@/app/libs/pricing";
 import {
   TRANSMISSION_OPTIONS,
   TYRE_CONDITION_OPTIONS,
@@ -125,6 +126,23 @@ const ALL_STEPS: StepId[] = PHASES.flatMap((phase) => phase.steps);
 
 const phaseForStep = (id: StepId) => PHASES.find((phase) => phase.steps.includes(id))!;
 
+/** Full-screen intro shown once before the first step of each part, in the
+ *  style of Airbnb's "Step 1 — Tell us about your place". */
+const PHASE_INTRO: Record<HostPhaseKey, { frame: HostFrame; copy: string }> = {
+  about: {
+    frame: 1,
+    copy: "First, tell us about your vehicle — the category, where it's kept, and the specs guests filter by. Only the suburb is ever shown publicly; the exact address stays private until a booking is confirmed.",
+  },
+  standout: {
+    frame: 3,
+    copy: "Now make your listing stand out. Add your best photos, write a short honest description, and tick the amenities, safety features and condition notes that set your vehicle apart.",
+  },
+  finish: {
+    frame: 5,
+    copy: "Last, set your trip rules, delivery options and price. You'll see exactly what guests pay and what you earn before your listing goes live.",
+  },
+};
+
 export default function HostFlow() {
   const router = useRouter();
   const { currentUser, isLoading: sessionLoading } = useCurrentUser();
@@ -132,6 +150,10 @@ export default function HostFlow() {
 
   const [view, setView] = useState<"intro" | "flow">("intro");
   const [stepIndex, setStepIndex] = useState(0);
+  // When set, a full-screen "Part N" intro is shown instead of the step below it.
+  const [introPhase, setIntroPhase] = useState<HostPhaseKey | null>(null);
+  // Drives the slide direction of the step transition (forward vs back).
+  const directionRef = useRef<"forward" | "back">("forward");
   const scrollRef = useRef<HTMLDivElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [published, setPublished] = useState(false);
@@ -348,12 +370,34 @@ export default function HostFlow() {
   const clampedStepIndex = Math.min(stepIndex, stepOrder.length - 1);
   const currentStep = stepOrder[clampedStepIndex];
   const totalSteps = stepOrder.length;
-  const progress = view === "intro" ? 0 : Math.round(((clampedStepIndex + 1) / totalSteps) * 100);
+
+  // Steps grouped by part, filtered the same way as `stepOrder` (the
+  // category-specs step only applies to some vehicle types).
+  const phaseSteps = useMemo(() => {
+    const map = {} as Record<HostPhaseKey, StepId[]>;
+    for (const phase of PHASES) map[phase.key] = phase.steps.filter((step) => stepOrder.includes(step));
+    return map;
+  }, [stepOrder]);
+
+  const currentPhase = phaseForStep(currentStep);
+  const currentPhaseIdx = PHASES.findIndex((phase) => phase.key === currentPhase.key);
+  const phaseStepList = phaseSteps[currentPhase.key];
+  const indexWithinPhase = phaseStepList.indexOf(currentStep);
+  const isFirstStepOfPhase = indexWithinPhase === 0;
+
+  // One progress segment per part: full for completed parts, a running fraction
+  // for the part in progress (0 while its intro screen is showing).
+  const segments = PHASES.map((phase, pi) => {
+    if (pi < currentPhaseIdx) return 1;
+    if (pi > currentPhaseIdx) return 0;
+    if (introPhase) return 0;
+    return (indexWithinPhase + 1) / Math.max(1, phaseSteps[phase.key].length);
+  });
 
   // The page itself doesn't scroll; reset the inner form region on every step.
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0 });
-  }, [currentStep]);
+  }, [currentStep, introPhase]);
 
   const validateStep = useCallback(
     async (id: StepId): Promise<string | null> => {
@@ -415,10 +459,19 @@ export default function HostFlow() {
   const goToStep = (id: StepId) => {
     const index = stepOrder.indexOf(id);
     if (index >= 0) {
+      directionRef.current = "forward";
       setStepIndex(index);
+      setIntroPhase(null);
       setView("flow");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  };
+
+  const enterFlow = () => {
+    directionRef.current = "forward";
+    setStepIndex(0);
+    setIntroPhase(PHASES[0].key);
+    setView("flow");
   };
 
   const publish = useCallback(async () => {
@@ -458,6 +511,13 @@ export default function HostFlow() {
   }, [address, coords, damagePhotos, getValues, imageSrcs, languagesSpoken, regoImage, safetyFeatures, selectedAmenities, selectedState, selectedSuburb, setError]);
 
   const next = useCallback(async () => {
+    directionRef.current = "forward";
+    // A part intro just needs "Next" to reveal the first step behind it.
+    if (introPhase) {
+      setIntroPhase(null);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     const error = await validateStep(currentStep);
     if (error) {
       toast.error(error);
@@ -467,18 +527,35 @@ export default function HostFlow() {
       void publish();
       return;
     }
-    setStepIndex(clampedStepIndex + 1);
+    const nextIndex = clampedStepIndex + 1;
+    const nextPhase = phaseForStep(stepOrder[nextIndex]);
+    setStepIndex(nextIndex);
+    if (nextPhase.key !== currentPhase.key) setIntroPhase(nextPhase.key);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentStep, clampedStepIndex, publish, totalSteps, validateStep]);
+  }, [introPhase, currentStep, currentPhase.key, clampedStepIndex, publish, stepOrder, totalSteps, validateStep]);
 
   const back = useCallback(() => {
-    if (clampedStepIndex === 0) {
-      setView("intro");
+    directionRef.current = "back";
+    if (introPhase) {
+      const introIdx = PHASES.findIndex((phase) => phase.key === introPhase);
+      if (introIdx <= 0) {
+        setView("intro");
+        return;
+      }
+      const prevList = phaseSteps[PHASES[introIdx - 1].key];
+      setIntroPhase(null);
+      setStepIndex(stepOrder.indexOf(prevList[prevList.length - 1]));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    if (isFirstStepOfPhase) {
+      setIntroPhase(currentPhase.key);
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     setStepIndex(clampedStepIndex - 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [clampedStepIndex]);
+  }, [introPhase, isFirstStepOfPhase, currentPhase.key, clampedStepIndex, phaseSteps, stepOrder]);
 
   /* ---- gates ------------------------------------------------------------- */
 
@@ -547,10 +624,7 @@ export default function HostFlow() {
             </div>
             <button
               type="button"
-              onClick={() => {
-                setView("flow");
-                setStepIndex(0);
-              }}
+              onClick={enterFlow}
               className="group mt-8 inline-flex h-14 items-center gap-2.5 rounded-full bg-primary px-8 text-base font-semibold text-white transition hover:bg-primary-active"
             >
               Get started
@@ -587,102 +661,93 @@ export default function HostFlow() {
 
   /* ---- flow ---------------------------------------------------------------- */
 
-  const phase = phaseForStep(currentStep);
   const isLast = clampedStepIndex >= totalSteps - 1;
-  // Walk the five illustration frames across the whole flow as a journey.
-  const illustrationFrame = Math.min(
-    5,
-    Math.max(1, Math.ceil(((clampedStepIndex + 1) / totalSteps) * 5)),
-  ) as 1 | 2 | 3 | 4 | 5;
+  const transitionKey = introPhase ? `intro-${introPhase}` : currentStep;
+  const stepAnimClass = `host-step${directionRef.current === "back" ? " host-step--back" : ""}`;
 
   return (
     <div className="flex h-full flex-col bg-white">
-      {/* progress */}
+      {/* slim top strip */}
       <div className="shrink-0 border-b border-hairline-soft bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3 sm:px-8">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-3.5 sm:px-8">
           <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-soft">
-            {phase.label} &middot; {phase.name}
+            {currentPhase.label} &middot; {currentPhase.name}
           </p>
-          <p className="text-[11px] font-semibold text-muted">
-            {clampedStepIndex + 1} / {totalSteps}
-          </p>
-        </div>
-        <div className="h-1 w-full bg-surface-strong">
-          <div className="host-progress-fill h-full bg-primary" style={{ width: `${progress}%` }} />
+          {!introPhase && (
+            <p className="text-[11px] font-semibold text-muted">
+              {indexWithinPhase + 1} / {phaseStepList.length}
+            </p>
+          )}
         </div>
       </div>
 
-      {/* body: idle illustration + the single scrollable region */}
-      <div className="mx-auto grid min-h-0 w-full max-w-5xl flex-1 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
-        <aside className="hidden min-h-0 flex-col justify-center border-r border-hairline-soft px-8 py-8 lg:flex">
-          <HostIllustration frame={illustrationFrame} />
-          <div className="host-illustration-road mt-6 h-0.5 w-full opacity-70" />
-          <p className="mt-6 text-xs font-bold uppercase tracking-[0.16em] text-primary">{phase.name}</p>
-          {HOST_STEP_TIPS[currentStep] && (
-            <p key={currentStep} className="host-step mt-2 text-sm leading-6 text-muted">
-              {HOST_STEP_TIPS[currentStep]}
-            </p>
-          )}
-        </aside>
-
-        <div ref={scrollRef} className="min-h-0 overflow-y-auto px-5 py-8 sm:px-10 sm:py-10">
-          <div className="mx-auto max-w-xl">
+      {/* the single scrollable region — a part intro OR the current step */}
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-5 py-10 sm:px-8 sm:py-14">
+        {introPhase ? (
+          <PhaseIntro key={transitionKey} phase={PHASES.find((p) => p.key === introPhase)!} />
+        ) : (
+          <div key={transitionKey} className={`mx-auto max-w-xl ${stepAnimClass}`}>
+            <StepBody
+              step={currentStep}
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              setCustom={setCustom}
+              watch={watch}
+              getValues={getValues}
+              category={category}
+              guestCount={guestCount}
+              doorCount={doorCount}
+              sleepCount={sleepCount}
+              regoEndDate={regoEndDate}
+              cleaningFeeOption={cleaningFeeOption}
+              cancellationPolicy={cancellationPolicy}
+              selectedState={selectedState}
+              setSelectedState={setSelectedState}
+              selectedSuburb={selectedSuburb}
+              setSelectedSuburb={setSelectedSuburb}
+              setAddress={onAddressManualChange}
+              onAddressSelect={onAddressSelect}
+              coords={coords}
+              MapComponent={Map}
+              imageSrcs={imageSrcs}
+              setImageSrcs={setImageSrcs}
+              setUploadingPhotos={setUploadingPhotos}
+              regoImage={regoImage}
+              setRegoImage={setRegoImage}
+              selectedAmenities={selectedAmenities}
+              toggleAmenity={toggleAmenity}
+              fuelType={fuelType}
+              damagePhotos={damagePhotos}
+              setDamagePhotos={setDamagePhotos}
+              safetyFeatures={safetyFeatures}
+              toggleSafetyFeature={toggleFrom(setSafetyFeatures)}
+              languagesSpoken={languagesSpoken}
+              toggleLanguage={toggleFrom(setLanguagesSpoken)}
+              address={address}
+              goToStep={goToStep}
+              submitting={submitting}
+            />
             {HOST_STEP_TIPS[currentStep] && (
-              <p className="mb-6 rounded-xl bg-surface-soft px-4 py-3 text-sm leading-6 text-muted lg:hidden">
+              <p className="mt-9 rounded-xl border border-hairline-soft bg-surface-soft px-4 py-3.5 text-sm leading-6 text-muted">
                 <span className="font-semibold text-ink">Why it matters — </span>
                 {HOST_STEP_TIPS[currentStep]}
               </p>
             )}
-            <div key={currentStep} className="host-step">
-              <StepBody
-            step={currentStep}
-            register={register}
-            errors={errors}
-            setValue={setValue}
-            setCustom={setCustom}
-            watch={watch}
-            getValues={getValues}
-            category={category}
-            guestCount={guestCount}
-            doorCount={doorCount}
-            sleepCount={sleepCount}
-            regoEndDate={regoEndDate}
-            cleaningFeeOption={cleaningFeeOption}
-            cancellationPolicy={cancellationPolicy}
-            selectedState={selectedState}
-            setSelectedState={setSelectedState}
-            selectedSuburb={selectedSuburb}
-            setSelectedSuburb={setSelectedSuburb}
-            setAddress={onAddressManualChange}
-            onAddressSelect={onAddressSelect}
-            coords={coords}
-            MapComponent={Map}
-            imageSrcs={imageSrcs}
-            setImageSrcs={setImageSrcs}
-            setUploadingPhotos={setUploadingPhotos}
-            regoImage={regoImage}
-            setRegoImage={setRegoImage}
-            selectedAmenities={selectedAmenities}
-            toggleAmenity={toggleAmenity}
-            fuelType={fuelType}
-            damagePhotos={damagePhotos}
-            setDamagePhotos={setDamagePhotos}
-            safetyFeatures={safetyFeatures}
-            toggleSafetyFeature={toggleFrom(setSafetyFeatures)}
-            languagesSpoken={languagesSpoken}
-            toggleLanguage={toggleFrom(setLanguagesSpoken)}
-            address={address}
-            goToStep={goToStep}
-            submitting={submitting}
-              />
-            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* action bar — pinned to the bottom of the fixed-height flow */}
+      {/* action bar — segmented progress + Back / Next, pinned to the bottom */}
       <div className="shrink-0 border-t border-hairline bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+        <div className="flex gap-1.5 px-5 pt-3 sm:px-8">
+          {PHASES.map((phase, i) => (
+            <div key={phase.key} className="h-[3px] flex-1 overflow-hidden rounded-full bg-surface-strong">
+              <div className="host-progress-fill h-full rounded-full bg-ink" style={{ width: `${Math.round(segments[i] * 100)}%` }} />
+            </div>
+          ))}
+        </div>
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
           <button
             type="button"
             onClick={back}
@@ -703,6 +768,10 @@ export default function HostFlow() {
               <>
                 <Loader2 size={17} className="animate-spin" /> Publishing…
               </>
+            ) : introPhase ? (
+              <>
+                {introPhase === "about" ? "Start" : "Continue"} <ArrowRight size={16} />
+              </>
             ) : isLast ? (
               <>
                 Publish listing <Sparkles size={16} />
@@ -714,6 +783,25 @@ export default function HostFlow() {
             )}
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** Full-screen "Part N" intro, styled after Airbnb's step interstitials. */
+function PhaseIntro({ phase }: { phase: (typeof PHASES)[number] }) {
+  const { frame, copy } = PHASE_INTRO[phase.key];
+  return (
+    <div className="host-phase-intro mx-auto grid min-h-full max-w-4xl items-center gap-10 py-6 lg:grid-cols-[1fr_0.85fr] lg:gap-14">
+      <div>
+        <p className="host-phase-intro-eyebrow text-xs font-bold uppercase tracking-[0.18em] text-primary">{phase.label}</p>
+        <h2 className="host-phase-intro-title mt-4 text-display-hero font-extrabold leading-[1.05] tracking-tight text-ink">
+          {phase.name}
+        </h2>
+        <p className="host-phase-intro-copy mt-5 max-w-md text-base leading-7 text-muted">{copy}</p>
+      </div>
+      <div className="host-phase-intro-art mx-auto w-full max-w-xs sm:max-w-sm">
+        <HostIllustration frame={frame} />
       </div>
     </div>
   );
@@ -1387,10 +1475,26 @@ function StepBody(props: StepBodyProps) {
         </StepShell>
       );
 
-    case "price":
+    case "price": {
+      const hostRate = Math.max(0, Math.round(Number(watch("price")) || 0));
+      const guestPays = guestDailyPrice(hostRate);
       return (
-        <StepShell title="Set your daily price" subtitle="This is what a guest pays per day, before Redrive's service fee. You can adjust it whenever you like.">
-          <Input id="price" label="Daily price (AUD)" formatPrice type="number" register={register} errors={errors} required />
+        <StepShell title="Now, set your price" subtitle="Enter what you want to earn per day. Redrive adds a service margin on top, and guests see one all-in price — you can change your rate whenever you like.">
+          <Input id="price" label="Your daily rate (AUD)" formatPrice type="number" register={register} errors={errors} required />
+          <div className="rounded-2xl border border-border-strong p-5">
+            <div className="flex items-center justify-between text-sm text-muted">
+              <span>Your daily rate</span>
+              <span className="font-medium text-ink">AU${hostRate}</span>
+            </div>
+            <div className="mt-2 flex items-center justify-between text-sm text-muted">
+              <span>Redrive service ({Math.round(REDRIVE_MARGIN_RATE * 100)}%)</span>
+              <span className="font-medium text-ink">AU${guestPays - hostRate}</span>
+            </div>
+            <div className="mt-3 flex items-center justify-between border-t border-hairline-soft pt-3 text-base font-semibold text-ink">
+              <span>Guests pay</span>
+              <span>AU${guestPays}<span className="ml-1 text-sm font-normal text-muted">/ day</span></span>
+            </div>
+          </div>
           <FieldGroup title="Longer-trip discounts — optional">
             <div className="grid gap-6 sm:grid-cols-2">
               <NumberField id="weeklyDiscountPercent" label="Weekly discount (%)" register={register} errors={errors} placeholder="e.g. 10" />
@@ -1416,6 +1520,7 @@ function StepBody(props: StepBodyProps) {
           </FieldGroup>
         </StepShell>
       );
+    }
 
     case "cleaning":
       return (
@@ -1487,7 +1592,7 @@ function StepBody(props: StepBodyProps) {
           step: "delivery",
           icon: MapPin,
         },
-        { label: "Daily price", value: v.price ? `AU$${v.price}` : "—", step: "price", icon: Wallet },
+        { label: "Daily price", value: v.price ? `You earn AU$${v.price} · guests pay AU$${guestDailyPrice(Number(v.price) || 0)}` : "—", step: "price", icon: Wallet },
         { label: "Security deposit", value: v.securityDeposit ? `AU$${v.securityDeposit}` : "None", step: "price", icon: Wallet },
         {
           label: "Cancellation",

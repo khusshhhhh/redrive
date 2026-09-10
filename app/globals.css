@@ -673,14 +673,40 @@ textarea::placeholder {
     0 44px 120px -32px rgba(31, 31, 31, 0.4);
 }
 
-/* One-question-per-screen host flow: each panel animates in on step change. */
+/* One-question-per-screen host flow: each panel animates in on step change.
+   Direction-aware — moving forward the step rises in, going back it drops in. */
 .host-step {
   animation: stepEnter 460ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.host-step--back {
+  animation: stepEnterBack 460ms cubic-bezier(.16, 1, .3, 1) both;
 }
 @keyframes stepEnter {
   from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes stepEnterBack {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* "Part N" interstitial: the artwork settles in, then the text lifts in behind
+   it in a short stagger — the Airbnb step-intro beat. */
+.host-phase-intro-art {
+  animation: hostIntroArt 620ms cubic-bezier(.16, 1, .3, 1) both;
+}
+@keyframes hostIntroArt {
+  from { opacity: 0; transform: scale(.94) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.host-phase-intro-eyebrow { animation: hostIntroText 460ms cubic-bezier(.16, 1, .3, 1) 90ms both; }
+.host-phase-intro-title { animation: hostIntroText 520ms cubic-bezier(.16, 1, .3, 1) 160ms both; }
+.host-phase-intro-copy { animation: hostIntroText 520ms cubic-bezier(.16, 1, .3, 1) 240ms both; }
+@keyframes hostIntroText {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .host-progress-fill {
   transition: width 620ms cubic-bezier(.16, 1, .3, 1);
 }
@@ -766,7 +792,12 @@ textarea::placeholder {
 @media (prefers-reduced-motion: reduce) {
   .fade-in { animation: none; }
   .marquee-track { animation: none !important; }
-  .host-step { animation: none; }
+  .host-step,
+  .host-step--back,
+  .host-phase-intro-art,
+  .host-phase-intro-eyebrow,
+  .host-phase-intro-title,
+  .host-phase-intro-copy { animation: none; }
   .host-progress-fill { transition: none; }
   .host-illustration,
   .host-illustration-frame,
