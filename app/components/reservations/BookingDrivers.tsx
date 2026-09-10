@@ -234,7 +234,7 @@ export default function BookingDrivers({
   const onFileActive = useOnFile && reusable?.available;
 
   return (
-    <section id="drivers" className="scroll-mt-28 rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+    <section id="drivers" className="scroll-mt-28 rounded-md border border-hairline-soft bg-white p-6 sm:p-8">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary">
           <IdCard size={19} />

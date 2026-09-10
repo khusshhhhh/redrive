@@ -85,7 +85,7 @@ export default function TripStatusTimeline({ reservation }: { reservation: SafeR
   ];
 
   return (
-    <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+    <section className="rounded-md border border-hairline-soft bg-white p-6 sm:p-8">
       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">Trip status</p>
       <ol className="mt-4 space-y-0">
         {steps.map((step, index) => (

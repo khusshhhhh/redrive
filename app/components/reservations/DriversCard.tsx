@@ -89,7 +89,7 @@ export default function DriversCard({
   if (!drivers || drivers.length === 0) return null;
 
   return (
-    <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+    <section className="rounded-md border border-hairline-soft bg-white p-6 sm:p-8">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary">
           <IdCard size={19} />

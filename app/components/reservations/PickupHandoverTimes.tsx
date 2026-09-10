@@ -45,7 +45,7 @@ export default function PickupHandoverTimes({ reservation, isHost, isGuest, onCh
   const windowLabel = win || `${formatWindow(eff.start, eff.end)} (default)`;
 
   return (
-    <section className="rounded-md border border-hairline-soft bg-white p-5 sm:p-7">
+    <section className="rounded-md border border-hairline-soft bg-white p-6 sm:p-8">
       <div className="flex gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-soft text-primary">
           <Clock3 size={19} />
