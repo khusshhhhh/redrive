@@ -29,21 +29,27 @@ const ContinueWhereYouLeftOff: React.FC<ContinueWhereYouLeftOffProps> = ({ curre
   const lastSearch = useLastSearch();
   const { recentlyViewedIds } = useRecentlyViewed();
   const [listings, setListings] = useState<SafeListing[]>([]);
+  const [resolved, setResolved] = useState(false);
+
+  const viewedCount = Math.min(recentlyViewedIds.length, 4);
 
   useEffect(() => {
     const ids = recentlyViewedIds.slice(0, 4);
     if (ids.length === 0) {
       setListings([]);
+      setResolved(true);
       return;
     }
 
     let cancelled = false;
+    setResolved(false);
     Promise.all(
       ids.map((id) => axios.get(`/api/listings/${id}`).then((response) => response.data).catch(() => null))
     ).then((results) => {
       if (cancelled) return;
       const found = results.filter(Boolean) as SafeListing[];
       setListings(ids.map((id) => found.find((listing) => listing.id === id)).filter(Boolean) as SafeListing[]);
+      setResolved(true);
     });
 
     return () => {
@@ -65,7 +71,12 @@ const ContinueWhereYouLeftOff: React.FC<ContinueWhereYouLeftOffProps> = ({ curre
     return { location, dates, people };
   }, [lastSearch]);
 
-  if (!lastSearch && listings.length === 0) return null;
+  // Both signals are read synchronously (useSyncExternalStore), so a viewer with
+  // neither a saved search nor viewing history renders nothing on the first
+  // client paint — matching the server — and no space is reserved. Otherwise the
+  // section keeps its height while the viewed-vehicle lookups are in flight.
+  const hasHistory = viewedCount > 0;
+  if (!lastSearch && !hasHistory) return null;
 
   const repeatSearch = () => {
     if (!lastSearch) return;
@@ -106,18 +117,28 @@ const ContinueWhereYouLeftOff: React.FC<ContinueWhereYouLeftOffProps> = ({ curre
           </button>
         )}
 
-        {listings.length > 0 && (
+        {hasHistory && (!resolved || listings.length > 0) && (
           <div className="min-w-0">
             <p className="mb-3 text-sm font-semibold text-ink">Recently viewed</p>
             <HorizontalScroller
               ariaLabel="Recently viewed vehicles"
               className="gap-4 pb-2 sm:gap-5"
             >
-              {listings.map((listing) => (
-                <div key={listing.id} className="w-[220px] shrink-0 snap-start sm:w-[240px]">
-                  <ListingCard currentUser={currentUser} data={listing} />
-                </div>
-              ))}
+              {resolved
+                ? listings.map((listing) => (
+                    <div key={listing.id} className="w-[220px] shrink-0 snap-start sm:w-[240px]">
+                      <ListingCard currentUser={currentUser} data={listing} />
+                    </div>
+                  ))
+                : Array.from({ length: viewedCount }).map((_, index) => (
+                    <div key={index} className="w-[220px] shrink-0 sm:w-[240px]" aria-hidden="true">
+                      <div className="aspect-square w-full rounded-md bg-surface-soft" />
+                      <div className="mt-3 h-5 w-11/12 rounded bg-surface-soft" />
+                      <div className="mt-2 h-4 w-2/3 rounded bg-surface-soft/70" />
+                      <div className="mt-3 h-4 w-1/2 rounded bg-surface-soft/70" />
+                      <div className="mt-2 h-3 w-3/5 rounded bg-surface-soft/60" />
+                    </div>
+                  ))}
             </HorizontalScroller>
           </div>
         )}
