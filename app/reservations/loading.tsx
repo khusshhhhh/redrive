@@ -2,7 +2,7 @@ import { Skeleton, SkeletonScope } from "../components/Skeleton";
 
 const Loading = () => (
   <SkeletonScope>
-    <main className="bg-surface-soft/40 px-4 py-10 sm:px-6" role="status" aria-label="Loading reservations">
+    <main className="min-h-screen bg-surface-soft/40 px-4 py-10 sm:px-6" role="status" aria-label="Loading reservations">
       <div className="mx-auto max-w-[1120px] space-y-6">
         <div className="max-w-md">
           <Skeleton width={192} height={32} />

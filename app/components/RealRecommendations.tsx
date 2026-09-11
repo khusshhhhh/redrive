@@ -10,6 +10,7 @@ import type { SafeListing, SafeUser } from "../types";
 import Heading from "./Heading";
 import ListingCard from "./listings/ListingCard";
 import HorizontalScroller from "./HorizontalScroller";
+import RailSkeleton from "./RailSkeleton";
 
 type RecommendedListing = SafeListing & { recommendationReason: string };
 const HIDDEN_KEY = "redrive_hidden_recommendations";
@@ -18,6 +19,7 @@ const RealRecommendations = ({ currentUser }: { currentUser?: SafeUser | null })
   const lastSearch = useLastSearch();
   const { recentlyViewedIds } = useRecentlyViewed();
   const [listings, setListings] = useState<RecommendedListing[]>([]);
+  const [resolved, setResolved] = useState(false);
   const [hidden, setHidden] = useState<string[]>([]);
 
   useEffect(() => {
@@ -33,14 +35,21 @@ const RealRecommendations = ({ currentUser }: { currentUser?: SafeUser | null })
       const value = lastSearch?.filters[key];
       if (value) params.set(key, String(value));
     }
+    let cancelled = false;
     axios.get(`/api/recommendations?${params.toString()}`)
-      .then((response) => setListings(response.data || []))
-      .catch(() => setListings([]));
+      .then((response) => { if (!cancelled) setListings(response.data || []); })
+      .catch(() => { if (!cancelled) setListings([]); })
+      .finally(() => { if (!cancelled) setResolved(true); });
+    return () => { cancelled = true; };
   // requestKey captures the full meaningful input while avoiding object-identity refetches.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestKey]);
 
   const visible = listings.filter((listing) => !hidden.includes(listing.id));
+  // The recommendations endpoint always returns rows (it falls back to the most
+  // recent listings), so hold the rail's height with a skeleton until the fetch
+  // resolves rather than letting the catalogue below jump up and back down.
+  if (!resolved) return <RailSkeleton count={5} cardWidth={240} withCardMeta label="Loading recommendations" />;
   if (visible.length === 0) return null;
 
   const hide = (id: string) => {

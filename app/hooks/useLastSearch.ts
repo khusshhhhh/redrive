@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "redrive_last_search";
 const UPDATE_EVENT = "redrive:last-search-updated";
@@ -26,22 +26,49 @@ export interface LastSearch {
   savedAt: string;
 }
 
+// useSyncExternalStore compares snapshots by reference, so the parsed object is
+// memoised against the raw string it came from — otherwise every render would
+// see a "new" value and loop.
+let cachedRaw: string | null = null;
+let cachedValue: LastSearch | null = null;
+
 const readLastSearch = (): LastSearch | null => {
   if (typeof window === "undefined") return null;
 
+  let raw: string | null = null;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-
-    const parsed = JSON.parse(raw) as Partial<LastSearch>;
-    if (!parsed.filters || typeof parsed.filters !== "object" || typeof parsed.savedAt !== "string") {
-      return null;
-    }
-
-    return parsed as LastSearch;
+    raw = window.localStorage.getItem(STORAGE_KEY);
   } catch {
-    return null;
+    raw = null;
   }
+  if (raw === cachedRaw) return cachedValue;
+  cachedRaw = raw;
+
+  try {
+    if (!raw) {
+      cachedValue = null;
+    } else {
+      const parsed = JSON.parse(raw) as Partial<LastSearch>;
+      cachedValue =
+        parsed.filters && typeof parsed.filters === "object" && typeof parsed.savedAt === "string"
+          ? (parsed as LastSearch)
+          : null;
+    }
+  } catch {
+    cachedValue = null;
+  }
+  return cachedValue;
+};
+
+const getServerSnapshot = (): LastSearch | null => null;
+
+const subscribe = (onChange: () => void) => {
+  window.addEventListener(UPDATE_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(UPDATE_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
 };
 
 export const saveLastSearch = (filters: LastSearchFilters) => {
@@ -61,21 +88,9 @@ export const saveLastSearch = (filters: LastSearchFilters) => {
 };
 
 const useLastSearch = () => {
-  const [lastSearch, setLastSearch] = useState<LastSearch | null>(null);
-
-  useEffect(() => {
-    const update = () => setLastSearch(readLastSearch());
-    update();
-
-    window.addEventListener(UPDATE_EVENT, update);
-    window.addEventListener("storage", update);
-    return () => {
-      window.removeEventListener(UPDATE_EVENT, update);
-      window.removeEventListener("storage", update);
-    };
-  }, []);
-
-  return lastSearch;
+  // Synchronous on the first client render so the "continue your search" card
+  // reserves its space before paint rather than shifting content on hydration.
+  return useSyncExternalStore(subscribe, readLastSearch, getServerSnapshot);
 };
 
 export default useLastSearch;
