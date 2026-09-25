@@ -61,3 +61,6 @@ backups/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Local-only guides and runbooks — never published to GitHub
+/guides/

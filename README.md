@@ -191,7 +191,7 @@ Copy [`.env.example`](.env.example) and supply real values locally and in the de
 | `ENABLE_LEGACY_API_AUTH` | No | Compatibility endpoint; keep `false` unless documented |
 | `EXPO_PUBLIC_*` mobile values | Mobile builds | Public EAS-scoped API, Stripe, monitoring, and map configuration |
 
-Never commit `.env`, `.env.local`, database URLs, signing keys, refresh-token peppers, SMTP passwords or Cloudinary secrets. The complete walkthrough is in [`ENVIRONMENT_VARIABLES_GUIDE.md`](ENVIRONMENT_VARIABLES_GUIDE.md); session expiry is described in [`guides/session-timeouts.md`](guides/session-timeouts.md); the rate-limit and cache design is in [`guides/cache-and-rate-limiting.md`](guides/cache-and-rate-limiting.md); mobile architecture and provisioning gates are recorded in [`MOBILE_FOUNDATION_CHECKLIST.md`](MOBILE_FOUNDATION_CHECKLIST.md).
+Never commit `.env`, `.env.local`, database URLs, signing keys, refresh-token peppers, SMTP passwords or Cloudinary secrets. Detailed runbooks (environment variables, session timeouts, cache and rate limiting, mobile provisioning, SEO) live in a local, git-ignored `guides/` folder and are not published with the repository.
 
 ### Email verification behavior
 
