@@ -15,6 +15,24 @@ import AppShell from "./components/AppShell";
 import favicon from "./favicon.png";
 import IdleSessionGuard from "./components/auth/IdleSessionGuard";
 import { sessionIdleTimeoutMs } from "./libs/sessionPolicy";
+import JsonLd from "./components/seo/JsonLd";
+import { ORGANIZATION_DESCRIPTION, ORGANIZATION_ID, WEBSITE_ID, graph } from "./libs/structuredData";
+
+const supportEmail = process.env.SUPPORT_CONTACT_EMAIL || "support@redrive.com.au";
+
+// Official profiles (Instagram, LinkedIn, Facebook, X, ...) as a comma-separated
+// list. `sameAs` is how Google's Knowledge Graph and AI answer engines tie those
+// profiles to the Redrive entity.
+const sameAs = (process.env.NEXT_PUBLIC_SOCIAL_PROFILES || "")
+  .split(",")
+  .map((url) => url.trim())
+  .filter(Boolean);
+
+// Search Console / Bing Webmaster ownership tokens (meta-tag method).
+const verification: Metadata["verification"] = {
+  ...(process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : {}),
+  ...(process.env.BING_SITE_VERIFICATION ? { other: { "msvalidate.01": process.env.BING_SITE_VERIFICATION } } : {}),
+};
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -72,6 +90,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }],
   },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Redrive" },
+  verification,
   other: {
     "content-language": "en-AU",
     "geo.region": "AU",
@@ -103,35 +122,49 @@ export default function RootLayout({
       <head>
         <link rel="dns-prefetch" href="//maps.googleapis.com" />
         <link rel="dns-prefetch" href="//res.cloudinary.com" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@graph": [
-                {
-                  "@type": "Organization",
-                  "@id": `${siteUrl}/#organization`,
-                  name: "Redrive",
-                  url: siteUrl,
-                  logo: new URL(favicon.src, siteUrl).toString(),
-                  founder: [
-                    { "@type": "Person", name: "Khush Patel" },
-                    { "@type": "Person", name: "Hiral Mahida" },
-                  ],
-                  areaServed: { "@type": "Country", name: "Australia" },
-                },
-                {
-                  "@type": "WebSite",
-                  "@id": `${siteUrl}/#website`,
-                  name: "Redrive",
-                  url: siteUrl,
-                  inLanguage: "en-AU",
-                  publisher: { "@id": `${siteUrl}/#organization` },
-                },
+        <JsonLd
+          data={graph(
+            {
+              "@type": "Organization",
+              "@id": ORGANIZATION_ID,
+              name: "Redrive",
+              alternateName: "Redrive Australia",
+              url: siteUrl,
+              logo: { "@type": "ImageObject", url: new URL(favicon.src, siteUrl).toString(), width: 200, height: 200 },
+              description: ORGANIZATION_DESCRIPTION,
+              slogan: "Rent a useful vehicle, or earn from yours.",
+              founder: [
+                { "@type": "Person", name: "Khush Patel" },
+                { "@type": "Person", name: "Hiral Mahida" },
               ],
-            }).replace(/</g, "\\u003c"),
-          }}
+              areaServed: { "@type": "Country", name: "Australia" },
+              knowsAbout: [
+                "Peer-to-peer car hire",
+                "Ute hire",
+                "Van hire",
+                "Campervan hire",
+                "Vehicle sharing",
+                "Earning income from a parked vehicle",
+              ],
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "customer support",
+                email: supportEmail,
+                areaServed: "AU",
+                availableLanguage: ["en-AU"],
+              },
+              ...(sameAs.length ? { sameAs } : {}),
+            },
+            {
+              "@type": "WebSite",
+              "@id": WEBSITE_ID,
+              name: "Redrive",
+              url: siteUrl,
+              description: ORGANIZATION_DESCRIPTION,
+              inLanguage: "en-AU",
+              publisher: { "@id": ORGANIZATION_ID },
+            },
+          )}
         />
       </head>
       <body className={`${manrope.variable} bg-white text-ink`} suppressHydrationWarning>

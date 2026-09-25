@@ -6,6 +6,8 @@ import { siteUrl } from "@/app/libs/siteUrl";
 import Illustration from "@/app/components/Illustration";
 import { illustrationForCategory } from "./editorialArt";
 import InformationNav from "./InformationNav";
+import JsonLd from "@/app/components/seo/JsonLd";
+import { ORGANIZATION_ID, WEBSITE_ID, absoluteUrl, breadcrumbNode, graph } from "@/app/libs/structuredData";
 
 interface ArticlePageProps {
   article: EditorialArticle;
@@ -17,21 +19,36 @@ interface ArticlePageProps {
 export default function ArticlePage({ article, backHref, backLabel, sectionLabel }: ArticlePageProps) {
   const published = new Intl.DateTimeFormat("en-AU", { day: "numeric", month: "long", year: "numeric" }).format(new Date(`${article.published}T00:00:00`));
   const articleUrl = `${siteUrl}${backHref}/${article.slug}`;
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": backHref === "/help-centre" ? "TechArticle" : "Article",
-    headline: article.title,
-    description: article.description,
-    datePublished: article.published,
-    dateModified: article.published,
-    mainEntityOfPage: articleUrl,
-    author: { "@type": "Organization", name: "Redrive" },
-    publisher: { "@type": "Organization", name: "Redrive", url: siteUrl },
-  };
+  const structuredData = graph(
+    {
+      "@type": backHref === "/help-centre" ? "TechArticle" : "Article",
+      "@id": `${articleUrl}#article`,
+      headline: article.title,
+      description: article.description,
+      datePublished: article.published,
+      dateModified: article.published,
+      inLanguage: "en-AU",
+      articleSection: article.category,
+      ...(article.audience ? { audience: { "@type": "Audience", audienceType: article.audience } } : {}),
+      // Section headings double as the outline answer engines lift from.
+      about: article.sections.map((section) => section.heading),
+      wordCount: article.sections.reduce((total, section) => total + [...section.paragraphs, ...(section.items ?? [])].join(" ").split(/\s+/).length, 0),
+      image: absoluteUrl("/opengraph-image"),
+      mainEntityOfPage: { "@type": "WebPage", "@id": articleUrl },
+      isPartOf: { "@id": WEBSITE_ID },
+      author: { "@id": ORGANIZATION_ID },
+      publisher: { "@id": ORGANIZATION_ID },
+    },
+    breadcrumbNode([
+      { name: "Redrive", path: "/" },
+      { name: backLabel, path: backHref },
+      { name: article.title, path: `${backHref}/${article.slug}` },
+    ]),
+  );
 
   return (
     <main className="information-page bg-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
+      <JsonLd data={structuredData} />
       <InformationNav activeHref={backHref} />
       <article>
         <header className="border-b border-hairline-soft bg-white">

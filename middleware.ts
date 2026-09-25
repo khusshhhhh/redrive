@@ -17,6 +17,18 @@ const PROTECTED = [
   /^\/host(\/|$)/,
 ];
 
+// Pages that must never appear in search results or AI answers. robots.txt
+// stops well-behaved crawlers fetching them, but a disallowed URL can still be
+// indexed from links alone — the header is what actually keeps it out.
+const NOINDEX = [
+  ...PROTECTED,
+  /^\/admin(\/|$)/,
+  /^\/compare(\/|$)/,
+  /^\/forgot-password(\/|$)/,
+  /^\/reset-password(\/|$)/,
+  /^\/listings\/[^/]+\/images(\/|$)/,
+];
+
 // One static CSP for every document response.
 //
 // Scripts keep `'unsafe-inline'` in production. A per-request nonce is *not*
@@ -75,6 +87,9 @@ function securityHeaders(request: NextRequest): NextResponse {
     "Strict-Transport-Security",
     "max-age=63072000; includeSubDomains; preload",
   );
+  if (NOINDEX.some((pattern) => pattern.test(request.nextUrl.pathname))) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
   return response;
 }
 

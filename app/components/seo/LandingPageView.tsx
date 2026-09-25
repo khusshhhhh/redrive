@@ -5,6 +5,8 @@ import Illustration from "@/app/components/Illustration";
 import { siteUrl } from "@/app/libs/siteUrl";
 import type { LandingMarket } from "@/app/actions/getLandingMarket";
 import type { LandingPage } from "@/app/content/landingPages";
+import JsonLd from "@/app/components/seo/JsonLd";
+import { ORGANIZATION_ID, breadcrumbNode, faqPageNode } from "@/app/libs/structuredData";
 
 interface LandingPageViewProps {
   page: LandingPage;
@@ -24,41 +26,23 @@ export default function LandingPageView({ page, market }: LandingPageViewProps) 
         name: `Redrive — ${page.h1}`,
         url,
         description: page.description,
-        parentOrganization: { "@id": `${siteUrl}/#organization` },
+        parentOrganization: { "@id": ORGANIZATION_ID },
         areaServed: { "@type": "Place", name: `${page.areaServed}, Australia` },
         knowsLanguage: "en-AU",
       },
-      {
-        "@type": "FAQPage",
-        "@id": `${url}#faq`,
-        mainEntity: page.faqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.q,
-          acceptedAnswer: { "@type": "Answer", text: faq.a },
-        })),
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Redrive", item: siteUrl },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: page.group === "list" ? "List your vehicle" : "Vehicle hire",
-            item: `${siteUrl}/${page.group === "list" ? "host" : "explore"}`,
-          },
-          { "@type": "ListItem", position: 3, name: page.h1, item: url },
-        ],
-      },
+      faqPageNode(page.faqs, `${url}#faq`),
+      // /host is sign-in gated, so hosting pages hang directly off the home page.
+      breadcrumbNode([
+        { name: "Redrive", path: "/" },
+        ...(page.group === "hire" ? [{ name: "Explore vehicles", path: "/explore" }] : []),
+        { name: page.h1, path: page.path },
+      ]),
     ],
   };
 
   return (
     <main className="bg-white">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
-      />
+      <JsonLd data={structuredData} />
 
       {/* Hero */}
       <section className="border-b border-hairline-soft bg-white">

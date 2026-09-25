@@ -1,5 +1,9 @@
 "use client";
 
+import JsonLd from "@/app/components/seo/JsonLd";
+import { faqPageNode, graph } from "@/app/libs/structuredData";
+import { HOME_FAQS } from "@/app/content/homeFaqs";
+
 import {
   ArrowRight,
   BadgeCheck,
@@ -160,32 +164,10 @@ export function WhyRedrive() {
 
 /* ── FAQ ──────────────────────────────────────────────────────────────── */
 
-const FAQS = [
-  {
-    q: "How much does it cost to rent a vehicle?",
-    a: "The host sets what they want to earn per day, and Redrive's service margin is already included in the one all-in price you see on every listing. There are no membership or booking fees, and nothing is added at checkout.",
-  },
-  {
-    q: "When am I charged?",
-    a: "Never at request time. Your card is only charged once the host accepts your trip. If they decline or don’t respond, nothing is taken.",
-  },
-  {
-    q: "What do I need to rent?",
-    a: "A verified Redrive account, a valid Australian or overseas licence, and to be within the age range set on the listing. Some hosts ask for extra details before accepting.",
-  },
-  {
-    q: "Is it free to list my vehicle?",
-    a: "Yes. Listing is free, you set your own price and availability, and you approve every request. Redrive’s fee only applies to completed trips.",
-  },
-  {
-    q: "What happens if something goes wrong during a trip?",
-    a: "Message the host first — most things are sorted quickly. Trip records, payments and reviews all stay on Redrive so support has the full picture if you need help.",
-  },
-];
-
 export function HomeFaq() {
   return (
     <section className="mx-auto max-w-3xl px-5 py-16 sm:px-8 lg:py-24">
+      <JsonLd data={graph(faqPageNode(HOME_FAQS))} />
       <Reveal>
         <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-yellow-500" />
@@ -196,7 +178,7 @@ export function HomeFaq() {
         </h2>
       </Reveal>
       <div className="mt-10 divide-y divide-hairline-soft border-y border-hairline-soft">
-        {FAQS.map((item, i) => (
+        {HOME_FAQS.map((item, i) => (
           <Reveal key={item.q} delay={i * 50}>
             <details className="group py-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-semibold text-ink [&::-webkit-details-marker]:hidden">
