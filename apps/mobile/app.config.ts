@@ -56,6 +56,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       package: `au.com.redrive.app${suffix}`,
       blockedPermissions: ["android.permission.RECORD_AUDIO"],
+      // google-services.json (FCM push) comes from the GOOGLE_SERVICES_JSON EAS file
+      // variable; it must never be committed (verify-mobile-release rejects it).
+      ...(process.env.GOOGLE_SERVICES_JSON ? { googleServicesFile: process.env.GOOGLE_SERVICES_JSON } : {}),
       adaptiveIcon: {
         backgroundColor: "#F2F1ED",
         foregroundImage: "./assets/images/android-icon-foreground.png",
