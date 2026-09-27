@@ -65,7 +65,7 @@ export const helpArticles: EditorialArticle[] = [
   {
     slug: "understand-your-booking-price",
     title: "Understand your booking price",
-    description: "Read daily rates, marketplace fees, protection, cleaning amounts and the estimated total before requesting.",
+    description: "Read the all-in daily price, protection, cleaning amounts and the estimated total before requesting.",
     category: "Booking",
     audience: "Guests",
     published: "2026-08-21",
@@ -295,6 +295,86 @@ export const blogPosts: EditorialArticle[] = [
 ];
 
 export const newsroomPosts: EditorialArticle[] = [
+  {
+    slug: "easier-to-find-in-search-and-ai-answers",
+    title: "Redrive is easier to find in search engines and AI answers",
+    description: "Local hire and hosting pages, structured data and a plain-language site summary help people discover Redrive vehicles from wherever they search.",
+    category: "Company",
+    published: "2026-09-26",
+    readTime: "3 min read",
+    sections: [
+      { heading: "Pages for the searches people actually make", paragraphs: ["Dedicated pages now answer specific needs such as ute hire in Adelaide, campervan hire across South Australia, vans for moving house, 4WD hire and everyday car hire, plus a guide for owners asking how much a vehicle could earn. Where enough listings exist, the price range shown is drawn from live inventory; when data is thin, the page says so rather than inventing a figure."], items: ["Five local hire pages and one hosting earnings page", "Frequently asked questions answered on each page", "Linked from the footer so every page can reach them"] },
+      { heading: "Structured data that describes Redrive accurately", paragraphs: ["Pages now publish machine-readable descriptions of the organisation, listings, articles, breadcrumbs and FAQs. Search engines can show richer, more accurate results, and the descriptions are generated from the same content people read on the page."] },
+      { heading: "Clear rules for AI assistants and crawlers", paragraphs: ["A plain-language summary of Redrive's public pages is published for AI assistants, and crawler rules state which areas may be read. Account, booking, message, licence and payment pages stay private and are excluded from indexing."] },
+    ],
+  },
+  {
+    slug: "faster-steadier-pages-and-security-patches",
+    title: "Pages load steadier and a round of security patches has shipped",
+    description: "Layout shift on page load has been removed from the header and Explore, and several third-party dependencies were updated to patched versions.",
+    category: "Trust & safety",
+    audience: "Account & safety",
+    published: "2026-09-11",
+    readTime: "3 min read",
+    sections: [
+      { heading: "Content no longer jumps while loading", paragraphs: ["Space for the fixed header and the personalised rows on Explore is now reserved before the page renders, instead of being measured afterwards. Buttons and links stay where they first appear, which makes the site calmer to use and reduces accidental taps on mobile."] },
+      { heading: "Dependencies updated to patched versions", paragraphs: ["Image processing, email delivery, the web framework and configuration parsing libraries were updated to versions that resolve published security advisories. Automated checks now block a release if a known vulnerability is introduced."] },
+      { heading: "Continuous checks on every change", paragraphs: ["Every change runs type checks, unit tests, an end-to-end smoke test and a page-weight budget before it can ship, so regressions are caught before they reach guests and hosts."] },
+    ],
+  },
+  {
+    slug: "one-all-in-price-for-guests",
+    title: "Guests now see one all-in daily price, everywhere",
+    description: "Separate service and marketplace fee lines have been replaced by a single daily price that already includes Redrive's margin.",
+    category: "Booking update",
+    published: "2026-09-10",
+    readTime: "3 min read",
+    sections: [
+      { heading: "The price you see is the price you pay per day", paragraphs: ["Search results, listing pages, the map, comparisons and checkout now all show the same all-in daily price. Redrive's service margin is built in, so there is no fee line that appears only at the final step. The total adds only the protection a guest chooses and any host cleaning amount."], items: ["No separate service or marketplace fee line", "The same daily figure on every screen", "Protection is chosen on the confirmation step"] },
+      { heading: "Hosts still see the full split", paragraphs: ["A host sets the daily amount they want to earn. The listing editor, host reservation views and host receipts show that rate, Redrive's share and what guests pay, so the host's earnings are never hidden inside a larger number."] },
+      { heading: "Existing bookings are unchanged", paragraphs: ["Reservations made before this change keep the quote snapshot they were booked with. Receipts for those trips continue to reflect the amounts that were agreed at the time."] },
+    ],
+  },
+  {
+    slug: "listing-a-vehicle-in-three-clear-parts",
+    title: "Listing a vehicle now happens in three clear parts",
+    description: "The host flow has been reorganised into three guided parts with a centred layout, a simple progress bar and a live earnings breakdown.",
+    category: "Hosting",
+    audience: "Hosts",
+    published: "2026-09-10",
+    readTime: "3 min read",
+    sections: [
+      { heading: "Tell us about the vehicle, make it stand out, finish up", paragraphs: ["Creating a listing is now split into three parts, each introduced with a short explanation of what comes next. One question is shown at a time in a single centred column, and a three-part progress bar sits beside the Back and Next buttons."] },
+      { heading: "A price step that shows the maths", paragraphs: ["The price step shows the host's daily rate, Redrive's share and the resulting guest price side by side, updating as the rate changes. Hosts can see what a guest will pay before publishing."] },
+      { heading: "Unsaved work is protected", paragraphs: ["Leaving the flow or the listing editor with unsaved changes now asks for confirmation, and validation problems are shown next to the field that needs attention rather than as a general error."] },
+    ],
+  },
+  {
+    slug: "browse-vehicles-on-a-map",
+    title: "Explore now includes a map of available vehicles",
+    description: "Guests can switch Explore to a map, pan to an area and search it, while exact vehicle addresses stay private.",
+    category: "Product",
+    published: "2026-09-07",
+    readTime: "3 min read",
+    sections: [
+      { heading: "List or map, one tap apart", paragraphs: ["A List and Map toggle on Explore shows the same results in either form. Moving the map and choosing Search this area loads vehicles within the visible area, and hovering a card highlights its place on the map."] },
+      { heading: "Suburb-level locations only", paragraphs: ["Map pins sit at the centre of a vehicle's suburb, never at the host's address. The exact handover point is still shared only with a confirmed guest inside the booking conversation."] },
+      { heading: "Smaller improvements alongside", paragraphs: ["Listing photos can now be browsed with the keyboard, the booking panel explains why dates cannot be selected, favourites use a clearer saved state, and empty trip and message pages point to a useful next step."] },
+    ],
+  },
+  {
+    slug: "pickup-and-return-times",
+    title: "Bookings now carry agreed pickup and return times",
+    description: "Each reservation stores a pickup and return time in the vehicle's local time zone, proposed by one side and confirmed by the other.",
+    category: "Booking update",
+    published: "2026-09-02",
+    readTime: "3 min read",
+    sections: [
+      { heading: "Times, not just dates", paragraphs: ["A booking now records a time of day for pickup and return, shown in the vehicle's own time zone with daylight saving handled automatically. Times appear on the reservation, in Trips and host Reservations, and in booking emails."] },
+      { heading: "Propose and confirm", paragraphs: ["The host owns the pickup time and the guest owns the return time. Either side can suggest a change to the other's time, which shows as proposed until the owner confirms it. Each change is posted to the booking conversation so both sides share the same record."], items: ["Times respect the host's pickup window", "Turnaround time between bookings is enforced", "Handover forms open based on the agreed time"] },
+      { heading: "A clearer audit trail", paragraphs: ["Every time change is recorded with who made it and when, which helps support resolve late-return or missed-pickup questions from the booking record rather than memory."] },
+    ],
+  },
   {
     slug: "trip-extensions-added-drivers-and-review-replies",
     title: "Trips can now be extended, share more drivers and answer a review",
