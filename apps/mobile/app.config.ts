@@ -77,6 +77,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     web: { output: "static", favicon: "./assets/images/favicon.png" },
     plugins: [
       "expo-router",
+      "expo-font",
+      "expo-image",
+      "expo-web-browser",
       ["expo-secure-store", { configureAndroidBackup: true }],
       "expo-notifications",
       ["expo-splash-screen", { backgroundColor: "#F2F1ED", image: "./assets/images/splash-icon.png", imageWidth: 120, resizeMode: "contain" }],
